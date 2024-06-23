@@ -1,5 +1,5 @@
 Package: ggcorrheatmap
-Title: Advanced ggplot correlation heatmaps
+Title: Advanced ggplot Correlation Heatmaps
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Leo", family = "Dahl",
