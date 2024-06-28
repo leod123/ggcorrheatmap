@@ -14,6 +14,15 @@ mirror_dendrogram <- function(dend_seg, dend_dim = c("rows", "cols")) {
 
   stopifnot(dend_dim[1] %in% c("rows", "cols"))
 
+  # (slightly) Shorter but more confusing?
+  # start_name <- ifelse(dend_dim[1] == "rows", "y", "x")
+  # end_pos <- ifelse(dend_dim[1] == "rows", "yend", "xend")
+  #
+  # dend_middle <- (max(c(dend_seg[, start_name], dend_seg[, end_name])) -
+  #                   min(c(dend_seg[, start_name], dend_seg[, end_name]))) / 2
+  # dend_seg[, start_name] <- dend_seg[, start_name] - 2 * (dend_seg[, start_name] - dend_middle)
+  # dend_seg[, end_name] <- dend_seg[, end_name] - 2 * (dend_seg[, end_name] - dend_middle)
+
   if (dend_dim[1] == "rows") {
 
     dend_middle <- (max(c(dend_seg$y, dend_seg$yend)) - min(c(dend_seg$y, dend_seg$yend))) / 2

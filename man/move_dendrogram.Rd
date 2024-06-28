@@ -8,11 +8,11 @@ move_dendrogram(
   cor_long,
   dend_seg,
   dend_dim = c("rows", "cols"),
-  dend_pos,
+  dend_side,
   annot_df,
   annot,
+  annot_side,
   annot_pos,
-  annot_coord,
   annot_size
 )
 }
@@ -23,15 +23,15 @@ move_dendrogram(
 
 \item{dend_dim}{Character specifying whether the dendrogram is linked to rows or columns in the heatmap}
 
-\item{dend_pos}{Logical specifying dendrogram position. TRUE is left of the heatmap if row dendrogram, top of heatmap if column dendrogram}
+\item{dend_side}{Logical specifying dendrogram position. TRUE is left of the heatmap if row dendrogram, bottom of heatmap if column dendrogram}
 
 \item{annot_df}{Data frame with annotations for checking that annotations exist as well as their size}
 
 \item{annot}{Logical indicating if annotations are intended to be drawn or not}
 
-\item{annot_pos}{Logical specifying annotation position, analogous to \code{dend_pos}}
+\item{annot_side}{Logical specifying annotation position, analogous to \code{dend_side}}
 
-\item{annot_coord}{Numeric vector of annotation coordinates (x coordinates for row annotations, y for column annotations)}
+\item{annot_pos}{Numeric vector of annotation coordinates (x coordinates for row annotations, y for column annotations)}
 
 \item{annot_size}{Numeric of length 1, the specified size (width or height) of annotation cells}
 }
