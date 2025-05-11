@@ -16,9 +16,12 @@
 #'
 #' @examples
 add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_pos, annot_size,
-                           annot_border_lwd = 0.5, annot_border_col = "grey") {
+                           annot_border_lwd = 0.5, annot_border_col = "grey", draw_legend = T) {
 
   annot_names <- colnames(annot_df)[-1]
+  # Vector for determining the order in which to draw the annotation legends
+  legend_order <- seq_along(annot_names) + 1
+  names(legend_order) <- annot_names
 
   plt_out <- ggp +
     lapply(annot_names, \(nm) {
@@ -28,20 +31,21 @@ add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_p
 
         # Draw annotation
         ggplot2::geom_tile(data = annot_df,
-                           mapping = aes(x = if (annot_dim[1] == "rows") {annot_pos[nm]}
-                                         else {.data[[colnames(annot_df)[1]]]},
-                                         y = if (annot_dim[1] == "rows") {.data[[colnames(annot_df)[1]]]}
-                                         else {annot_pos[nm]},
-                                         fill = .data[[nm]]),
+                           mapping = ggplot2::aes(x = if (annot_dim[1] == "rows") {annot_pos[nm]}
+                                                  else {.data[[colnames(annot_df)[1]]]},
+                                                  y = if (annot_dim[1] == "rows") {.data[[colnames(annot_df)[1]]]}
+                                                  else {annot_pos[nm]},
+                                                  fill = .data[[nm]]),
                            width = ifelse(annot_dim[1] == "rows", annot_size, 1),
                            height = ifelse(annot_dim[1] == "rows", 1, annot_size),
                            linewidth = annot_border_lwd,
-                           colour = annot_border_col),
+                           colour = annot_border_col,
+                           show.legend = draw_legend),
 
-        if (is.numeric(annot_df[, nm, drop = T])) {
-          ggplot2::scale_fill_viridis_c()
+        if (is.character(annot_df[, nm, drop = T]) | is.factor(annot_df[, nm, drop = T])) {
+          ggplot2::scale_fill_brewer(palette = "Pastel1", guide = if (draw_legend) ggplot2::guide_legend(order = legend_order[nm]) else "none")
         } else {
-          ggplot2::scale_fill_brewer(palette = "Pastel1")
+          ggplot2::scale_fill_viridis_c(guide = if (draw_legend) ggplot2::guide_colourbar(order = legend_order[nm]) else "none")
         }
       )
     })

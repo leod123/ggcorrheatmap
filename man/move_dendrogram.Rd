@@ -5,8 +5,8 @@
 \title{Move coordinates of dendrogram to edges of heatmap}
 \usage{
 move_dendrogram(
-  cor_long,
   dend_seg,
+  cor_long,
   dend_dim = c("rows", "cols"),
   dend_side,
   annot_df,
@@ -17,9 +17,9 @@ move_dendrogram(
 )
 }
 \arguments{
-\item{cor_long}{Long format data frame with the correlations}
-
 \item{dend_seg}{Data frame containing dendrogram segments, attained from \code{dendextend::as.ggdend()}}
+
+\item{cor_long}{Long format data frame with the correlations}
 
 \item{dend_dim}{Character specifying whether the dendrogram is linked to rows or columns in the heatmap}
 

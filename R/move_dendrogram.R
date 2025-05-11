@@ -5,8 +5,8 @@
 #'
 #' @keywords internal
 #'
-#' @param cor_long Long format data frame with the correlations
 #' @param dend_seg Data frame containing dendrogram segments, attained from `dendextend::as.ggdend()`
+#' @param cor_long Long format data frame with the correlations
 #' @param dend_dim Character specifying whether the dendrogram is linked to rows or columns in the heatmap
 #' @param dend_side Logical specifying dendrogram position. TRUE is left of the heatmap if row dendrogram, bottom of heatmap if column dendrogram
 #' @param annot_df Data frame with annotations for checking that annotations exist as well as their size
@@ -17,7 +17,7 @@
 #'
 #' @return Data frame with updated dendrogram coordinates
 #'
-move_dendrogram <- function(cor_long, dend_seg, dend_dim = c("rows", "cols"), dend_side,
+move_dendrogram <- function(dend_seg, cor_long, dend_dim = c("rows", "cols"), dend_side,
                             annot_df, annot, annot_side, annot_pos, annot_size) {
 
   # Check that dendrogram dimension (rows or columns) is specified properly

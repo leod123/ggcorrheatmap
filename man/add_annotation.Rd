@@ -11,11 +11,12 @@ add_annotation(
   annot_pos,
   annot_size,
   annot_border_lwd = 0.5,
-  annot_border_col = "grey"
+  annot_border_col = "grey",
+  draw_legend = T
 )
 }
 \arguments{
-\item{ggp}{\code{ggplot} object to add annotations to}
+\item{ggp}{\code{ggplot} object with \code{geom_tile} layer to add annotations to}
 
 \item{annot_dim}{Dimension to add annotations to, either "rows" or "columns"}
 
@@ -31,6 +32,9 @@ Positions are given by the middle coordinate of the annotation cells.}
 \item{annot_border_lwd}{Linewidth of border lines of annotation cells.}
 
 \item{annot_border_col}{Colour of border lines of annotation cells.}
+}
+\value{
+\code{ggplot} object with added annotations.
 }
 \description{
 Add annotations to ggplot heatmap
