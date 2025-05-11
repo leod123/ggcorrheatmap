@@ -39,10 +39,9 @@ add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_p
                            width = ifelse(annot_dim[1] == "rows", annot_size, 1),
                            height = ifelse(annot_dim[1] == "rows", 1, annot_size),
                            linewidth = annot_border_lwd,
-                           colour = annot_border_col,
-                           show.legend = draw_legend),
+                           colour = annot_border_col),
 
-        if (is.character(annot_df[, nm, drop = T]) | is.factor(annot_df[, nm, drop = T])) {
+        if (is.character(annot_df[[nm]]) | is.factor(annot_df[[nm]])) {
           ggplot2::scale_fill_brewer(palette = "Pastel1", guide = if (draw_legend) ggplot2::guide_legend(order = legend_order[nm]) else "none")
         } else {
           ggplot2::scale_fill_viridis_c(guide = if (draw_legend) ggplot2::guide_colourbar(order = legend_order[nm]) else "none")
