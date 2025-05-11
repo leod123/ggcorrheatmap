@@ -30,10 +30,11 @@
 #' of columns in the data for column-specific justification.
 #' @param names_vjust Verical justification of names (between 0 and 1). Can be of length 1 to use for all names, or of the same length as the number
 #' of columns in the data for column-specific justification.
-#' @param annot_df Data frame for row and column annotations. The names of the columns in the data must be included,
+#' @param annot_rows_df Data frame for row annotations. The names of the columns in the data must be included,
 #' either as row names or in a column named `.names`. Each other column specifies an annotation where the column name
 #' will be used as the annotation name (in the legend and next to the annotation). Numeric columns will use a continuous
 #' colour scale while factor or character columns use discrete scales.
+#' @param annot_cols_df Same usage as `annot_rows_df` but for column annotation.
 #' @param annot_rows Logical indicating if row annotation should be displayed.
 #' @param annot_cols Logical indicating if column annotation should be displayed.
 #' @param annot_colr not yet implemented (specifying colours for annotation)
@@ -97,7 +98,7 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
                             border_col = "grey", border_lwd = 0.5,
                             show_names = T, names_angle = 0, names_size = 3, names_size_unit = "mm",
                             names_hjust = 0.5, names_vjust = 0.5,
-                            annot_df = NULL, annot_rows = T, annot_cols = T,
+                            annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_legend = T, annot_cols_legend = T,
                             annot_colr = NULL, annot_rows_colr = annot_colr, annot_cols_colr = annot_colr,
                             annot_rows_side = "right", annot_cols_side = "bottom",
                             annot_dist = 0.2, annot_rows_dist = annot_dist, annot_cols_dist = annot_dist,
@@ -195,38 +196,39 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
                          })
 
   # Annotation for rows and columns
-  if (is.data.frame(annot_df) & any(annot_rows, annot_cols)) {
+  if (is.data.frame(annot_rows_df)) {
     # Move names to column if in row names
-    if (!".names" %in% colnames(annot_df)) {
-      annot_df$.names <- rownames(annot_df)
-      rownames(annot_df) <- NULL
+    if (!".names" %in% colnames(annot_rows_df)) {
+      annot_rows_df$.names <- rownames(annot_rows_df)
+      rownames(annot_rows_df) <- NULL
     }
+    annot_rows_names <- colnames(annot_rows_df)[-which(colnames(annot_rows_df) == ".names")]
+    annot_rows_pos <- get_annotation_pos("rows", annot_left, annot_rows_names, annot_rows_size,
+                                         annot_rows_dist, annot_rows_gap, ncol(data))
+  }
 
-    annot_names <- colnames(annot_df)[-which(colnames(annot_df) == ".names")]
-
-    # Calculate annotation positions
-    if (annot_rows) {
-      annot_rows_pos <- get_annotation_pos("rows", annot_left, annot_names, annot_rows_size,
-                                           annot_rows_dist, annot_rows_gap, ncol(data))
+  if (is.data.frame(annot_cols_df)) {
+    # Move names to column if in row names
+    if (!".names" %in% colnames(annot_cols_df)) {
+      annot_cols_df$.names <- rownames(annot_cols_df)
+      rownames(annot_cols_df) <- NULL
     }
-
-    if (annot_cols) {
-      annot_cols_pos <- get_annotation_pos("cols", annot_cols, annot_names, annot_cols_size,
-                                           annot_cols_dist, annot_cols_gap, ncol(data))
-    }
+    annot_cols_names <- colnames(annot_cols_df)[-which(colnames(annot_cols_df) == ".names")]
+    annot_cols_pos <- get_annotation_pos("cols", annot_down, annot_cols_names, annot_cols_size,
+                                         annot_cols_dist, annot_cols_gap, ncol(data))
   }
 
   # Generate dendrograms
   if (lclust_data & dend_rows) {
 
     dend_seg_rows <- prepare_dendrogram(dendro, "rows", dend_down, dend_left, dend_rows_height, full_plt, cor_long,
-                                        annot_df, annot_rows, annot_left, annot_rows_pos, annot_rows_size)
+                                        annot_rows_df, is.data.frame(annot_rows_df), annot_left, annot_rows_pos, annot_rows_size)
   }
 
   if (lclust_data & dend_cols) {
 
     dend_seg_cols <- prepare_dendrogram(dendro, "cols", dend_down, dend_left, dend_cols_height, full_plt, cor_long,
-                                        annot_df, annot_cols, annot_down, annot_cols_pos, annot_cols_size)
+                                        annot_cols_df, is.data.frame(annot_cols_df), annot_down, annot_cols_pos, annot_cols_size)
   }
 
   # Start building plot
@@ -288,17 +290,14 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
   }
 
   # Add row and column annotations
-  annot_lgd <- T
-  if (is.data.frame(annot_df) & annot_rows) {
-    cor_plt <- add_annotation(cor_plt, annot_dim = "rows", annot_df, annot_rows_pos, annot_rows_size,
-                              annot_rows_border_lwd, annot_rows_border_col, annot_lgd)
-    # Only draw the legend once
-    annot_lgd <- F
+  if (is.data.frame(annot_rows_df)) {
+    cor_plt <- add_annotation(cor_plt, annot_dim = "rows", annot_rows_df, annot_rows_pos, annot_rows_size,
+                              annot_rows_border_lwd, annot_rows_border_col, annot_rows_legend)
   }
 
-  if (is.data.frame(annot_df) & annot_cols) {
-    cor_plt <- add_annotation(cor_plt, annot_dim = "cols", annot_df, annot_cols_pos, annot_cols_size,
-                              annot_cols_border_lwd, annot_cols_border_col, annot_lgd)
+  if (is.data.frame(annot_cols_df)) {
+    cor_plt <- add_annotation(cor_plt, annot_dim = "cols", annot_cols_df, annot_cols_pos, annot_cols_size,
+                              annot_cols_border_lwd, annot_cols_border_col, annot_cols_legend)
   }
 
   if (lclust_data & dend_rows) {
