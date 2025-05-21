@@ -15,6 +15,8 @@
 #' For any other strings top and right are selected.
 #' @param include_diag Logical indicating if the diagonal cells should be plotted (included either way if the whole matrix is plotted).
 #' @param return_data Logical indicating if the data used for plotting (i.e. the correlation values) should be returned.
+#' @param cell_shape Value specifying what shape the heatmap cells should take. Any non-numeric value will result in a normal heatmap with square cells (default).
+#' A numeric value can be used to specify an R shape (pch) to use, such as 21 for filled circles. Note that only shapes 21-25 support filling (others will not display the heatmap colour properly).
 #' @param label_cells Logical specifying if the cells should be labelled with the correlation values.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
 #' @param cell_label_digits Number of digits to display when cells are labelled with correlation coefficients. Default is 2, passed to `round`.
@@ -90,7 +92,7 @@
 gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything",
                             high = "sienna2", mid = "white", low = "skyblue2", limits = c(-1, 1),
                             layout = "lowerright", include_diag = F, return_data = F,
-                            label_cells = F, cell_label_size = 3, cell_label_digits = 2,
+                            cell_shape = "heatmap", label_cells = F, cell_label_size = 3, cell_label_digits = 2,
                             border_col = "grey", border_lwd = 0.5,
                             names_diag = T, params_diag = NULL,
                             names_x = F, names_x_side = "top", names_y = F, names_y_side = "left",
@@ -104,7 +106,7 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
                             annot_label_size = 4, annot_rows_label_size = annot_label_size, annot_cols_label_size = annot_label_size,
                             annot_rows_border_col = border_col, annot_cols_border_col = annot_rows_border_col,
                             annot_rows_border_lwd = border_lwd, annot_cols_border_lwd = annot_rows_border_lwd,
-                            clust_data = T, dist_method = "euclidean", clust_method = "complete",
+                            clust_data = F, dist_method = "euclidean", clust_method = "complete",
                             dend_rows = T, dend_cols = T,
                             dend_rows_height = 0.3, dend_cols_height = 0.3,
                             dend_rows_lwd = 0.3, dend_cols_lwd = 0.3,
@@ -232,11 +234,22 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
   # Draw diagonal first to draw over with the rest of the plot
   if (include_diag) {
     cor_plt <- cor_plt +
-      ggplot2::geom_tile(ggplot2::aes(fill = cor), subset(cor_long, row == col),
-                         linewidth = border_lwd, colour = border_col)
+      # Tiles or not
+      list(
+        if (is.numeric(cell_shape)) {
+          ggplot2::geom_point(ggplot2::aes(fill = cor, size = abs(cor)), subset(cor_long, row == col),
+                              stroke = border_lwd, colour = border_col, shape = cell_shape,
+                              show.legend = c("fill" = T, "size" = F))
+        } else {
+          ggplot2::geom_tile(ggplot2::aes(fill = cor), subset(cor_long, row == col),
+                             linewidth = border_lwd, colour = border_col)
+        }
+      )
+
   } else {
+    # Draw diagonal even if not supposed to be included to get the positions into the plot, for easier labelling
     cor_plt <- cor_plt +
-      ggplot2::geom_tile(data = subset(cor_long, row == col), fill = "white", linewidth = 0)
+      ggplot2::geom_tile(data = subset(cor_long, row == col), fill = "white", linewidth = 0, alpha = 0)
   }
 
   # If a numeric vector is given for the legend position, use the "inside" value for the legend.position arugment
@@ -249,18 +262,31 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
   }
 
   cor_plt <- cor_plt +
-    ggplot2::geom_tile(ggplot2::aes(fill = cor), subset(cor_long, row != col),
-                       linewidth = border_lwd, colour = border_col) +
-    ggplot2::scale_x_discrete(expand = c(0, 0), position = names_x_side) +
-    ggplot2::scale_y_discrete(expand = c(0, 0), position = names_y_side) +
+    # Plot tiles or points depending on cell_shape
+    list(
+      if (is.numeric(cell_shape)) {
+        ggplot2::geom_point(ggplot2::aes(fill = cor, size = abs(cor)), subset(cor_long, row != col),
+                            stroke = border_lwd, colour = border_col, shape = cell_shape,
+                            show.legend = c("fill" = T, "size" = F))
+      } else {
+        ggplot2::geom_tile(ggplot2::aes(fill = cor), subset(cor_long, row != col),
+                           linewidth = border_lwd, colour = border_col)
+      }
+    ) +
+    # Remove extra space on axes (if drawing tiles) and place on specified sides
+    ggplot2::scale_x_discrete(expand = if (is.numeric(cell_shape)) c(.05, .05) else c(0, 0), position = names_x_side) +
+    ggplot2::scale_y_discrete(expand = if (is.numeric(cell_shape)) c(.05, .05) else c(0, 0), position = names_y_side) +
+    # Add colour
     ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low,
                                   guide = ggplot2::guide_colourbar(order = 1)) +
+    # Make cells square
     ggplot2::coord_fixed(clip = "off") +
     ggplot2::labs(fill = switch(cor_method,
                                 "pearson" = "Pearson r",
                                 "spearman" = "Spearman\nrho",
                                 "kendall" = "Kendall\ntau")) +
     ggplot2::theme_classic() +
+    # Remove axis elements, move legend, set margins
     ggplot2::theme(axis.line = ggplot2::element_blank(),
                    axis.text.x = if (names_x) ggplot2::element_text() else ggplot2::element_blank(),
                    axis.text.y = if (names_y) ggplot2::element_text() else ggplot2::element_blank(),
@@ -269,6 +295,7 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
                    legend.position = legend_position, legend.position.inside = legend_position_inside,
                    plot.margin = ggplot2::margin(plot_margin[1], plot_margin[2], plot_margin[3], plot_margin[4], margin_unit))
 
+  # Names on the diagonal
   if (names_diag) {
     axis_lab <- data.frame(lab = levels(cor_long$row))
 
@@ -282,6 +309,7 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
       do.call(ggplot2::geom_text, text_call_params)
   }
 
+  # Cell labels
   if (label_cells) {
     # Don't draw in the diagonal cells if they don't exist or if they are already occupied by names
     cell_data <- if (include_diag & !names_diag) cor_long else subset(cor_long, row != col)
@@ -303,6 +331,7 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
                               annot_cols_border_lwd, annot_cols_border_col, annot_cols_legend)
   }
 
+  # Add dendrograms
   if (lclust_data & dend_rows) {
     if (all(is.na(dend_seg_rows$col))) {
       cor_plt <- cor_plt +
