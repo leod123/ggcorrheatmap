@@ -20,15 +20,16 @@ gg_corr_heatmap(
   cell_label_digits = 2,
   border_col = "grey",
   border_lwd = 0.5,
-  show_names = T,
-  names_angle = 0,
-  names_size = 3,
-  names_size_unit = "mm",
-  names_hjust = 0.5,
-  names_vjust = 0.5,
-  annot_df = NULL,
-  annot_rows = T,
-  annot_cols = T,
+  names_diag = T,
+  params_diag = NULL,
+  names_x = F,
+  names_x_side = "top",
+  names_y = F,
+  names_y_side = "left",
+  annot_rows_df = NULL,
+  annot_cols_df = NULL,
+  annot_rows_legend = T,
+  annot_cols_legend = T,
   annot_colr = NULL,
   annot_rows_colr = annot_colr,
   annot_cols_colr = annot_colr,
@@ -108,30 +109,28 @@ For any other strings top and right are selected.}
 
 \item{border_lwd}{Size of cell borders, used for the \code{size} argument in \code{ggplot2::geom_tile}. Set to 0 to remove cell borders.}
 
-\item{show_names}{Logical indicating if the names of the columns should be shown (displayed in the diagonal).}
+\item{names_diag}{Logical indicating if names should be written in the diagonal cells.}
 
-\item{names_angle}{Angle to rotate the names by. Can be of length 1 to use for all names, or of the same length as the number
-of columns in the data for column-specific angles.}
+\item{params_diag}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
 
-\item{names_size}{Size of the names. Can be of length 1 to use for all names, or of the same length as the number
-of columns in the data for column-specific sizes}
+\item{names_x}{Logical indicating if names should be written on the x axis. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
 
-\item{names_size_unit}{Units of the specified name size.}
+\item{names_x_side}{String specifying position of the x axis names ("top" or "bottom").}
 
-\item{names_hjust}{Horizontal justification of names (between 0 and 1). Can be of length 1 to use for all names, or of the same length as the number
-of columns in the data for column-specific justification.}
+\item{names_y}{Logical indicating if names should be written on the y axis.}
 
-\item{names_vjust}{Verical justification of names (between 0 and 1). Can be of length 1 to use for all names, or of the same length as the number
-of columns in the data for column-specific justification.}
+\item{names_y_side}{String specifying position of the y axis names ("left" or "right").}
 
-\item{annot_df}{Data frame for row and column annotations. The names of the columns in the data must be included,
+\item{annot_rows_df}{Data frame for row annotations. The names of the columns in the data must be included,
 either as row names or in a column named \code{.names}. Each other column specifies an annotation where the column name
 will be used as the annotation name (in the legend and next to the annotation). Numeric columns will use a continuous
 colour scale while factor or character columns use discrete scales.}
 
-\item{annot_rows}{Logical indicating if row annotation should be displayed.}
+\item{annot_cols_df}{Same usage as \code{annot_rows_df} but for column annotation.}
 
-\item{annot_cols}{Logical indicating if column annotation should be displayed.}
+\item{annot_rows_legend}{Logical indicating if a legend should be drawn for row annotations.}
+
+\item{annot_cols_legend}{Logical indicating if a legend should be drawn for column annotations.}
 
 \item{annot_colr}{not yet implemented (specifying colours for annotation)}
 

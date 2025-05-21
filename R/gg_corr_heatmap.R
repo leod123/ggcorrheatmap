@@ -20,23 +20,19 @@
 #' @param cell_label_digits Number of digits to display when cells are labelled with correlation coefficients. Default is 2, passed to `round`.
 #' @param border_col Colour of cell borders.
 #' @param border_lwd Size of cell borders, used for the `size` argument in `ggplot2::geom_tile`. Set to 0 to remove cell borders.
-#' @param show_names Logical indicating if the names of the columns should be shown (displayed in the diagonal).
-#' @param names_angle Angle to rotate the names by. Can be of length 1 to use for all names, or of the same length as the number
-#' of columns in the data for column-specific angles.
-#' @param names_size Size of the names. Can be of length 1 to use for all names, or of the same length as the number
-#' of columns in the data for column-specific sizes
-#' @param names_size_unit Units of the specified name size.
-#' @param names_hjust Horizontal justification of names (between 0 and 1). Can be of length 1 to use for all names, or of the same length as the number
-#' of columns in the data for column-specific justification.
-#' @param names_vjust Verical justification of names (between 0 and 1). Can be of length 1 to use for all names, or of the same length as the number
-#' of columns in the data for column-specific justification.
+#' @param names_diag Logical indicating if names should be written in the diagonal cells.
+#' @param params_diag List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
+#' @param names_x Logical indicating if names should be written on the x axis. Labels can be customised using `ggplot2::theme()` on the output plot.
+#' @param names_x_side String specifying position of the x axis names ("top" or "bottom").
+#' @param names_y Logical indicating if names should be written on the y axis.
+#' @param names_y_side String specifying position of the y axis names ("left" or "right").
 #' @param annot_rows_df Data frame for row annotations. The names of the columns in the data must be included,
 #' either as row names or in a column named `.names`. Each other column specifies an annotation where the column name
 #' will be used as the annotation name (in the legend and next to the annotation). Numeric columns will use a continuous
 #' colour scale while factor or character columns use discrete scales.
 #' @param annot_cols_df Same usage as `annot_rows_df` but for column annotation.
-#' @param annot_rows Logical indicating if row annotation should be displayed.
-#' @param annot_cols Logical indicating if column annotation should be displayed.
+#' @param annot_rows_legend Logical indicating if a legend should be drawn for row annotations.
+#' @param annot_cols_legend Logical indicating if a legend should be drawn for column annotations.
 #' @param annot_colr not yet implemented (specifying colours for annotation)
 #' @param annot_rows_colr not yet implemented
 #' @param annot_cols_colr not yet implemented
@@ -96,8 +92,8 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
                             layout = "lowerright", include_diag = F, return_data = F,
                             label_cells = F, cell_label_size = 3, cell_label_digits = 2,
                             border_col = "grey", border_lwd = 0.5,
-                            show_names = T, names_angle = 0, names_size = 3, names_size_unit = "mm",
-                            names_hjust = 0.5, names_vjust = 0.5,
+                            names_diag = T, params_diag = NULL,
+                            names_x = F, names_x_side = "top", names_y = F, names_y_side = "left",
                             annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_legend = T, annot_cols_legend = T,
                             annot_colr = NULL, annot_rows_colr = annot_colr, annot_cols_colr = annot_colr,
                             annot_rows_side = "right", annot_cols_side = "bottom",
@@ -255,8 +251,8 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
   cor_plt <- cor_plt +
     ggplot2::geom_tile(ggplot2::aes(fill = cor), subset(cor_long, row != col),
                        linewidth = border_lwd, colour = border_col) +
-    ggplot2::scale_x_discrete(expand = c(0, 0)) +
-    ggplot2::scale_y_discrete(expand = c(0, 0), position = "right") +
+    ggplot2::scale_x_discrete(expand = c(0, 0), position = names_x_side) +
+    ggplot2::scale_y_discrete(expand = c(0, 0), position = names_y_side) +
     ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low,
                                   guide = ggplot2::guide_colourbar(order = 1)) +
     ggplot2::coord_fixed(clip = "off") +
@@ -266,25 +262,32 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
                                 "kendall" = "Kendall\ntau")) +
     ggplot2::theme_classic() +
     ggplot2::theme(axis.line = ggplot2::element_blank(),
-                   axis.text = ggplot2::element_blank(),
+                   axis.text.x = if (names_x) ggplot2::element_text() else ggplot2::element_blank(),
+                   axis.text.y = if (names_y) ggplot2::element_text() else ggplot2::element_blank(),
                    axis.ticks = ggplot2::element_blank(),
                    axis.title = ggplot2::element_blank(),
                    legend.position = legend_position, legend.position.inside = legend_position_inside,
                    plot.margin = ggplot2::margin(plot_margin[1], plot_margin[2], plot_margin[3], plot_margin[4], margin_unit))
 
-  if (show_names) {
+  if (names_diag) {
     axis_lab <- data.frame(lab = levels(cor_long$row))
 
-    cor_plt <- cor_plt +
-      ggplot2::geom_text(data = axis_lab, mapping = ggplot2::aes(x = lab, y = lab, label = lab),
-                         size = names_size, size.unit = names_size_unit,
-                         angle = names_angle, hjust = names_hjust, vjust = names_vjust)
+    # Construct call using optional parameters
+    text_call_params <- list(data = axis_lab, mapping = ggplot2::aes(x = lab, y = lab, label = lab))
+    if (is.list(params_diag)) {
+      text_call_params <- append(text_call_params, params_diag)
+    }
 
+    cor_plt <- cor_plt +
+      do.call(ggplot2::geom_text, text_call_params)
   }
 
   if (label_cells) {
+    # Don't draw in the diagonal cells if they don't exist or if they are already occupied by names
+    cell_data <- if (include_diag & !names_diag) cor_long else subset(cor_long, row != col)
+
     cor_plt <- cor_plt +
-      ggplot2::geom_text(data = subset(cor_long, row != col),
+      ggplot2::geom_text(data = cell_data,
                          mapping = ggplot2::aes(x = row, y = col, label = round(cor, cell_label_digits)),
                          size = cell_label_size)
   }
