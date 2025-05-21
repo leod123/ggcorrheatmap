@@ -12,7 +12,8 @@ add_annotation(
   annot_size,
   annot_border_lwd = 0.5,
   annot_border_col = "grey",
-  draw_legend = T
+  draw_legend = T,
+  col_scale = NULL
 )
 }
 \arguments{
@@ -32,6 +33,10 @@ Positions are given by the middle coordinate of the annotation cells.}
 \item{annot_border_lwd}{Linewidth of border lines of annotation cells.}
 
 \item{annot_border_col}{Colour of border lines of annotation cells.}
+
+\item{draw_legend}{Logical indicating if a legend should be drawn.}
+
+\item{col_scale}{Colour scale for filling cells. Either a \code{ggplot2} scale object or a string specifying the brewer or viridis scale.}
 }
 \value{
 \code{ggplot} object with added annotations.

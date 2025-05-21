@@ -15,6 +15,7 @@ gg_corr_heatmap(
   layout = "lowerright",
   include_diag = F,
   return_data = F,
+  cell_shape = "heatmap",
   label_cells = F,
   cell_label_size = 3,
   cell_label_digits = 2,
@@ -30,7 +31,6 @@ gg_corr_heatmap(
   annot_cols_df = NULL,
   annot_rows_legend = T,
   annot_cols_legend = T,
-  annot_colr = NULL,
   annot_rows_colr = annot_colr,
   annot_cols_colr = annot_colr,
   annot_rows_side = "right",
@@ -54,7 +54,7 @@ gg_corr_heatmap(
   annot_cols_border_col = annot_rows_border_col,
   annot_rows_border_lwd = border_lwd,
   annot_cols_border_lwd = annot_rows_border_lwd,
-  clust_data = T,
+  clust_data = F,
   dist_method = "euclidean",
   clust_method = "complete",
   dend_rows = T,
@@ -99,6 +99,9 @@ For any other strings top and right are selected.}
 
 \item{return_data}{Logical indicating if the data used for plotting (i.e. the correlation values) should be returned.}
 
+\item{cell_shape}{Value specifying what shape the heatmap cells should take. Any non-numeric value will result in a normal heatmap with square cells (default).
+A numeric value can be used to specify an R shape (pch) to use, such as 21 for filled circles. Note that only shapes 21-25 support filling (others will not display the heatmap colour properly).}
+
 \item{label_cells}{Logical specifying if the cells should be labelled with the correlation values.}
 
 \item{cell_label_size}{Size of cell labels, used as the \code{size} argument in \code{ggplot2::geom_text}.}
@@ -132,11 +135,12 @@ colour scale while factor or character columns use discrete scales.}
 
 \item{annot_cols_legend}{Logical indicating if a legend should be drawn for column annotations.}
 
-\item{annot_colr}{not yet implemented (specifying colours for annotation)}
+\item{annot_rows_colr}{Named list for row annotation colour scales. The names should specify which annotation the scales apply to.
+Elements can be strings or ggplot2 "Scale" class objects. If a string it is used as the brewer palette (categorical annotation) or viridis option (continuous annotation).
+If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
+specify order using the \code{guide} argument in the \code{ggplot2} scale function provided.}
 
-\item{annot_rows_colr}{not yet implemented}
-
-\item{annot_cols_colr}{not yet implemented}
+\item{annot_cols_colr}{Named list used for column annotation colour scales, used like \code{annot_rows_colr}.}
 
 \item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' for left, otherwise right).}
 

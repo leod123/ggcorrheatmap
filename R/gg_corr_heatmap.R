@@ -35,9 +35,11 @@
 #' @param annot_cols_df Same usage as `annot_rows_df` but for column annotation.
 #' @param annot_rows_legend Logical indicating if a legend should be drawn for row annotations.
 #' @param annot_cols_legend Logical indicating if a legend should be drawn for column annotations.
-#' @param annot_colr not yet implemented (specifying colours for annotation)
-#' @param annot_rows_colr not yet implemented
-#' @param annot_cols_colr not yet implemented
+#' @param annot_rows_colr Named list for row annotation colour scales. The names should specify which annotation the scales apply to.
+#' Elements can be strings or ggplot2 "Scale" class objects. If a string it is used as the brewer palette (categorical annotation) or viridis option (continuous annotation).
+#' If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
+#' specify order using the `guide` argument in the `ggplot2` scale function provided.
+#' @param annot_cols_colr Named list used for column annotation colour scales, used like `annot_rows_colr`.
 #' @param annot_rows_side String specifying which side row annotation should be drawn ('left' for left, otherwise right).
 #' @param annot_cols_side String specifying which side column annotation should be drawn ('bottom', 'down', 'lower' for bottom, otherwise top).
 #' @param annot_dist Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.
@@ -97,7 +99,7 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
                             names_diag = T, params_diag = NULL,
                             names_x = F, names_x_side = "top", names_y = F, names_y_side = "left",
                             annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_legend = T, annot_cols_legend = T,
-                            annot_colr = NULL, annot_rows_colr = annot_colr, annot_cols_colr = annot_colr,
+                            annot_rows_colr = annot_colr, annot_cols_colr = annot_colr,
                             annot_rows_side = "right", annot_cols_side = "bottom",
                             annot_dist = 0.2, annot_rows_dist = annot_dist, annot_cols_dist = annot_dist,
                             annot_gap = 0, annot_rows_gap = annot_gap, annot_cols_gap = annot_gap,
@@ -323,12 +325,12 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
   # Add row and column annotations
   if (is.data.frame(annot_rows_df)) {
     cor_plt <- add_annotation(cor_plt, annot_dim = "rows", annot_rows_df, annot_rows_pos, annot_rows_size,
-                              annot_rows_border_lwd, annot_rows_border_col, annot_rows_legend)
+                              annot_rows_border_lwd, annot_rows_border_col, annot_rows_legend, annot_rows_colr)
   }
 
   if (is.data.frame(annot_cols_df)) {
     cor_plt <- add_annotation(cor_plt, annot_dim = "cols", annot_cols_df, annot_cols_pos, annot_cols_size,
-                              annot_cols_border_lwd, annot_cols_border_col, annot_cols_legend)
+                              annot_cols_border_lwd, annot_cols_border_col, annot_cols_legend, annot_cols_colr)
   }
 
   # Add dendrograms
