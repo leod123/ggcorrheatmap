@@ -19,7 +19,6 @@
 #'
 #' @return Data frame with dendrogram segment parameters.
 #'
-#' @examples
 prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
                                dend_down, dend_left, dend_height, full_plt, cor_long,
                                annot_df, annot, annot_side, annot_pos, annot_size) {

@@ -1,5 +1,7 @@
 #' Add dendrogram to ggplot object.
 #'
+#' @keywords internal
+#'
 #' @param ggp ggplot object to add dendrogram to.
 #' @param dend_seg Dendrogram segment data obtained from the `prepare_dendrogram` function.
 #' @param dend_col String specifying colour of dendrogram (used if the colours have not been changed using other options).
@@ -7,7 +9,6 @@
 #' @param dend_lty Line type of dendrogram (used if not changed using other options).
 #'
 #' @returns A ggplot object with a dendrogram added.
-#' @keywords internal
 #'
 add_dendrogram <- function(ggp, dend_seg, dend_col = "black", dend_lwd = 0.3, dend_lty = 1) {
   if (all(is.na(dend_seg$col))) {

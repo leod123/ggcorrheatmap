@@ -1,5 +1,7 @@
 #' Add annotations to ggplot heatmap
 #'
+#' @keywords internal
+#'
 #' @param ggp `ggplot` object with `geom_tile` layer to add annotations to
 #' @param annot_dim Dimension to add annotations to, either "rows" or "columns"
 #' @param annot_df Data frame containing the annotations.
@@ -14,23 +16,22 @@
 #' @param col_scale Colour scale for filling cells. Either a `ggplot2` scale object or a string specifying the brewer or viridis scale.
 #'
 #' @return `ggplot` object with added annotations.
-#' @export
 #'
-#' @examples
 add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_pos, annot_size,
                            annot_border_lwd = 0.5, annot_border_col = "grey", draw_legend = T,
-                           col_scale = NULL) {
+                           col_scale = NULL, legend_order = NULL) {
 
   annot_names <- colnames(annot_df)[-1]
   # Vector for determining the order in which to draw the annotation legends
-  legend_order <- seq_along(annot_names) + 1
-  names(legend_order) <- annot_names
+  if (is.null(legend_order)) {
+    legend_order <- seq_along(annot_names) + 1
+    names(legend_order) <- annot_names
+  }
 
   # Annotation colours
   # If provided colour scales are not in a list, generate a placeholder list to use default colours
   if (!is.list(col_scale)) {
     col_scale <- list()
-
   }
   # Check that it contains the names of the annotations, otherwise fill in with missing names
   col_scale[annot_names[!annot_names %in% names(col_scale)]] <- lapply(seq_along(annot_names[!annot_names %in% names(col_scale)]), function(x) NULL)
