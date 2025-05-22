@@ -24,6 +24,7 @@ add_dendrogram <- function(ggp, dend_seg, dend_col = "black", dend_lwd = 0.3, de
     seg_colr <- pull(distinct(dend_seg, col), col)
     names(seg_colr) <- seg_colr
     ggp <- ggp +
+      ggnewscale::new_scale_colour() +
       ggplot2::geom_segment(ggplot2::aes(x = x, y = y, xend = xend, yend = yend, colour = col), dend_seg,
                             linewidth = if (all(is.na(dend_seg$lwd))) {dend_lwd}
                             else {dend_seg$lwd},
