@@ -89,14 +89,28 @@
 #' such as the `what` argument used in the `set` function. See examples for example usage.
 #'
 #' @examples
+#' # Basic usage
 #' gg_corr_heatmap(mtcars)
 #'
-#'# Using the dend_options argument
+#' # Different layout
+#' gg_corr_heatmap(mtcars, layout = "f")
+#'
+#' # With clustering
+#' gg_corr_heatmap(mtcars, layout = "tl", cluster_data = T)
+#'
+#' # With annotation
+#' set.seed(123)
+#' annot <- data.frame(.names = colnames(mtcars),
+#'                     annot1 = rnorm(ncol(mtcars)),
+#'                     annot2 = sample(letters[1:3], ncol(mtcars), T))
+#' gg_corr_heatmap(mtcars, layout = "tr", annot_rows_df = annot)
+#'
+#' # Using the dend_options argument
 #' gg_corr_heatmap(mtcars, cluster_data = T, dend_options =
 #'   list("set" = list("branches_lty", c(1, 2, 3)),
-#'        "set" = list("branches_k_color", k = 3)),
+#'        "set" = list("branches_k_color", k = 3),
 #'        # Empty list element (or NULL) if no arguments to be given
-#'        "highlight_branches_lwd" = list())
+#'        "highlight_branches_lwd" = list()))
 gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything",
                             high = "sienna2", mid = "white", low = "skyblue2", limits = c(-1, 1), bins = NULL,
                             layout = "lowerright", include_diag = F, return_data = F,
