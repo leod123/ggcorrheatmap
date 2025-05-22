@@ -56,20 +56,15 @@
 #' @param cluster_method String with the clustering method to use, given to `hclust`.
 #' @param dend_rows Logical indicating if a dendrogram should be drawn for the rows.
 #' @param dend_cols Logical indicating if a dendrogram should be drawn for the columns.
-#' @param dend_rows_height Number to scale the height of the row dendrogram by when plotting.
-#' @param dend_cols_height Number to scale the height of the column dendrogram by when plotting.
-#' @param dend_rows_lwd Line width of the row dendrogram.
-#' @param dend_cols_lwd Line width of the column dendrogram.
 #' @param dend_rows_side Which side to draw the row dendrogram on ('left' for left, otherwise right).
 #' @param dend_cols_side Which side to draw the column dendrogram on ('bottom', 'down', 'lower' for bottom, otherwise top).
-#' @param dend_rows_colour Colour of the row dendrogram.
-#' @param dend_cols_colour Colour of the column dendrogram.
+#' @param dend_col Colour to use for dendrogram lines, applied to both row and column dendrograms.
+#' @param dend_height Number by which to scale dendrogram height, applied to both row and column dendrograms.
+#' @param dend_lwd Linewidth of dendrogram lines, applied to both row and column dendrograms.
+#' @param dend_lty Dendrogram line type, applied to both row and column dendrograms.
+#' @param dend_rows_params Named list for row dendrogram parameters. See details for more information.
+#' @param dend_cols_params Named list for column dendrogram parameters. See details for more information.
 #' @param dend_options A named list with options to give to `dendextend::set` for customising the dendrogram. See details for usage.
-#' Only works with options for colour, line type and line width.
-#' The options are specified in a list where each element is a list corresponding to one call of
-#' dendextend::set(). Each such list must either contain the 'what' argument as the first element or
-#' as an element named 'what'. Other elements must be named and sepcify other parameters, such as
-#' 'k' for 'branches_k_color' or 'value' used to specify colours.
 #' @param legend_position Position of the legends (use how???)
 #' @param plot_margin Plot margins, specified as a numeric vector of length 4 in the order of top, right, bottom, left.
 #' @param margin_unit Unit to use for the specified margin.
@@ -85,6 +80,9 @@
 #' "size" (cell size), "label" (logical, if the annotation names should be displayed), and "label_size" (label text size). Any unused options will
 #' use the defaults set by the `annot_*` arguments.
 #'
+#' The dendrogram parameters arguments `dend_rows_params` and `dend_cols_params` should be named lists, analogous to the annotation parameter arguments. Possible options are
+#' "col" (line colour), "height" (height scaling), "lwd" (line width), and "lty" (line type).
+#'
 #' The `dend_options` argument makes it possible to customise the dendrograms using the `dendextend` package.
 #' The argument should be a named list, each element named after the `dendextend` function to use (consecutive usage of the `set` function
 #' is supported due to duplicate list names being possible). Each element should contain any arguments given to the `dendextend` function,
@@ -97,7 +95,7 @@
 #' gg_corr_heatmap(mtcars, cluster_data = T, dend_options =
 #'   list("set" = list("branches_lty", c(1, 2, 3)),
 #'        "set" = list("branches_k_color", k = 3)),
-#'        # Empty list element (or NULL works) if no arguments to be given
+#'        # Empty list element (or NULL) if no arguments to be given
 #'        "highlight_branches_lwd" = list())
 gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything",
                             high = "sienna2", mid = "white", low = "skyblue2", limits = c(-1, 1), bins = NULL,
@@ -111,11 +109,9 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
                             annot_legend = T, annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = T, annot_label_size = 4,
                             annot_rows_params = NULL, annot_cols_params = NULL,
                             cluster_data = F, cluster_distance = "euclidean", cluster_method = "complete",
-                            dend_rows = T, dend_cols = T,
-                            dend_rows_height = 0.3, dend_cols_height = 0.3,
-                            dend_rows_lwd = 0.3, dend_cols_lwd = 0.3,
-                            dend_rows_side = "right", dend_cols_side = "bottom",
-                            dend_rows_colour = "black", dend_cols_colour = "black",
+                            dend_rows = T, dend_cols = T, dend_rows_side = "right", dend_cols_side = "bottom",
+                            dend_col = "black", dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
+                            dend_rows_params = NULL, dend_cols_params = NULL,
                             dend_options = NULL,
                             legend_position = "right",
                             plot_margin = c(20, 10, 10, 20), margin_unit = "pt") {
@@ -134,13 +130,7 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
 
       # Apply dendextend options if any are given
       if (is.list(dend_options)) {
-        # Go through options list and update the dendrogram successively with do.call
-        # Use append() to make named list of input arguments
-        for (i in seq_along(dend_options)) {
-          # Make a temporary function by taking out the provided function from dendextend
-          dend_fun <- do.call(`::`, list("dendextend", names(dend_options)[i]))
-          dendro <- do.call(dend_fun, append(list(dendro), dend_options[[i]]))
-        }
+        dendro <- apply_dendextend(dendro, dend_options)
       }
 
       dendro <- dendextend::as.ggdend(dendro)
@@ -156,7 +146,14 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
   } else if (class(cluster_data) == "hclust") {
     lclust_data <- T
     clust <- cluster_data
-    dendro <- dendextend::as.ggdend(as.dendrogram(clust))
+    dendro <- as.dendrogram(clust)
+
+    # Apply dendextend options if any
+    if (is.list(dend_options)) {
+      dendro <- apply_dendextend(dendro, dend_options)
+    }
+
+    dendro <- dendextend::as.ggdend(dendro)
     dendro$labels$label <- as.character(dendro$labels$label)
 
     cor_mat <- cor_mat[rev(dendro$labels$label), rev(dendro$labels$label)]
@@ -243,13 +240,21 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
   # Generate dendrograms
   if (lclust_data & dend_rows) {
 
-    dend_seg_rows <- prepare_dendrogram(dendro, "rows", dend_down, dend_left, dend_rows_height, full_plt, cor_long,
+    dend_rows_defaults <- list(col = dend_col, height = dend_height, lwd = dend_lwd, lty = dend_lty)
+    # Replace default parameters if any are provided
+    dend_rows_params <- replace_default(dend_rows_defaults, dend_rows_params)
+
+    dend_seg_rows <- prepare_dendrogram(dendro, "rows", dend_down, dend_left, dend_rows_params$height, full_plt, cor_long,
                                         annot_rows_df, is.data.frame(annot_rows_df), annot_left, annot_rows_pos, annot_rows_params$size)
   }
 
   if (lclust_data & dend_cols) {
 
-    dend_seg_cols <- prepare_dendrogram(dendro, "cols", dend_down, dend_left, dend_cols_height, full_plt, cor_long,
+    dend_cols_defaults <- list(col = dend_col, height = dend_height, lwd = dend_lwd, lty = dend_lty)
+    # Replace default parameters if any are provided
+    dend_cols_params <- replace_default(dend_cols_defaults, dend_cols_params)
+
+    dend_seg_cols <- prepare_dendrogram(dendro, "cols", dend_down, dend_left, dend_cols_params$height, full_plt, cor_long,
                                         annot_cols_df, is.data.frame(annot_cols_df), annot_down, annot_cols_pos, annot_cols_params$size)
   }
 
@@ -340,7 +345,7 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
 
   # Cell labels
   if (label_cells) {
-    # Don't draw in the diagonal cells if they don't exist or if they are already occupied by names
+    # Don't draw in the diagonal cells if are hidden or if they are already occupied by names
     cell_data <- if (include_diag & !names_diag) cor_long else subset(cor_long, row != col)
 
     cor_plt <- cor_plt +
@@ -362,54 +367,11 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
 
   # Add dendrograms
   if (lclust_data & dend_rows) {
-    if (all(is.na(dend_seg_rows$col))) {
-      cor_plt <- cor_plt +
-        ggplot2::geom_segment(ggplot2::aes(x = x, y = y, xend = xend, yend = yend), dend_seg_rows,
-                              colour = dend_rows_colour,
-                              linewidth = if (all(is.na(dend_seg_rows$lwd))) {dend_rows_lwd}
-                              else {dend_seg_rows$lwd},
-                              linetype = if (all(is.na(dend_seg_rows$lty))) {1}
-                              else {dend_seg_rows$lty})
-    } else {
-      seg_colr <- pull(distinct(dend_seg_rows, col), col)
-      names(seg_colr) <- seg_colr
-      cor_plt <- cor_plt +
-        ggplot2::geom_segment(ggplot2::aes(x = x, y = y, xend = xend, yend = yend, colour = col), dend_seg_rows,
-                              linewidth = if (all(is.na(dend_seg_rows$lwd))) {dend_rows_lwd}
-                              else {dend_seg_rows$lwd},
-                              linetype = if (all(is.na(dend_seg_rows$lty))) {1}
-                              else {dend_seg_rows$lty},
-                              show.legend = F) +
-        ggplot2::scale_colour_manual(values = seg_colr)
-    }
-
+    cor_plt <- add_dendrogram(cor_plt, dend_seg_rows, dend_rows_params$col, dend_rows_params$lwd, dend_rows_params$lty)
   }
 
   if (lclust_data & dend_cols) {
-    if (all(is.na(dend_seg_cols$col))) {
-      cor_plt <- cor_plt +
-        ggplot2::geom_segment(ggplot2::aes(x = x, y = y, xend = xend, yend = yend), dend_seg_cols,
-                              colour = dend_cols_colour,
-                              linewidth = if (all(is.na(dend_seg_cols$lwd))) {dend_cols_lwd}
-                              else {dend_seg_cols$lwd},
-                              linetype = if (all(is.na(dend_seg_cols$lty))) {1}
-                              else {dend_seg_cols$lty})
-    } else {
-      cor_plt <- cor_plt +
-        ggplot2::geom_segment(ggplot2::aes(x = x, y = y, xend = xend, yend = yend, colour = col), dend_seg_cols,
-                              linewidth = if (all(is.na(dend_seg_cols$lwd))) {dend_cols_lwd}
-                              else {dend_seg_cols$lwd},
-                              linetype = if (all(is.na(dend_seg_cols$lty))) {1}
-                              else {dend_seg_cols$lty},
-                              show.legend = F)
-      if (lclust_data & !dend_cols) {
-        # Add colour scale only if row dendrogram is skipped, otherwise a message is displayed
-        # about existing colour scales
-        seg_colr <- pull(distinct(dend_seg_cols, col), col)
-        names(seg_colr) <- seg_colr
-        cor_plt <- cor_plt + ggplot2::scale_colour_manual(values = seg_colr)
-      }
-    }
+    cor_plt <- add_dendrogram(cor_plt, dend_seg_cols, dend_cols_params$col, dend_cols_params$lwd, dend_cols_params$lty)
   }
 
   if (return_data) {

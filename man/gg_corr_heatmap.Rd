@@ -47,14 +47,14 @@ gg_corr_heatmap(
   cluster_method = "complete",
   dend_rows = T,
   dend_cols = T,
-  dend_rows_height = 0.3,
-  dend_cols_height = 0.3,
-  dend_rows_lwd = 0.3,
-  dend_cols_lwd = 0.3,
   dend_rows_side = "right",
   dend_cols_side = "bottom",
-  dend_rows_colour = "black",
-  dend_cols_colour = "black",
+  dend_col = "black",
+  dend_height = 0.3,
+  dend_lwd = 0.3,
+  dend_lty = 1,
+  dend_rows_params = NULL,
+  dend_cols_params = NULL,
   dend_options = NULL,
   legend_position = "right",
   plot_margin = c(20, 10, 10, 20),
@@ -160,28 +160,23 @@ a \code{hclust} object where the correlations have been clustered already.}
 
 \item{dend_cols}{Logical indicating if a dendrogram should be drawn for the columns.}
 
-\item{dend_rows_height}{Number to scale the height of the row dendrogram by when plotting.}
-
-\item{dend_cols_height}{Number to scale the height of the column dendrogram by when plotting.}
-
-\item{dend_rows_lwd}{Line width of the row dendrogram.}
-
-\item{dend_cols_lwd}{Line width of the column dendrogram.}
-
 \item{dend_rows_side}{Which side to draw the row dendrogram on ('left' for left, otherwise right).}
 
 \item{dend_cols_side}{Which side to draw the column dendrogram on ('bottom', 'down', 'lower' for bottom, otherwise top).}
 
-\item{dend_rows_colour}{Colour of the row dendrogram.}
+\item{dend_col}{Colour to use for dendrogram lines, applied to both row and column dendrograms.}
 
-\item{dend_cols_colour}{Colour of the column dendrogram.}
+\item{dend_height}{Number by which to scale dendrogram height, applied to both row and column dendrograms.}
 
-\item{dend_options}{A named list with options to give to \code{dendextend::set} for customising the dendrogram. See details for usage.
-Only works with options for colour, line type and line width.
-The options are specified in a list where each element is a list corresponding to one call of
-dendextend::set(). Each such list must either contain the 'what' argument as the first element or
-as an element named 'what'. Other elements must be named and sepcify other parameters, such as
-'k' for 'branches_k_color' or 'value' used to specify colours.}
+\item{dend_lwd}{Linewidth of dendrogram lines, applied to both row and column dendrograms.}
+
+\item{dend_lty}{Dendrogram line type, applied to both row and column dendrograms.}
+
+\item{dend_rows_params}{Named list for row dendrogram parameters. See details for more information.}
+
+\item{dend_cols_params}{Named list for column dendrogram parameters. See details for more information.}
+
+\item{dend_options}{A named list with options to give to \code{dendextend::set} for customising the dendrogram. See details for usage.}
 
 \item{legend_position}{Position of the legends (use how???)}
 
@@ -203,6 +198,9 @@ the different \verb{annot_*} arguments. The possible options are "legend" (logic
 "size" (cell size), "label" (logical, if the annotation names should be displayed), and "label_size" (label text size). Any unused options will
 use the defaults set by the \verb{annot_*} arguments.
 
+The dendrogram parameters arguments \code{dend_rows_params} and \code{dend_cols_params} should be named lists, analogous to the annotation parameter arguments. Possible options are
+"col" (line colour), "height" (height scaling), "lwd" (line width), and "lty" (line type).
+
 The \code{dend_options} argument makes it possible to customise the dendrograms using the \code{dendextend} package.
 The argument should be a named list, each element named after the \code{dendextend} function to use (consecutive usage of the \code{set} function
 is supported due to duplicate list names being possible). Each element should contain any arguments given to the \code{dendextend} function,
@@ -215,6 +213,6 @@ gg_corr_heatmap(mtcars)
 gg_corr_heatmap(mtcars, cluster_data = T, dend_options =
   list("set" = list("branches_lty", c(1, 2, 3)),
        "set" = list("branches_k_color", k = 3)),
-       # Empty list element (or NULL works) if no arguments to be given
+       # Empty list element (or NULL) if no arguments to be given
        "highlight_branches_lwd" = list())
 }
