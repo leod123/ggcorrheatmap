@@ -370,13 +370,23 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
 
   # Add row and column annotations
   if (is.data.frame(annot_rows_df)) {
+    # Change legend order to be in order of columns (after correlation)
+    lgd_order <- seq_along(annot_rows_df)[-1]
+    names(lgd_order) <- colnames(annot_rows_df)[-1]
+
     cor_plt <- add_annotation(cor_plt, annot_dim = "rows", annot_rows_df, annot_rows_pos, annot_rows_params$size,
-                              annot_rows_params$border_lwd, annot_rows_params$border_col, annot_rows_params$legend, annot_rows_fill)
+                              annot_rows_params$border_lwd, annot_rows_params$border_col, annot_rows_params$legend,
+                              annot_rows_fill, lgd_order)
   }
 
   if (is.data.frame(annot_cols_df)) {
+    lgd_order <- if (is.data.frame(annot_rows_df)) {seq_along(annot_cols_df)[-1] + ncol(annot_rows_df) - 1}
+                 else {seq_along(annot_cols_df)[-1]}
+    names(lgd_order) <- colnames(annot_cols_df)[-1]
+
     cor_plt <- add_annotation(cor_plt, annot_dim = "cols", annot_cols_df, annot_cols_pos, annot_cols_params$size,
-                              annot_cols_params$border_lwd, annot_cols_params$border_col, annot_cols_params$legend, annot_cols_fill)
+                              annot_cols_params$border_lwd, annot_cols_params$border_col, annot_cols_params$legend,
+                              annot_cols_fill, lgd_order)
   }
 
   # Add dendrograms
