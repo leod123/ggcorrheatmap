@@ -64,7 +64,8 @@
 #' @param dend_cols_side Which side to draw the column dendrogram on ('bottom', 'down', 'lower' for bottom, otherwise top).
 #' @param dend_rows_colour Colour of the row dendrogram.
 #' @param dend_cols_colour Colour of the column dendrogram.
-#' @param dend_options Options to give to `dendextend::set` for customising the dendrogram. Only works with options for colour, line type and line width.
+#' @param dend_options A named list with options to give to `dendextend::set` for customising the dendrogram. See details for usage.
+#' Only works with options for colour, line type and line width.
 #' The options are specified in a list where each element is a list corresponding to one call of
 #' dendextend::set(). Each such list must either contain the 'what' argument as the first element or
 #' as an element named 'what'. Other elements must be named and sepcify other parameters, such as
@@ -84,8 +85,20 @@
 #' "size" (cell size), "label" (logical, if the annotation names should be displayed), and "label_size" (label text size). Any unused options will
 #' use the defaults set by the `annot_*` arguments.
 #'
+#' The `dend_options` argument makes it possible to customise the dendrograms using the `dendextend` package.
+#' The argument should be a named list, each element named after the `dendextend` function to use (consecutive usage of the `set` function
+#' is supported due to duplicate list names being possible). Each element should contain any arguments given to the `dendextend` function,
+#' such as the `what` argument used in the `set` function. See examples for example usage.
+#'
 #' @examples
 #' gg_corr_heatmap(mtcars)
+#'
+#'# Using the dend_options argument
+#' gg_corr_heatmap(mtcars, cluster_data = T, dend_options =
+#'   list("set" = list("branches_lty", c(1, 2, 3)),
+#'        "set" = list("branches_k_color", k = 3)),
+#'        # Empty list element (or NULL works) if no arguments to be given
+#'        "highlight_branches_lwd" = list())
 gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything",
                             high = "sienna2", mid = "white", low = "skyblue2", limits = c(-1, 1), bins = NULL,
                             layout = "lowerright", include_diag = F, return_data = F,
@@ -121,10 +134,12 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
 
       # Apply dendextend options if any are given
       if (is.list(dend_options)) {
-        # Go through options list and feed to the set() function with do.call()
+        # Go through options list and update the dendrogram successively with do.call
         # Use append() to make named list of input arguments
         for (i in seq_along(dend_options)) {
-          dendro <- do.call(dendextend::set, append(list(dendro), dend_options[[i]]))
+          # Make a temporary function by taking out the provided function from dendextend
+          dend_fun <- do.call(`::`, list("dendextend", names(dend_options)[i]))
+          dendro <- do.call(dend_fun, append(list(dendro), dend_options[[i]]))
         }
       }
 
