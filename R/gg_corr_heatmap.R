@@ -7,6 +7,7 @@
 #' @param mid Name of the colour to use for 0 in the colour scale.
 #' @param low Name of the colour to use for the lowest value of the colour scale.
 #' @param limits Correlation limits to plot between.
+#' @param bins Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.
 #' @param layout String specifying the layout of the output correlation heatmap. Possible layouts include
 #' top left, top right, bottom left, bottom right (default), or the whole heatmap. The string should be composed
 #' of the vertical position (top or bottom) followed by the horizontal position (left or right). Bottom can
@@ -61,10 +62,10 @@
 #' @param annot_cols_border_col Colour of column annotation borders. By default uses the same colour as the row annotation cell borders.
 #' @param annot_rows_border_lwd Line width of row annotation borders. By default uses the same value as the heatmap cell borders.
 #' @param annot_cols_border_lwd Line width of column annotation borders. By default uses the same value as the row annotation cell borders.
-#' @param clust_data Logical indicating if the correlations should be clustered in the heatmap. May also be
+#' @param cluster_data Logical indicating if the correlations should be clustered in the heatmap. May also be
 #' a `hclust` object where the correlations have been clustered already.
-#' @param dist_method String with the distance metric to use for clustering, given to `dist`.
-#' @param clust_method String with the clustering method to use, given to `hclust`.
+#' @param cluster_distance String with the distance metric to use for clustering, given to `dist`.
+#' @param cluster_method String with the clustering method to use, given to `hclust`.
 #' @param dend_rows Logical indicating if a dendrogram should be drawn for the rows.
 #' @param dend_cols Logical indicating if a dendrogram should be drawn for the columns.
 #' @param dend_rows_height Number to scale the height of the row dendrogram by when plotting.
@@ -86,20 +87,20 @@
 #'
 #' @return The correlation heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),
-#' the correlations ('plot_data'), and the result of the clustering ('clustering', only if `clust_data` is TRUE).
+#' the correlations ('plot_data'), and the result of the clustering ('clustering', only if `cluster_data` is TRUE).
 #' @export
 #'
 #' @examples
 #' gg_corr_heatmap(mtcars)
 gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything",
-                            high = "sienna2", mid = "white", low = "skyblue2", limits = c(-1, 1),
+                            high = "sienna2", mid = "white", low = "skyblue2", limits = c(-1, 1), bins = NULL,
                             layout = "lowerright", include_diag = F, return_data = F,
                             cell_shape = "heatmap", label_cells = F, cell_label_size = 3, cell_label_digits = 2,
                             border_col = "grey", border_lwd = 0.5,
                             names_diag = T, params_diag = NULL,
                             names_x = F, names_x_side = "top", names_y = F, names_y_side = "left",
                             annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_legend = T, annot_cols_legend = T,
-                            annot_rows_colr = annot_colr, annot_cols_colr = annot_colr,
+                            annot_rows_colr = NULL, annot_cols_colr = NULL,
                             annot_rows_side = "right", annot_cols_side = "bottom",
                             annot_dist = 0.2, annot_rows_dist = annot_dist, annot_cols_dist = annot_dist,
                             annot_gap = 0, annot_rows_gap = annot_gap, annot_cols_gap = annot_gap,
@@ -108,7 +109,7 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
                             annot_label_size = 4, annot_rows_label_size = annot_label_size, annot_cols_label_size = annot_label_size,
                             annot_rows_border_col = border_col, annot_cols_border_col = annot_rows_border_col,
                             annot_rows_border_lwd = border_lwd, annot_cols_border_lwd = annot_rows_border_lwd,
-                            clust_data = F, dist_method = "euclidean", clust_method = "complete",
+                            cluster_data = F, cluster_distance = "euclidean", cluster_method = "complete",
                             dend_rows = T, dend_cols = T,
                             dend_rows_height = 0.3, dend_cols_height = 0.3,
                             dend_rows_lwd = 0.3, dend_cols_lwd = 0.3,
@@ -120,12 +121,13 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
 
   cor_mat <- cor(data, method = cor_method, use = cor_use)
 
-  # Allow for providing a hclust object when clustering
-  if (is.logical(clust_data)) {
-    if (clust_data) {
+  # Make dendrograms
+  # To allow for providing a hclust object when clustering, make a separate logical clustering variable
+  if (is.logical(cluster_data)) {
+    if (cluster_data) {
       lclust_data <- T
 
-      clust <- hclust(dist(cor_mat, method = dist_method), method = clust_method)
+      clust <- hclust(dist(cor_mat, method = cluster_distance), method = cluster_method)
 
       dendro <- as.dendrogram(clust)
 
@@ -148,9 +150,9 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
     }
 
 
-  } else if (class(clust_data) == "hclust") {
+  } else if (class(cluster_data) == "hclust") {
     lclust_data <- T
-    clust <- clust_data
+    clust <- cluster_data
     dendro <- dendextend::as.ggdend(as.dendrogram(clust))
     dendro$labels$label <- as.character(dendro$labels$label)
 
@@ -279,8 +281,13 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
     ggplot2::scale_x_discrete(expand = if (is.numeric(cell_shape)) c(.05, .05) else c(0, 0), position = names_x_side) +
     ggplot2::scale_y_discrete(expand = if (is.numeric(cell_shape)) c(.05, .05) else c(0, 0), position = names_y_side) +
     # Add colour
-    ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low,
-                                  guide = ggplot2::guide_colourbar(order = 1)) +
+    list(if (!is.null(bins)) {
+      ggplot2::scale_fill_steps2(limits = limits, high = high, mid = mid, low = low,
+                                 breaks = seq(limits[1], limits[2], length.out = bins), guide = ggplot2::guide_colourbar(order = 1))
+    } else {
+      ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low,
+                                    guide = ggplot2::guide_colourbar(order = 1))
+    }) +
     # Make cells square
     ggplot2::coord_fixed(clip = "off") +
     ggplot2::labs(fill = switch(cor_method,
@@ -389,7 +396,7 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
 
     list_out <- list("plot" = cor_plt, "plot_data" = cor_long)
 
-    if (clust_data) {
+    if (cluster_data) {
       list_out$clustering <- clust
     }
 
