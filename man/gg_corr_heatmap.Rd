@@ -12,6 +12,7 @@ gg_corr_heatmap(
   mid = "white",
   low = "skyblue2",
   limits = c(-1, 1),
+  bins = NULL,
   layout = "lowerright",
   include_diag = F,
   return_data = F,
@@ -29,34 +30,21 @@ gg_corr_heatmap(
   names_y_side = "left",
   annot_rows_df = NULL,
   annot_cols_df = NULL,
-  annot_rows_legend = T,
-  annot_cols_legend = T,
-  annot_rows_colr = annot_colr,
-  annot_cols_colr = annot_colr,
+  annot_rows_fill = NULL,
+  annot_cols_fill = NULL,
   annot_rows_side = "right",
   annot_cols_side = "bottom",
+  annot_legend = T,
   annot_dist = 0.2,
-  annot_rows_dist = annot_dist,
-  annot_cols_dist = annot_dist,
   annot_gap = 0,
-  annot_rows_gap = annot_gap,
-  annot_cols_gap = annot_gap,
   annot_size = 0.5,
-  annot_rows_size = annot_size,
-  annot_cols_size = annot_size,
   annot_label = T,
-  annot_rows_label = annot_label,
-  annot_cols_label = annot_label,
   annot_label_size = 4,
-  annot_rows_label_size = annot_label_size,
-  annot_cols_label_size = annot_label_size,
-  annot_rows_border_col = border_col,
-  annot_cols_border_col = annot_rows_border_col,
-  annot_rows_border_lwd = border_lwd,
-  annot_cols_border_lwd = annot_rows_border_lwd,
-  clust_data = F,
-  dist_method = "euclidean",
-  clust_method = "complete",
+  annot_rows_params = NULL,
+  annot_cols_params = NULL,
+  cluster_data = F,
+  cluster_distance = "euclidean",
+  cluster_method = "complete",
   dend_rows = T,
   dend_cols = T,
   dend_rows_height = 0.3,
@@ -87,6 +75,8 @@ gg_corr_heatmap(
 \item{low}{Name of the colour to use for the lowest value of the colour scale.}
 
 \item{limits}{Correlation limits to plot between.}
+
+\item{bins}{Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.}
 
 \item{layout}{String specifying the layout of the output correlation heatmap. Possible layouts include
 top left, top right, bottom left, bottom right (default), or the whole heatmap. The string should be composed
@@ -131,65 +121,40 @@ colour scale while factor or character columns use discrete scales.}
 
 \item{annot_cols_df}{Same usage as \code{annot_rows_df} but for column annotation.}
 
-\item{annot_rows_legend}{Logical indicating if a legend should be drawn for row annotations.}
-
-\item{annot_cols_legend}{Logical indicating if a legend should be drawn for column annotations.}
-
-\item{annot_rows_colr}{Named list for row annotation colour scales. The names should specify which annotation the scales apply to.
+\item{annot_rows_fill}{Named list for row annotation colour scales. The names should specify which annotation the scales apply to.
 Elements can be strings or ggplot2 "Scale" class objects. If a string it is used as the brewer palette (categorical annotation) or viridis option (continuous annotation).
 If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
 specify order using the \code{guide} argument in the \code{ggplot2} scale function provided.}
 
-\item{annot_cols_colr}{Named list used for column annotation colour scales, used like \code{annot_rows_colr}.}
+\item{annot_cols_fill}{Named list used for column annotation colour scales, used like \code{annot_rows_fill}.}
 
 \item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' for left, otherwise right).}
 
 \item{annot_cols_side}{String specifying which side column annotation should be drawn ('bottom', 'down', 'lower' for bottom, otherwise top).}
 
+\item{annot_legend}{Logical indicating if row and column annotations should have legends.}
+
 \item{annot_dist}{Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.}
-
-\item{annot_rows_dist}{Used to overwrite \code{annot_dist} for row annotation.}
-
-\item{annot_cols_dist}{Used to overwrite \code{annot_dist} for column annotation.}
 
 \item{annot_gap}{Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.}
 
-\item{annot_rows_gap}{Used to overwrite \code{annot_gap} for row annotation.}
-
-\item{annot_cols_gap}{Used to overwrite \code{annot_gap} for column annotation.}
-
 \item{annot_size}{Size (width for row annotation, height for column annotation) of annotation cells. Used for both row and column annotation.}
-
-\item{annot_rows_size}{Used to overwrite \code{annot_size} for row annotation.}
-
-\item{annot_cols_size}{Used to overwrite \code{annot_size} for column annotation.}
 
 \item{annot_label}{not yet implemented (control if names of annotations should be shown in drawing area)}
 
-\item{annot_rows_label}{not yet implemented}
-
-\item{annot_cols_label}{not yet implemented}
-
 \item{annot_label_size}{not yet implemented}
 
-\item{annot_rows_label_size}{not yet implemented}
+\item{annot_rows_params}{Named list with parameters for row annotations to overwrite the defaults set by the \verb{annot_*} arguments, each name corresponding to the \code{*} part
+(see details for more information).}
 
-\item{annot_cols_label_size}{not yet implemented}
+\item{annot_cols_params}{Named list with parameters for column annotations, used like \code{annot_rows_params}.}
 
-\item{annot_rows_border_col}{Colour of row annotation borders. By default uses the same colour as the heatmap cell borders.}
-
-\item{annot_cols_border_col}{Colour of column annotation borders. By default uses the same colour as the row annotation cell borders.}
-
-\item{annot_rows_border_lwd}{Line width of row annotation borders. By default uses the same value as the heatmap cell borders.}
-
-\item{annot_cols_border_lwd}{Line width of column annotation borders. By default uses the same value as the row annotation cell borders.}
-
-\item{clust_data}{Logical indicating if the correlations should be clustered in the heatmap. May also be
+\item{cluster_data}{Logical indicating if the correlations should be clustered in the heatmap. May also be
 a \code{hclust} object where the correlations have been clustered already.}
 
-\item{dist_method}{String with the distance metric to use for clustering, given to \code{dist}.}
+\item{cluster_distance}{String with the distance metric to use for clustering, given to \code{dist}.}
 
-\item{clust_method}{String with the clustering method to use, given to \code{hclust}.}
+\item{cluster_method}{String with the clustering method to use, given to \code{hclust}.}
 
 \item{dend_rows}{Logical indicating if a dendrogram should be drawn for the rows.}
 
@@ -211,7 +176,8 @@ a \code{hclust} object where the correlations have been clustered already.}
 
 \item{dend_cols_colour}{Colour of the column dendrogram.}
 
-\item{dend_options}{Options to give to \code{dendextend::set} for customising the dendrogram. Only works with options for colour, line type and line width.
+\item{dend_options}{A named list with options to give to \code{dendextend::set} for customising the dendrogram. See details for usage.
+Only works with options for colour, line type and line width.
 The options are specified in a list where each element is a list corresponding to one call of
 dendextend::set(). Each such list must either contain the 'what' argument as the first element or
 as an element named 'what'. Other elements must be named and sepcify other parameters, such as
@@ -226,11 +192,29 @@ as an element named 'what'. Other elements must be named and sepcify other param
 \value{
 The correlation heatmap as a \code{ggplot} object.
 If \code{return_data} is TRUE the output is a list containing the plot (named 'plot'),
-the correlations ('plot_data'), and the result of the clustering ('clustering', only if \code{clust_data} is TRUE).
+the correlations ('plot_data'), and the result of the clustering ('clustering', only if \code{cluster_data} is TRUE).
 }
 \description{
 Make a correlation heatmap with ggplot2.
 }
+\details{
+The annotation parameter arguments \code{annot_rows_params} and \code{annot_cols_params} should be named lists, where the possible options correspond to
+the different \verb{annot_*} arguments. The possible options are "legend" (logical, if legends should be drawn), "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
+"size" (cell size), "label" (logical, if the annotation names should be displayed), and "label_size" (label text size). Any unused options will
+use the defaults set by the \verb{annot_*} arguments.
+
+The \code{dend_options} argument makes it possible to customise the dendrograms using the \code{dendextend} package.
+The argument should be a named list, each element named after the \code{dendextend} function to use (consecutive usage of the \code{set} function
+is supported due to duplicate list names being possible). Each element should contain any arguments given to the \code{dendextend} function,
+such as the \code{what} argument used in the \code{set} function. See examples for example usage.
+}
 \examples{
 gg_corr_heatmap(mtcars)
+
+# Using the dend_options argument
+gg_corr_heatmap(mtcars, cluster_data = T, dend_options =
+  list("set" = list("branches_lty", c(1, 2, 3)),
+       "set" = list("branches_k_color", k = 3)),
+       # Empty list element (or NULL works) if no arguments to be given
+       "highlight_branches_lwd" = list())
 }
