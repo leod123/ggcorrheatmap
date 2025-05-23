@@ -23,7 +23,7 @@ gg_corr_heatmap(
   border_col = "grey",
   border_lwd = 0.5,
   names_diag = T,
-  params_diag = NULL,
+  names_diag_param = NULL,
   names_x = F,
   names_x_side = "top",
   names_y = F,
@@ -104,7 +104,7 @@ A numeric value can be used to specify an R shape (pch) to use, such as 21 for f
 
 \item{names_diag}{Logical indicating if names should be written in the diagonal cells.}
 
-\item{params_diag}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
+\item{names_diag_param}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
 
 \item{names_x}{Logical indicating if names should be written on the x axis. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
 
@@ -207,12 +207,26 @@ is supported due to duplicate list names being possible). Each element should co
 such as the \code{what} argument used in the \code{set} function. See examples for example usage.
 }
 \examples{
+# Basic usage
 gg_corr_heatmap(mtcars)
+
+# Different layout
+gg_corr_heatmap(mtcars, layout = "f")
+
+# With clustering
+gg_corr_heatmap(mtcars, layout = "tl", cluster_data = T)
+
+# With annotation
+set.seed(123)
+annot <- data.frame(.names = colnames(mtcars),
+                    annot1 = rnorm(ncol(mtcars)),
+                    annot2 = sample(letters[1:3], ncol(mtcars), T))
+gg_corr_heatmap(mtcars, layout = "tr", annot_rows_df = annot)
 
 # Using the dend_options argument
 gg_corr_heatmap(mtcars, cluster_data = T, dend_options =
   list("set" = list("branches_lty", c(1, 2, 3)),
-       "set" = list("branches_k_color", k = 3)),
+       "set" = list("branches_k_color", k = 3),
        # Empty list element (or NULL) if no arguments to be given
-       "highlight_branches_lwd" = list())
+       "highlight_branches_lwd" = list()))
 }

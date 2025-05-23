@@ -24,7 +24,7 @@
 #' @param border_col Colour of cell borders.
 #' @param border_lwd Size of cell borders, used for the `size` argument in `ggplot2::geom_tile`. Set to 0 to remove cell borders.
 #' @param names_diag Logical indicating if names should be written in the diagonal cells.
-#' @param params_diag List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
+#' @param names_diag_param List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
 #' @param names_x Logical indicating if names should be written on the x axis. Labels can be customised using `ggplot2::theme()` on the output plot.
 #' @param names_x_side String specifying position of the x axis names ("top" or "bottom").
 #' @param names_y Logical indicating if names should be written on the y axis.
@@ -116,7 +116,7 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
                             layout = "lowerright", include_diag = F, return_data = F,
                             cell_shape = "heatmap", label_cells = F, cell_label_size = 3, cell_label_digits = 2,
                             border_col = "grey", border_lwd = 0.5,
-                            names_diag = T, params_diag = NULL,
+                            names_diag = T, names_diag_param = NULL,
                             names_x = F, names_x_side = "top", names_y = F, names_y_side = "left",
                             annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
                             annot_rows_side = "right", annot_cols_side = "bottom",
@@ -349,8 +349,8 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
 
     # Construct call using optional parameters
     text_call_params <- list(data = axis_lab, mapping = ggplot2::aes(x = lab, y = lab, label = lab))
-    if (is.list(params_diag)) {
-      text_call_params <- append(text_call_params, params_diag)
+    if (is.list(names_diag_param)) {
+      text_call_params <- append(text_call_params, names_diag_param)
     }
 
     cor_plt <- cor_plt +
@@ -368,15 +368,18 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
                          size = cell_label_size)
   }
 
+  # Prepare default colour scales
+  annot_col_list <- prepare_annot_col(annot_rows_df, annot_cols_df, annot_rows_fill, annot_cols_fill)
+
   # Add row and column annotations
   if (is.data.frame(annot_rows_df)) {
-    # Change legend order to be in order of columns (after correlation)
+    # Change legend order to be in order of annotations (after correlation)
     lgd_order <- seq_along(annot_rows_df)[-1]
     names(lgd_order) <- colnames(annot_rows_df)[-1]
 
     cor_plt <- add_annotation(cor_plt, annot_dim = "rows", annot_rows_df, annot_rows_pos, annot_rows_params$size,
                               annot_rows_params$border_lwd, annot_rows_params$border_col, annot_rows_params$legend,
-                              annot_rows_fill, lgd_order)
+                              annot_col_list[[1]], lgd_order)
   }
 
   if (is.data.frame(annot_cols_df)) {
@@ -386,7 +389,7 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
 
     cor_plt <- add_annotation(cor_plt, annot_dim = "cols", annot_cols_df, annot_cols_pos, annot_cols_params$size,
                               annot_cols_params$border_lwd, annot_cols_params$border_col, annot_cols_params$legend,
-                              annot_cols_fill, lgd_order)
+                              annot_col_list[[2]], lgd_order)
   }
 
   # Add dendrograms

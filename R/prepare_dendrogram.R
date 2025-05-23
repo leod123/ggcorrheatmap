@@ -34,8 +34,8 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
     # Column dendrogram, no rotation or 180 degrees
     ifelse(!dend_down, 0, pi)
   }
-  dend_seg[, c("x", "y")] <- as.data.frame(t(ggcorrheatmap::rotate(t(dend_seg[, c("x", "y")]), angle = rot_angle)))
-  dend_seg[, c("xend", "yend")] <- as.data.frame(t(ggcorrheatmap::rotate(t(dend_seg[, c("xend", "yend")]), angle = rot_angle)))
+  dend_seg[, c("x", "y")] <- as.data.frame(t(rotate(t(dend_seg[, c("x", "y")]), angle = rot_angle)))
+  dend_seg[, c("xend", "yend")] <- as.data.frame(t(rotate(t(dend_seg[, c("xend", "yend")]), angle = rot_angle)))
 
   # If needed mirror the dendrogram around the middle if the rotation caused it to not line up with the correct rows
   if ((!dend_down & !dend_left) | (dend_down & dend_left & !full_plt) |

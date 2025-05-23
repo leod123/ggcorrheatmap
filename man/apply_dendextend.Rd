@@ -11,6 +11,9 @@ apply_dendextend(dendro, dend_list)
 
 \item{dend_list}{List specifying dendextend functions to apply. For usage see the details of \code{gg_corr_heatmap}.}
 }
+\value{
+A dendrogram object modified with dendextend functions.
+}
 \description{
 Successively apply dendextend functions to a dendrogram.
 }

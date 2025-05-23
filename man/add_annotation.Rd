@@ -13,7 +13,8 @@ add_annotation(
   annot_border_lwd = 0.5,
   annot_border_col = "grey",
   draw_legend = T,
-  col_scale = NULL
+  col_scale = NULL,
+  legend_order = NULL
 )
 }
 \arguments{
@@ -36,7 +37,8 @@ Positions are given by the middle coordinate of the annotation cells.}
 
 \item{draw_legend}{Logical indicating if a legend should be drawn.}
 
-\item{col_scale}{Colour scale for filling cells. Either a \code{ggplot2} scale object or a string specifying the brewer or viridis scale.}
+\item{col_scale}{Named list of fill scales to use, named after the columns in the annotation data frame.
+Each element should either be a \verb{scale_fill_*} object or a string specifying a brewer palette or viridis option.}
 }
 \value{
 \code{ggplot} object with added annotations.
@@ -44,3 +46,4 @@ Positions are given by the middle coordinate of the annotation cells.}
 \description{
 Add annotations to ggplot heatmap
 }
+\keyword{internal}
