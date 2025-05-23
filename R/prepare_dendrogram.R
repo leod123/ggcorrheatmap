@@ -55,4 +55,5 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
                                  dend_height)
   }
 
+  return(dend_seg)
 }
