@@ -46,10 +46,13 @@
 #' @param annot_gap Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_size Size (width for row annotation, height for column annotation) of annotation cells. Used for both row and column annotation.
 #' @param annot_label not yet implemented (control if names of annotations should be shown in drawing area)
-#' @param annot_label_size not yet implemented
 #' @param annot_rows_params Named list with parameters for row annotations to overwrite the defaults set by the `annot_*` arguments, each name corresponding to the `*` part
 #' (see details for more information).
 #' @param annot_cols_params Named list with parameters for column annotations, used like `annot_rows_params`.
+#' @param annot_rows_label_side String specifying which side the row annotation labels should be on. Either "top" or "bottom".
+#' @param annot_cols_label_side String specifying which side the column annotation labels should be on. Either "left" or "right".
+#' @param annot_rows_label_params Named list of parameters for row annotation labels. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
+#' @param annot_cols_label_params Named list of parameters for column annotation labels. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
 #' @param cluster_data Logical indicating if the correlations should be clustered in the heatmap. May also be
 #' a `hclust` object where the correlations have been clustered already.
 #' @param cluster_distance String with the distance metric to use for clustering, given to `dist`.
@@ -103,7 +106,9 @@
 #' annot <- data.frame(.names = colnames(mtcars),
 #'                     annot1 = rnorm(ncol(mtcars)),
 #'                     annot2 = sample(letters[1:3], ncol(mtcars), T))
-#' gg_corr_heatmap(mtcars, layout = "tr", annot_rows_df = annot)
+#' gg_corr_heatmap(mtcars, layout = "tr", annot_rows_df = annot,
+#'                 # Change margins to fit annotation labels
+#'                 plot_margin = c(20, 10, 60, 20))
 #'
 #' # Using the dend_options argument
 #' gg_corr_heatmap(mtcars, cluster_data = T, dend_options =
@@ -120,8 +125,10 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
                             names_x = F, names_x_side = "top", names_y = F, names_y_side = "left",
                             annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
                             annot_rows_side = "right", annot_cols_side = "bottom",
-                            annot_legend = T, annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = T, annot_label_size = 4,
+                            annot_legend = T, annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = T,
                             annot_rows_params = NULL, annot_cols_params = NULL,
+                            annot_rows_label_side = "bottom", annot_cols_label_side = "left",
+                            annot_rows_label_params = NULL, annot_cols_label_params = NULL,
                             cluster_data = F, cluster_distance = "euclidean", cluster_method = "complete",
                             dend_rows = T, dend_cols = T, dend_rows_side = "right", dend_cols_side = "bottom",
                             dend_col = "black", dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
@@ -222,7 +229,7 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
 
     # Make list with annotation parameter defaults from the common annotation options
     annot_rows_defaults <- list(legend = annot_legend, dist = annot_dist, gap = annot_gap,
-                                size = annot_size, label = annot_label, label_size = annot_label_size,
+                                size = annot_size, label = annot_label,
                                 border_col = border_col, border_lwd = border_lwd)
     # Replace defaults with any provided options
     annot_rows_params <- replace_default(annot_rows_defaults, annot_rows_params)
@@ -230,6 +237,10 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
     # Get positions of annotations
     annot_rows_pos <- get_annotation_pos("rows", annot_left, annot_rows_names, annot_rows_params$size,
                                          annot_rows_params$dist, annot_rows_params$gap, ncol(data))
+
+    # Row annotation label parameters and their defaults (fed to grid::textGrob)
+    annot_rows_label_defaults <- list(rot = 90, just = switch(annot_rows_label_side, "bottom" = "right", "top" = "left"))
+    annot_rows_label_params <- replace_default(annot_rows_label_defaults, annot_rows_label_params)
   }
 
   if (is.data.frame(annot_cols_df)) {
@@ -242,13 +253,16 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
 
     # Make list with annotation parameter defaults from the common annotation options
     annot_cols_defaults <- list(legend = annot_legend, dist = annot_dist, gap = annot_gap,
-                                size = annot_size, label = annot_label, label_size = annot_label_size,
+                                size = annot_size, label = annot_label,
                                 border_col = border_col, border_lwd = border_lwd)
     # Replace defaults with any provided options
     annot_cols_params <- replace_default(annot_cols_defaults, annot_cols_params)
 
     annot_cols_pos <- get_annotation_pos("cols", annot_down, annot_cols_names, annot_cols_params$size,
                                          annot_cols_params$dist, annot_cols_params$gap, ncol(data))
+
+    annot_cols_label_defaults <- list(rot = 0, just = switch(annot_cols_label_side, "left" = "right", "right" = "left"))
+    annot_cols_label_params <- replace_default(annot_cols_label_defaults, annot_cols_label_params)
   }
 
   # Generate dendrograms
@@ -379,7 +393,7 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
 
     cor_plt <- add_annotation(cor_plt, annot_dim = "rows", annot_rows_df, annot_rows_pos, annot_rows_params$size,
                               annot_rows_params$border_lwd, annot_rows_params$border_col, annot_rows_params$legend,
-                              annot_col_list[[1]], lgd_order)
+                              annot_col_list[[1]], lgd_order, annot_rows_label_side, annot_rows_label_params)
   }
 
   if (is.data.frame(annot_cols_df)) {
@@ -389,7 +403,7 @@ gg_corr_heatmap <- function(data, cor_method = "pearson", cor_use = "everything"
 
     cor_plt <- add_annotation(cor_plt, annot_dim = "cols", annot_cols_df, annot_cols_pos, annot_cols_params$size,
                               annot_cols_params$border_lwd, annot_cols_params$border_col, annot_cols_params$legend,
-                              annot_col_list[[2]], lgd_order)
+                              annot_col_list[[2]], lgd_order, annot_cols_label_side, annot_cols_label_params)
   }
 
   # Add dendrograms

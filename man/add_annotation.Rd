@@ -14,7 +14,9 @@ add_annotation(
   annot_border_col = "grey",
   draw_legend = T,
   col_scale = NULL,
-  legend_order = NULL
+  legend_order = NULL,
+  label_side,
+  label_params = NULL
 )
 }
 \arguments{
@@ -39,6 +41,12 @@ Positions are given by the middle coordinate of the annotation cells.}
 
 \item{col_scale}{Named list of fill scales to use, named after the columns in the annotation data frame.
 Each element should either be a \verb{scale_fill_*} object or a string specifying a brewer palette or viridis option.}
+
+\item{legend_order}{Numeric vector specifying the order the legends should be drawn in (applied in order of columns in annot_df).}
+
+\item{label_side}{String specifying which side the labels should be drawn on. "top" or "bottom" for row annotation, "left" or "right" for column annotation.}
+
+\item{label_params}{A named list of parameters to give \code{grid::textGrob} to modify annotation label appearance.}
 }
 \value{
 \code{ggplot} object with added annotations.

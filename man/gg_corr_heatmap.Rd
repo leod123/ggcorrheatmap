@@ -39,9 +39,12 @@ gg_corr_heatmap(
   annot_gap = 0,
   annot_size = 0.5,
   annot_label = T,
-  annot_label_size = 4,
   annot_rows_params = NULL,
   annot_cols_params = NULL,
+  annot_rows_label_side = "bottom",
+  annot_cols_label_side = "left",
+  annot_rows_label_params = NULL,
+  annot_cols_label_params = NULL,
   cluster_data = F,
   cluster_distance = "euclidean",
   cluster_method = "complete",
@@ -142,12 +145,18 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 
 \item{annot_label}{not yet implemented (control if names of annotations should be shown in drawing area)}
 
-\item{annot_label_size}{not yet implemented}
-
 \item{annot_rows_params}{Named list with parameters for row annotations to overwrite the defaults set by the \verb{annot_*} arguments, each name corresponding to the \code{*} part
 (see details for more information).}
 
 \item{annot_cols_params}{Named list with parameters for column annotations, used like \code{annot_rows_params}.}
+
+\item{annot_rows_label_side}{String specifying which side the row annotation labels should be on. Either "top" or "bottom".}
+
+\item{annot_cols_label_side}{String specifying which side the column annotation labels should be on. Either "left" or "right".}
+
+\item{annot_rows_label_params}{Named list of parameters for row annotation labels. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
+
+\item{annot_cols_label_params}{Named list of parameters for column annotation labels. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
 
 \item{cluster_data}{Logical indicating if the correlations should be clustered in the heatmap. May also be
 a \code{hclust} object where the correlations have been clustered already.}
@@ -221,7 +230,9 @@ set.seed(123)
 annot <- data.frame(.names = colnames(mtcars),
                     annot1 = rnorm(ncol(mtcars)),
                     annot2 = sample(letters[1:3], ncol(mtcars), T))
-gg_corr_heatmap(mtcars, layout = "tr", annot_rows_df = annot)
+gg_corr_heatmap(mtcars, layout = "tr", annot_rows_df = annot,
+                # Change margins to fit annotation labels
+                plot_margin = c(20, 10, 60, 20))
 
 # Using the dend_options argument
 gg_corr_heatmap(mtcars, cluster_data = T, dend_options =
