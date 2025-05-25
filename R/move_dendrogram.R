@@ -57,7 +57,7 @@ move_dendrogram <- function(dend_seg, cor_long, dend_dim = c("rows", "cols"), de
       ifelse(    # Annotation above heatmap
         is.data.frame(annot_df) & annot & !annot_side,
         max(annot_pos) + 0.5 * annot_size - min(c(dend_seg$y, dend_seg$yend)),
-        length(unique(cor_long$col)) + 0.5 - min(c(dend_seg$y, dend_seg$yend))
+        length(unique(cor_long$row)) + 0.5 - min(c(dend_seg$y, dend_seg$yend))
       )
     )
   }

@@ -5,7 +5,8 @@
 \title{Make a correlation heatmap with ggplot2.}
 \usage{
 gg_corr_heatmap(
-  data,
+  x,
+  y = NULL,
   cor_method = "pearson",
   cor_use = "everything",
   high = "sienna2",
@@ -13,7 +14,7 @@ gg_corr_heatmap(
   low = "skyblue2",
   limits = c(-1, 1),
   bins = NULL,
-  layout = "lowerright",
+  layout = "full",
   include_diag = F,
   return_data = F,
   cell_shape = "heatmap",
@@ -45,7 +46,8 @@ gg_corr_heatmap(
   annot_cols_label_side = "left",
   annot_rows_label_params = NULL,
   annot_cols_label_params = NULL,
-  cluster_data = F,
+  cluster_rows = F,
+  cluster_cols = F,
   cluster_distance = "euclidean",
   cluster_method = "complete",
   dend_rows = T,
@@ -58,14 +60,17 @@ gg_corr_heatmap(
   dend_lty = 1,
   dend_rows_params = NULL,
   dend_cols_params = NULL,
-  dend_options = NULL,
+  dend_rows_extend = NULL,
+  dend_cols_extend = NULL,
   legend_position = "right",
   plot_margin = c(20, 10, 10, 20),
   margin_unit = "pt"
 )
 }
 \arguments{
-\item{data}{A matrix or data frame containing numeric values, where the columns will be correlated with each other.}
+\item{x}{Matrix or data frame in wide format containing the columns to correlate against each other or against the columns in \code{y}.}
+
+\item{y}{Optional matrix or data frame in wide format containing columns to correlate with the columns in \code{x}.}
 
 \item{cor_method}{String specifying correlation method to use in the \code{cor} function. Default is 'pearson'.}
 
@@ -158,8 +163,9 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 
 \item{annot_cols_label_params}{Named list of parameters for column annotation labels. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
 
-\item{cluster_data}{Logical indicating if the correlations should be clustered in the heatmap. May also be
-a \code{hclust} object where the correlations have been clustered already.}
+\item{cluster_rows}{Logical indicating if rows should be clustered.}
+
+\item{cluster_cols}{Logical indicating if columns should be clustered.}
 
 \item{cluster_distance}{String with the distance metric to use for clustering, given to \code{dist}.}
 
@@ -185,9 +191,12 @@ a \code{hclust} object where the correlations have been clustered already.}
 
 \item{dend_cols_params}{Named list for column dendrogram parameters. See details for more information.}
 
-\item{dend_options}{A named list with options to give to \code{dendextend::set} for customising the dendrogram. See details for usage.}
+\item{dend_rows_extend}{Named list for specifying \code{dendextend} functions to apply to the row dendrogram. See details for usage.}
 
-\item{legend_position}{Position of the legends (use how???)}
+\item{dend_cols_extend}{Named list for specifying \code{dendextend} functions to apply to the column dendrogram. See details for usage.}
+
+\item{legend_position}{Position of the legends, given to \code{ggplot2::theme}. Either a string for the position outside the plotting area,
+or a numeric vector of length 2 for normalised coordinates inside the plotting area.}
 
 \item{plot_margin}{Plot margins, specified as a numeric vector of length 4 in the order of top, right, bottom, left.}
 

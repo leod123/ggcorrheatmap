@@ -38,9 +38,15 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
   dend_seg[, c("xend", "yend")] <- as.data.frame(t(rotate(t(dend_seg[, c("xend", "yend")]), angle = rot_angle)))
 
   # If needed mirror the dendrogram around the middle if the rotation caused it to not line up with the correct rows
-  if ((!dend_down & !dend_left) | (dend_down & dend_left & !full_plt) |
-      (!dend_down & dend_left & full_plt)) {
-    dend_seg <- mirror_dendrogram(dend_seg, dend_dim)
+  # Since all triangular layouts restrict the possible dendrogram positions and change the row and column orders, need layout-specific conditions
+  if (dend_dim == "rows") {
+    if ((!dend_left & full_plt) | (dend_down & dend_left & !full_plt) | (!dend_down & !dend_left & !full_plt)) {
+      dend_seg <- mirror_dendrogram(dend_seg, dend_dim)
+    }
+  } else if (dend_dim == "cols") {
+    if ((!dend_down & full_plt) | (!dend_down & !dend_left & !full_plt) | (dend_down & dend_left & !full_plt)) {
+      dend_seg <- mirror_dendrogram(dend_seg, dend_dim)
+    }
   }
 
   # Move dendrogram next to heatmap

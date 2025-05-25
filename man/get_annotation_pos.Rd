@@ -5,7 +5,6 @@
 \title{Calculate positions of annotations for heatmap.}
 \usage{
 get_annotation_pos(
-  annot_dim = c("rows", "cols"),
   annot_side = T,
   annot_names,
   annot_size,
@@ -15,8 +14,6 @@ get_annotation_pos(
 )
 }
 \arguments{
-\item{annot_dim}{Dimension to plot annotations along (rows or columns).}
-
 \item{annot_side}{Logical specifying annotation position. TRUE is left of the heatmap if row annotation,
 bottom of heatmap if column annotation}
 

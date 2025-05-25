@@ -2,7 +2,6 @@
 #'
 #' @keywords internal
 #'
-#' @param annot_dim Dimension to plot annotations along (rows or columns).
 #' @param annot_side Logical specifying annotation position. TRUE is left of the heatmap if row annotation,
 #' bottom of heatmap if column annotation
 #' @param annot_names Names of the annotations.
@@ -14,8 +13,7 @@
 #'
 #' @return Numeric vector of annotation cell positions
 #'
-get_annotation_pos <- function(annot_dim = c("rows", "cols"), annot_side = T, annot_names,
-                               annot_size, annot_dist, annot_gap, data_size) {
+get_annotation_pos <- function(annot_side = T, annot_names, annot_size, annot_dist, annot_gap, data_size) {
   positions <- sapply(seq_along(annot_names), \(id) {
     ifelse(annot_side, 1, data_size) +            # To middle of first or last column/row
       (0.5 + annot_dist +                         # Add half of cell width + specified distance to heatmap

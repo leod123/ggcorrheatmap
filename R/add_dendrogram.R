@@ -22,7 +22,7 @@ add_dendrogram <- function(ggp, dend_seg, dend_col = "black", dend_lwd = 0.3, de
                             linetype = if (all(is.na(dend_seg$lty))) {dend_lty}
                             else {dend_seg$lty})
   } else {
-    seg_colr <- pull(distinct(dend_seg, col), col)
+    seg_colr <- dplyr::pull(dplyr::distinct(dend_seg, col), col)
     names(seg_colr) <- seg_colr
     ggp <- ggp +
       ggnewscale::new_scale_colour() +
