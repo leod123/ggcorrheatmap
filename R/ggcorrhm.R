@@ -122,6 +122,7 @@
 ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything",
                      high = "sienna2", mid = "white", low = "skyblue2",
                      limits = c(-1, 1), bins = NULL, fill_name = NULL, #...
+                     na_remove = F, na_col = "grey",
                      layout = "full", include_diag = F, return_data = F,
                      cell_shape = "heatmap", label_cells = F, cell_label_size = 3, cell_label_digits = 2,
                      border_col = "grey", border_lwd = 0.5,
@@ -167,15 +168,15 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 
   # Make the fill colour scale
   fill_scale <- if (!is.null(bins)) {
-    ggplot2::scale_fill_steps2(limits = limits, high = high, mid = mid, low = low,
+    ggplot2::scale_fill_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
                                breaks = seq(limits[1], limits[2], length.out = bins), guide = ggplot2::guide_colourbar(order = 1))
   } else {
-    ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low,
+    ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
                                   guide = ggplot2::guide_colourbar(order = 1))
   }
 
   # Call with all arguments to get the tooltips when calling this wrapper function
-  cor_plt <- gghm(cor_mat, fill_scale = fill_scale, fill_name = fill_name,
+  cor_plt <- gghm(cor_mat, fill_scale = fill_scale, fill_name = fill_name, na_remove = na_remove,
                   layout = layout, include_diag = include_diag, return_data = return_data,
                   cell_shape = cell_shape, label_cells = label_cells, cell_label_size = cell_label_size,
                   cell_label_digits = cell_label_digits, border_col = border_col, border_lwd = border_lwd,

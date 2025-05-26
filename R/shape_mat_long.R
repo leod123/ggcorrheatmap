@@ -8,11 +8,11 @@
 #'
 #' @examples
 #' shape_mat_long(cor(mtcars))
-shape_mat_long <- function(x, unique_pairs = F) {
-  # Remove upper triangle of correlation matrix if only unique pairs are desired
-  if (unique_pairs) {
-    x[upper.tri(x, diag = F)] <- NA
-  }
+shape_mat_long <- function(x, unique_pairs = F, na_remove = F) {
+  # # Remove upper triangle of correlation matrix if only unique pairs are desired
+  # if (unique_pairs) {
+  #   x[upper.tri(x, diag = F)] <- NA
+  # }
 
   # Convert to long format
   mat_long <- as.data.frame(x)
@@ -21,8 +21,20 @@ shape_mat_long <- function(x, unique_pairs = F) {
   cols <- setdiff(colnames(mat_long), ".row")
   mat_long <- reshape(mat_long, direction = "long", timevar = ".col", v.names = "value",
                       varying = cols, times = cols)
-  # Remove NAs, unneeded columns, and rownames
-  mat_long <- dplyr::filter(mat_long, !is.na(value))
+
+  # Remove repeated combinations if desired
+  if (unique_pairs) {
+    # Make a new column with sorted row-col combinations and filter out unique rows
+    mat_long$rowcol <- apply(mat_long, 1, function(i) paste(sort(c(i[".row"], i[".col"])), collapse = "_"))
+    mat_long <- dplyr::distinct(mat_long, rowcol, .keep_all = T)
+  }
+
+  # Remove NAs if desired (makes for completely empty cells and a cleaner look)
+  if (na_remove) {
+    mat_long <- dplyr::filter(mat_long, !is.na(value))
+  }
+
+  # Keep only the necessary columns and remove rownames to prevent problems with downstream functions
   mat_long <- dplyr::select(mat_long, row = .row, col = .col, value)
   rownames(mat_long) <- NULL
 

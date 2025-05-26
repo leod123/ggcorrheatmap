@@ -119,7 +119,7 @@
 #'        "set" = list("branches_k_color", k = 3),
 #'        # Empty list element (or NULL) if no arguments to be given
 #'        "highlight_branches_lwd" = list()))
-gghm <- function(x, fill_scale = NULL, fill_name = "value",
+gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = F,
                  layout = "full", include_diag = F, return_data = F,
                  cell_shape = "heatmap", label_cells = F, cell_label_size = 3, cell_label_digits = NULL,
                  border_col = "grey", border_lwd = 0.5,
@@ -195,7 +195,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value",
   # Allow for specification of dendrogram positions only when the whole matrix is drawn
 
   # Make correlation matrix and long-format triangular correlation matrix
-  x_long <- shape_mat_long(x_mat, unique_pairs = !full_plt)
+  x_long <- shape_mat_long(x_mat, unique_pairs = !full_plt, na_remove = na_remove)
 
   if (full_plt) {
     dend_left <- grepl("left", dend_rows_side)
