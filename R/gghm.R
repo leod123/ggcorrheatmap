@@ -21,7 +21,7 @@
 #' A numeric value can be used to specify an R shape (pch) to use, such as 21 for filled circles. Note that only shapes 21-25 support filling (others will not display the heatmap colour properly).
 #' @param label_cells Logical specifying if the cells should be labelled with the correlation values.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
-#' @param cell_label_digits Number of digits to display when cells are labelled with correlation coefficients. Default is 2, passed to `round`.
+#' @param cell_label_digits Number of digits to display when cells are labelled with correlation coefficients. Default is 2, passed to `round`. NULL for no rounding (or if labels are characters).
 #' @param border_col Colour of cell borders.
 #' @param border_lwd Size of cell borders, used for the `size` argument in `ggplot2::geom_tile`. Set to 0 to remove cell borders.
 #' @param names_diag Logical indicating if names should be written in the diagonal cells.
@@ -119,45 +119,43 @@
 #'        "set" = list("branches_k_color", k = 3),
 #'        # Empty list element (or NULL) if no arguments to be given
 #'        "highlight_branches_lwd" = list()))
-gg_corr_heatmap <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything",
-                            high = "sienna2", mid = "white", low = "skyblue2", limits = c(-1, 1), bins = NULL,
-                            layout = "full", include_diag = F, return_data = F,
-                            cell_shape = "heatmap", label_cells = F, cell_label_size = 3, cell_label_digits = 2,
-                            border_col = "grey", border_lwd = 0.5,
-                            names_diag = T, names_diag_param = NULL,
-                            names_x = F, names_x_side = "top", names_y = F, names_y_side = "left",
-                            annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
-                            annot_rows_side = "right", annot_cols_side = "bottom",
-                            annot_legend = T, annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = T,
-                            annot_rows_params = NULL, annot_cols_params = NULL,
-                            annot_rows_label_side = "bottom", annot_cols_label_side = "left",
-                            annot_rows_label_params = NULL, annot_cols_label_params = NULL,
-                            cluster_rows = F, cluster_cols = F,
-                            cluster_distance = "euclidean", cluster_method = "complete",
-                            dend_rows = T, dend_cols = T, dend_rows_side = "right", dend_cols_side = "bottom",
-                            dend_col = "black", dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
-                            dend_rows_params = NULL, dend_cols_params = NULL,
-                            dend_rows_extend = NULL, dend_cols_extend = NULL,
-                            legend_position = "right",
-                            plot_margin = c(20, 10, 10, 20), margin_unit = "pt") {
+gghm <- function(x, fill_scale = NULL, fill_name = "value",
+                 layout = "full", include_diag = F, return_data = F,
+                 cell_shape = "heatmap", label_cells = F, cell_label_size = 3, cell_label_digits = NULL,
+                 border_col = "grey", border_lwd = 0.5,
+                 names_diag = T, names_diag_param = NULL,
+                 names_x = F, names_x_side = "top", names_y = F, names_y_side = "left",
+                 annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
+                 annot_rows_side = "right", annot_cols_side = "bottom",
+                 annot_legend = T, annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = T,
+                 annot_rows_params = NULL, annot_cols_params = NULL,
+                 annot_rows_label_side = "bottom", annot_cols_label_side = "left",
+                 annot_rows_label_params = NULL, annot_cols_label_params = NULL,
+                 cluster_rows = F, cluster_cols = F,
+                 cluster_distance = "euclidean", cluster_method = "complete",
+                 dend_rows = T, dend_cols = T, dend_rows_side = "right", dend_cols_side = "bottom",
+                 dend_col = "black", dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
+                 dend_rows_params = NULL, dend_cols_params = NULL,
+                 dend_rows_extend = NULL, dend_cols_extend = NULL,
+                 legend_position = "right",
+                 plot_margin = c(20, 10, 10, 20), margin_unit = "pt") {
 
-  # cor_mat <- cor(data, method = cor_method, use = cor_use)
-  cor_mat <- if (is.null(y)) {
-    cor(x, method = cor_method, use = cor_use)
-  } else {
-    cor(x, y, method = cor_method, use = cor_use)
+  if (".names" %in% colnames(x)) {
+    rownames(x) <- x[[".names"]]
+    x <- dplyr::select(x, -.names)
   }
+  x_mat <- as.matrix(x)
 
   full_plt <- grepl("full|whole|all|^a|^w|^f", layout)
 
   # If the matrix is non-symmetric, triangular layouts break! Throw a warning
-  if (!isSymmetric(cor_mat) & !full_plt) {
+  if (!isSymmetric(x_mat) & !full_plt) {
     warning("Triangular layouts with non-symmetric matrices cannot display all cells! The full layout is recommended.")
   }
 
   # Don't display names on the diagonal if the plot is non-symmetric as it will cause
   # new ghost columns to be added to draw the names where row == col
-  if (!isSymmetric(cor_mat)) {
+  if (!isSymmetric(x_mat)) {
     names_diag <- F
     # Also display x and y names by default, but remove if specified as FALSE (when specified as a named argument)
     names_x <- eval(replace_default(list("names_x" = T), as.list(sys.call()))$names_x)
@@ -165,7 +163,7 @@ gg_corr_heatmap <- function(x, y = NULL, cor_method = "pearson", cor_use = "ever
   }
 
   # If clustering a symmetric matrix with a triangular layout, both rows and columns must be clustered. Automatically cluster both and throw a warning
-  if (isSymmetric(cor_mat) & !full_plt &
+  if (isSymmetric(x_mat) & !full_plt &
       ((!isFALSE(cluster_rows) & isFALSE(cluster_cols)) | (isFALSE(cluster_rows) & !isFALSE(cluster_cols)))) {
     warning("Cannot cluster only one dimension for triangular layouts with symmetric matrices, clustering both rows and columns.")
     if (isFALSE(cluster_rows)) {cluster_rows <- cluster_cols}
@@ -176,19 +174,19 @@ gg_corr_heatmap <- function(x, y = NULL, cor_method = "pearson", cor_use = "ever
   # To allow for providing a hclust object when clustering, make a separate logical clustering variable
   lclust_rows <- F
   if (!isFALSE(cluster_rows)) {
-    row_clustering <- cluster_dimension(cluster_rows, cor_mat, cluster_distance, cluster_method, dend_rows_extend)
+    row_clustering <- cluster_dimension(cluster_rows, x_mat, cluster_distance, cluster_method, dend_rows_extend)
 
     # Reorder matrix to fit clustering
-    cor_mat <- cor_mat[row_clustering$dendro$labels$label, ]
+    x_mat <- x_mat[row_clustering$dendro$labels$label, ]
     lclust_rows <- T
   }
 
   lclust_cols <- F
   if (!isFALSE(cluster_cols)) {
-    col_clustering <- cluster_dimension(cluster_cols, t(cor_mat), cluster_distance, cluster_method, dend_cols_extend)
+    col_clustering <- cluster_dimension(cluster_cols, t(x_mat), cluster_distance, cluster_method, dend_cols_extend)
 
     # Reorder matrix to fit clustering
-    cor_mat <- cor_mat[, col_clustering$dendro$labels$label]
+    x_mat <- x_mat[, col_clustering$dendro$labels$label]
     lclust_cols <- T
   }
 
@@ -197,7 +195,7 @@ gg_corr_heatmap <- function(x, y = NULL, cor_method = "pearson", cor_use = "ever
   # Allow for specification of dendrogram positions only when the whole matrix is drawn
 
   # Make correlation matrix and long-format triangular correlation matrix
-  cor_long <- cor_shape_long(cor_mat, unique_pairs = !full_plt)
+  x_long <- shape_mat_long(x_mat, unique_pairs = !full_plt)
 
   if (full_plt) {
     dend_left <- grepl("left", dend_rows_side)
@@ -210,22 +208,22 @@ gg_corr_heatmap <- function(x, y = NULL, cor_method = "pearson", cor_use = "ever
     pos_down = dend_down = annot_down <- grepl("lower|bottom|down", layout) | substring(layout, 1, 1) %in% c("l", "b", "d")
   }
 
-  cor_long$row <- factor(cor_long$row,
-                         levels = if (full_plt) {
-                           if (lclust_rows) {row_clustering$dendro$labels$label} else {rev(rownames(cor_mat))}
-                         } else if (pos_down) {
-                           if (lclust_rows) {rev(row_clustering$dendro$labels$label)} else {rev(rownames(cor_mat))}
-                         } else {
-                           if (lclust_rows) {row_clustering$dendro$labels$label} else {rownames(cor_mat)}
-                         })
-  cor_long$col <- factor(cor_long$col,
-                         levels = if (full_plt) {
-                           if (lclust_cols) {rev(col_clustering$dendro$labels$label)} else {colnames(cor_mat)}
-                         } else if (!pos_left) {
-                           if (lclust_cols) {rev(col_clustering$dendro$labels$label)} else {rev(colnames(cor_mat))}
-                         } else {
-                           if (lclust_cols) {col_clustering$dendro$labels$label} else {colnames(cor_mat)}
-                         })
+  x_long$row <- factor(x_long$row,
+                       levels = if (full_plt) {
+                         if (lclust_rows) {row_clustering$dendro$labels$label} else {rev(rownames(x_mat))}
+                       } else if (pos_down) {
+                         if (lclust_rows) {rev(row_clustering$dendro$labels$label)} else {rev(rownames(x_mat))}
+                       } else {
+                         if (lclust_rows) {row_clustering$dendro$labels$label} else {rownames(x_mat)}
+                       })
+  x_long$col <- factor(x_long$col,
+                       levels = if (full_plt) {
+                         if (lclust_cols) {rev(col_clustering$dendro$labels$label)} else {colnames(x_mat)}
+                       } else if (!pos_left) {
+                         if (lclust_cols) {rev(col_clustering$dendro$labels$label)} else {rev(colnames(x_mat))}
+                       } else {
+                         if (lclust_cols) {col_clustering$dendro$labels$label} else {colnames(x_mat)}
+                       })
 
   # Annotation for rows and columns
   if (is.data.frame(annot_rows_df)) {
@@ -245,7 +243,7 @@ gg_corr_heatmap <- function(x, y = NULL, cor_method = "pearson", cor_use = "ever
 
     # Get positions of annotations
     annot_rows_pos <- get_annotation_pos(annot_left, annot_rows_names, annot_rows_params$size,
-                                         annot_rows_params$dist, annot_rows_params$gap, ncol(cor_mat))
+                                         annot_rows_params$dist, annot_rows_params$gap, ncol(x_mat))
 
     # Row annotation label parameters and their defaults (fed to grid::textGrob)
     annot_rows_label_defaults <- list(rot = 90, just = switch(annot_rows_label_side, "bottom" = "right", "top" = "left"))
@@ -268,7 +266,7 @@ gg_corr_heatmap <- function(x, y = NULL, cor_method = "pearson", cor_use = "ever
     annot_cols_params <- replace_default(annot_cols_defaults, annot_cols_params)
 
     annot_cols_pos <- get_annotation_pos(annot_down, annot_cols_names, annot_cols_params$size,
-                                         annot_cols_params$dist, annot_cols_params$gap, nrow(cor_mat))
+                                         annot_cols_params$dist, annot_cols_params$gap, nrow(x_mat))
 
     annot_cols_label_defaults <- list(rot = 0, just = switch(annot_cols_label_side, "left" = "right", "right" = "left"))
     annot_cols_label_params <- replace_default(annot_cols_label_defaults, annot_cols_label_params)
@@ -281,7 +279,7 @@ gg_corr_heatmap <- function(x, y = NULL, cor_method = "pearson", cor_use = "ever
     # Replace default parameters if any are provided
     dend_rows_params <- replace_default(dend_rows_defaults, dend_rows_params)
 
-    dend_seg_rows <- prepare_dendrogram(row_clustering$dendro, "rows", dend_down, dend_left, dend_rows_params$height, full_plt, cor_long,
+    dend_seg_rows <- prepare_dendrogram(row_clustering$dendro, "rows", dend_down, dend_left, dend_rows_params$height, full_plt, x_long,
                                         annot_rows_df, is.data.frame(annot_rows_df), annot_left, annot_rows_pos, annot_rows_params$size)
   }
 
@@ -291,34 +289,34 @@ gg_corr_heatmap <- function(x, y = NULL, cor_method = "pearson", cor_use = "ever
     # Replace default parameters if any are provided
     dend_cols_params <- replace_default(dend_cols_defaults, dend_cols_params)
 
-    dend_seg_cols <- prepare_dendrogram(col_clustering$dendro, "cols", dend_down, dend_left, dend_cols_params$height, full_plt, cor_long,
+    dend_seg_cols <- prepare_dendrogram(col_clustering$dendro, "cols", dend_down, dend_left, dend_cols_params$height, full_plt, x_long,
                                         annot_cols_df, is.data.frame(annot_cols_df), annot_down, annot_cols_pos, annot_cols_params$size)
   }
 
   # Start building plot
-  cor_plt <- ggplot2::ggplot(mapping = ggplot2::aes(x = col, y = row))
+  plt <- ggplot2::ggplot(mapping = ggplot2::aes(x = col, y = row))
   # Draw diagonal first to draw over with the rest of the plot
   if (include_diag) {
-    cor_plt <- cor_plt +
+    plt <- plt +
       # Tiles or not
       list(
         if (is.numeric(cell_shape)) {
-          ggplot2::geom_point(ggplot2::aes(fill = cor, size = abs(cor)),
+          ggplot2::geom_point(ggplot2::aes(fill = value, size = abs(value)),
                               # Subset on character columns as error occurs if factor levels are different
-                              subset(cor_long, as.character(row) == as.character(col)),
+                              subset(x_long, as.character(row) == as.character(col)),
                               stroke = border_lwd, colour = border_col, shape = cell_shape,
                               show.legend = c("fill" = T, "size" = F))
         } else {
-          ggplot2::geom_tile(ggplot2::aes(fill = cor),
-                             subset(cor_long, as.character(row) == as.character(col)),
+          ggplot2::geom_tile(ggplot2::aes(fill = value),
+                             subset(x_long, as.character(row) == as.character(col)),
                              linewidth = border_lwd, colour = border_col)
         }
       )
 
   } else {
     # Draw diagonal even if not supposed to be included to get the positions into the plot, for easier labelling
-    cor_plt <- cor_plt +
-      ggplot2::geom_tile(data = subset(cor_long, as.character(row) == as.character(col)),
+    plt <- plt +
+      ggplot2::geom_tile(data = subset(x_long, as.character(row) == as.character(col)),
                          fill = "white", linewidth = 0, alpha = 0)
   }
 
@@ -331,17 +329,17 @@ gg_corr_heatmap <- function(x, y = NULL, cor_method = "pearson", cor_use = "ever
     legend_position_inside <- NULL
   }
 
-  cor_plt <- cor_plt +
+  plt <- plt +
     # Plot tiles or points depending on cell_shape
     list(
       if (is.numeric(cell_shape)) {
-        ggplot2::geom_point(ggplot2::aes(fill = cor, size = abs(cor)),
-                            subset(cor_long, as.character(row) != as.character(col)),
+        ggplot2::geom_point(ggplot2::aes(fill = value, size = abs(value)),
+                            subset(x_long, as.character(row) != as.character(col)),
                             stroke = border_lwd, colour = border_col, shape = cell_shape,
                             show.legend = c("fill" = T, "size" = F))
       } else {
-        ggplot2::geom_tile(ggplot2::aes(fill = cor),
-                           subset(cor_long, as.character(row) != as.character(col)),
+        ggplot2::geom_tile(ggplot2::aes(fill = value),
+                           subset(x_long, as.character(row) != as.character(col)),
                            linewidth = border_lwd, colour = border_col)
       }
     ) +
@@ -349,19 +347,10 @@ gg_corr_heatmap <- function(x, y = NULL, cor_method = "pearson", cor_use = "ever
     ggplot2::scale_x_discrete(expand = if (is.numeric(cell_shape)) c(.05, .05) else c(0, 0), position = names_x_side) +
     ggplot2::scale_y_discrete(expand = if (is.numeric(cell_shape)) c(.05, .05) else c(0, 0), position = names_y_side) +
     # Add colour
-    list(if (!is.null(bins)) {
-      ggplot2::scale_fill_steps2(limits = limits, high = high, mid = mid, low = low,
-                                 breaks = seq(limits[1], limits[2], length.out = bins), guide = ggplot2::guide_colourbar(order = 1))
-    } else {
-      ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low,
-                                    guide = ggplot2::guide_colourbar(order = 1))
-    }) +
+    fill_scale +
     # Make cells square
     ggplot2::coord_fixed(clip = "off") +
-    ggplot2::labs(fill = switch(cor_method,
-                                "pearson" = "Pearson r",
-                                "spearman" = "Spearman\nrho",
-                                "kendall" = "Kendall\ntau")) +
+    ggplot2::labs(fill = fill_name) +
     ggplot2::theme_classic() +
     # Remove axis elements, move legend, set margins
     ggplot2::theme(axis.line = ggplot2::element_blank(),
@@ -374,7 +363,7 @@ gg_corr_heatmap <- function(x, y = NULL, cor_method = "pearson", cor_use = "ever
 
   # Names on the diagonal
   if (names_diag) {
-    axis_lab <- data.frame(lab = levels(cor_long$row))
+    axis_lab <- data.frame(lab = levels(x_long$row))
 
     # Construct call using optional parameters
     text_call_params <- list(data = axis_lab, mapping = ggplot2::aes(x = lab, y = lab, label = lab))
@@ -382,18 +371,19 @@ gg_corr_heatmap <- function(x, y = NULL, cor_method = "pearson", cor_use = "ever
       text_call_params <- append(text_call_params, names_diag_param)
     }
 
-    cor_plt <- cor_plt +
+    plt <- plt +
       do.call(ggplot2::geom_text, text_call_params)
   }
 
   # Cell labels
   if (label_cells) {
     # Don't draw in the diagonal cells if are hidden or if they are already occupied by names
-    cell_data <- if (include_diag & !names_diag) cor_long else subset(cor_long, as.character(row) != as.character(col))
+    cell_data <- if (include_diag & !names_diag) x_long else subset(x_long, as.character(row) != as.character(col))
 
-    cor_plt <- cor_plt +
+    plt <- plt +
       ggplot2::geom_text(data = cell_data,
-                         mapping = ggplot2::aes(x = col, y = row, label = round(cor, cell_label_digits)),
+                         mapping = ggplot2::aes(x = col, y = row,
+                                                label = if (!is.null(cell_label_digits)) {round(value, cell_label_digits)} else {value}),
                          size = cell_label_size)
   }
 
@@ -406,33 +396,33 @@ gg_corr_heatmap <- function(x, y = NULL, cor_method = "pearson", cor_use = "ever
     lgd_order <- seq_along(annot_rows_df)[-1]
     names(lgd_order) <- colnames(annot_rows_df)[-1]
 
-    cor_plt <- add_annotation(cor_plt, annot_dim = "rows", annot_rows_df, annot_rows_pos, annot_rows_params$size,
-                              annot_rows_params$border_lwd, annot_rows_params$border_col, annot_rows_params$legend,
-                              annot_col_list[[1]], lgd_order, annot_rows_label_side, annot_rows_label_params)
+    plt <- add_annotation(plt, annot_dim = "rows", annot_rows_df, annot_rows_pos, annot_rows_params$size,
+                          annot_rows_params$border_lwd, annot_rows_params$border_col, annot_rows_params$legend,
+                          annot_col_list[[1]], lgd_order, annot_rows_label_side, annot_rows_label_params)
   }
 
   if (is.data.frame(annot_cols_df)) {
     lgd_order <- if (is.data.frame(annot_rows_df)) {seq_along(annot_cols_df)[-1] + ncol(annot_rows_df) - 1}
-                 else {seq_along(annot_cols_df)[-1]}
+    else {seq_along(annot_cols_df)[-1]}
     names(lgd_order) <- colnames(annot_cols_df)[-1]
 
-    cor_plt <- add_annotation(cor_plt, annot_dim = "cols", annot_cols_df, annot_cols_pos, annot_cols_params$size,
-                              annot_cols_params$border_lwd, annot_cols_params$border_col, annot_cols_params$legend,
-                              annot_col_list[[2]], lgd_order, annot_cols_label_side, annot_cols_label_params)
+    plt <- add_annotation(plt, annot_dim = "cols", annot_cols_df, annot_cols_pos, annot_cols_params$size,
+                          annot_cols_params$border_lwd, annot_cols_params$border_col, annot_cols_params$legend,
+                          annot_col_list[[2]], lgd_order, annot_cols_label_side, annot_cols_label_params)
   }
 
   # Add dendrograms
   if (lclust_rows & dend_rows) {
-    cor_plt <- add_dendrogram(cor_plt, dend_seg_rows, dend_rows_params$col, dend_rows_params$lwd, dend_rows_params$lty)
+    plt <- add_dendrogram(plt, dend_seg_rows, dend_rows_params$col, dend_rows_params$lwd, dend_rows_params$lty)
   }
 
   if (lclust_cols & dend_cols) {
-    cor_plt <- add_dendrogram(cor_plt, dend_seg_cols, dend_cols_params$col, dend_cols_params$lwd, dend_cols_params$lty)
+    plt <- add_dendrogram(plt, dend_seg_cols, dend_cols_params$col, dend_cols_params$lwd, dend_cols_params$lty)
   }
 
   if (return_data) {
 
-    list_out <- list("plot" = cor_plt, "plot_data" = cor_long)
+    list_out <- list("plot" = plt, "plot_data" = x_long)
 
     # if (cluster_data) {
     #   list_out$clustering <- clust
@@ -441,7 +431,7 @@ gg_corr_heatmap <- function(x, y = NULL, cor_method = "pearson", cor_use = "ever
     return(list_out)
 
   } else {
-    return(cor_plt)
+    return(plt)
   }
 }
 
