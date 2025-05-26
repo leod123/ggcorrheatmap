@@ -4,7 +4,7 @@
 \alias{shape_mat_long}
 \title{Convert a matrix to long format using row names and column names.}
 \usage{
-shape_mat_long(x, unique_pairs = F)
+shape_mat_long(x, unique_pairs = F, na_remove = F)
 }
 \arguments{
 \item{x}{Matrix to convert to long format.}

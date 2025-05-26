@@ -2,12 +2,13 @@
 % Please edit documentation in R/gghm.R
 \name{gghm}
 \alias{gghm}
-\title{Make a correlation heatmap with ggplot2.}
+\title{Make a heatmap with ggplot2.}
 \usage{
 gghm(
   x,
   fill_scale = NULL,
   fill_name = "value",
+  na_remove = F,
   layout = "full",
   include_diag = F,
   return_data = F,
@@ -62,27 +63,34 @@ gghm(
 )
 }
 \arguments{
-\item{x}{Matrix or data frame in wide format containing the columns to correlate against each other or against the columns in \code{y}.}
+\item{x}{Matrix or data frame in wide format to make a heatmap of.}
+
+\item{fill_scale}{A \code{ggplot2} scale object for the cell fill colour scale. NULL (default) uses the \code{ggplot2} default.}
+
+\item{fill_name}{String to use for the colour scale legend title.}
+
+\item{na_remove}{Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
+If NAs are kept, the fill colour can be set in the \code{ggplot2} scale.}
 
 \item{layout}{String specifying the layout of the output correlation heatmap. Possible layouts include
-top left, top right, bottom left, bottom right (default), or the whole heatmap. The string should be composed
-of the vertical position (top or bottom) followed by the horizontal position (left or right). Bottom can
-be specified by 'bottom', 'lower', 'down', or the first letter of these. Left is specified by 'left' or 'l'.
+top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the matrix is asymmetric).
+The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right).
+Bottom can be specified by 'bottom', 'lower', 'down', or the first letter of these. Left is specified by 'left' or 'l'.
 'full', 'whole', or 'all' (or 'f', 'w', 'a') result in the whole correlation matrix being plotted.
 For any other strings top and right are selected.}
 
-\item{include_diag}{Logical indicating if the diagonal cells should be plotted (included either way if the whole matrix is plotted).}
+\item{include_diag}{Logical indicating if the diagonal cells should be plotted (ignored if the whole matrix is plotted).}
 
-\item{return_data}{Logical indicating if the data used for plotting (i.e. the correlation values) should be returned.}
+\item{return_data}{Logical indicating if the data used for plotting should be returned.}
 
 \item{cell_shape}{Value specifying what shape the heatmap cells should take. Any non-numeric value will result in a normal heatmap with square cells (default).
 A numeric value can be used to specify an R shape (pch) to use, such as 21 for filled circles. Note that only shapes 21-25 support filling (others will not display the heatmap colour properly).}
 
-\item{label_cells}{Logical specifying if the cells should be labelled with the correlation values.}
+\item{label_cells}{Logical specifying if the cells should be labelled with the values.}
 
 \item{cell_label_size}{Size of cell labels, used as the \code{size} argument in \code{ggplot2::geom_text}.}
 
-\item{cell_label_digits}{Number of digits to display when cells are labelled with correlation coefficients. Default is 2, passed to \code{round}. NULL for no rounding (or if labels are characters).}
+\item{cell_label_digits}{Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to \code{round}. NULL for no rounding.}
 
 \item{border_col}{Colour of cell borders.}
 
@@ -179,30 +187,14 @@ or a numeric vector of length 2 for normalised coordinates inside the plotting a
 \item{plot_margin}{Plot margins, specified as a numeric vector of length 4 in the order of top, right, bottom, left.}
 
 \item{margin_unit}{Unit to use for the specified margin.}
-
-\item{y}{Optional matrix or data frame in wide format containing columns to correlate with the columns in \code{x}.}
-
-\item{cor_method}{String specifying correlation method to use in the \code{cor} function. Default is 'pearson'.}
-
-\item{cor_use}{String specifying the \code{use} argument of \code{cor}, which defineshow to deal with missing values. Default is 'everything'.}
-
-\item{high}{Name of the colour to use for the highest value of the colour scale.}
-
-\item{mid}{Name of the colour to use for 0 in the colour scale.}
-
-\item{low}{Name of the colour to use for the lowest value of the colour scale.}
-
-\item{limits}{Correlation limits to plot between.}
-
-\item{bins}{Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.}
 }
 \value{
-The correlation heatmap as a \code{ggplot} object.
+The heatmap as a \code{ggplot} object.
 If \code{return_data} is TRUE the output is a list containing the plot (named 'plot'),
-the correlations ('plot_data'), and the result of the clustering ('clustering', only if \code{cluster_data} is TRUE).
+the plotting data ('plot_data'), and the result of the clustering ('clustering', only if \code{cluster_data} is TRUE).
 }
 \description{
-Make a correlation heatmap with ggplot2.
+Make a heatmap with ggplot2.
 }
 \details{
 The annotation parameter arguments \code{annot_rows_params} and \code{annot_cols_params} should be named lists, where the possible options correspond to
@@ -213,34 +205,49 @@ use the defaults set by the \verb{annot_*} arguments.
 The dendrogram parameters arguments \code{dend_rows_params} and \code{dend_cols_params} should be named lists, analogous to the annotation parameter arguments. Possible options are
 "col" (line colour), "height" (height scaling), "lwd" (line width), and "lty" (line type).
 
-The \code{dend_options} argument makes it possible to customise the dendrograms using the \code{dendextend} package.
+The \code{dend_rows_extend} and \code{dend_cols_extend} arguments make it possible to customise the dendrograms using the \code{dendextend} package.
 The argument should be a named list, each element named after the \code{dendextend} function to use (consecutive usage of the \code{set} function
 is supported due to duplicate list names being possible). Each element should contain any arguments given to the \code{dendextend} function,
 such as the \code{what} argument used in the \code{set} function. See examples for example usage.
 }
 \examples{
-# Basic usage
-gg_corr_heatmap(mtcars)
+# Use part of the mtcars data (for visibility)
+hm_in <- mtcars[1:15, ]
 
-# Different layout
-gg_corr_heatmap(mtcars, layout = "f")
+# Basic usage
+gghm(hm_in)
+
+# Different layout (using a symmetric matrix)
+gghm(cor(mtcars), layout = "br")
 
 # With clustering
-gg_corr_heatmap(mtcars, layout = "tl", cluster_data = T)
+gghm(scale(hm_in), cluster_rows = T, cluster_cols = T)
 
-# With annotation
+# Adjusting cluster dendrograms using common and specific options
+gghm(scale(hm_in), cluster_rows = T, cluster_cols = T,
+     # Common options
+     dend_lwd = .7, dend_col = "magenta",
+     # Specific options
+     dend_rows_params = list(height = 1), dend_cols_params = list(lty = 2))
+
+# With annotation and specifying colour scales
 set.seed(123)
-annot <- data.frame(.names = colnames(mtcars),
-                    annot1 = rnorm(ncol(mtcars)),
-                    annot2 = sample(letters[1:3], ncol(mtcars), T))
-gg_corr_heatmap(mtcars, layout = "tr", annot_rows_df = annot,
-                # Change margins to fit annotation labels
-                plot_margin = c(20, 10, 60, 20))
+annot_rows <- data.frame(.names = rownames(hm_in),
+                         annot1 = rnorm(nrow(hm_in)),
+                         annot2 = sample(letters[1:3], nrow(hm_in), T))
+# Specify colour scale for one of the annotations (viridis mako)
+annot_fill <- list(annot1 = "G")
+
+gghm(scale(hm_in),
+     # Change colours of heatmap
+     fill_scale = ggplot2::scale_fill_gradient(low = "beige", high = "sienna2"),
+     annot_rows_df = annot_rows, annot_rows_fill = annot_fill,
+     # Change margins to fit annotation labels,
+     plot_margin = c(20, 10, 60, 20))
 
 # Using the dend_options argument
-gg_corr_heatmap(mtcars, cluster_data = T, dend_options =
+gghm(scale(hm_in), cluster_rows = T, dend_rows_extend =
   list("set" = list("branches_lty", c(1, 2, 3)),
-       "set" = list("branches_k_color", k = 3),
        # Empty list element (or NULL) if no arguments to be given
-       "highlight_branches_lwd" = list()))
+       "highlight_branches_col" = list()))
 }

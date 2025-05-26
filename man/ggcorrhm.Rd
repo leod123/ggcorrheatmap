@@ -15,6 +15,8 @@ ggcorrhm(
   limits = c(-1, 1),
   bins = NULL,
   fill_name = NULL,
+  na_remove = F,
+  na_col = "grey",
   layout = "full",
   include_diag = F,
   return_data = F,
@@ -87,10 +89,17 @@ ggcorrhm(
 
 \item{bins}{Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.}
 
+\item{fill_name}{String to use for the correlation colour scale. If NULL (default) the text will depend on the correlation method.}
+
+\item{na_remove}{Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn). This does not affect how
+NAs are handled in the correlation computations, use the \code{cor_use} argument for NA handling in correlation.}
+
+\item{na_col}{Colour to use cells with NA.}
+
 \item{layout}{String specifying the layout of the output correlation heatmap. Possible layouts include
-top left, top right, bottom left, bottom right (default), or the whole heatmap. The string should be composed
-of the vertical position (top or bottom) followed by the horizontal position (left or right). Bottom can
-be specified by 'bottom', 'lower', 'down', or the first letter of these. Left is specified by 'left' or 'l'.
+top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the correlation matrix is asymmetric).
+The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right).
+Bottom can be specified by 'bottom', 'lower', 'down', or the first letter of these. Left is specified by 'left' or 'l'.
 'full', 'whole', or 'all' (or 'f', 'w', 'a') result in the whole correlation matrix being plotted.
 For any other strings top and right are selected.}
 
@@ -209,7 +218,7 @@ If \code{return_data} is TRUE the output is a list containing the plot (named 'p
 the correlations ('plot_data'), and the result of the clustering ('clustering', only if \code{cluster_data} is TRUE).
 }
 \description{
-Make a correlation heatmap with ggplot2.
+Wrapper function for \code{gghm} to make a correlation heatmap from input matrices. Uses a diverging colour scale centered around 0.
 }
 \details{
 The annotation parameter arguments \code{annot_rows_params} and \code{annot_cols_params} should be named lists, where the possible options correspond to
@@ -220,32 +229,35 @@ use the defaults set by the \verb{annot_*} arguments.
 The dendrogram parameters arguments \code{dend_rows_params} and \code{dend_cols_params} should be named lists, analogous to the annotation parameter arguments. Possible options are
 "col" (line colour), "height" (height scaling), "lwd" (line width), and "lty" (line type).
 
-The \code{dend_options} argument makes it possible to customise the dendrograms using the \code{dendextend} package.
+The \code{dend_rows_extend} and \code{dend_cols_extend} arguments make it possible to customise the dendrograms using the \code{dendextend} package.
 The argument should be a named list, each element named after the \code{dendextend} function to use (consecutive usage of the \code{set} function
 is supported due to duplicate list names being possible). Each element should contain any arguments given to the \code{dendextend} function,
 such as the \code{what} argument used in the \code{set} function. See examples for example usage.
 }
 \examples{
 # Basic usage
-gg_corr_heatmap(mtcars)
+ggcorrhm(mtcars)
+
+# With two matrices
+ggcorrhm(iris[1:32, -5], mtcars)
 
 # Different layout
-gg_corr_heatmap(mtcars, layout = "f")
+ggcorrhm(mtcars, layout = "br")
 
 # With clustering
-gg_corr_heatmap(mtcars, layout = "tl", cluster_data = T)
+ggcorrhm(mtcars, layout = "tl", cluster_rows = T, cluster_cols = T)
 
 # With annotation
 set.seed(123)
 annot <- data.frame(.names = colnames(mtcars),
                     annot1 = rnorm(ncol(mtcars)),
                     annot2 = sample(letters[1:3], ncol(mtcars), T))
-gg_corr_heatmap(mtcars, layout = "tr", annot_rows_df = annot,
-                # Change margins to fit annotation labels
-                plot_margin = c(20, 10, 60, 20))
+ggcorrhm(mtcars, layout = "tr", annot_rows_df = annot,
+         # Change margins to fit annotation labels
+         plot_margin = c(20, 10, 60, 20))
 
 # Using the dend_options argument
-gg_corr_heatmap(mtcars, cluster_data = T, dend_options =
+ggcorrhm(mtcars, cluster_rows = T, dend_rows_extend =
   list("set" = list("branches_lty", c(1, 2, 3)),
        "set" = list("branches_k_color", k = 3),
        # Empty list element (or NULL) if no arguments to be given

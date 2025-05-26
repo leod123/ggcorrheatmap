@@ -1,27 +1,23 @@
-#' Make a correlation heatmap with ggplot2.
+#' Make a heatmap with ggplot2.
 #'
-#' @param x Matrix or data frame in wide format containing the columns to correlate against each other or against the columns in `y`.
-#' @param y Optional matrix or data frame in wide format containing columns to correlate with the columns in `x`.
-#' @param cor_method String specifying correlation method to use in the `cor` function. Default is 'pearson'.
-#' @param cor_use String specifying the `use` argument of `cor`, which defineshow to deal with missing values. Default is 'everything'.
-#' @param high Name of the colour to use for the highest value of the colour scale.
-#' @param mid Name of the colour to use for 0 in the colour scale.
-#' @param low Name of the colour to use for the lowest value of the colour scale.
-#' @param limits Correlation limits to plot between.
-#' @param bins Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.
+#' @param x Matrix or data frame in wide format to make a heatmap of.
+#' @param fill_scale A `ggplot2` scale object for the cell fill colour scale. NULL (default) uses the `ggplot2` default.
+#' @param fill_name String to use for the colour scale legend title.
+#' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
+#' If NAs are kept, the fill colour can be set in the `ggplot2` scale.
 #' @param layout String specifying the layout of the output correlation heatmap. Possible layouts include
-#' top left, top right, bottom left, bottom right (default), or the whole heatmap. The string should be composed
-#' of the vertical position (top or bottom) followed by the horizontal position (left or right). Bottom can
-#' be specified by 'bottom', 'lower', 'down', or the first letter of these. Left is specified by 'left' or 'l'.
+#' top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the matrix is asymmetric).
+#' The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right).
+#' Bottom can be specified by 'bottom', 'lower', 'down', or the first letter of these. Left is specified by 'left' or 'l'.
 #' 'full', 'whole', or 'all' (or 'f', 'w', 'a') result in the whole correlation matrix being plotted.
 #' For any other strings top and right are selected.
-#' @param include_diag Logical indicating if the diagonal cells should be plotted (included either way if the whole matrix is plotted).
-#' @param return_data Logical indicating if the data used for plotting (i.e. the correlation values) should be returned.
+#' @param include_diag Logical indicating if the diagonal cells should be plotted (ignored if the whole matrix is plotted).
+#' @param return_data Logical indicating if the data used for plotting should be returned.
 #' @param cell_shape Value specifying what shape the heatmap cells should take. Any non-numeric value will result in a normal heatmap with square cells (default).
 #' A numeric value can be used to specify an R shape (pch) to use, such as 21 for filled circles. Note that only shapes 21-25 support filling (others will not display the heatmap colour properly).
-#' @param label_cells Logical specifying if the cells should be labelled with the correlation values.
+#' @param label_cells Logical specifying if the cells should be labelled with the values.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
-#' @param cell_label_digits Number of digits to display when cells are labelled with correlation coefficients. Default is 2, passed to `round`. NULL for no rounding (or if labels are characters).
+#' @param cell_label_digits Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to `round`. NULL for no rounding.
 #' @param border_col Colour of cell borders.
 #' @param border_lwd Size of cell borders, used for the `size` argument in `ggplot2::geom_tile`. Set to 0 to remove cell borders.
 #' @param names_diag Logical indicating if names should be written in the diagonal cells.
@@ -75,9 +71,9 @@
 #' @param plot_margin Plot margins, specified as a numeric vector of length 4 in the order of top, right, bottom, left.
 #' @param margin_unit Unit to use for the specified margin.
 #'
-#' @return The correlation heatmap as a `ggplot` object.
+#' @return The heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),
-#' the correlations ('plot_data'), and the result of the clustering ('clustering', only if `cluster_data` is TRUE).
+#' the plotting data ('plot_data'), and the result of the clustering ('clustering', only if `cluster_data` is TRUE).
 #' @export
 #'
 #' @details
@@ -89,36 +85,51 @@
 #' The dendrogram parameters arguments `dend_rows_params` and `dend_cols_params` should be named lists, analogous to the annotation parameter arguments. Possible options are
 #' "col" (line colour), "height" (height scaling), "lwd" (line width), and "lty" (line type).
 #'
-#' The `dend_options` argument makes it possible to customise the dendrograms using the `dendextend` package.
+#' The `dend_rows_extend` and `dend_cols_extend` arguments make it possible to customise the dendrograms using the `dendextend` package.
 #' The argument should be a named list, each element named after the `dendextend` function to use (consecutive usage of the `set` function
 #' is supported due to duplicate list names being possible). Each element should contain any arguments given to the `dendextend` function,
 #' such as the `what` argument used in the `set` function. See examples for example usage.
 #'
 #' @examples
-#' # Basic usage
-#' gg_corr_heatmap(mtcars)
+#' # Use part of the mtcars data (for visibility)
+#' hm_in <- mtcars[1:15, ]
 #'
-#' # Different layout
-#' gg_corr_heatmap(mtcars, layout = "f")
+#' # Basic usage
+#' gghm(hm_in)
+#'
+#' # Different layout (using a symmetric matrix)
+#' gghm(cor(mtcars), layout = "br")
 #'
 #' # With clustering
-#' gg_corr_heatmap(mtcars, layout = "tl", cluster_data = T)
+#' gghm(scale(hm_in), cluster_rows = T, cluster_cols = T)
 #'
-#' # With annotation
+#' # Adjusting cluster dendrograms using common and specific options
+#' gghm(scale(hm_in), cluster_rows = T, cluster_cols = T,
+#'      # Common options
+#'      dend_lwd = .7, dend_col = "magenta",
+#'      # Specific options
+#'      dend_rows_params = list(height = 1), dend_cols_params = list(lty = 2))
+#'
+#' # With annotation and specifying colour scales
 #' set.seed(123)
-#' annot <- data.frame(.names = colnames(mtcars),
-#'                     annot1 = rnorm(ncol(mtcars)),
-#'                     annot2 = sample(letters[1:3], ncol(mtcars), T))
-#' gg_corr_heatmap(mtcars, layout = "tr", annot_rows_df = annot,
-#'                 # Change margins to fit annotation labels
-#'                 plot_margin = c(20, 10, 60, 20))
+#' annot_rows <- data.frame(.names = rownames(hm_in),
+#'                          annot1 = rnorm(nrow(hm_in)),
+#'                          annot2 = sample(letters[1:3], nrow(hm_in), T))
+#' # Specify colour scale for one of the annotations (viridis mako)
+#' annot_fill <- list(annot1 = "G")
+#'
+#' gghm(scale(hm_in),
+#'      # Change colours of heatmap
+#'      fill_scale = ggplot2::scale_fill_gradient(low = "beige", high = "sienna2"),
+#'      annot_rows_df = annot_rows, annot_rows_fill = annot_fill,
+#'      # Change margins to fit annotation labels,
+#'      plot_margin = c(20, 10, 60, 20))
 #'
 #' # Using the dend_options argument
-#' gg_corr_heatmap(mtcars, cluster_data = T, dend_options =
+#' gghm(scale(hm_in), cluster_rows = T, dend_rows_extend =
 #'   list("set" = list("branches_lty", c(1, 2, 3)),
-#'        "set" = list("branches_k_color", k = 3),
 #'        # Empty list element (or NULL) if no arguments to be given
-#'        "highlight_branches_lwd" = list()))
+#'        "highlight_branches_col" = list()))
 gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = F,
                  layout = "full", include_diag = F, return_data = F,
                  cell_shape = "heatmap", label_cells = F, cell_label_size = 3, cell_label_digits = NULL,
@@ -150,7 +161,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = F,
 
   # If the matrix is non-symmetric, triangular layouts break! Throw a warning
   if (!isSymmetric(x_mat) & !full_plt) {
-    warning("Triangular layouts with non-symmetric matrices cannot display all cells! The full layout is recommended.")
+    warning("A triangular layout with an asymmetric matrix is not supported, plotting the full matrix instead.")
+    full_plt <- T
   }
 
   # Don't display names on the diagonal if the plot is non-symmetric as it will cause
@@ -194,7 +206,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = F,
   # Different ways to reorder depending on position of triangular matrix, default to bottom right if no correct pattern is recognised
   # Allow for specification of dendrogram positions only when the whole matrix is drawn
 
-  # Make correlation matrix and long-format triangular correlation matrix
+  # Make long format data
   x_long <- shape_mat_long(x_mat, unique_pairs = !full_plt, na_remove = na_remove)
 
   if (full_plt) {
@@ -392,7 +404,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = F,
 
   # Add row and column annotations
   if (is.data.frame(annot_rows_df)) {
-    # Change legend order to be in order of annotations (after correlation)
+    # Change legend order to be in order of annotations (after main values)
     lgd_order <- seq_along(annot_rows_df)[-1]
     names(lgd_order) <- colnames(annot_rows_df)[-1]
 
