@@ -11,7 +11,7 @@ apply_dendextend <- function(dendro, dend_list) {
   # Go through options list and update the dendrogram successively with do.call
   # Use append() to make named list of input arguments
   for (i in seq_along(dend_list)) {
-    # Make a temporary function by taking out the provided function from dendextend
+    # Make a temporary function by calling the provided function from dendextend
     dend_fun <- do.call(`::`, list("dendextend", names(dend_list)[i]))
     dendro <- do.call(dend_fun, append(list(dendro), dend_list[[i]]))
   }
