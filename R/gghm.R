@@ -157,7 +157,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
                  plot_margin = c(20, 10, 10, 20), margin_unit = "pt") {
 
   # Check that there are colnames
-
+  if (is.null(colnames(x))) stop("x needs to have column names.")
 
   if (".names" %in% colnames(x)) {
     rownames(x) <- x[[".names"]]
@@ -165,7 +165,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   }
 
   # Check that there are rownames
-
+  if (is.null(rownames(x))) stop("x needs to have row names or a column named '.names' with unique names.")
 
   x_mat <- as.matrix(x)
 
