@@ -23,8 +23,13 @@
 #' For any other strings top and right are selected.
 #' @param include_diag Logical indicating if the diagonal cells should be plotted (included either way if the whole matrix is plotted).
 #' @param return_data Logical indicating if the data used for plotting (i.e. the correlation values) should be returned.
+#' @param show_legend Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends,
+#' can be specified in an aesthetic-specific manner using a named vector like `c('fill' = TRUE, 'size' = FALSE)`.
 #' @param cell_shape Value specifying what shape the heatmap cells should take. Any non-numeric value will result in a normal heatmap with square cells (default).
 #' A numeric value can be used to specify an R shape (pch) to use, such as 21 for filled circles. Note that only shapes 21-25 support filling (others will not display the heatmap colour properly).
+#' @param size_range Numeric vector of length 2, specifying lower and upper ranges of shape sizes. Ignored if `size_scale` is not NULL.
+#' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `cell_shape` is numeric.
+#' The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.
 #' @param label_cells Logical specifying if the cells should be labelled with the correlation values.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
 #' @param cell_label_digits Number of digits to display when cells are labelled with correlation coefficients. Default is 2, passed to `round`.
@@ -54,7 +59,7 @@
 #' @param annot_size Size (width for row annotation, height for column annotation) of annotation cells. Used for both row and column annotation.
 #' @param annot_label not yet implemented (control if names of annotations should be shown in drawing area)
 #' @param annot_rows_params Named list with parameters for row annotations to overwrite the defaults set by the `annot_*` arguments, each name corresponding to the `*` part
-#' (see details for more information).
+#' (see details of `gghm` for more information).
 #' @param annot_cols_params Named list with parameters for column annotations, used like `annot_rows_params`.
 #' @param annot_rows_label_side String specifying which side the row annotation labels should be on. Either "top" or "bottom".
 #' @param annot_cols_label_side String specifying which side the column annotation labels should be on. Either "left" or "right".
@@ -72,10 +77,10 @@
 #' @param dend_height Number by which to scale dendrogram height, applied to both row and column dendrograms.
 #' @param dend_lwd Linewidth of dendrogram lines, applied to both row and column dendrograms.
 #' @param dend_lty Dendrogram line type, applied to both row and column dendrograms.
-#' @param dend_rows_params Named list for row dendrogram parameters. See details for more information.
-#' @param dend_cols_params Named list for column dendrogram parameters. See details for more information.
-#' @param dend_rows_extend Named list for specifying `dendextend` functions to apply to the row dendrogram. See details for usage.
-#' @param dend_cols_extend Named list for specifying `dendextend` functions to apply to the column dendrogram. See details for usage.
+#' @param dend_rows_params Named list for row dendrogram parameters. See details of `gghm` for more information.
+#' @param dend_cols_params Named list for column dendrogram parameters. See details of `gghm` for more information.
+#' @param dend_rows_extend Named list for specifying `dendextend` functions to apply to the row dendrogram. See details of `gghm` for usage.
+#' @param dend_cols_extend Named list for specifying `dendextend` functions to apply to the column dendrogram. See details of `gghm` for usage.
 #' @param legend_position Position of the legends, given to `ggplot2::theme`. Either a string for the position outside the plotting area,
 #' or a numeric vector of length 2 for normalised coordinates inside the plotting area.
 #' @param plot_margin Plot margins, specified as a numeric vector of length 4 in the order of top, right, bottom, left.
@@ -87,18 +92,22 @@
 #' @export
 #'
 #' @details
-#' The annotation parameter arguments `annot_rows_params` and `annot_cols_params` should be named lists, where the possible options correspond to
-#' the different `annot_*` arguments. The possible options are "legend" (logical, if legends should be drawn), "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
-#' "size" (cell size), "label" (logical, if the annotation names should be displayed), and "label_size" (label text size). Any unused options will
-#' use the defaults set by the `annot_*` arguments.
 #'
-#' The dendrogram parameters arguments `dend_rows_params` and `dend_cols_params` should be named lists, analogous to the annotation parameter arguments. Possible options are
-#' "col" (line colour), "height" (height scaling), "lwd" (line width), and "lty" (line type).
+#' `ggcorrhm` is a wrapper function for `gghm`, making it convenient to make correlation heatmaps.
+#' The input values can either be one matrix or data frame with columns to correlate with each other, or two
+#' matrices or data frames with columns to correlate between the matrices. No rownames are needed, but
+#' if two matrices are provided they should have the same number of rows and the rows should be ordered in a meaningful way
+#' (i.e. same sample/individual/etc in the same row in both).
 #'
-#' The `dend_rows_extend` and `dend_cols_extend` arguments make it possible to customise the dendrograms using the `dendextend` package.
-#' The argument should be a named list, each element named after the `dendextend` function to use (consecutive usage of the `set` function
-#' is supported due to duplicate list names being possible). Each element should contain any arguments given to the `dendextend` function,
-#' such as the `what` argument used in the `set` function. See examples for example usage.
+#' The colour scale is set to be a diverging gradient around 0, with options to change the low, mid, and high colours and the limits.
+#' The `bins` argument converts the scale to a discrete scale divided into `bins` equally distributed bins.
+#'
+#' The size scale, used when a numeric cell shape is specified, is set to vary the shape size between 4 and 10 (can be changed with the `size_range` argument)
+#' and to transform the values to absolute values (so that both positive and negative correlations are treated equally).
+#' This behaviour can be overwritten by setting `size_scale` to #' another `ggplot2::scale_size_*` function with the desired
+#' arguments, or `ggplot2::scale_size()` for no special behaviour.
+#' When the absolute value transformation is used the legend for sizes loses its meaning (only displaying positive values)
+#' and is therefore set to not be shown in the `show_legend` argument.
 #'
 #' @examples
 #' # Basic usage
@@ -133,7 +142,9 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      limits = c(-1, 1), bins = NULL, fill_name = NULL, #...
                      na_remove = F, na_col = "grey",
                      layout = "full", include_diag = F, return_data = F,
-                     cell_shape = "heatmap", label_cells = F, cell_label_size = 3, cell_label_digits = 2,
+                     show_legend = c("fill" = TRUE, "size" = FALSE), cell_shape = "heatmap",
+                     size_range = c(4, 10), size_scale = NULL,
+                     label_cells = F, cell_label_size = 3, cell_label_digits = 2,
                      border_col = "grey", border_lwd = 0.5,
                      names_diag = T, names_diag_param = NULL,
                      names_x = F, names_x_side = "top", names_y = F, names_y_side = "left",
@@ -184,10 +195,17 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                                   guide = ggplot2::guide_colourbar(order = 1))
   }
 
+  # Make size scale (controlling the size range and transforming to be absolute values)
+  if (is.numeric(cell_shape) & is.null(size_scale)) {
+    size_scale <- ggplot2::scale_size_continuous(range = size_range,
+                                                 transform = scales::trans_new("abs", abs, abs))
+  }
+
   # Call with all arguments to get the tooltips when calling this wrapper function
   cor_plt <- gghm(cor_mat, fill_scale = fill_scale, fill_name = fill_name, na_remove = na_remove,
                   layout = layout, include_diag = include_diag, return_data = return_data,
-                  cell_shape = cell_shape, label_cells = label_cells, cell_label_size = cell_label_size,
+                  show_legend = show_legend, cell_shape = cell_shape, size_scale = size_scale,
+                  label_cells = label_cells, cell_label_size = cell_label_size,
                   cell_label_digits = cell_label_digits, border_col = border_col, border_lwd = border_lwd,
                   names_diag = names_diag, names_diag_param = names_diag_param,
                   names_x = names_x, names_x_side = names_x_side,

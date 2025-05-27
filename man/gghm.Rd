@@ -8,21 +8,23 @@ gghm(
   x,
   fill_scale = NULL,
   fill_name = "value",
-  na_remove = F,
+  na_remove = FALSE,
   layout = "full",
   include_diag = F,
   return_data = F,
+  show_legend = c(fill = TRUE, size = TRUE),
   cell_shape = "heatmap",
+  size_scale = NULL,
   label_cells = F,
   cell_label_size = 3,
   cell_label_digits = NULL,
   border_col = "grey",
   border_lwd = 0.5,
-  names_diag = T,
+  names_diag = TRUE,
   names_diag_param = NULL,
-  names_x = F,
+  names_x = FALSE,
   names_x_side = "top",
-  names_y = F,
+  names_y = FALSE,
   names_y_side = "left",
   annot_rows_df = NULL,
   annot_cols_df = NULL,
@@ -30,23 +32,23 @@ gghm(
   annot_cols_fill = NULL,
   annot_rows_side = "right",
   annot_cols_side = "bottom",
-  annot_legend = T,
+  annot_legend = TRUE,
   annot_dist = 0.2,
   annot_gap = 0,
   annot_size = 0.5,
-  annot_label = T,
+  annot_label = TRUE,
   annot_rows_params = NULL,
   annot_cols_params = NULL,
   annot_rows_label_side = "bottom",
   annot_cols_label_side = "left",
   annot_rows_label_params = NULL,
   annot_cols_label_params = NULL,
-  cluster_rows = F,
-  cluster_cols = F,
+  cluster_rows = FALSE,
+  cluster_cols = FALSE,
   cluster_distance = "euclidean",
   cluster_method = "complete",
-  dend_rows = T,
-  dend_cols = T,
+  dend_rows = TRUE,
+  dend_cols = TRUE,
   dend_rows_side = "right",
   dend_cols_side = "bottom",
   dend_col = "black",
@@ -63,7 +65,8 @@ gghm(
 )
 }
 \arguments{
-\item{x}{Matrix or data frame in wide format to make a heatmap of.}
+\item{x}{Matrix or data frame in wide format to make a heatmap of. The matrix/data frame needs either rownames or a column named \code{.names} (containing unique row identifiers).
+If \code{.names} exists in \code{x} any existing rownames are overwritten.}
 
 \item{fill_scale}{A \code{ggplot2} scale object for the cell fill colour scale. NULL (default) uses the \code{ggplot2} default.}
 
@@ -83,8 +86,13 @@ For any other strings top and right are selected.}
 
 \item{return_data}{Logical indicating if the data used for plotting should be returned.}
 
+\item{show_legend}{Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends,
+can be specified in an aesthetic-specific manner using a named vector like \code{c('fill' = TRUE, 'size' = FALSE)}.}
+
 \item{cell_shape}{Value specifying what shape the heatmap cells should take. Any non-numeric value will result in a normal heatmap with square cells (default).
 A numeric value can be used to specify an R shape (pch) to use, such as 21 for filled circles. Note that only shapes 21-25 support filling (others will not display the heatmap colour properly).}
+
+\item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{cell_shape} is numeric.}
 
 \item{label_cells}{Logical specifying if the cells should be labelled with the values.}
 

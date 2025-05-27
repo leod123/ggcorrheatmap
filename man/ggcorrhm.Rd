@@ -20,7 +20,10 @@ ggcorrhm(
   layout = "full",
   include_diag = F,
   return_data = F,
+  show_legend = c(fill = TRUE, size = FALSE),
   cell_shape = "heatmap",
+  size_range = c(4, 10),
+  size_scale = NULL,
   label_cells = F,
   cell_label_size = 3,
   cell_label_digits = 2,
@@ -107,8 +110,16 @@ For any other strings top and right are selected.}
 
 \item{return_data}{Logical indicating if the data used for plotting (i.e. the correlation values) should be returned.}
 
+\item{show_legend}{Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends,
+can be specified in an aesthetic-specific manner using a named vector like \code{c('fill' = TRUE, 'size' = FALSE)}.}
+
 \item{cell_shape}{Value specifying what shape the heatmap cells should take. Any non-numeric value will result in a normal heatmap with square cells (default).
 A numeric value can be used to specify an R shape (pch) to use, such as 21 for filled circles. Note that only shapes 21-25 support filling (others will not display the heatmap colour properly).}
+
+\item{size_range}{Numeric vector of length 2, specifying lower and upper ranges of shape sizes. Ignored if \code{size_scale} is not NULL.}
+
+\item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{cell_shape} is numeric.
+The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.}
 
 \item{label_cells}{Logical specifying if the cells should be labelled with the correlation values.}
 
@@ -161,7 +172,7 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 \item{annot_label}{not yet implemented (control if names of annotations should be shown in drawing area)}
 
 \item{annot_rows_params}{Named list with parameters for row annotations to overwrite the defaults set by the \verb{annot_*} arguments, each name corresponding to the \code{*} part
-(see details for more information).}
+(see details of \code{gghm} for more information).}
 
 \item{annot_cols_params}{Named list with parameters for column annotations, used like \code{annot_rows_params}.}
 
@@ -197,13 +208,13 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 
 \item{dend_lty}{Dendrogram line type, applied to both row and column dendrograms.}
 
-\item{dend_rows_params}{Named list for row dendrogram parameters. See details for more information.}
+\item{dend_rows_params}{Named list for row dendrogram parameters. See details of \code{gghm} for more information.}
 
-\item{dend_cols_params}{Named list for column dendrogram parameters. See details for more information.}
+\item{dend_cols_params}{Named list for column dendrogram parameters. See details of \code{gghm} for more information.}
 
-\item{dend_rows_extend}{Named list for specifying \code{dendextend} functions to apply to the row dendrogram. See details for usage.}
+\item{dend_rows_extend}{Named list for specifying \code{dendextend} functions to apply to the row dendrogram. See details of \code{gghm} for usage.}
 
-\item{dend_cols_extend}{Named list for specifying \code{dendextend} functions to apply to the column dendrogram. See details for usage.}
+\item{dend_cols_extend}{Named list for specifying \code{dendextend} functions to apply to the column dendrogram. See details of \code{gghm} for usage.}
 
 \item{legend_position}{Position of the legends, given to \code{ggplot2::theme}. Either a string for the position outside the plotting area,
 or a numeric vector of length 2 for normalised coordinates inside the plotting area.}
@@ -221,18 +232,21 @@ the correlations ('plot_data'), and the result of the clustering ('clustering', 
 Wrapper function for \code{gghm} to make a correlation heatmap from input matrices. Uses a diverging colour scale centered around 0.
 }
 \details{
-The annotation parameter arguments \code{annot_rows_params} and \code{annot_cols_params} should be named lists, where the possible options correspond to
-the different \verb{annot_*} arguments. The possible options are "legend" (logical, if legends should be drawn), "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
-"size" (cell size), "label" (logical, if the annotation names should be displayed), and "label_size" (label text size). Any unused options will
-use the defaults set by the \verb{annot_*} arguments.
+\code{ggcorrhm} is a wrapper function for \code{gghm}, making it convenient to make correlation heatmaps.
+The input values can either be one matrix or data frame with columns to correlate with each other, or two
+matrices or data frames with columns to correlate between the matrices. No rownames are needed, but
+if two matrices are provided they should have the same number of rows and the rows should be ordered in a meaningful way
+(i.e. same sample/individual/etc in the same row in both).
 
-The dendrogram parameters arguments \code{dend_rows_params} and \code{dend_cols_params} should be named lists, analogous to the annotation parameter arguments. Possible options are
-"col" (line colour), "height" (height scaling), "lwd" (line width), and "lty" (line type).
+The colour scale is set to be a diverging gradient around 0, with options to change the low, mid, and high colours and the limits.
+The \code{bins} argument converts the scale to a discrete scale divided into \code{bins} equally distributed bins.
 
-The \code{dend_rows_extend} and \code{dend_cols_extend} arguments make it possible to customise the dendrograms using the \code{dendextend} package.
-The argument should be a named list, each element named after the \code{dendextend} function to use (consecutive usage of the \code{set} function
-is supported due to duplicate list names being possible). Each element should contain any arguments given to the \code{dendextend} function,
-such as the \code{what} argument used in the \code{set} function. See examples for example usage.
+The size scale, used when a numeric cell shape is specified, is set to vary the shape size between 4 and 10 (can be changed with the \code{size_range} argument)
+and to transform the values to absolute values (so that both positive and negative correlations are treated equally).
+This behaviour can be overwritten by setting \code{size_scale} to #' another \verb{ggplot2::scale_size_*} function with the desired
+arguments, or \code{ggplot2::scale_size()} for no special behaviour.
+When the absolute value transformation is used the legend for sizes loses its meaning (only displaying positive values)
+and is therefore set to not be shown in the \code{show_legend} argument.
 }
 \examples{
 # Basic usage

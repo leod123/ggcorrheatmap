@@ -1,6 +1,7 @@
 #' Make a heatmap with ggplot2.
 #'
-#' @param x Matrix or data frame in wide format to make a heatmap of.
+#' @param x Matrix or data frame in wide format to make a heatmap of. The matrix/data frame needs either rownames or a column named `.names` (containing unique row identifiers).
+#' If `.names` exists in `x` any existing rownames are overwritten.
 #' @param fill_scale A `ggplot2` scale object for the cell fill colour scale. NULL (default) uses the `ggplot2` default.
 #' @param fill_name String to use for the colour scale legend title.
 #' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
@@ -13,8 +14,11 @@
 #' For any other strings top and right are selected.
 #' @param include_diag Logical indicating if the diagonal cells should be plotted (ignored if the whole matrix is plotted).
 #' @param return_data Logical indicating if the data used for plotting should be returned.
+#' @param show_legend Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends,
+#' can be specified in an aesthetic-specific manner using a named vector like `c('fill' = TRUE, 'size' = FALSE)`.
 #' @param cell_shape Value specifying what shape the heatmap cells should take. Any non-numeric value will result in a normal heatmap with square cells (default).
 #' A numeric value can be used to specify an R shape (pch) to use, such as 21 for filled circles. Note that only shapes 21-25 support filling (others will not display the heatmap colour properly).
+#' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `cell_shape` is numeric.
 #' @param label_cells Logical specifying if the cells should be labelled with the values.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
 #' @param cell_label_digits Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to `round`. NULL for no rounding.
@@ -130,21 +134,22 @@
 #'   list("set" = list("branches_lty", c(1, 2, 3)),
 #'        # Empty list element (or NULL) if no arguments to be given
 #'        "highlight_branches_col" = list()))
-gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = F,
+gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
                  layout = "full", include_diag = F, return_data = F,
-                 cell_shape = "heatmap", label_cells = F, cell_label_size = 3, cell_label_digits = NULL,
+                 show_legend = c("fill" = TRUE, "size" = TRUE), cell_shape = "heatmap", size_scale = NULL,
+                 label_cells = F, cell_label_size = 3, cell_label_digits = NULL,
                  border_col = "grey", border_lwd = 0.5,
-                 names_diag = T, names_diag_param = NULL,
-                 names_x = F, names_x_side = "top", names_y = F, names_y_side = "left",
+                 names_diag = TRUE, names_diag_param = NULL,
+                 names_x = FALSE, names_x_side = "top", names_y = FALSE, names_y_side = "left",
                  annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
                  annot_rows_side = "right", annot_cols_side = "bottom",
-                 annot_legend = T, annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = T,
+                 annot_legend = TRUE, annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = TRUE,
                  annot_rows_params = NULL, annot_cols_params = NULL,
                  annot_rows_label_side = "bottom", annot_cols_label_side = "left",
                  annot_rows_label_params = NULL, annot_cols_label_params = NULL,
-                 cluster_rows = F, cluster_cols = F,
+                 cluster_rows = FALSE, cluster_cols = FALSE,
                  cluster_distance = "euclidean", cluster_method = "complete",
-                 dend_rows = T, dend_cols = T, dend_rows_side = "right", dend_cols_side = "bottom",
+                 dend_rows = TRUE, dend_cols = TRUE, dend_rows_side = "right", dend_cols_side = "bottom",
                  dend_col = "black", dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
                  dend_rows_params = NULL, dend_cols_params = NULL,
                  dend_rows_extend = NULL, dend_cols_extend = NULL,
@@ -313,15 +318,15 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = F,
       # Tiles or not
       list(
         if (is.numeric(cell_shape)) {
-          ggplot2::geom_point(ggplot2::aes(fill = value, size = abs(value)),
+          ggplot2::geom_point(ggplot2::aes(fill = value, size = value),
                               # Subset on character columns as error occurs if factor levels are different
                               subset(x_long, as.character(row) == as.character(col)),
                               stroke = border_lwd, colour = border_col, shape = cell_shape,
-                              show.legend = c("fill" = T, "size" = F))
+                              show.legend = show_legend)
         } else {
           ggplot2::geom_tile(ggplot2::aes(fill = value),
                              subset(x_long, as.character(row) == as.character(col)),
-                             linewidth = border_lwd, colour = border_col)
+                             linewidth = border_lwd, colour = border_col, show.legend = show_legend)
         }
       )
 
@@ -345,16 +350,17 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = F,
     # Plot tiles or points depending on cell_shape
     list(
       if (is.numeric(cell_shape)) {
-        ggplot2::geom_point(ggplot2::aes(fill = value, size = abs(value)),
+        ggplot2::geom_point(ggplot2::aes(fill = value, size = value),
                             subset(x_long, as.character(row) != as.character(col)),
                             stroke = border_lwd, colour = border_col, shape = cell_shape,
-                            show.legend = c("fill" = T, "size" = F))
+                            show.legend = show_legend)
       } else {
         ggplot2::geom_tile(ggplot2::aes(fill = value),
                            subset(x_long, as.character(row) != as.character(col)),
-                           linewidth = border_lwd, colour = border_col)
+                           linewidth = border_lwd, colour = border_col, show.legend = show_legend)
       }
     ) +
+    size_scale +
     # Remove extra space on axes (if drawing tiles) and place on specified sides
     ggplot2::scale_x_discrete(expand = if (is.numeric(cell_shape)) c(.05, .05) else c(0, 0), position = names_x_side) +
     ggplot2::scale_y_discrete(expand = if (is.numeric(cell_shape)) c(.05, .05) else c(0, 0), position = names_y_side) +
