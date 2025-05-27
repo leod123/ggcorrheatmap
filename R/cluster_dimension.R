@@ -12,9 +12,13 @@
 #'
 cluster_dimension <- function(cluster_data, mat, cluster_distance, cluster_method, dend_options = NULL) {
   # Make dendrograms
-  if (is.logical(cluster_data)) {
+  if (is.logical(cluster_data) | inherits(cluster_data, "hclust")) {
 
-    clust <- hclust(dist(mat, method = cluster_distance), method = cluster_method)
+    clust <- if (is.logical(cluster_data)) {
+      hclust(dist(mat, method = cluster_distance), method = cluster_method)
+    } else {
+      cluster_data
+    }
 
     dendro <- as.dendrogram(clust)
 
@@ -26,21 +30,11 @@ cluster_dimension <- function(cluster_data, mat, cluster_distance, cluster_metho
     dendro <- dendextend::as.ggdend(dendro)
     dendro$labels$label <- as.character(dendro$labels$label)
 
-    return(list("dendro" = dendro, "clust" = clust))
-
-  } else if (inherits(cluster_data, "hclust")) {
-    clust <- cluster_data
-    dendro <- as.dendrogram(clust)
-
-    # Apply dendextend options if any
-    if (is.list(dend_options)) {
-      dendro <- apply_dendextend(dendro, dend_options)
-    }
-
-    dendro <- dendextend::as.ggdend(dendro)
-    dendro$labels$label <- as.character(dendro$labels$label)
+    # Add the labels to the segment data frame to later compare final coordinates with plot coordinate system
+    dendro$segments$lbl <- dendro$labels[match(dendro$segments$x, dendro$labels$x), "label"]
 
     return(list("dendro" = dendro, "clust" = clust))
+
   } else {
     return(NULL)
   }

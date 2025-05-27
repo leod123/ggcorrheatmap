@@ -156,10 +156,17 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
                  legend_position = "right",
                  plot_margin = c(20, 10, 10, 20), margin_unit = "pt") {
 
+  # Check that there are colnames
+
+
   if (".names" %in% colnames(x)) {
     rownames(x) <- x[[".names"]]
     x <- dplyr::select(x, -.names)
   }
+
+  # Check that there are rownames
+
+
   x_mat <- as.matrix(x)
 
   full_plt <- grepl("full|whole|all|^a|^w|^f", layout)
@@ -298,6 +305,9 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
 
     dend_seg_rows <- prepare_dendrogram(row_clustering$dendro, "rows", dend_down, dend_left, dend_rows_params$height, full_plt, x_long,
                                         annot_rows_df, is.data.frame(annot_rows_df), annot_left, annot_rows_pos, annot_rows_params$size)
+
+    # Check that the dendrogram labels are in the correct positions after mirroring and shifting
+    dend_seg_rows <- check_dendrogram_pos(x_long, "row", dend_seg_rows)
   }
 
   if (lclust_cols & dend_cols) {
@@ -308,6 +318,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
 
     dend_seg_cols <- prepare_dendrogram(col_clustering$dendro, "cols", dend_down, dend_left, dend_cols_params$height, full_plt, x_long,
                                         annot_cols_df, is.data.frame(annot_cols_df), annot_down, annot_cols_pos, annot_cols_params$size)
+    dend_seg_cols <- check_dendrogram_pos(x_long, "col", dend_seg_cols)
   }
 
   # Start building plot
@@ -442,9 +453,14 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
 
     list_out <- list("plot" = plt, "plot_data" = x_long)
 
-    # if (cluster_data) {
-    #   list_out$clustering <- clust
-    # }
+    if (!isFALSE(cluster_rows)) {
+      # list_out$row_clustering <- row_clustering$clust
+      list_out$row_clustering <- dend_seg_rows
+    }
+    if (!isFALSE(cluster_cols)) {
+      # list_out$col_clustering <- col_clustering$clust
+      list_out$col_clustering <- dend_seg_cols
+    }
 
     return(list_out)
 
