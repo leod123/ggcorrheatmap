@@ -28,7 +28,7 @@ cluster_dimension <- function(cluster_data, mat, cluster_distance, cluster_metho
 
     return(list("dendro" = dendro, "clust" = clust))
 
-  } else if (class(cluster_data) == "hclust") {
+  } else if (inherits(cluster_data, "hclust")) {
     clust <- cluster_data
     dendro <- as.dendrogram(clust)
 

@@ -10,6 +10,8 @@ shape_mat_long(x, unique_pairs = F, na_remove = F)
 \item{x}{Matrix to convert to long format.}
 
 \item{unique_pairs}{Whether only unique combinations should be included in the output (for symmetric matrices).}
+
+\item{na_remove}{Logical indicating if NAs should be excluded.}
 }
 \value{
 A data frame with the columns 'row', 'column' (indicating combinations), and 'value'

@@ -15,25 +15,25 @@ ggcorrhm(
   limits = c(-1, 1),
   bins = NULL,
   fill_name = NULL,
-  na_remove = F,
+  na_remove = FALSE,
   na_col = "grey",
   layout = "full",
-  include_diag = F,
-  return_data = F,
+  include_diag = FALSE,
+  return_data = FALSE,
   show_legend = c(fill = TRUE, size = FALSE),
   cell_shape = "heatmap",
   size_range = c(4, 10),
   size_scale = NULL,
-  label_cells = F,
+  label_cells = FALSE,
   cell_label_size = 3,
   cell_label_digits = 2,
   border_col = "grey",
   border_lwd = 0.5,
-  names_diag = T,
+  names_diag = TRUE,
   names_diag_param = NULL,
-  names_x = F,
+  names_x = FALSE,
   names_x_side = "top",
-  names_y = F,
+  names_y = FALSE,
   names_y_side = "left",
   annot_rows_df = NULL,
   annot_cols_df = NULL,
@@ -41,23 +41,23 @@ ggcorrhm(
   annot_cols_fill = NULL,
   annot_rows_side = "right",
   annot_cols_side = "bottom",
-  annot_legend = T,
+  annot_legend = TRUE,
   annot_dist = 0.2,
   annot_gap = 0,
   annot_size = 0.5,
-  annot_label = T,
+  annot_label = TRUE,
   annot_rows_params = NULL,
   annot_cols_params = NULL,
   annot_rows_label_side = "bottom",
   annot_cols_label_side = "left",
   annot_rows_label_params = NULL,
   annot_cols_label_params = NULL,
-  cluster_rows = F,
-  cluster_cols = F,
+  cluster_rows = FALSE,
+  cluster_cols = FALSE,
   cluster_distance = "euclidean",
   cluster_method = "complete",
-  dend_rows = T,
-  dend_cols = T,
+  dend_rows = TRUE,
+  dend_cols = TRUE,
   dend_rows_side = "right",
   dend_cols_side = "bottom",
   dend_col = "black",
@@ -259,19 +259,19 @@ ggcorrhm(iris[1:32, -5], mtcars)
 ggcorrhm(mtcars, layout = "br")
 
 # With clustering
-ggcorrhm(mtcars, layout = "tl", cluster_rows = T, cluster_cols = T)
+ggcorrhm(mtcars, layout = "tl", cluster_rows = TRUE, cluster_cols = TRUE)
 
 # With annotation
 set.seed(123)
 annot <- data.frame(.names = colnames(mtcars),
                     annot1 = rnorm(ncol(mtcars)),
-                    annot2 = sample(letters[1:3], ncol(mtcars), T))
+                    annot2 = sample(letters[1:3], ncol(mtcars), TRUE))
 ggcorrhm(mtcars, layout = "tr", annot_rows_df = annot,
          # Change margins to fit annotation labels
          plot_margin = c(20, 10, 60, 20))
 
 # Using the dend_options argument
-ggcorrhm(mtcars, cluster_rows = T, dend_rows_extend =
+ggcorrhm(mtcars, cluster_rows = TRUE, dend_rows_extend =
   list("set" = list("branches_lty", c(1, 2, 3)),
        "set" = list("branches_k_color", k = 3),
        # Empty list element (or NULL) if no arguments to be given

@@ -229,12 +229,12 @@ gghm(hm_in)
 gghm(cor(mtcars), layout = "br")
 
 # With clustering
-gghm(scale(hm_in), cluster_rows = T, cluster_cols = T)
+gghm(scale(hm_in), cluster_rows = TRUE, cluster_cols = TRUE)
 
 # Adjusting cluster dendrograms using common and specific options
-gghm(scale(hm_in), cluster_rows = T, cluster_cols = T,
+gghm(scale(hm_in), cluster_rows = TRUE, cluster_cols = TRUE,
      # Common options
-     dend_lwd = .7, dend_col = "magenta",
+     dend_lwd = 0.7, dend_col = "magenta",
      # Specific options
      dend_rows_params = list(height = 1), dend_cols_params = list(lty = 2))
 
@@ -242,7 +242,7 @@ gghm(scale(hm_in), cluster_rows = T, cluster_cols = T,
 set.seed(123)
 annot_rows <- data.frame(.names = rownames(hm_in),
                          annot1 = rnorm(nrow(hm_in)),
-                         annot2 = sample(letters[1:3], nrow(hm_in), T))
+                         annot2 = sample(letters[1:3], nrow(hm_in), TRUE))
 # Specify colour scale for one of the annotations (viridis mako)
 annot_fill <- list(annot1 = "G")
 
@@ -254,7 +254,7 @@ gghm(scale(hm_in),
      plot_margin = c(20, 10, 60, 20))
 
 # Using the dend_options argument
-gghm(scale(hm_in), cluster_rows = T, dend_rows_extend =
+gghm(scale(hm_in), cluster_rows = TRUE, dend_rows_extend =
   list("set" = list("branches_lty", c(1, 2, 3)),
        # Empty list element (or NULL) if no arguments to be given
        "highlight_branches_col" = list()))
