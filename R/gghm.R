@@ -1,7 +1,7 @@
 #' Make a heatmap with ggplot2.
 #'
-#' @param x Matrix or data frame in wide format to make a heatmap of. The matrix/data frame needs either rownames or a column named `.names` (containing unique row identifiers).
-#' If `.names` exists in `x` any existing rownames are overwritten.
+#' @param x Matrix or data frame in wide format to make a heatmap of. If rownames are present they are used for the y axis labels, otherwise the row number is used.
+#' If a column named `.names` (containing unique row identifiers) is present it will be used as rownames.
 #' @param fill_scale A `ggplot2` scale object for the cell fill colour scale. NULL (default) uses the `ggplot2` default.
 #' @param fill_name String to use for the colour scale legend title.
 #' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
@@ -156,16 +156,20 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
                  legend_position = "right",
                  plot_margin = c(20, 10, 10, 20), margin_unit = "pt") {
 
+  if (!is.matrix(x) & !is.data.frame(x)) stop("x must be a matrix or data frame.")
+
   # Check that there are colnames
-  if (is.null(colnames(x))) stop("x needs to have column names.")
+  if (is.null(colnames(x))) {colnames(x) <- 1:ncol(x)}
 
   if (".names" %in% colnames(x)) {
     rownames(x) <- x[[".names"]]
     x <- dplyr::select(x, -.names)
   }
+  # Explicitly define the rownames to prevent ggplot2 error if x is a data frame without explicit rownames
+  rownames(x) <- rownames(x)
 
   # Check that there are rownames
-  if (is.null(rownames(x))) stop("x needs to have row names or a column named '.names' with unique names.")
+  if (is.null(rownames(x))) {rownames(x) <- 1:nrow(x)}
 
   x_mat <- as.matrix(x)
 
