@@ -13,6 +13,7 @@
 #' 'full', 'whole', or 'all' (or 'f', 'w', 'a') result in the whole correlation matrix being plotted.
 #' For any other strings top and right are selected.
 #' @param include_diag Logical indicating if the diagonal cells should be plotted (ignored if the whole matrix is plotted).
+#' Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts.
 #' @param return_data Logical indicating if the data used for plotting should be returned.
 #' @param show_legend Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends,
 #' can be specified in an aesthetic-specific manner using a named vector like `c('fill' = TRUE, 'size' = FALSE)`.
@@ -327,29 +328,31 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
 
   # Start building plot
   plt <- ggplot2::ggplot(mapping = ggplot2::aes(x = col, y = row))
-  # Draw diagonal first to draw over with the rest of the plot
-  if (include_diag) {
-    plt <- plt +
-      # Tiles or not
-      list(
-        if (is.numeric(cell_shape)) {
-          ggplot2::geom_point(ggplot2::aes(fill = value, size = value),
-                              # Subset on character columns as error occurs if factor levels are different
-                              subset(x_long, as.character(row) == as.character(col)),
-                              stroke = border_lwd, colour = border_col, shape = cell_shape,
-                              show.legend = show_legend)
-        } else {
-          ggplot2::geom_tile(ggplot2::aes(fill = value),
-                             subset(x_long, as.character(row) == as.character(col)),
-                             linewidth = border_lwd, colour = border_col, show.legend = show_legend)
-        }
-      )
+  # Draw diagonal first to draw over with the rest of the plot (only if symmetric matrix)
+  if (isSymmetric(x_mat)) {
+    if (include_diag) {
+      plt <- plt +
+        # Tiles or not
+        list(
+          if (is.numeric(cell_shape)) {
+            ggplot2::geom_point(ggplot2::aes(fill = value, size = value),
+                                # Subset on character columns as error occurs if factor levels are different
+                                subset(x_long, as.character(row) == as.character(col)),
+                                stroke = border_lwd, colour = border_col, shape = cell_shape,
+                                show.legend = show_legend)
+          } else {
+            ggplot2::geom_tile(ggplot2::aes(fill = value),
+                               subset(x_long, as.character(row) == as.character(col)),
+                               linewidth = border_lwd, colour = border_col, show.legend = show_legend)
+          }
+        )
 
-  } else {
-    # Draw diagonal even if not supposed to be included to get the positions into the plot, for easier labelling
-    plt <- plt +
-      ggplot2::geom_tile(data = subset(x_long, as.character(row) == as.character(col)),
-                         fill = "white", linewidth = 0, alpha = 0)
+    } else {
+      # Draw diagonal even if not supposed to be included to get the positions into the plot, for easier labelling
+      plt <- plt +
+        ggplot2::geom_tile(data = subset(x_long, as.character(row) == as.character(col)),
+                           fill = "white", linewidth = 0, alpha = 0)
+    }
   }
 
   # If a numeric vector is given for the legend position, use the "inside" value for the legend.position arugment
@@ -366,12 +369,20 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     list(
       if (is.numeric(cell_shape)) {
         ggplot2::geom_point(ggplot2::aes(fill = value, size = value),
-                            subset(x_long, as.character(row) != as.character(col)),
+                            data = if (isSymmetric(x_mat)) {
+                              subset(x_long, as.character(row) != as.character(col))
+                            } else {
+                              x_long
+                            },
                             stroke = border_lwd, colour = border_col, shape = cell_shape,
                             show.legend = show_legend)
       } else {
         ggplot2::geom_tile(ggplot2::aes(fill = value),
-                           subset(x_long, as.character(row) != as.character(col)),
+                           data = if (isSymmetric(x_mat)) {
+                             subset(x_long, as.character(row) != as.character(col))
+                           } else {
+                             x_long
+                           },
                            linewidth = border_lwd, colour = border_col, show.legend = show_legend)
       }
     ) +
