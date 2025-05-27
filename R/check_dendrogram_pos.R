@@ -1,3 +1,13 @@
+#' Check that dendrograms are positioned correctly
+#'
+#' @keywords internal
+#'
+#' @param dat Long format data for plotting.
+#' @param dend_dim Dimension to which the dendrogram is added.
+#' @param dend The dendrogram segments data frame.
+#'
+#' @returns `dend` is returned as is if the positions are correct. Otherwise there is an error.
+#'
 check_dendrogram_pos <- function(dat, dend_dim = c("row", "col"), dend) {
   coord_dim <- if (dend_dim[1] == "row") "y" else if (dend_dim[1] == "col") "x" else NA
   stopifnot(coord_dim %in% c("x", "y"))
