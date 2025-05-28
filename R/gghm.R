@@ -69,8 +69,8 @@
 #' @param dend_lty Dendrogram line type, applied to both row and column dendrograms.
 #' @param dend_rows_params Named list for row dendrogram parameters. See details for more information.
 #' @param dend_cols_params Named list for column dendrogram parameters. See details for more information.
-#' @param dend_rows_extend Named list for specifying `dendextend` functions to apply to the row dendrogram. See details for usage.
-#' @param dend_cols_extend Named list for specifying `dendextend` functions to apply to the column dendrogram. See details for usage.
+#' @param dend_rows_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row dendrogram. See details for usage.
+#' @param dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the column dendrogram. See details for usage.
 #' @param legend_position Position of the legends, given to `ggplot2::theme`. Either a string for the position outside the plotting area,
 #' or a numeric vector of length 2 for normalised coordinates inside the plotting area.
 #' @param plot_margin Plot margins, specified as a numeric vector of length 4 in the order of top, right, bottom, left.
@@ -93,9 +93,11 @@
 #' The `dend_rows_extend` and `dend_cols_extend` arguments make it possible to customise the dendrograms using the `dendextend` package.
 #' The argument should be a named list, each element named after the `dendextend` function to use (consecutive usage of the `set` function
 #' is supported due to duplicate list names being possible). Each element should contain any arguments given to the `dendextend` function,
-#' such as the `what` argument used in the `set` function. See examples for example usage.
+#' such as the `what` argument used in the `set` function. Alternatively, `dendextend` functions can be provided in a functional sequence ("fseq" object)
+#' by piping together functions using the `%>%` pipe. See examples for example usage.
 #'
 #' @examples
+#'
 #' # Use part of the mtcars data (for visibility)
 #' hm_in <- mtcars[1:15, ]
 #'
@@ -130,11 +132,18 @@
 #'      # Change margins to fit annotation labels,
 #'      plot_margin = c(20, 10, 60, 20))
 #'
-#' # Using the dend_options argument
+#' # Using the dend_*_extend arguments
 #' gghm(scale(hm_in), cluster_rows = TRUE, dend_rows_extend =
 #'   list("set" = list("branches_lty", c(1, 2, 3)),
 #'        # Empty list element (or NULL) if no arguments to be given
 #'        "highlight_branches_col" = list()))
+#'
+#' # dend_*_extend with functional sequence
+#' library(dplyr)
+#' library(dendextend)
+#' gghm(scale(hm_in), cluster_cols = TRUE,
+#'      dend_cols_extend = . %>% set("branches_k_col", k = 3) %>% highlight_branches_lwd())
+#'
 gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
                  layout = "full", include_diag = F, return_data = F,
                  show_legend = c("fill" = TRUE, "size" = TRUE), cell_shape = "heatmap", size_scale = NULL,

@@ -114,7 +114,7 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
 #' @param mat Matrix to cluster.
 #' @param cluster_distance Distance metric for clustering.
 #' @param cluster_method Clustering method for `hclust`.
-#' @param dend_options List specifying `dendextend` functions to use.
+#' @param dend_options List or functional sequence specifying `dendextend` functions to use.
 #'
 #' @returns List containing the dendrogram and clustering objects (or NULL if no clustering).
 #'
@@ -133,6 +133,8 @@ cluster_dimension <- function(cluster_data, mat, cluster_distance, cluster_metho
     # Apply dendextend options if any are given
     if (is.list(dend_options)) {
       dendro <- apply_dendextend(dendro, dend_options)
+    } else if (inherits(dend_options, "fseq")) {
+      dendro <- dend_options(dendro)
     }
 
     dendro <- dendextend::as.ggdend(dendro)

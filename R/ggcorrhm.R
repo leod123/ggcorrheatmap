@@ -79,8 +79,8 @@
 #' @param dend_lty Dendrogram line type, applied to both row and column dendrograms.
 #' @param dend_rows_params Named list for row dendrogram parameters. See details of `gghm` for more information.
 #' @param dend_cols_params Named list for column dendrogram parameters. See details of `gghm` for more information.
-#' @param dend_rows_extend Named list for specifying `dendextend` functions to apply to the row dendrogram. See details of `gghm` for usage.
-#' @param dend_cols_extend Named list for specifying `dendextend` functions to apply to the column dendrogram. See details of `gghm` for usage.
+#' @param dend_rows_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row dendrogram. See details of `gghm` for usage.
+#' @param dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the column dendrogram. See details of `gghm` for usage.
 #' @param legend_position Position of the legends, given to `ggplot2::theme`. Either a string for the position outside the plotting area,
 #' or a numeric vector of length 2 for normalised coordinates inside the plotting area.
 #' @param plot_margin Plot margins, specified as a numeric vector of length 4 in the order of top, right, bottom, left.
