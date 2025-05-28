@@ -131,7 +131,7 @@ The default behaviour (NULL) is to use a continuous scale with the absolute valu
 
 \item{border_lwd}{Size of cell borders, used for the \code{size} argument in \code{ggplot2::geom_tile}. Set to 0 to remove cell borders.}
 
-\item{names_diag}{Logical indicating if names should be written in the diagonal cells.}
+\item{names_diag}{Logical indicating if names should be written in the diagonal cells (for a symmetric matrix).}
 
 \item{names_diag_param}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
 
@@ -212,9 +212,9 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 
 \item{dend_cols_params}{Named list for column dendrogram parameters. See details of \code{gghm} for more information.}
 
-\item{dend_rows_extend}{Named list for specifying \code{dendextend} functions to apply to the row dendrogram. See details of \code{gghm} for usage.}
+\item{dend_rows_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the row dendrogram. See details of \code{gghm} for usage.}
 
-\item{dend_cols_extend}{Named list for specifying \code{dendextend} functions to apply to the column dendrogram. See details of \code{gghm} for usage.}
+\item{dend_cols_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the column dendrogram. See details of \code{gghm} for usage.}
 
 \item{legend_position}{Position of the legends, given to \code{ggplot2::theme}. Either a string for the position outside the plotting area,
 or a numeric vector of length 2 for normalised coordinates inside the plotting area.}

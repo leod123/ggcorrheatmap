@@ -65,8 +65,8 @@ gghm(
 )
 }
 \arguments{
-\item{x}{Matrix or data frame in wide format to make a heatmap of. The matrix/data frame needs either rownames or a column named \code{.names} (containing unique row identifiers).
-If \code{.names} exists in \code{x} any existing rownames are overwritten.}
+\item{x}{Matrix or data frame in wide format to make a heatmap of. If rownames are present they are used for the y axis labels, otherwise the row number is used.
+If a column named \code{.names} (containing unique row identifiers) is present it will be used as rownames.}
 
 \item{fill_scale}{A \code{ggplot2} scale object for the cell fill colour scale. NULL (default) uses the \code{ggplot2} default.}
 
@@ -75,14 +75,15 @@ If \code{.names} exists in \code{x} any existing rownames are overwritten.}
 \item{na_remove}{Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
 If NAs are kept, the fill colour can be set in the \code{ggplot2} scale.}
 
-\item{layout}{String specifying the layout of the output correlation heatmap. Possible layouts include
+\item{layout}{String specifying the layout of the output heatmap. Possible layouts include
 top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the matrix is asymmetric).
 The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right).
 Bottom can be specified by 'bottom', 'lower', 'down', or the first letter of these. Left is specified by 'left' or 'l'.
-'full', 'whole', or 'all' (or 'f', 'w', 'a') result in the whole correlation matrix being plotted.
+'full', 'whole', or 'all' (or 'f', 'w', 'a') result in the whole matrix being plotted.
 For any other strings top and right are selected.}
 
-\item{include_diag}{Logical indicating if the diagonal cells should be plotted (ignored if the whole matrix is plotted).}
+\item{include_diag}{Logical indicating if the diagonal cells should be plotted (ignored if the whole matrix is plotted).
+Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.}
 
 \item{return_data}{Logical indicating if the data used for plotting should be returned.}
 
@@ -104,7 +105,7 @@ A numeric value can be used to specify an R shape (pch) to use, such as 21 for f
 
 \item{border_lwd}{Size of cell borders, used for the \code{size} argument in \code{ggplot2::geom_tile}. Set to 0 to remove cell borders.}
 
-\item{names_diag}{Logical indicating if names should be written in the diagonal cells.}
+\item{names_diag}{Logical indicating if names should be written in the diagonal cells (for a symmetric matrix).}
 
 \item{names_diag_param}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
 
@@ -130,9 +131,9 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 
 \item{annot_cols_fill}{Named list used for column annotation colour scales, used like \code{annot_rows_fill}.}
 
-\item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' for left, otherwise right).}
+\item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' or 'l' for left, otherwise right).}
 
-\item{annot_cols_side}{String specifying which side column annotation should be drawn ('bottom', 'down', 'lower' for bottom, otherwise top).}
+\item{annot_cols_side}{String specifying which side column annotation should be drawn ('bottom', 'down', 'b', 'd' for bottom, otherwise top).}
 
 \item{annot_legend}{Logical indicating if row and column annotations should have legends.}
 
@@ -169,9 +170,9 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 
 \item{dend_cols}{Logical indicating if a dendrogram should be drawn for the columns.}
 
-\item{dend_rows_side}{Which side to draw the row dendrogram on ('left' for left, otherwise right).}
+\item{dend_rows_side}{Which side to draw the row dendrogram on ('left' or 'l' for left, otherwise right).}
 
-\item{dend_cols_side}{Which side to draw the column dendrogram on ('bottom', 'down', 'lower' for bottom, otherwise top).}
+\item{dend_cols_side}{Which side to draw the column dendrogram on ('bottom', 'down', 'b', 'd' for bottom, otherwise top).}
 
 \item{dend_col}{Colour to use for dendrogram lines, applied to both row and column dendrograms.}
 
@@ -185,9 +186,9 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 
 \item{dend_cols_params}{Named list for column dendrogram parameters. See details for more information.}
 
-\item{dend_rows_extend}{Named list for specifying \code{dendextend} functions to apply to the row dendrogram. See details for usage.}
+\item{dend_rows_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the row dendrogram. See details for usage.}
 
-\item{dend_cols_extend}{Named list for specifying \code{dendextend} functions to apply to the column dendrogram. See details for usage.}
+\item{dend_cols_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the column dendrogram. See details for usage.}
 
 \item{legend_position}{Position of the legends, given to \code{ggplot2::theme}. Either a string for the position outside the plotting area,
 or a numeric vector of length 2 for normalised coordinates inside the plotting area.}
@@ -199,7 +200,7 @@ or a numeric vector of length 2 for normalised coordinates inside the plotting a
 \value{
 The heatmap as a \code{ggplot} object.
 If \code{return_data} is TRUE the output is a list containing the plot (named 'plot'),
-the plotting data ('plot_data'), and the result of the clustering ('clustering', only if \code{cluster_data} is TRUE).
+the plotting data ('plot_data'), and the result of the clustering ('row_clustering' and/or 'col_clustering).
 }
 \description{
 Make a heatmap with ggplot2.
@@ -216,9 +217,11 @@ The dendrogram parameters arguments \code{dend_rows_params} and \code{dend_cols_
 The \code{dend_rows_extend} and \code{dend_cols_extend} arguments make it possible to customise the dendrograms using the \code{dendextend} package.
 The argument should be a named list, each element named after the \code{dendextend} function to use (consecutive usage of the \code{set} function
 is supported due to duplicate list names being possible). Each element should contain any arguments given to the \code{dendextend} function,
-such as the \code{what} argument used in the \code{set} function. See examples for example usage.
+such as the \code{what} argument used in the \code{set} function. Alternatively, \code{dendextend} functions can be provided in a functional sequence ("fseq" object)
+by piping together functions using the \verb{\%>\%} pipe. See examples for example usage.
 }
 \examples{
+
 # Use part of the mtcars data (for visibility)
 hm_in <- mtcars[1:15, ]
 
@@ -253,9 +256,16 @@ gghm(scale(hm_in),
      # Change margins to fit annotation labels,
      plot_margin = c(20, 10, 60, 20))
 
-# Using the dend_options argument
+# Using the dend_*_extend arguments
 gghm(scale(hm_in), cluster_rows = TRUE, dend_rows_extend =
   list("set" = list("branches_lty", c(1, 2, 3)),
        # Empty list element (or NULL) if no arguments to be given
        "highlight_branches_col" = list()))
+
+# dend_*_extend with functional sequence
+library(dplyr)
+library(dendextend)
+gghm(scale(hm_in), cluster_cols = TRUE,
+     dend_cols_extend = . \%>\% set("branches_k_col", k = 3) \%>\% highlight_branches_lwd())
+
 }
