@@ -6,14 +6,14 @@
 #' @param fill_name String to use for the colour scale legend title.
 #' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
 #' If NAs are kept, the fill colour can be set in the `ggplot2` scale.
-#' @param layout String specifying the layout of the output correlation heatmap. Possible layouts include
+#' @param layout String specifying the layout of the output heatmap. Possible layouts include
 #' top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the matrix is asymmetric).
 #' The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right).
 #' Bottom can be specified by 'bottom', 'lower', 'down', or the first letter of these. Left is specified by 'left' or 'l'.
-#' 'full', 'whole', or 'all' (or 'f', 'w', 'a') result in the whole correlation matrix being plotted.
+#' 'full', 'whole', or 'all' (or 'f', 'w', 'a') result in the whole matrix being plotted.
 #' For any other strings top and right are selected.
 #' @param include_diag Logical indicating if the diagonal cells should be plotted (ignored if the whole matrix is plotted).
-#' Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts.
+#' Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.
 #' @param return_data Logical indicating if the data used for plotting should be returned.
 #' @param show_legend Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends,
 #' can be specified in an aesthetic-specific manner using a named vector like `c('fill' = TRUE, 'size' = FALSE)`.

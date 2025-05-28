@@ -10,10 +10,6 @@
 #' @examples
 #' shape_mat_long(cor(mtcars))
 shape_mat_long <- function(x, unique_pairs = F, na_remove = F) {
-  # # Remove upper triangle of correlation matrix if only unique pairs are desired
-  # if (unique_pairs) {
-  #   x[upper.tri(x, diag = F)] <- NA
-  # }
 
   # Convert to long format
   mat_long <- as.data.frame(x)
