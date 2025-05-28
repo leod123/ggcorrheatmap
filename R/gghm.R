@@ -41,8 +41,8 @@
 #' If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
 #' specify order using the `guide` argument in the `ggplot2` scale function provided.
 #' @param annot_cols_fill Named list used for column annotation colour scales, used like `annot_rows_fill`.
-#' @param annot_rows_side String specifying which side row annotation should be drawn ('left' for left, otherwise right).
-#' @param annot_cols_side String specifying which side column annotation should be drawn ('bottom', 'down', 'lower' for bottom, otherwise top).
+#' @param annot_rows_side String specifying which side row annotation should be drawn ('left' or 'l' for left, otherwise right).
+#' @param annot_cols_side String specifying which side column annotation should be drawn ('bottom', 'down', 'b', 'd' for bottom, otherwise top).
 #' @param annot_legend Logical indicating if row and column annotations should have legends.
 #' @param annot_dist Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_gap Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.
@@ -61,8 +61,8 @@
 #' @param cluster_method String with the clustering method to use, given to `hclust`.
 #' @param dend_rows Logical indicating if a dendrogram should be drawn for the rows.
 #' @param dend_cols Logical indicating if a dendrogram should be drawn for the columns.
-#' @param dend_rows_side Which side to draw the row dendrogram on ('left' for left, otherwise right).
-#' @param dend_cols_side Which side to draw the column dendrogram on ('bottom', 'down', 'lower' for bottom, otherwise top).
+#' @param dend_rows_side Which side to draw the row dendrogram on ('left' or 'l' for left, otherwise right).
+#' @param dend_cols_side Which side to draw the column dendrogram on ('bottom', 'down', 'b', 'd' for bottom, otherwise top).
 #' @param dend_col Colour to use for dendrogram lines, applied to both row and column dendrograms.
 #' @param dend_height Number by which to scale dendrogram height, applied to both row and column dendrograms.
 #' @param dend_lwd Linewidth of dendrogram lines, applied to both row and column dendrograms.
@@ -239,10 +239,10 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   x_long <- shape_mat_long(x_mat, unique_pairs = !full_plt, na_remove = na_remove)
 
   if (full_plt) {
-    dend_left <- grepl("left", dend_rows_side)
-    dend_down <- grepl("lower|bottom|down", dend_cols_side)
-    annot_left <- grepl("left", annot_rows_side)
-    annot_down <- grepl("lower|bottom|down", annot_cols_side)
+    dend_left <- dend_rows_side %in% c("left", "l")
+    dend_down <- dend_cols_side %in% c("bottom", "down", "b", "d")
+    annot_left <- annot_rows_side %in% c("left", "l")
+    annot_down <- annot_cols_side %in% c("bottom", "down", "b", "d")
     include_diag <- T
   } else {
     pos_left = dend_left = annot_left <- grepl("left", layout) | substring(layout, 2, 2) == "l"
