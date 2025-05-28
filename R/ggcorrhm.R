@@ -35,7 +35,7 @@
 #' @param cell_label_digits Number of digits to display when cells are labelled with correlation coefficients. Default is 2, passed to `round`.
 #' @param border_col Colour of cell borders.
 #' @param border_lwd Size of cell borders, used for the `size` argument in `ggplot2::geom_tile`. Set to 0 to remove cell borders.
-#' @param names_diag Logical indicating if names should be written in the diagonal cells.
+#' @param names_diag Logical indicating if names should be written in the diagonal cells (for a symmetric matrix).
 #' @param names_diag_param List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
 #' @param names_x Logical indicating if names should be written on the x axis. Labels can be customised using `ggplot2::theme()` on the output plot.
 #' @param names_x_side String specifying position of the x axis names ("top" or "bottom").

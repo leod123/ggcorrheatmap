@@ -25,7 +25,7 @@
 #' @param cell_label_digits Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to `round`. NULL for no rounding.
 #' @param border_col Colour of cell borders.
 #' @param border_lwd Size of cell borders, used for the `size` argument in `ggplot2::geom_tile`. Set to 0 to remove cell borders.
-#' @param names_diag Logical indicating if names should be written in the diagonal cells.
+#' @param names_diag Logical indicating if names should be written in the diagonal cells (for a symmetric matrix).
 #' @param names_diag_param List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
 #' @param names_x Logical indicating if names should be written on the x axis. Labels can be customised using `ggplot2::theme()` on the output plot.
 #' @param names_x_side String specifying position of the x axis names ("top" or "bottom").
@@ -78,7 +78,7 @@
 #'
 #' @return The heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),
-#' the plotting data ('plot_data'), and the result of the clustering ('clustering', only if `cluster_data` is TRUE).
+#' the plotting data ('plot_data'), and the result of the clustering ('row_clustering' and/or 'col_clustering).
 #' @export
 #'
 #' @details
@@ -168,6 +168,9 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
 
   if (!is.matrix(x) & !is.data.frame(x)) stop("x must be a matrix or data frame.")
 
+  # Convert a tibble to a data frame to support row names
+  if (inherits(x, "tbl_df")) {x <- as.data.frame(x)}
+
   # Check that there are colnames
   if (is.null(colnames(x))) {colnames(x) <- 1:ncol(x)}
 
@@ -203,7 +206,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   # If clustering a symmetric matrix with a triangular layout, both rows and columns must be clustered. Automatically cluster both and throw a warning
   if (isSymmetric(x_mat) & !full_plt &
       ((!isFALSE(cluster_rows) & isFALSE(cluster_cols)) | (isFALSE(cluster_rows) & !isFALSE(cluster_cols)))) {
-    warning("Cannot cluster only one dimension for triangular layouts with symmetric matrices, clustering both rows and columns.")
+    warning("Cannot cluster only one dimension for triangular layouts, clustering both rows and columns.")
     if (isFALSE(cluster_rows)) {cluster_rows <- cluster_cols}
     else if (isFALSE(cluster_cols)) {cluster_cols <- cluster_rows}
   }
@@ -310,7 +313,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     annot_cols_label_params <- replace_default(annot_cols_label_defaults, annot_cols_label_params)
   }
 
-  # Generate dendrograms
+  # Generate dendrograms, positions depend on annotation sizes
   if (lclust_rows & dend_rows) {
 
     dend_rows_defaults <- list(col = dend_col, height = dend_height, lwd = dend_lwd, lty = dend_lty)
@@ -318,7 +321,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     dend_rows_params <- replace_default(dend_rows_defaults, dend_rows_params)
 
     dend_seg_rows <- prepare_dendrogram(row_clustering$dendro, "rows", dend_down, dend_left, dend_rows_params$height, full_plt, x_long,
-                                        annot_rows_df, is.data.frame(annot_rows_df), annot_left, annot_rows_pos, annot_rows_params$size)
+                                        annot_rows_df, annot_left, annot_rows_pos, annot_rows_params$size)
 
     # Check that the dendrogram labels are in the correct positions after mirroring and shifting
     dend_seg_rows <- check_dendrogram_pos(x_long, "row", dend_seg_rows)
@@ -331,7 +334,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     dend_cols_params <- replace_default(dend_cols_defaults, dend_cols_params)
 
     dend_seg_cols <- prepare_dendrogram(col_clustering$dendro, "cols", dend_down, dend_left, dend_cols_params$height, full_plt, x_long,
-                                        annot_cols_df, is.data.frame(annot_cols_df), annot_down, annot_cols_pos, annot_cols_params$size)
+                                        annot_cols_df, annot_down, annot_cols_pos, annot_cols_params$size)
     dend_seg_cols <- check_dendrogram_pos(x_long, "col", dend_seg_cols)
   }
 
@@ -478,12 +481,10 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     list_out <- list("plot" = plt, "plot_data" = x_long)
 
     if (!isFALSE(cluster_rows)) {
-      # list_out$row_clustering <- row_clustering$clust
-      list_out$row_clustering <- dend_seg_rows
+      list_out$row_clustering <- row_clustering$clust
     }
     if (!isFALSE(cluster_cols)) {
-      # list_out$col_clustering <- col_clustering$clust
-      list_out$col_clustering <- dend_seg_cols
+      list_out$col_clustering <- col_clustering$clust
     }
 
     return(list_out)
