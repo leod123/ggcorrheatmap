@@ -58,6 +58,9 @@
 #' @param annot_gap Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_size Size (width for row annotation, height for column annotation) of annotation cells. Used for both row and column annotation.
 #' @param annot_label not yet implemented (control if names of annotations should be shown in drawing area)
+#' @param annot_na_col Colour to use for NA values in annotations. Annotation-specific colour can be set in the ggplot2 scales in
+#' the `annot_*_fill` arguments.
+#' @param annot_na_remove Logical indicating if NAs in the annotations should be removed (producing empty spaces).
 #' @param annot_rows_params Named list with parameters for row annotations to overwrite the defaults set by the `annot_*` arguments, each name corresponding to the `*` part
 #' (see details of `gghm` for more information).
 #' @param annot_cols_params Named list with parameters for column annotations, used like `annot_rows_params`.
@@ -150,7 +153,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      names_x = FALSE, names_x_side = "top", names_y = FALSE, names_y_side = "left",
                      annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
                      annot_rows_side = "right", annot_cols_side = "bottom",
-                     annot_legend = TRUE, annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = TRUE,
+                     annot_legend = TRUE, annot_dist = 0.2, annot_gap = 0, annot_size = 0.5,
+                     annot_label = TRUE, annot_na_col = "grey", annot_na_remove = na_remove,
                      annot_rows_params = NULL, annot_cols_params = NULL,
                      annot_rows_label_side = "bottom", annot_cols_label_side = "left",
                      annot_rows_label_params = NULL, annot_cols_label_params = NULL,
@@ -214,7 +218,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                   annot_rows_fill = annot_rows_fill, annot_cols_fill = annot_cols_fill,
                   annot_rows_side = annot_rows_side, annot_cols_side = annot_cols_side,
                   annot_legend = annot_legend, annot_dist = annot_dist, annot_gap = annot_gap,
-                  annot_size = annot_size, annot_label = annot_label,
+                  annot_size = annot_size, annot_label = annot_label, annot_na_col = "grey", annot_na_remove = annot_na_remove,
                   annot_rows_params = annot_rows_params, annot_cols_params = annot_cols_params,
                   annot_rows_label_side = annot_rows_label_side, annot_cols_label_side = annot_cols_label_side,
                   annot_rows_label_params = annot_rows_label_params, annot_cols_label_params = annot_cols_label_params,

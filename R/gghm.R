@@ -48,6 +48,9 @@
 #' @param annot_gap Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_size Size (width for row annotation, height for column annotation) of annotation cells. Used for both row and column annotation.
 #' @param annot_label not yet implemented (control if names of annotations should be shown in drawing area)
+#' @param annot_na_col Colour to use for NA values in annotations. Annotation-specific colour can be set in the ggplot2 scales in
+#' the `annot_*_fill` arguments.
+#' @param annot_na_remove Logical indicating if NAs in the annotations should be removed (producing empty spaces).
 #' @param annot_rows_params Named list with parameters for row annotations to overwrite the defaults set by the `annot_*` arguments, each name corresponding to the `*` part
 #' (see details for more information).
 #' @param annot_cols_params Named list with parameters for column annotations, used like `annot_rows_params`.
@@ -84,8 +87,8 @@
 #' @details
 #' The annotation parameter arguments `annot_rows_params` and `annot_cols_params` should be named lists, where the possible options correspond to
 #' the different `annot_*` arguments. The possible options are "legend" (logical, if legends should be drawn), "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
-#' "size" (cell size), "label" (logical, if the annotation names should be displayed), and "label_size" (label text size). Any unused options will
-#' use the defaults set by the `annot_*` arguments.
+#' "size" (cell size), "label" (logical, if the annotation names should be displayed), "border_col" (colour of border) and "border_lwd" (border line width).
+#' Any unused options will use the defaults set by the `annot_*` arguments.
 #'
 #' The dendrogram parameters arguments `dend_rows_params` and `dend_cols_params` should be named lists, analogous to the annotation parameter arguments. Possible options are
 #' "col" (line colour), "height" (height scaling), "lwd" (line width), and "lty" (line type).
@@ -153,7 +156,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
                  names_x = FALSE, names_x_side = "top", names_y = FALSE, names_y_side = "left",
                  annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
                  annot_rows_side = "right", annot_cols_side = "bottom",
-                 annot_legend = TRUE, annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = TRUE,
+                 annot_legend = TRUE, annot_dist = 0.2, annot_gap = 0, annot_size = 0.5,
+                 annot_label = TRUE, annot_na_col = "grey", annot_na_remove = na_remove,
                  annot_rows_params = NULL, annot_cols_params = NULL,
                  annot_rows_label_side = "bottom", annot_cols_label_side = "left",
                  annot_rows_label_params = NULL, annot_cols_label_params = NULL,
@@ -249,9 +253,11 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     pos_down = dend_down = annot_down <- grepl("lower|bottom|down", layout) | substring(layout, 1, 1) %in% c("l", "b", "d")
   }
 
+  # Change order of rows and columns to match plot layout and clustering
   x_long$row <- factor(x_long$row,
                        levels = if (full_plt) {
-                         if (lclust_rows) {row_clustering$dendro$labels$label} else {rev(rownames(x_mat))}
+                         # In the full plot, reverse row name order to have them in order from top to bottom
+                         if (lclust_rows) {rev(row_clustering$dendro$labels$label)} else {rev(rownames(x_mat))}
                        } else if (pos_down) {
                          if (lclust_rows) {rev(row_clustering$dendro$labels$label)} else {rev(rownames(x_mat))}
                        } else {
@@ -259,7 +265,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
                        })
   x_long$col <- factor(x_long$col,
                        levels = if (full_plt) {
-                         if (lclust_cols) {rev(col_clustering$dendro$labels$label)} else {colnames(x_mat)}
+                         if (lclust_cols) {col_clustering$dendro$labels$label} else {colnames(x_mat)}
                        } else if (!pos_left) {
                          if (lclust_cols) {rev(col_clustering$dendro$labels$label)} else {rev(colnames(x_mat))}
                        } else {
@@ -267,71 +273,35 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
                        })
 
   # Annotation for rows and columns
+  # Default annotation parameters
+  annot_default <- list(legend = annot_legend, dist = annot_dist, gap = annot_gap, size = annot_size,
+                        label = annot_label, border_col = border_col, border_lwd = border_lwd, na_col = annot_na_col)
   if (is.data.frame(annot_rows_df)) {
-    # Move names to column if in row names
-    if (!".names" %in% colnames(annot_rows_df)) {
-      annot_rows_df$.names <- rownames(annot_rows_df)
-      rownames(annot_rows_df) <- NULL
-    }
-    annot_rows_names <- colnames(annot_rows_df)[-which(colnames(annot_rows_df) == ".names")]
-
-    # Make list with annotation parameter defaults from the common annotation options
-    annot_rows_defaults <- list(legend = annot_legend, dist = annot_dist, gap = annot_gap,
-                                size = annot_size, label = annot_label,
-                                border_col = border_col, border_lwd = border_lwd)
-    # Replace defaults with any provided options
-    annot_rows_params <- replace_default(annot_rows_defaults, annot_rows_params)
-
-    # Get positions of annotations
-    annot_rows_pos <- get_annotation_pos(annot_left, annot_rows_names, annot_rows_params$size,
-                                         annot_rows_params$dist, annot_rows_params$gap, ncol(x_mat))
-
-    # Row annotation label parameters and their defaults (fed to grid::textGrob)
-    annot_rows_label_defaults <- list(rot = 90, just = switch(annot_rows_label_side, "bottom" = "right", "top" = "left"))
-    annot_rows_label_params <- replace_default(annot_rows_label_defaults, annot_rows_label_params)
+    annot_rows_prep <- prepare_annotation(annot_rows_df, annot_default, annot_rows_params, annot_left,
+                                          annot_rows_label_params, annot_rows_label_side, ncol(x_mat))
+    annot_rows_params <- annot_rows_prep[[1]]; annot_rows_pos <- annot_rows_prep[[2]]; annot_rows_label_params <- annot_rows_prep[[3]]
   }
 
   if (is.data.frame(annot_cols_df)) {
-    # Move names to column if in row names
-    if (!".names" %in% colnames(annot_cols_df)) {
-      annot_cols_df$.names <- rownames(annot_cols_df)
-      rownames(annot_cols_df) <- NULL
-    }
-    annot_cols_names <- colnames(annot_cols_df)[-which(colnames(annot_cols_df) == ".names")]
-
-    # Make list with annotation parameter defaults from the common annotation options
-    annot_cols_defaults <- list(legend = annot_legend, dist = annot_dist, gap = annot_gap,
-                                size = annot_size, label = annot_label,
-                                border_col = border_col, border_lwd = border_lwd)
-    # Replace defaults with any provided options
-    annot_cols_params <- replace_default(annot_cols_defaults, annot_cols_params)
-
-    annot_cols_pos <- get_annotation_pos(annot_down, annot_cols_names, annot_cols_params$size,
-                                         annot_cols_params$dist, annot_cols_params$gap, nrow(x_mat))
-
-    annot_cols_label_defaults <- list(rot = 0, just = switch(annot_cols_label_side, "left" = "right", "right" = "left"))
-    annot_cols_label_params <- replace_default(annot_cols_label_defaults, annot_cols_label_params)
+    annot_cols_prep <- prepare_annotation(annot_cols_df, annot_default, annot_cols_params, annot_down,
+                                          annot_cols_label_params, annot_cols_label_side, nrow(x_mat))
+    annot_cols_params <- annot_cols_prep[[1]]; annot_cols_pos <- annot_cols_prep[[2]]; annot_cols_label_params <- annot_cols_prep[[3]]
   }
 
   # Generate dendrograms, positions depend on annotation sizes
+  dend_defaults <- list(col = dend_col, height = dend_height, lwd = dend_lwd, lty = dend_lty)
   if (lclust_rows & dend_rows) {
-
-    dend_rows_defaults <- list(col = dend_col, height = dend_height, lwd = dend_lwd, lty = dend_lty)
     # Replace default parameters if any are provided
-    dend_rows_params <- replace_default(dend_rows_defaults, dend_rows_params)
+    dend_rows_params <- replace_default(dend_defaults, dend_rows_params)
 
     dend_seg_rows <- prepare_dendrogram(row_clustering$dendro, "rows", dend_down, dend_left, dend_rows_params$height, full_plt, x_long,
                                         annot_rows_df, annot_left, annot_rows_pos, annot_rows_params$size)
-
     # Check that the dendrogram labels are in the correct positions after mirroring and shifting
     dend_seg_rows <- check_dendrogram_pos(x_long, "row", dend_seg_rows)
   }
 
   if (lclust_cols & dend_cols) {
-
-    dend_cols_defaults <- list(col = dend_col, height = dend_height, lwd = dend_lwd, lty = dend_lty)
-    # Replace default parameters if any are provided
-    dend_cols_params <- replace_default(dend_cols_defaults, dend_cols_params)
+    dend_cols_params <- replace_default(dend_defaults, dend_cols_params)
 
     dend_seg_cols <- prepare_dendrogram(col_clustering$dendro, "cols", dend_down, dend_left, dend_cols_params$height, full_plt, x_long,
                                         annot_cols_df, annot_down, annot_cols_pos, annot_cols_params$size)
@@ -454,7 +424,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
 
     plt <- add_annotation(plt, annot_dim = "rows", annot_rows_df, annot_rows_pos, annot_rows_params$size,
                           annot_rows_params$border_lwd, annot_rows_params$border_col, annot_rows_params$legend,
-                          annot_col_list[[1]], lgd_order, annot_rows_label_side, annot_rows_label_params)
+                          annot_na_col, annot_na_remove, annot_col_list[[1]], lgd_order,
+                          annot_rows_label_side, annot_rows_label_params)
   }
 
   if (is.data.frame(annot_cols_df)) {
@@ -464,7 +435,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
 
     plt <- add_annotation(plt, annot_dim = "cols", annot_cols_df, annot_cols_pos, annot_cols_params$size,
                           annot_cols_params$border_lwd, annot_cols_params$border_col, annot_cols_params$legend,
-                          annot_col_list[[2]], lgd_order, annot_cols_label_side, annot_cols_label_params)
+                          annot_na_col, annot_na_remove, annot_col_list[[2]], lgd_order,
+                          annot_cols_label_side, annot_cols_label_params)
   }
 
   # Add dendrograms

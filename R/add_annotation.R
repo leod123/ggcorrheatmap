@@ -13,6 +13,7 @@
 #' @param annot_border_lwd Linewidth of border lines of annotation cells.
 #' @param annot_border_col Colour of border lines of annotation cells.
 #' @param draw_legend Logical indicating if a legend should be drawn.
+#' @param na_remove Logical indicating if NA values should be removed.
 #' @param col_scale Named list of fill scales to use, named after the columns in the annotation data frame.
 #' Each element should either be a `scale_fill_*` object or a string specifying a brewer palette or viridis option.
 #' @param legend_order Numeric vector specifying the order the legends should be drawn in (applied in order of columns in annot_df).
@@ -23,6 +24,7 @@
 #'
 add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_pos, annot_size,
                            annot_border_lwd = 0.5, annot_border_col = "grey", draw_legend = T,
+                           na_col = "grey", na_remove = F,
                            col_scale = NULL, legend_order = NULL, label_side, label_params = NULL) {
 
   annot_names <- colnames(annot_df)[-1]
@@ -47,7 +49,7 @@ add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_p
         ggnewscale::new_scale_fill(),
 
         # Draw annotation
-        ggplot2::geom_tile(data = annot_df,
+        ggplot2::geom_tile(data = dplyr::filter(dplyr::select(annot_df, .names, all_of(nm)), if (na_remove) !is.na(get(nm)) else T),
                            mapping = ggplot2::aes(x = if (annot_dim[1] == "rows") {annot_pos[nm]}
                                                   else {.data[[colnames(annot_df)[1]]]},
                                                   y = if (annot_dim[1] == "rows") {.data[[colnames(annot_df)[1]]]}
@@ -62,9 +64,9 @@ add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_p
         if (is.character(col_scale[[nm]])) {
           # Use either as discrete or continuous scale
           if (is.character(annot_df[[nm]]) | is.factor(annot_df[[nm]])) {
-            ggplot2::scale_fill_brewer(palette = col_scale[[nm]], guide = if (draw_legend) ggplot2::guide_legend(order = legend_order[nm]) else "none")
+            ggplot2::scale_fill_brewer(palette = col_scale[[nm]], na.value = na_col, guide = if (draw_legend) ggplot2::guide_legend(order = legend_order[nm]) else "none")
           } else {
-            ggplot2::scale_fill_viridis_c(option = col_scale[[nm]], guide = if (draw_legend) ggplot2::guide_colourbar(order = legend_order[nm]) else "none")
+            ggplot2::scale_fill_viridis_c(option = col_scale[[nm]], na.value = na_col, guide = if (draw_legend) ggplot2::guide_colourbar(order = legend_order[nm]) else "none")
           }
 
         } else if ("Scale" %in% class(col_scale[[nm]])) {
@@ -73,10 +75,11 @@ add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_p
 
         } else {
           # If no colour scale is provided at all
+          # Should never have to use this condition thanks to prepare_annot_col
           if (is.character(annot_df[[nm]]) | is.factor(annot_df[[nm]])) {
-            ggplot2::scale_fill_brewer(palette = "Pastel1", guide = if (draw_legend) ggplot2::guide_legend(order = legend_order[nm]) else "none")
+            ggplot2::scale_fill_brewer(palette = "Pastel1", na.value = na_col, guide = if (draw_legend) ggplot2::guide_legend(order = legend_order[nm]) else "none")
           } else {
-            ggplot2::scale_fill_viridis_c(guide = if (draw_legend) ggplot2::guide_colourbar(order = legend_order[nm]) else "none")
+            ggplot2::scale_fill_viridis_c(na.value = na_col, guide = if (draw_legend) ggplot2::guide_colourbar(order = legend_order[nm]) else "none")
           }
         },
 
@@ -95,9 +98,47 @@ add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_p
 }
 
 
-prepare_annotation <- function(x) {
+#' Prepare annotation parameters and positions
+#'
+#' @keywords internal
+#'
+#' @param annot_df Annotation data frame. Should contain the rownames or a column called '.names' with names, other columns are used for annotation
+#' @param annot_defaults Default parameters for annotation.
+#' @param annot_params Provided annotation parameters to update.
+#' @param lannot_side Logical indicating annotation side. TRUE if left (row annotations) or bottom (column annotations).
+#' @param annot_label_params Annotation label (names next to annotations) parameters to update.
+#' @param annot_label_side Annotation label side.
+#' @param data_size Size of data (ncol if row annotations, nrow if column annotations).
+#'
+#' @returns List with updated annotation parameters, calculated annotation positions, and updated
+#' annotation label parameters.
+#'
+prepare_annotation <- function(annot_df, annot_defaults, annot_params, lannot_side,
+                               annot_label_params, annot_label_side, data_size) {
+  # Move names to column if in row names
+  if (!".names" %in% colnames(annot_df)) {
+    annot_df$.names <- rownames(annot_df)
+    rownames(annot_df) <- NULL
+  }
+  annot_names <- colnames(annot_df)[-which(colnames(annot_df) == ".names")]
 
+  # Replace defaults with any provided options
+  annot_params <- replace_default(annot_defaults, annot_params)
+
+  # Get positions of annotations
+  annot_pos <- get_annotation_pos(lannot_side, annot_names, annot_params$size,
+                                  annot_params$dist, annot_params$gap, data_size)
+
+  # Row annotation label parameters and their defaults (fed to grid::textGrob)
+  annot_label_defaults <- list(rot = switch(annot_label_side, "bottom" =, "top" = 90,
+                                            "left" =, "right" = 0),
+                               just = switch(annot_label_side, "bottom" = "right", "top" = "left",
+                                             "left" = "right", "right" = "left"))
+  annot_label_params <- replace_default(annot_label_defaults, annot_label_params)
+
+  return(list(annot_params, annot_pos, annot_label_params))
 }
+
 
 #' Calculate positions of annotations for heatmap.
 #'
@@ -131,6 +172,10 @@ get_annotation_pos <- function(annot_side = T, annot_names, annot_size, annot_di
 
 
 #' Prepare default colour scales for annotation.
+#'
+#' Prepares a brewer palette or viridis option for all annotations that don't have any colour scale
+#' specified by the user. There are eight options each for brewer (categorical) and viridis (continuous) and they are selected
+#' sequentially, going back to the beginning if there are more than eight annotations of each kind.
 #'
 #' @keywords internal
 #'

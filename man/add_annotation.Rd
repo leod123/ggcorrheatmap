@@ -13,6 +13,8 @@ add_annotation(
   annot_border_lwd = 0.5,
   annot_border_col = "grey",
   draw_legend = T,
+  na_col = "grey",
+  na_remove = F,
   col_scale = NULL,
   legend_order = NULL,
   label_side,
@@ -38,6 +40,8 @@ Positions are given by the middle coordinate of the annotation cells.}
 \item{annot_border_col}{Colour of border lines of annotation cells.}
 
 \item{draw_legend}{Logical indicating if a legend should be drawn.}
+
+\item{na_remove}{Logical indicating if NA values should be removed.}
 
 \item{col_scale}{Named list of fill scales to use, named after the columns in the annotation data frame.
 Each element should either be a \verb{scale_fill_*} object or a string specifying a brewer palette or viridis option.}

@@ -37,6 +37,8 @@ gghm(
   annot_gap = 0,
   annot_size = 0.5,
   annot_label = TRUE,
+  annot_na_col = "grey",
+  annot_na_remove = na_remove,
   annot_rows_params = NULL,
   annot_cols_params = NULL,
   annot_rows_label_side = "bottom",
@@ -145,6 +147,11 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 
 \item{annot_label}{not yet implemented (control if names of annotations should be shown in drawing area)}
 
+\item{annot_na_col}{Colour to use for NA values in annotations. Annotation-specific colour can be set in the ggplot2 scales in
+the \verb{annot_*_fill} arguments.}
+
+\item{annot_na_remove}{Logical indicating if NAs in the annotations should be removed (producing empty spaces).}
+
 \item{annot_rows_params}{Named list with parameters for row annotations to overwrite the defaults set by the \verb{annot_*} arguments, each name corresponding to the \code{*} part
 (see details for more information).}
 
@@ -208,8 +215,8 @@ Make a heatmap with ggplot2.
 \details{
 The annotation parameter arguments \code{annot_rows_params} and \code{annot_cols_params} should be named lists, where the possible options correspond to
 the different \verb{annot_*} arguments. The possible options are "legend" (logical, if legends should be drawn), "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
-"size" (cell size), "label" (logical, if the annotation names should be displayed), and "label_size" (label text size). Any unused options will
-use the defaults set by the \verb{annot_*} arguments.
+"size" (cell size), "label" (logical, if the annotation names should be displayed), "border_col" (colour of border) and "border_lwd" (border line width).
+Any unused options will use the defaults set by the \verb{annot_*} arguments.
 
 The dendrogram parameters arguments \code{dend_rows_params} and \code{dend_cols_params} should be named lists, analogous to the annotation parameter arguments. Possible options are
 "col" (line colour), "height" (height scaling), "lwd" (line width), and "lty" (line type).

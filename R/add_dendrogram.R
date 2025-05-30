@@ -80,11 +80,11 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
   # If needed mirror the dendrogram around the middle if the rotation caused it to not line up with the correct rows
   # Since all triangular layouts restrict the possible dendrogram positions and change the row and column orders, need layout-specific conditions
   if (dend_dim == "rows") {
-    if ((!dend_left & full_plt) | (dend_down & dend_left & !full_plt) | (!dend_down & !dend_left & !full_plt)) {
+    if ((dend_left & full_plt) | (dend_down & dend_left & !full_plt) | (!dend_down & !dend_left & !full_plt)) {
       dend_seg <- mirror_dendrogram(dend_seg, dend_dim)
     }
   } else if (dend_dim == "cols") {
-    if ((!dend_down & full_plt) | (!dend_down & !dend_left & !full_plt) | (dend_down & dend_left & !full_plt)) {
+    if ((dend_down & full_plt) | (!dend_down & !dend_left & !full_plt) | (dend_down & dend_left & !full_plt)) {
       dend_seg <- mirror_dendrogram(dend_seg, dend_dim)
     }
   }
@@ -322,12 +322,12 @@ scale_dendrogram <- function(dend_seg, dend_dim = c("rows", "cols"), dend_side, 
 #'
 check_dendrogram_pos <- function(dat, dend_dim = c("row", "col"), dend) {
   coord_dim <- if (dend_dim[1] == "row") "y" else if (dend_dim[1] == "col") "x" else NA
-  stopifnot(coord_dim %in% c("x", "y"))
 
   dend_lab <- dplyr::select(dend, lbl, coord_dim)
   dend_lab <- dplyr::filter(dend_lab, !is.na(lbl))
   # Take only distinct rows, in case a segment ends up on the same coordinate as the lowest node
-  # Since they are originally float numbers, they may differ by a very small amount. Compare rounded versions
+  # Since they are originally float numbers, they may differ by a very small amount.
+  # Round and get unique rows, but compare the unrounded values later
   dend_lab$coord_rounded <- round(dend_lab[[coord_dim]], 0)
   dend_lab <- dplyr::distinct(dend_lab, lbl, coord_rounded, .keep_all = T)
 
@@ -335,7 +335,9 @@ check_dendrogram_pos <- function(dat, dend_dim = c("row", "col"), dend) {
   dend_lab$plt_coord <- seq_along(levels(dat[[dend_dim[1]]]))[match(dend_lab$lbl, levels(dat[[dend_dim[1]]]))]
 
   # Check if same coordinates (within tolerance)
-  stopifnot(all(dplyr::near(dend_lab[[coord_dim]], dend_lab[["plt_coord"]])))
+  if (!all(dplyr::near(dend_lab[[coord_dim]], dend_lab[["plt_coord"]]))) {
+    warning("Something went wrong with dendrogram positioning! The leaves may be in the wrong coordinates. Please inform the author.")
+  }
 
   return(dend)
 }

@@ -24,6 +24,8 @@ prepare_annot_col(
 List of length two containing lists of row annotation and column annotation.
 }
 \description{
-Prepare default colour scales for annotation.
+Prepares a brewer palette or viridis option for all annotations that don't have any colour scale
+specified by the user. There are eight options each for brewer (categorical) and viridis (continuous) and they are selected
+sequentially, going back to the beginning if there are more than eight annotations of each kind.
 }
 \keyword{internal}

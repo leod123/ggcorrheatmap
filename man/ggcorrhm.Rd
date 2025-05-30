@@ -46,6 +46,8 @@ ggcorrhm(
   annot_gap = 0,
   annot_size = 0.5,
   annot_label = TRUE,
+  annot_na_col = "grey",
+  annot_na_remove = na_remove,
   annot_rows_params = NULL,
   annot_cols_params = NULL,
   annot_rows_label_side = "bottom",
@@ -170,6 +172,11 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 \item{annot_size}{Size (width for row annotation, height for column annotation) of annotation cells. Used for both row and column annotation.}
 
 \item{annot_label}{not yet implemented (control if names of annotations should be shown in drawing area)}
+
+\item{annot_na_col}{Colour to use for NA values in annotations. Annotation-specific colour can be set in the ggplot2 scales in
+the \verb{annot_*_fill} arguments.}
+
+\item{annot_na_remove}{Logical indicating if NAs in the annotations should be removed (producing empty spaces).}
 
 \item{annot_rows_params}{Named list with parameters for row annotations to overwrite the defaults set by the \verb{annot_*} arguments, each name corresponding to the \code{*} part
 (see details of \code{gghm} for more information).}
