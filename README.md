@@ -40,7 +40,7 @@ ggcorrhm(mtcars, layout = "br", cluster_rows = TRUE, cluster_cols = TRUE,
          dend_rows = FALSE, annot_rows_df = row_annot)
 ```
 
-<img src="man/figures/README-example1-1.png" width="100%" />
+<img src="man/figures/README-example1-1.png" width="70%" />
 
 It is also possible to make a normal heatmap, for a more flexible
 output.
@@ -51,4 +51,4 @@ gghm(scale(mtcars), cluster_rows = T, cluster_cols = T) +
   theme(axis.text.x.top = element_text(angle = 90, vjust = 0.3, hjust = 0))
 ```
 
-<img src="man/figures/README-example2-1.png" width="100%" />
+![](man/figures/README-example2-1.png)<!-- -->

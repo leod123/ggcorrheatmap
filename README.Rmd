@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  dpi = 144
 )
 ```
 
@@ -33,7 +33,7 @@ devtools::install_github("Leod123/ggcorrheatmap")
 
 Below is an example of how to generate a correlation heatmap with clustered rows and columns and row annotation, using a triangular layout that excludes redundant cells.
 
-```{r example1}
+```{r example1, out.width="70%"}
 library(ggcorrheatmap)
 
 set.seed(123)
