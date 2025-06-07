@@ -23,8 +23,8 @@
 #' @param label_cells Logical specifying if the cells should be labelled with the values.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
 #' @param cell_label_digits Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to `round`. NULL for no rounding.
-#' @param border_col Colour of cell borders.
-#' @param border_lwd Size of cell borders, used for the `size` argument in `ggplot2::geom_tile`. Set to 0 to remove cell borders.
+#' @param border_col Colour of cell borders. If `cell_shape` is non-numeric, `border_col` can be set to NA to remove borders completely.
+#' @param border_lwd Size of cell borders, used for the `size` argument in `ggplot2::geom_tile`. If `cell_shape` is numeric, `border_col` can be set to 0 to remove borders.
 #' @param names_diag Logical indicating if names should be written in the diagonal cells (for a symmetric matrix).
 #' @param names_diag_param List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
 #' @param names_x Logical indicating if names should be written on the x axis. Labels can be customised using `ggplot2::theme()` on the output plot.
@@ -318,7 +318,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
         list(
           if (is.numeric(cell_shape)) {
             ggplot2::geom_point(ggplot2::aes(fill = value, size = value),
-                                # Subset on character columns as error occurs if factor levels are different
+                                # Subset after converting to character as error occurs if factor levels are different
                                 subset(x_long, as.character(row) == as.character(col)),
                                 stroke = border_lwd, colour = border_col, shape = cell_shape,
                                 show.legend = show_legend)
@@ -380,12 +380,19 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     ggplot2::theme_classic() +
     # Remove axis elements, move legend, set margins
     ggplot2::theme(axis.line = ggplot2::element_blank(),
-                   axis.text.x = if (names_x) ggplot2::element_text() else ggplot2::element_blank(),
+                   axis.text.x = ggplot2::element_blank(),
                    axis.text.y = if (names_y) ggplot2::element_text() else ggplot2::element_blank(),
                    axis.ticks = ggplot2::element_blank(),
                    axis.title = ggplot2::element_blank(),
                    legend.position = legend_position, legend.position.inside = legend_position_inside,
                    plot.margin = ggplot2::margin(plot_margin[1], plot_margin[2], plot_margin[3], plot_margin[4], margin_unit))
+
+  # Rotate x labels if names on x axis
+  if (names_x) {
+    plt <- plt +
+      if (names_x_side == "top") ggplot2::theme(axis.text.x.top = ggplot2::element_text(angle = 90, hjust = 0, vjust = 0.3))
+      else if (names_x_side == "bottom") ggplot2::theme(axis.text.x.bottom = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.3))
+  }
 
   # Names on the diagonal
   if (names_diag) {
