@@ -1,0 +1,81 @@
+---
+title: "Correlation heatmaps"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ggcorrheatmap)
+```
+
+Correlation heatmaps can be made easily using the `ggcorrhm` function. If one matrix is provided the column-column correlations are plotted. If two matrices are provided, the correlations between the columns in the two matrices are plotted.
+
+```{r symmetric correlation heatmap}
+ggcorrhm(mtcars)
+```
+
+```{r asymmetric correlation heatmap}
+ggcorrhm(iris[1:nrow(mtcars), -5], mtcars)
+```
+
+`ggcorrhm` sets the fill scale to use `ggplot2::scale_fill_gradient2()` with limits set to [-1, 1]. The colours can be changed using the `high`, `mid` and `low` arguments. If a discrete scale is desired, `bins` can be used to bin the scale. The scale can be overwritten completely by adding a `ggplot2` scale to the plot.
+
+For symmetric matrices, the axis names are drawn on the diagonal. The `names_diag`, `names_x` and `names_y` arguments control where names should be drawn.
+
+```{r changing colour, out.width='50%', fig.show='hold'}
+library(ggplot2)
+
+ggcorrhm(mtcars, names_diag = FALSE, names_x = TRUE, names_y = TRUE, high = "green", low = "magenta", mid = "yellow", bins = 6)
+
+ggcorrhm(mtcars) + scale_fill_continuous()
+```
+
+For symmetric heatmaps, the `layout` argument can be used to get triangular layouts. The possible layouts are full matrix (the default), top left, top right, bottom left, and bottom right. EXPLAIN HOW IT WORKS, ALSO MAYBE REWORK TO ADD NEGATION OF TOP/UP/RIGHT.
+
+```{r heatmap layouts}
+ggcorrhm(mtcars, layout = "topleft")
+
+# The diagonal is hidden by default but can be displayed using the `include_diag` argument
+ggcorrhm(mtcars, layout = "br", include_diag = TRUE)
+```
+
+Just like with `gghm`, the heatmap can be clustered and annotated. Triangular layouts limit the positions of annotation and dendrograms to the non-empty sides of the heatmap.
+
+```{r clustering and annotation}
+set.seed(123)
+# Make a correlation heatmap with a triangular layout, annotations and clustering
+row_annot <- data.frame(.names = colnames(mtcars),
+                        annot1 = sample(letters[1:3], ncol(mtcars), TRUE),
+                        annot2 = rnorm(ncol(mtcars)))
+ggcorrhm(mtcars, layout = "br", cluster_rows = TRUE, cluster_cols = TRUE,
+         dend_rows = FALSE, annot_rows_df = row_annot)
+```
+
+Correlation heatmaps are sometimes plotted with circles. Using the `cell_shape` argument allows for custom cell shapes. The shape size is set to scale with the absolute value of the correlation. `size_scale` can be provided to overwrite this behaviour. 
+
+```{r cell shape}
+# If numeric, the R pch symbols are used, meaning 21 produces circles. Any character value results in normal heatmap cells
+ggcorrhm(mtcars, cell_shape = 21) + labs(title = "cell_shape = 21")
+
+# It is also possible to use shapes other than circles. Only 21-25 support filling.
+# Change the size range using the size_range argument
+ggcorrhm(mtcars, cell_shape = 23, size_range = c(1, 15)) + labs(title = "cell_shape = 23")
+```
+
+The `label_cells` argument labels cells with the values.
+
+```{r cell labels}
+ggcorrhm(mtcars, layout = "br", label_cells = TRUE)
+```
+
+The `method` and `use` arguments of `stats::cor` can be set using the `cor_method` and `cor_use` arguments.
+
+```{r}
+ggcorrhm(mtcars, cor_method = "spearman", cor_use = "complete.obs", label_cells = T, layout = "br")
+```
+

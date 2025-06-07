@@ -1,0 +1,66 @@
+---
+title: "Making a heatmap"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The `gghm` function can be used to make a heatmap from a matrix of data frame. Rows and columns are ordered the same way as in the input.
+
+```{r setup}
+library(ggcorrheatmap)
+library(ggplot2)
+
+gghm(mtcars)
+```
+
+The `ggcorrhm` function uses `gghm` to build a correlation heatmap. The correlations between the columns in the input are computed and plotted.
+
+If the matrix being plotted is symmetric (as such a correlation matrix is), the axis labels are drawn on the diagonal. This behaviour can be changed using the `names_diag`, `names_x` and `names_y` arguments. A symmetric heatmap can also be plotted using triangular layouts, explained more in the [correlation matrix](correlation.html) vignette.
+
+```{r correlation heatmap}
+ggcorrhm(mtcars)
+```
+
+The colours of the heatmap can be adjusted by passing a `ggplot2::scale_fill_*` function call to the `fill_scale` argument.
+
+```{r}
+gghm(mtcars, fill_scale = scale_fill_viridis_c())
+
+# Heatmap with discrete values
+# Border colour and linewidth can be changed using the `border_col` and `border_lwd` arguments
+set.seed(123)
+gghm(replicate(15, sample(letters[1:3], 15, TRUE)),
+     fill_scale = scale_fill_brewer(palette = "Pastel2"), border_col = "thistle1", border_lwd = 1)
+```
+
+Cell borders are by default grey, but can be removed by setting `border_col` to NA (if `cell_shape` is non-numeric, explained more in [correlation heatmaps](correlation.html)) or `border_lwd` to 0 (if `cell_shape` is numeric).
+
+```{r}
+gghm(volcano, fill_scale = scale_fill_viridis_c(), border_col = NA, names_x = FALSE, names_y = FALSE)
+```
+
+Clustering can be applied to the rows and columns using the `cluster_rows` and `cluster_cols` arguments. See the [clustering](cluster.html) vignette for more on clustering.
+
+```{r clustering}
+gghm(scale(mtcars), cluster_rows = TRUE, cluster_cols = TRUE)
+```
+
+Row and column annotation is added by providing data frames to the `annot_rows_df` and `annot_cols_df` arguments. More details on annotation can be found in the [annotation](annotation.html) vignette.
+
+```{r annotation}
+row_annot <- data.frame(.names = rownames(mtcars), a = sample(letters[1:4], nrow(mtcars), T))
+
+gghm(mtcars, annot_rows_df = row_annot)
+```
+
+Clustering and annotation can of course be added simultaneously.
+
+```{r}
+gghm(scale(mtcars), cluster_rows = TRUE, annot_rows_df = row_annot)
+```
+
