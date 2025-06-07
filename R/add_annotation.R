@@ -27,7 +27,7 @@ add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_p
                            na_col = "grey", na_remove = F,
                            col_scale = NULL, legend_order = NULL, label_side, label_params = NULL) {
 
-  annot_names <- colnames(annot_df)[-1]
+  annot_names <- colnames(annot_df)[-which(colnames(annot_df) == ".names")]
   # Vector for determining the order in which to draw the annotation legends
   if (is.null(legend_order)) {
     legend_order <- seq_along(annot_names) + 1
@@ -51,8 +51,8 @@ add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_p
         # Draw annotation
         ggplot2::geom_tile(data = dplyr::filter(dplyr::select(annot_df, .names, all_of(nm)), if (na_remove) !is.na(get(nm)) else T),
                            mapping = ggplot2::aes(x = if (annot_dim[1] == "rows") {annot_pos[nm]}
-                                                  else {.data[[colnames(annot_df)[1]]]},
-                                                  y = if (annot_dim[1] == "rows") {.data[[colnames(annot_df)[1]]]}
+                                                  else {.data[[".names"]]},
+                                                  y = if (annot_dim[1] == "rows") {.data[[".names"]]}
                                                   else {annot_pos[nm]},
                                                   fill = .data[[nm]]),
                            width = ifelse(annot_dim[1] == "rows", annot_size, 1),
@@ -117,7 +117,7 @@ prepare_annotation <- function(annot_df, annot_defaults, annot_params, lannot_si
                                annot_label_params, annot_label_side, data_size) {
   # Move names to column if in row names
   if (!".names" %in% colnames(annot_df)) {
-    annot_df$.names <- rownames(annot_df)
+    annot_df[[".names"]] <- rownames(annot_df)
     rownames(annot_df) <- NULL
   }
   annot_names <- colnames(annot_df)[-which(colnames(annot_df) == ".names")]
@@ -136,7 +136,7 @@ prepare_annotation <- function(annot_df, annot_defaults, annot_params, lannot_si
                                              "left" = "right", "right" = "left"))
   annot_label_params <- replace_default(annot_label_defaults, annot_label_params)
 
-  return(list(annot_params, annot_pos, annot_label_params))
+  return(list(annot_df, annot_params, annot_pos, annot_label_params))
 }
 
 
@@ -197,7 +197,8 @@ prepare_annot_col <- function(annot_rows_df = NULL, annot_cols_df = NULL,
   lst_out <- vector("list", 2)
   for (i in seq_along(lst_in)) {
     # Get annotation names to compare if corresponding names are provided in colour scales list
-    annot_nm <- colnames(lst_in[[i]][[1]])[-1]
+    annot_nm <- colnames(lst_in[[i]][[1]])[-which(colnames(lst_in[[i]][[1]]) == ".names")]
+    print(annot_nm)
     scl_nm <- names(lst_in[[i]][[2]])
 
     # If no list provided, make one

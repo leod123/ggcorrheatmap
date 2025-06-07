@@ -279,13 +279,15 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   if (is.data.frame(annot_rows_df)) {
     annot_rows_prep <- prepare_annotation(annot_rows_df, annot_default, annot_rows_params, annot_left,
                                           annot_rows_label_params, annot_rows_label_side, ncol(x_mat))
-    annot_rows_params <- annot_rows_prep[[1]]; annot_rows_pos <- annot_rows_prep[[2]]; annot_rows_label_params <- annot_rows_prep[[3]]
+    annot_rows_df <- annot_rows_prep[[1]]; annot_rows_params <- annot_rows_prep[[2]];
+    annot_rows_pos <- annot_rows_prep[[3]]; annot_rows_label_params <- annot_rows_prep[[4]]
   }
 
   if (is.data.frame(annot_cols_df)) {
     annot_cols_prep <- prepare_annotation(annot_cols_df, annot_default, annot_cols_params, annot_down,
                                           annot_cols_label_params, annot_cols_label_side, nrow(x_mat))
-    annot_cols_params <- annot_cols_prep[[1]]; annot_cols_pos <- annot_cols_prep[[2]]; annot_cols_label_params <- annot_cols_prep[[3]]
+    annot_cols_df <- annot_cols_prep[[1]]; annot_cols_params <- annot_cols_prep[[2]];
+    annot_cols_pos <- annot_cols_prep[[3]]; annot_cols_label_params <- annot_cols_prep[[4]]
   }
 
   # Generate dendrograms, positions depend on annotation sizes
@@ -427,7 +429,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   if (is.data.frame(annot_rows_df)) {
     # Change legend order to be in order of annotations (after main values)
     lgd_order <- seq_along(annot_rows_df)[-1]
-    names(lgd_order) <- colnames(annot_rows_df)[-1]
+    names(lgd_order) <- colnames(annot_rows_df)[-which(colnames(annot_rows_df) == ".names")]
 
     plt <- add_annotation(plt, annot_dim = "rows", annot_rows_df, annot_rows_pos, annot_rows_params$size,
                           annot_rows_params$border_lwd, annot_rows_params$border_col, annot_rows_params$legend,
@@ -438,7 +440,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   if (is.data.frame(annot_cols_df)) {
     lgd_order <- if (is.data.frame(annot_rows_df)) {seq_along(annot_cols_df)[-1] + ncol(annot_rows_df) - 1}
     else {seq_along(annot_cols_df)[-1]}
-    names(lgd_order) <- colnames(annot_cols_df)[-1]
+    names(lgd_order) <- colnames(annot_cols_df)[-which(colnames(annot_cols_df) == ".names")]
 
     plt <- add_annotation(plt, annot_dim = "cols", annot_cols_df, annot_cols_pos, annot_cols_params$size,
                           annot_cols_params$border_lwd, annot_cols_params$border_col, annot_cols_params$legend,
