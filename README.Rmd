@@ -33,7 +33,7 @@ devtools::install_github("Leod123/ggcorrheatmap")
 
 Below is an example of how to generate a correlation heatmap with clustered rows and columns and row annotation, using a triangular layout that excludes redundant cells.
 
-```{r example1, out.width="70%"}
+```{r example1, out.width='70%', fig.align='center'}
 library(ggcorrheatmap)
 
 set.seed(123)
@@ -50,7 +50,7 @@ It is also possible to make a normal heatmap, for a more flexible output.
 
 ```{r example2}
 library(ggplot2)
-gghm(scale(mtcars), cluster_rows = T, cluster_cols = T) +
+gghm(scale(mtcars), cluster_rows = TRUE, cluster_cols = TRUE) +
   theme(axis.text.x.top = element_text(angle = 90, vjust = 0.3, hjust = 0))
 ```
 

@@ -40,14 +40,14 @@ ggcorrhm(mtcars, layout = "br", cluster_rows = TRUE, cluster_cols = TRUE,
          dend_rows = FALSE, annot_rows_df = row_annot)
 ```
 
-<img src="man/figures/README-example1-1.png" width="70%" />
+<img src="man/figures/README-example1-1.png" width="70%" style="display: block; margin: auto;" />
 
 It is also possible to make a normal heatmap, for a more flexible
 output.
 
 ``` r
 library(ggplot2)
-gghm(scale(mtcars), cluster_rows = T, cluster_cols = T) +
+gghm(scale(mtcars), cluster_rows = TRUE, cluster_cols = TRUE) +
   theme(axis.text.x.top = element_text(angle = 90, vjust = 0.3, hjust = 0))
 ```
 
