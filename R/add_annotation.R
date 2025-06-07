@@ -198,7 +198,7 @@ prepare_annot_col <- function(annot_rows_df = NULL, annot_cols_df = NULL,
   for (i in seq_along(lst_in)) {
     # Get annotation names to compare if corresponding names are provided in colour scales list
     annot_nm <- colnames(lst_in[[i]][[1]])[-which(colnames(lst_in[[i]][[1]]) == ".names")]
-    print(annot_nm)
+
     scl_nm <- names(lst_in[[i]][[2]])
 
     # If no list provided, make one

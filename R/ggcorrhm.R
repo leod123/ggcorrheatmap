@@ -23,8 +23,8 @@
 #' For any other strings top and right are selected.
 #' @param include_diag Logical indicating if the diagonal cells should be plotted (included either way if the whole matrix is plotted).
 #' @param return_data Logical indicating if the data used for plotting (i.e. the correlation values) should be returned.
-#' @param show_legend Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends,
-#' can be specified in an aesthetic-specific manner using a named vector like `c('fill' = TRUE, 'size' = FALSE)`.
+#' @param show_legend Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends.
+#' Can be specified in an aesthetic-specific manner using a named vector like `c('fill' = TRUE, 'size' = FALSE)`.
 #' @param cell_shape Value specifying what shape the heatmap cells should take. Any non-numeric value will result in a normal heatmap with square cells (default).
 #' A numeric value can be used to specify an R shape (pch) to use, such as 21 for filled circles. Note that only shapes 21-25 support filling (others will not display the heatmap colour properly).
 #' @param size_range Numeric vector of length 2, specifying lower and upper ranges of shape sizes. Ignored if `size_scale` is not NULL.
@@ -85,7 +85,7 @@
 #' @param dend_rows_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row dendrogram. See details of `gghm` for usage.
 #' @param dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the column dendrogram. See details of `gghm` for usage.
 #' @param legend_position Position of the legends, given to `ggplot2::theme`. Either a string for the position outside the plotting area,
-#' or a numeric vector of length 2 for normalised coordinates inside the plotting area.
+#' or a numeric vector of length 2 for normalised coordinates inside the plotting area. If "none", no legends are drawn.
 #' @param plot_margin Plot margins, specified as a numeric vector of length 4 in the order of top, right, bottom, left.
 #' @param margin_unit Unit to use for the specified margin.
 #'
@@ -191,12 +191,14 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   }
 
   # Make the fill colour scale
+  show_fill <- if ("fill" %in% names(show_legend)) show_legend["fill"] else show_legend
   fill_scale <- if (!is.null(bins)) {
     ggplot2::scale_fill_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                               breaks = seq(limits[1], limits[2], length.out = bins), guide = ggplot2::guide_colourbar(order = 1))
+                               breaks = seq(limits[1], limits[2], length.out = bins),
+                               guide = if (show_fill) ggplot2::guide_colourbar(order = 1) else "none")
   } else {
     ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                                  guide = ggplot2::guide_colourbar(order = 1))
+                                  guide = if (show_fill) ggplot2::guide_colourbar(order = 1) else "none")
   }
 
   # Make size scale (controlling the size range and transforming to be absolute values)

@@ -15,8 +15,8 @@
 #' @param include_diag Logical indicating if the diagonal cells should be plotted (ignored if the whole matrix is plotted).
 #' Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.
 #' @param return_data Logical indicating if the data used for plotting should be returned.
-#' @param show_legend Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends,
-#' can be specified in an aesthetic-specific manner using a named vector like `c('fill' = TRUE, 'size' = FALSE)`.
+#' @param show_legend Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends.
+#' Can be specified in an aesthetic-specific manner using a named vector like `c('fill' = TRUE, 'size' = FALSE)`.
 #' @param cell_shape Value specifying what shape the heatmap cells should take. Any non-numeric value will result in a normal heatmap with square cells (default).
 #' A numeric value can be used to specify an R shape (pch) to use, such as 21 for filled circles. Note that only shapes 21-25 support filling (others will not display the heatmap colour properly).
 #' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `cell_shape` is numeric.
@@ -75,7 +75,7 @@
 #' @param dend_rows_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row dendrogram. See details for usage.
 #' @param dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the column dendrogram. See details for usage.
 #' @param legend_position Position of the legends, given to `ggplot2::theme`. Either a string for the position outside the plotting area,
-#' or a numeric vector of length 2 for normalised coordinates inside the plotting area.
+#' or a numeric vector of length 2 for normalised coordinates inside the plotting area. If "none", no legends are drawn.
 #' @param plot_margin Plot margins, specified as a numeric vector of length 4 in the order of top, right, bottom, left.
 #' @param margin_unit Unit to use for the specified margin.
 #'
@@ -271,6 +271,18 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
                        } else {
                          if (lclust_cols) {col_clustering$dendro$labels$label} else {colnames(x_mat)}
                        })
+
+  # Set colour scale if none provided to change order of legends (if not set, the legend may end up after the annotation legens)
+  # Check if the fill legend is supposed to be drawn at all (otherwise it might draw the legend even if show_legend is c(fill = FALSE))
+  show_fill <- if ("fill" %in% names(show_legend)) show_legend["fill"] else show_legend
+  # Different depending on class of input data
+  if (is.null(fill_scale)) {
+    fill_scale <- if (is.character(x_long$value) | is.factor(x_long$value)) {
+      ggplot2::scale_fill_discrete(guide = if (show_fill) ggplot2::guide_legend(order = 1) else "none")
+    } else {
+      ggplot2::scale_fill_continuous(guide = if (show_fill) ggplot2::guide_colourbar(order = 1) else "none")
+    }
+  }
 
   # Annotation for rows and columns
   # Default annotation parameters
