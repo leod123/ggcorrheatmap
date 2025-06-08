@@ -11,4 +11,70 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(ggcorrheatmap)
+suppressPackageStartupMessages(library(dendextend))
 ```
+
+Heatmap rows and columns are clustered if the `cluster_rows` and `cluster_cols` arguments are set to `TRUE`. Distance measure and clustering method can be specified with the `cluster_distance` and `cluster_method` arguments.
+
+```{r clustering, fig.show='hold', out.width='50%'}
+ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE)
+
+# The dendrogram sides can be adjusted with the 'dend_rows_side' and 'dend_cols_side' arguments
+# Dendrograms can be hidden by setting 'dend_rows' and/or 'dend_cols' to FALSE
+ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
+         cluster_distance = "minkowski", cluster_method = "centroid",
+         dend_rows_side = "left", dend_cols_side = "top")
+```
+
+The `cluster_rows` and `cluster_cols` arguments can also be `hclust` objects if more control is required.
+
+The `dend_col`, `dend_height`, `dend_lwd`, and `dend_lty` arguments change the colour, height (scaling), linewidth, and linetype of the dendrograms, respectively. 
+
+```{r}
+ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
+         dend_col = "cyan", dend_height = 2, dend_lwd = 1, dend_lty = 2)
+```
+
+To apply these changes to only the row or only the column dendrograms, use the `dend_rows_params` and `dend_cols_params` arguments. These arguments take a named list containing one or more of `col`, `height`, `lwd`, and `lty`.
+
+```{r}
+ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
+         dend_rows_params = list(col = "cyan", height = 2),
+         dend_cols_params = list(lwd = 1, lty = 2))
+```
+
+Finer customisation of dendrograms can be done with the `dend_rows_extend` and `dend_cols_extend` arguments. These use the `dendextend` package to change the dendrogram appearance. The input can be either a named list of lists, where each element is named after the `dendextend` function to use and contains a list of the arguments to pass, or a functional sequence (`fseq` object) that strings together the functions to use.
+
+```{r}
+# List method
+ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
+         # Multiple elements can use the same function as lists don't require unique names
+         dend_rows_extend = list(
+           set = list("branches_k_col", k = 3),
+           set = list("branches_lty", c(1, 2, 3))
+         ),
+         # NULL or empty list if no arguments are to be passed
+         dend_cols_extend = list(
+           highlight_branches_lwd = list(values = seq(1, 4)),
+           highlight_branches_col = list()
+         ))
+# The equivalent call using the fseq method
+# library(dplyr)
+# ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
+#          dend_rows_extend = . %>%
+#            set("branches_k_col", k = 3) %>%
+#            set("branches_lty", c(1, 2, 3)),
+#          dend_cols_extend = . %>%
+#            highlight_branches_lwd(values = seq(1, 4)) %>%
+#            highlight_branches_col())
+```
+
+If annotation and a dendrogram are on the same side, the dendrogram is moved to make place for the annotation.
+
+```{r, fig.height=5, fig.width=7}
+annot <- data.frame(.names = colnames(mtcars), a = 1:11)
+ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
+         annot_rows_df = annot, annot_cols_df = annot,
+         dend_rows_side = "left")
+```
+

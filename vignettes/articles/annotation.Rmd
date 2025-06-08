@@ -11,4 +11,89 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(ggcorrheatmap)
+library(dplyr)
+library(ggplot2)
 ```
+
+Row and column annotation is added by passing data frames to the `annot_rows_df` and `annot_cols_df` arguments. There must be either row names or a column named `.names` containing the names of the rows/columns that are to be annotated. The remaining columns are used for annotation.
+
+```{r}
+row_annot <- data.frame(.names = colnames(mtcars), a = rnorm(ncol(mtcars)))
+col_annot <- data.frame(b = sample(letters[1:3], ncol(mtcars), TRUE))
+rownames(col_annot) <- colnames(mtcars)
+
+ggcorrhm(mtcars, annot_rows_df = row_annot, annot_cols_df = col_annot)
+```
+
+The colours used for annotation are selected in order from eight brewer palettes (categorical annotations, `ggplot2::scale_fill_brewer`) or eight viridis options (continuous annotations, `ggplot2::scale_fill_viridis_c`), starting again from the beginning if there are more than eight annotations of a certain type. 
+
+```{r}
+df_in <- matrix(1:9, nrow = 3, ncol = 3, byrow = TRUE)
+# Works without rownames or '.names' column as they are by default set to the same numbers here
+row_annot <- as.data.frame(replicate(12, letters[1:3]))
+col_annot <- as.data.frame(replicate(12, 1:3))
+gghm(df_in, annot_rows_df = row_annot, annot_cols_df = col_annot,
+     legend_position = "none")
+```
+
+The colours can be changed by passing a named list of `ggplot2` fill scales or strings (specifying brewer palettes or viridis options) to the `annot_rows_fill` and `annot_cols_fill` arguments. Annotations not included in the list will get the default colours.
+
+```{r}
+# Make annotation with eight columns, half categorical and half continuous
+col_annot <- as.data.frame(replicate(8, 1:8)) %>%
+  rename_with(function(x) {paste(c("custom", "default"), rep(1:4, each = 2), sep = "")}) %>%
+  mutate(across(1:4, as.character))
+col_annot$.names <- colnames(mtcars)[1:8]
+
+col_annot_fill <- list(custom1 = "Oranges",
+                       custom2 = scale_fill_discrete(guide = "none"),
+                       custom3 = "mako",
+                       custom4 = scale_fill_continuous(guide = "none"))
+ggcorrhm(mtcars[, 1:8], annot_cols_df = col_annot,
+         annot_cols_fill = col_annot_fill, annot_legend = FALSE)
+```
+
+The sizes and gaps between annotations and the heatmap can be adjusted.
+
+```{r}
+row_annot <- as.data.frame(replicate(4, rnorm(ncol(mtcars))))
+rownames(row_annot) <- colnames(mtcars)
+ggcorrhm(mtcars, annot_rows_df = row_annot, annot_legend = FALSE,
+         # annot_dist controls the distance between the heatmap and the annotation
+         annot_dist = 0,
+         # annot_gap controls the gap between annotations
+         annot_gap = 1,
+         # annot_size controls the size (width if row, height if column) of the annotations
+         annot_size = 2)
+```
+
+These parameters can be adjusted differently for row and column annotation by using the `annot_rows_params` and `annot_cols_params` arguments. These are named lists that allow you to control the distance to the heatmap, gap between annotations, annotation size, annotation label (show/hide), annotation legend (show/hide), border colour, and border linewidth. The `annot_dist`, `annot_size`, etc arguments shown above are used for both row and column annotations but are overwritten by the `..._params` arguments.
+
+```{r}
+df_in <- matrix(1:9, nrow = 3, ncol = 3, byrow = TRUE)
+row_annot <- data.frame(annot1 = 1:3, annot2 = 4:6)
+col_annot <- data.frame(annot3 = letters[1:3], annot4 = letters[4:6])
+
+gghm(df_in, annot_rows_df = row_annot, annot_cols_df = col_annot,
+     # border_col and border_lwd control both the heatmap and annotations
+     border_col = "yellow", border_lwd = 1,
+     annot_rows_params = list(
+       # Hide labels and legends using 'label' and 'legend'
+       label = FALSE, legend = FALSE
+     ),
+     annot_cols_params = list(
+       # 'border_col' and 'border_lwd' control the border colour and linewidth
+       border_col = "white", border_lwd = .3,
+       # 'dist', 'gap', and 'size' work as described in the previous chunk
+       dist = 1, gap = 0.3, size = 0.3
+     ))
+```
+
+
+annotation labels
+
+plot margins and annotation labels
+
+partial annotation (NAs, NA handling, not all names in df)
+
+annotation legend order
