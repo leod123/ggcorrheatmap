@@ -36,10 +36,10 @@
 #' will be used as the annotation name (in the legend and next to the annotation). Numeric columns will use a continuous
 #' colour scale while factor or character columns use discrete scales.
 #' @param annot_cols_df Same usage as `annot_rows_df` but for column annotation.
-#' @param annot_rows_fill Named list for row annotation colour scales. The names should specify which annotation the scales apply to.
+#' @param annot_rows_fill Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
 #' Elements can be strings or ggplot2 "Scale" class objects. If a string it is used as the brewer palette (categorical annotation) or viridis option (continuous annotation).
 #' If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
-#' specify order using the `guide` argument in the `ggplot2` scale function provided.
+#' specify order using the `guide` argument in the `ggplot2` scale function.
 #' @param annot_cols_fill Named list used for column annotation colour scales, used like `annot_rows_fill`.
 #' @param annot_rows_side String specifying which side row annotation should be drawn ('left' or 'l' for left, otherwise right).
 #' @param annot_cols_side String specifying which side column annotation should be drawn ('bottom', 'down', 'b', 'd' for bottom, otherwise top).
@@ -208,11 +208,19 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   }
 
   # If clustering a symmetric matrix with a triangular layout, both rows and columns must be clustered. Automatically cluster both and throw a warning
-  if (isSymmetric(x_mat) & !full_plt &
-      ((!isFALSE(cluster_rows) & isFALSE(cluster_cols)) | (isFALSE(cluster_rows) & !isFALSE(cluster_cols)))) {
-    warning("Cannot cluster only one dimension for triangular layouts, clustering both rows and columns.")
-    if (isFALSE(cluster_rows)) {cluster_rows <- cluster_cols}
-    else if (isFALSE(cluster_cols)) {cluster_cols <- cluster_rows}
+  if (isSymmetric(x_mat) & !full_plt) {
+
+    if (((!isFALSE(cluster_rows) & isFALSE(cluster_cols)) | (isFALSE(cluster_rows) & !isFALSE(cluster_cols)))) {
+      warning("Cannot cluster only one dimension for triangular layouts, clustering both rows and columns.")
+      if (isFALSE(cluster_rows)) {cluster_rows <- cluster_cols}
+      else if (isFALSE(cluster_cols)) {cluster_cols <- cluster_rows}
+    }
+
+    # If different clusterings are provided, warn that the output may look strange
+    if ((inherits(cluster_rows, "hclust") | inherits(cluster_cols, "hclust")) &
+        !identical(cluster_rows, cluster_cols)) {
+      warning("If the row and column clusterings are not identical the output may look strange with triangular layouts.")
+    }
   }
 
   # Make dendrograms

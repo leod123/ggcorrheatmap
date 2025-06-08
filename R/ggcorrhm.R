@@ -46,10 +46,10 @@
 #' will be used as the annotation name (in the legend and next to the annotation). Numeric columns will use a continuous
 #' colour scale while factor or character columns use discrete scales.
 #' @param annot_cols_df Same usage as `annot_rows_df` but for column annotation.
-#' @param annot_rows_fill Named list for row annotation colour scales. The names should specify which annotation the scales apply to.
+#' @param annot_rows_fill Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
 #' Elements can be strings or ggplot2 "Scale" class objects. If a string it is used as the brewer palette (categorical annotation) or viridis option (continuous annotation).
 #' If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
-#' specify order using the `guide` argument in the `ggplot2` scale function provided.
+#' specify order using the `guide` argument in the `ggplot2` scale function.
 #' @param annot_cols_fill Named list used for column annotation colour scales, used like `annot_rows_fill`.
 #' @param annot_rows_side String specifying which side row annotation should be drawn ('left' for left, otherwise right).
 #' @param annot_cols_side String specifying which side column annotation should be drawn ('bottom', 'down', 'lower' for bottom, otherwise top).
