@@ -13,6 +13,7 @@ add_annotation(
   annot_border_lwd = 0.5,
   annot_border_col = "grey",
   draw_legend = T,
+  draw_label = T,
   na_col = "grey",
   na_remove = F,
   col_scale = NULL,

@@ -23,7 +23,8 @@
 #' @return `ggplot` object with added annotations.
 #'
 add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_pos, annot_size,
-                           annot_border_lwd = 0.5, annot_border_col = "grey", draw_legend = T,
+                           annot_border_lwd = 0.5, annot_border_col = "grey",
+                           draw_legend = T, draw_label = T,
                            na_col = "grey", na_remove = F,
                            col_scale = NULL, legend_order = NULL, label_side, label_params = NULL) {
 
@@ -83,14 +84,16 @@ add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_p
           }
         },
 
-        # Add labels using annotation_custom to add a text grob without disturbing the plot area limits
-        ggplot2::annotation_custom(do.call(grid::textGrob, append(list(nm), label_params)),
-                                   # Distance between edge of heatmap and labels is 0.2 (default distance of annotation from heatmap)
-                                   # (.3 is .2 away from .5 (middle point of cell), .7 is the same distance in the other direction)
-                                   xmin = ifelse(annot_dim[1] == "rows", annot_pos[nm], ifelse(label_side == "left", .3, nrow(annot_df) + .7)),
-                                   xmax = ifelse(annot_dim[1] == "rows", annot_pos[nm], ifelse(label_side == "left", .3, nrow(annot_df) + .7)),
-                                   ymin = ifelse(annot_dim[1] == "rows", ifelse(label_side == "bottom", .3, nrow(annot_df) + .7), annot_pos[nm]),
-                                   ymax = ifelse(annot_dim[1] == "rows", ifelse(label_side == "bottom", .3, nrow(annot_df) + .7), annot_pos[nm]))
+        if (draw_label) {
+          # Add labels using annotation_custom to add a text grob without disturbing the plot area limits
+          ggplot2::annotation_custom(do.call(grid::textGrob, append(list(nm), label_params)),
+                                     # Distance between edge of heatmap and labels is 0.2 (default distance of annotation from heatmap)
+                                     # (.3 is .2 away from .5 (middle point of cell), .7 is the same distance in the other direction)
+                                     xmin = ifelse(annot_dim[1] == "rows", annot_pos[nm], ifelse(label_side == "left", .3, nrow(annot_df) + .7)),
+                                     xmax = ifelse(annot_dim[1] == "rows", annot_pos[nm], ifelse(label_side == "left", .3, nrow(annot_df) + .7)),
+                                     ymin = ifelse(annot_dim[1] == "rows", ifelse(label_side == "bottom", .3, nrow(annot_df) + .7), annot_pos[nm]),
+                                     ymax = ifelse(annot_dim[1] == "rows", ifelse(label_side == "bottom", .3, nrow(annot_df) + .7), annot_pos[nm]))
+        }
       )
     })
 

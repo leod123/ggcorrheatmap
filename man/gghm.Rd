@@ -89,8 +89,8 @@ Mostly only useful for getting a cleaner look with symmetric correlation matrice
 
 \item{return_data}{Logical indicating if the data used for plotting should be returned.}
 
-\item{show_legend}{Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends,
-can be specified in an aesthetic-specific manner using a named vector like \code{c('fill' = TRUE, 'size' = FALSE)}.}
+\item{show_legend}{Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends.
+Can be specified in an aesthetic-specific manner using a named vector like \code{c('fill' = TRUE, 'size' = FALSE)}.}
 
 \item{cell_shape}{Value specifying what shape the heatmap cells should take. Any non-numeric value will result in a normal heatmap with square cells (default).
 A numeric value can be used to specify an R shape (pch) to use, such as 21 for filled circles. Note that only shapes 21-25 support filling (others will not display the heatmap colour properly).}
@@ -103,9 +103,9 @@ A numeric value can be used to specify an R shape (pch) to use, such as 21 for f
 
 \item{cell_label_digits}{Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to \code{round}. NULL for no rounding.}
 
-\item{border_col}{Colour of cell borders.}
+\item{border_col}{Colour of cell borders. If \code{cell_shape} is non-numeric, \code{border_col} can be set to NA to remove borders completely.}
 
-\item{border_lwd}{Size of cell borders, used for the \code{size} argument in \code{ggplot2::geom_tile}. Set to 0 to remove cell borders.}
+\item{border_lwd}{Size of cell borders, used for the \code{size} argument in \code{ggplot2::geom_tile}. If \code{cell_shape} is numeric, \code{border_col} can be set to 0 to remove borders.}
 
 \item{names_diag}{Logical indicating if names should be written in the diagonal cells (for a symmetric matrix).}
 
@@ -126,10 +126,10 @@ colour scale while factor or character columns use discrete scales.}
 
 \item{annot_cols_df}{Same usage as \code{annot_rows_df} but for column annotation.}
 
-\item{annot_rows_fill}{Named list for row annotation colour scales. The names should specify which annotation the scales apply to.
+\item{annot_rows_fill}{Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
 Elements can be strings or ggplot2 "Scale" class objects. If a string it is used as the brewer palette (categorical annotation) or viridis option (continuous annotation).
 If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
-specify order using the \code{guide} argument in the \code{ggplot2} scale function provided.}
+specify order using the \code{guide} argument in the \code{ggplot2} scale function.}
 
 \item{annot_cols_fill}{Named list used for column annotation colour scales, used like \code{annot_rows_fill}.}
 
@@ -145,7 +145,7 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 
 \item{annot_size}{Size (width for row annotation, height for column annotation) of annotation cells. Used for both row and column annotation.}
 
-\item{annot_label}{not yet implemented (control if names of annotations should be shown in drawing area)}
+\item{annot_label}{Logical controlling if names of annotations should be shown in the drawing area.}
 
 \item{annot_na_col}{Colour to use for NA values in annotations. Annotation-specific colour can be set in the ggplot2 scales in
 the \verb{annot_*_fill} arguments.}
@@ -198,7 +198,7 @@ the \verb{annot_*_fill} arguments.}
 \item{dend_cols_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the column dendrogram. See details for usage.}
 
 \item{legend_position}{Position of the legends, given to \code{ggplot2::theme}. Either a string for the position outside the plotting area,
-or a numeric vector of length 2 for normalised coordinates inside the plotting area.}
+or a numeric vector of length 2 for normalised coordinates inside the plotting area. If "none", no legends are drawn.}
 
 \item{plot_margin}{Plot margins, specified as a numeric vector of length 4 in the order of top, right, bottom, left.}
 

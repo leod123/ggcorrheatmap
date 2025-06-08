@@ -57,7 +57,7 @@
 #' @param annot_dist Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_gap Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_size Size (width for row annotation, height for column annotation) of annotation cells. Used for both row and column annotation.
-#' @param annot_label not yet implemented (control if names of annotations should be shown in drawing area)
+#' @param annot_label Logical controlling if names of annotations should be shown in the drawing area.
 #' @param annot_na_col Colour to use for NA values in annotations. Annotation-specific colour can be set in the ggplot2 scales in
 #' the `annot_*_fill` arguments.
 #' @param annot_na_remove Logical indicating if NAs in the annotations should be removed (producing empty spaces).

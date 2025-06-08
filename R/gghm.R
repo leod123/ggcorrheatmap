@@ -47,7 +47,7 @@
 #' @param annot_dist Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_gap Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_size Size (width for row annotation, height for column annotation) of annotation cells. Used for both row and column annotation.
-#' @param annot_label not yet implemented (control if names of annotations should be shown in drawing area)
+#' @param annot_label Logical controlling if names of annotations should be shown in the drawing area.
 #' @param annot_na_col Colour to use for NA values in annotations. Annotation-specific colour can be set in the ggplot2 scales in
 #' the `annot_*_fill` arguments.
 #' @param annot_na_remove Logical indicating if NAs in the annotations should be removed (producing empty spaces).
@@ -452,7 +452,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     names(lgd_order) <- colnames(annot_rows_df)[-which(colnames(annot_rows_df) == ".names")]
 
     plt <- add_annotation(plt, annot_dim = "rows", annot_rows_df, annot_rows_pos, annot_rows_params$size,
-                          annot_rows_params$border_lwd, annot_rows_params$border_col, annot_rows_params$legend,
+                          annot_rows_params$border_lwd, annot_rows_params$border_col,
+                          annot_rows_params$legend, annot_rows_params$label,
                           annot_na_col, annot_na_remove, annot_col_list[[1]], lgd_order,
                           annot_rows_label_side, annot_rows_label_params)
   }
@@ -463,7 +464,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     names(lgd_order) <- colnames(annot_cols_df)[-which(colnames(annot_cols_df) == ".names")]
 
     plt <- add_annotation(plt, annot_dim = "cols", annot_cols_df, annot_cols_pos, annot_cols_params$size,
-                          annot_cols_params$border_lwd, annot_cols_params$border_col, annot_cols_params$legend,
+                          annot_cols_params$border_lwd, annot_cols_params$border_col,
+                          annot_cols_params$legend, annot_cols_params$label,
                           annot_na_col, annot_na_remove, annot_col_list[[2]], lgd_order,
                           annot_cols_label_side, annot_cols_label_params)
   }
