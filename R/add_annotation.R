@@ -137,7 +137,8 @@ prepare_annotation <- function(annot_df, annot_defaults, annot_params, lannot_si
                                             "left" =, "right" = 0),
                                just = switch(annot_label_side, "bottom" = "right", "top" = "left",
                                              "left" = "right", "right" = "left"))
-  annot_label_params <- replace_default(annot_label_defaults, annot_label_params)
+  # Replace defaults and allow for new parameters to be added
+  annot_label_params <- replace_default(annot_label_defaults, annot_label_params, add_new = T)
 
   return(list(annot_df, annot_params, annot_pos, annot_label_params))
 }

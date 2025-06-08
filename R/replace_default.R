@@ -8,9 +8,7 @@
 #'
 #' @examples
 #' replace_default(list(a = 1, b = 2, c = 3), list(a = 123, 456, d = 789))
-replace_default <- function(default_param, new_param) {
-  # Skip if no new parameters introduced
-  # if (length(new_param) == 0) return(NULL)
+replace_default <- function(default_param, new_param, add_new = F) {
 
   # Ignore unnamed elements
   new_param <- new_param[names(new_param) != ""]
@@ -20,6 +18,12 @@ replace_default <- function(default_param, new_param) {
 
   # Overwrite default values whose names exist in the specified parameters
   default_param[overlap_names] <- new_param[overlap_names]
+
+  # Add values from elements that are unique to the new list
+  if (add_new) {
+    new_names <- setdiff(names(new_param), names(default_param))
+    default_param[new_names] <- new_param[new_names]
+  }
 
   return(default_param)
 }

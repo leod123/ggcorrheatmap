@@ -4,7 +4,7 @@
 \alias{replace_default}
 \title{Replace default elements in a named list with corresponding elements in a new list.}
 \usage{
-replace_default(default_param, new_param)
+replace_default(default_param, new_param, add_new = F)
 }
 \arguments{
 \item{default_param}{Named list with elements to potentially replace ("defaults").}
