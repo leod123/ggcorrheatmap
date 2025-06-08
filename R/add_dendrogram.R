@@ -15,7 +15,7 @@ add_dendrogram <- function(ggp, dend_seg, dend_col = "black", dend_lwd = 0.3, de
     # If the segment colours have not been changed, use the same colour for all segments
     ggp <- ggp +
       ggplot2::geom_segment(ggplot2::aes(x = x, y = y, xend = xend, yend = yend), dend_seg,
-                            colour = dend_col,
+                            colour = dend_col, lineend = "square",
                             # Line width and type, same for all if not otherwise specified
                             linewidth = if (all(is.na(dend_seg$lwd))) {dend_lwd}
                             else {dend_seg$lwd},
@@ -31,6 +31,7 @@ add_dendrogram <- function(ggp, dend_seg, dend_col = "black", dend_lwd = 0.3, de
                             else {dend_seg$lwd},
                             linetype = if (all(is.na(dend_seg$lty))) {dend_lty}
                             else {dend_seg$lty},
+                            lineend = "square",
                             show.legend = F) +
       ggplot2::scale_colour_manual(values = seg_colr)
   }
