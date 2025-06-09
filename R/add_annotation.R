@@ -229,6 +229,7 @@ prepare_annot_col <- function(annot_rows_df = NULL, annot_cols_df = NULL,
   return(lst_out)
 }
 
+
 #' Increment between 1 and 8.
 #'
 #' @keywords internal
@@ -242,6 +243,7 @@ increment1to8 <- function(x) {
   if (x >= 8 | x < 1) return(1L)
   else return(x + 1L)
 }
+
 
 #' Colour scale dispenser.
 #'

@@ -316,18 +316,18 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     # Replace default parameters if any are provided
     dend_rows_params <- replace_default(dend_defaults, dend_rows_params)
 
-    dend_seg_rows <- prepare_dendrogram(row_clustering$dendro, "rows", dend_down, dend_left, dend_rows_params$height, full_plt, x_long,
+    dendro_rows <- prepare_dendrogram(row_clustering$dendro, "rows", dend_down, dend_left, dend_rows_params$height, full_plt, x_long,
                                         annot_rows_df, annot_left, annot_rows_pos, annot_rows_params$size)
     # Check that the dendrogram labels are in the correct positions after mirroring and shifting
-    dend_seg_rows <- check_dendrogram_pos(x_long, "row", dend_seg_rows)
+    dendro_rows <- check_dendrogram_pos(x_long, "row", dendro_rows)
   }
 
   if (lclust_cols & dend_cols) {
     dend_cols_params <- replace_default(dend_defaults, dend_cols_params)
 
-    dend_seg_cols <- prepare_dendrogram(col_clustering$dendro, "cols", dend_down, dend_left, dend_cols_params$height, full_plt, x_long,
+    dendro_cols <- prepare_dendrogram(col_clustering$dendro, "cols", dend_down, dend_left, dend_cols_params$height, full_plt, x_long,
                                         annot_cols_df, annot_down, annot_cols_pos, annot_cols_params$size)
-    dend_seg_cols <- check_dendrogram_pos(x_long, "col", dend_seg_cols)
+    dendro_cols <- check_dendrogram_pos(x_long, "col", dendro_cols)
   }
 
   # Start building plot
@@ -472,11 +472,11 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
 
   # Add dendrograms
   if (lclust_rows & dend_rows) {
-    plt <- add_dendrogram(plt, dend_seg_rows, dend_rows_params$col, dend_rows_params$lwd, dend_rows_params$lty)
+    plt <- add_dendrogram(plt, dendro_rows, dend_rows_params$col, dend_rows_params$lwd, dend_rows_params$lty)
   }
 
   if (lclust_cols & dend_cols) {
-    plt <- add_dendrogram(plt, dend_seg_cols, dend_cols_params$col, dend_cols_params$lwd, dend_cols_params$lty)
+    plt <- add_dendrogram(plt, dendro_cols, dend_cols_params$col, dend_cols_params$lwd, dend_cols_params$lty)
   }
 
   if (return_data) {

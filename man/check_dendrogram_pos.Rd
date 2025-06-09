@@ -4,17 +4,17 @@
 \alias{check_dendrogram_pos}
 \title{Check that dendrograms are positioned correctly}
 \usage{
-check_dendrogram_pos(dat, dend_dim = c("row", "col"), dend)
+check_dendrogram_pos(dat, dend_dim = c("row", "col"), dendro)
 }
 \arguments{
 \item{dat}{Long format data for plotting.}
 
 \item{dend_dim}{Dimension to which the dendrogram is added.}
 
-\item{dend}{The dendrogram segments data frame.}
+\item{dendro}{The dendrogram segments and nodes list.}
 }
 \value{
-\code{dend} is returned as is if the positions are correct. Otherwise there is an error.
+\code{dendro} is returned as is if the positions are correct. Otherwise there is an error.
 }
 \description{
 Check that dendrograms are positioned correctly

@@ -3,37 +3,55 @@
 #' @keywords internal
 #'
 #' @param ggp ggplot object to add dendrogram to.
-#' @param dend_seg Dendrogram segment data obtained from the `prepare_dendrogram` function.
+#' @param dend_seg Dendrogram segment and node data obtained from the `prepare_dendrogram` function.
 #' @param dend_col String specifying colour of dendrogram (used if the colours have not been changed using other options).
 #' @param dend_lwd Line width of dendrogram segments (used if not changed using other options).
 #' @param dend_lty Line type of dendrogram (used if not changed using other options).
 #'
 #' @returns A ggplot object with a dendrogram added.
 #'
-add_dendrogram <- function(ggp, dend_seg, dend_col = "black", dend_lwd = 0.3, dend_lty = 1) {
-  if (all(is.na(dend_seg$col))) {
-    # If the segment colours have not been changed, use the same colour for all segments
-    ggp <- ggp +
-      ggplot2::geom_segment(ggplot2::aes(x = x, y = y, xend = xend, yend = yend), dend_seg,
-                            colour = dend_col, lineend = "square",
-                            # Line width and type, same for all if not otherwise specified
-                            linewidth = if (all(is.na(dend_seg$lwd))) {dend_lwd}
-                            else {dend_seg$lwd},
-                            linetype = if (all(is.na(dend_seg$lty))) {dend_lty}
-                            else {dend_seg$lty})
+add_dendrogram <- function(ggp, dendro, dend_col = "black", dend_lwd = 0.3, dend_lty = 1) {
+  seg <- dendro$seg
+  nod <- dendro$nod
+
+  # Draw segments
+  # If no colours specified, use black
+  if (all(is.na(seg$col))) {
+    # If no colours specified, use black
+    seg[["col"]] <- "black"
+    seg_colr <- rep("black", nrow(seg))
   } else {
-    seg_colr <- dplyr::pull(dplyr::distinct(dend_seg, col), col)
-    names(seg_colr) <- seg_colr
+    seg_colr <- dplyr::pull(dplyr::distinct(seg, col), col)
+  }
+  # Colours for manual scale
+  names(seg_colr) <- seg_colr
+
+  ggp <- ggp +
+    ggnewscale::new_scale_colour() +
+    ggplot2::geom_segment(ggplot2::aes(x = x, y = y, xend = xend, yend = yend, colour = col), seg,
+                          linewidth = if (all(is.na(seg$lwd))) {dend_lwd}
+                          else {seg$lwd},
+                          linetype = if (all(is.na(seg$lty))) {dend_lty}
+                          else {seg$lty},
+                          lineend = "square",
+                          show.legend = F) +
+    ggplot2::scale_colour_manual(values = seg_colr)
+
+  # Draw nodes
+  if (nrow(nod) > 0) {
+    # Fill in NAs of pch (19), cex (1) and col (black) so that the nodes are drawn if any one of the parameters is specified
+    nod[["pch"]][is.na(nod[["pch"]])] <- 19
+    nod[["cex"]][is.na(nod[["cex"]])] <- 1
+    nod[["col"]][is.na(nod[["col"]])] <- "black"
+    nod_colr <- dplyr::pull(dplyr::distinct(nod, col), col)
+    names(nod_colr) <- nod_colr
+
     ggp <- ggp +
       ggnewscale::new_scale_colour() +
-      ggplot2::geom_segment(ggplot2::aes(x = x, y = y, xend = xend, yend = yend, colour = col), dend_seg,
-                            linewidth = if (all(is.na(dend_seg$lwd))) {dend_lwd}
-                            else {dend_seg$lwd},
-                            linetype = if (all(is.na(dend_seg$lty))) {dend_lty}
-                            else {dend_seg$lty},
-                            lineend = "square",
-                            show.legend = F) +
-      ggplot2::scale_colour_manual(values = seg_colr)
+      ggplot2::geom_point(ggplot2::aes(x = x, y = y, colour = col), nod,
+                          size = 1 * nod$cex, shape = nod$pch,
+                          show.legend = F) +
+      ggplot2::scale_colour_manual(values = nod_colr)
   }
 
   return(ggp)
@@ -59,14 +77,17 @@ add_dendrogram <- function(ggp, dend_seg, dend_col = "black", dend_lwd = 0.3, de
 #' @param annot_pos Vector of the annotation positions along the opposite dimension.
 #' @param annot_size Size of annotation cells, specified in heatmap cells (1 being the size of one cell).
 #'
-#' @return Data frame with dendrogram segment parameters.
+#' @return Data frame with dendrogram segment and node parameters.
 #'
 prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
                                dend_down, dend_left, dend_height, full_plt, cor_long,
                                annot_df, annot_side, annot_pos, annot_size) {
 
   dend_dim <- dend_dim[1]
+  # Segments
   dend_seg <- dendro_in$segments
+  # Nodes
+  dend_nod  <- dplyr::filter(dendro_in$nodes, !is.na(pch) | !is.na(cex) | !is.na(col))
 
   rot_angle <- if (dend_dim == "rows") {
     # If row dendrogram rotate 90 or -90 degrees
@@ -102,7 +123,40 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
                                  dend_height)
   }
 
-  return(dend_seg)
+  # If nodes have been adjusted in any way, repeat the procedure for nodes
+  if (any(!is.na(unlist(dplyr::select(dend_nod, pch, cex, col))))) {
+    # Add xend and yend columns to work with transformation functions
+    dend_nod <- dplyr::mutate(dend_nod, xend = x, yend = y)
+
+    dend_nod[, c("x", "y")] <- as.data.frame(t(rotate_coord(t(dend_nod[, c("x", "y")]), angle = rot_angle)))
+    dend_nod[, c("xend", "yend")] <- as.data.frame(t(rotate_coord(t(dend_nod[, c("xend", "yend")]), angle = rot_angle)))
+
+    # If needed mirror the dendrogram around the middle if the rotation caused it to not line up with the correct rows
+    # Since all triangular layouts restrict the possible dendrogram positions and change the row and column orders, need layout-specific conditions
+    if (dend_dim == "rows") {
+      if ((dend_left & full_plt) | (dend_down & dend_left & !full_plt) | (!dend_down & !dend_left & !full_plt)) {
+        dend_nod <- mirror_dendrogram(dend_nod, dend_dim)
+      }
+    } else if (dend_dim == "cols") {
+      if ((dend_down & full_plt) | (!dend_down & !dend_left & !full_plt) | (dend_down & dend_left & !full_plt)) {
+        dend_nod <- mirror_dendrogram(dend_nod, dend_dim)
+      }
+    }
+
+    # Move dendrogram next to heatmap
+    dend_nod <- move_dendrogram(dend_nod, cor_long, dend_dim,
+                                ifelse(dend_dim == "rows", dend_left, dend_down),
+                                annot_df, annot_side, annot_pos, annot_size)
+
+    # Rescale height of dendrogram
+    if (dend_height != 1) {
+      dend_nod <- scale_dendrogram(dend_nod, dend_dim,
+                                   ifelse(dend_dim == "rows", dend_left, dend_down),
+                                   dend_height)
+    }
+  }
+
+  return(list("seg" = dend_seg, "nod" = dend_nod))
 }
 
 
@@ -318,14 +372,15 @@ scale_dendrogram <- function(dend_seg, dend_dim = c("rows", "cols"), dend_side, 
 #'
 #' @param dat Long format data for plotting.
 #' @param dend_dim Dimension to which the dendrogram is added.
-#' @param dend The dendrogram segments data frame.
+#' @param dendro The dendrogram segments and nodes list.
 #'
-#' @returns `dend` is returned as is if the positions are correct. Otherwise there is an error.
+#' @returns `dendro` is returned as is if the positions are correct. Otherwise there is an error.
 #'
-check_dendrogram_pos <- function(dat, dend_dim = c("row", "col"), dend) {
+check_dendrogram_pos <- function(dat, dend_dim = c("row", "col"), dendro) {
   coord_dim <- if (dend_dim[1] == "row") "y" else if (dend_dim[1] == "col") "x" else NA
 
-  dend_lab <- dplyr::select(dend, lbl, coord_dim)
+  seg <- dendro$seg
+  dend_lab <- dplyr::select(seg, lbl, coord_dim)
   dend_lab <- dplyr::filter(dend_lab, !is.na(lbl))
   # Take only distinct rows, in case a segment ends up on the same coordinate as the lowest node
   # Since they are originally float numbers, they may differ by a very small amount.
@@ -341,7 +396,7 @@ check_dendrogram_pos <- function(dat, dend_dim = c("row", "col"), dend) {
     warning("Something went wrong with dendrogram positioning! The leaves may be in the wrong coordinates. Please inform the author.")
   }
 
-  return(dend)
+  return(dendro)
 }
 
 

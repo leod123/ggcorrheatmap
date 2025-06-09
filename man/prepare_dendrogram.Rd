@@ -46,7 +46,7 @@ prepare_dendrogram(
 \item{annot}{Logical indicating if annotations will be drawn for the specified dendrogram dimension.}
 }
 \value{
-Data frame with dendrogram segment parameters.
+Data frame with dendrogram segment and node parameters.
 }
 \description{
 Prepare dendrogram by transforming dendrogram segments.
