@@ -15,11 +15,10 @@ add_dendrogram <- function(ggp, dendro, dend_col = "black", dend_lwd = 0.3, dend
   nod <- dendro$nod
 
   # Draw segments
-  # If no colours specified, use black
+  # If no colours specified, use default or specified colour
   if (all(is.na(seg$col))) {
-    # If no colours specified, use black
-    seg[["col"]] <- "black"
-    seg_colr <- rep("black", nrow(seg))
+    seg[["col"]] <- dend_col
+    seg_colr <- rep(dend_col, nrow(seg))
   } else {
     seg_colr <- dplyr::pull(dplyr::distinct(seg, col), col)
   }
