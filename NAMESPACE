@@ -2,6 +2,3 @@
 
 export(ggcorrhm)
 export(gghm)
-export(replace_default)
-export(rotate)
-export(shape_mat_long)

@@ -1,11 +1,12 @@
 #' Convert a matrix to long format using row names and column names.
 #'
+#' @keywords internal
+#'
 #' @param x Matrix to convert to long format.
 #' @param unique_pairs Whether only unique combinations should be included in the output (for symmetric matrices).
 #' @param na_remove Logical indicating if NAs should be excluded.
 #'
 #' @returns A data frame with the columns 'row', 'column' (indicating combinations), and 'value'
-#' @export
 #'
 #' @examples
 #' shape_mat_long(cor(mtcars))

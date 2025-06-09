@@ -1,10 +1,11 @@
 #' Replace default elements in a named list with corresponding elements in a new list.
 #'
+#' @keywords internal
+#'
 #' @param default_param Named list with elements to potentially replace ("defaults").
 #' @param new_param Named list with elements to replace with.
 #'
 #' @returns A named list where overlapping elements with overlapping names are replaced.
-#' @export
 #'
 #' @examples
 #' replace_default(list(a = 1, b = 2, c = 3), list(a = 123, 456, d = 789))

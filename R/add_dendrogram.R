@@ -75,8 +75,8 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
     # Column dendrogram, no rotation or 180 degrees
     ifelse(!dend_down, 0, pi)
   }
-  dend_seg[, c("x", "y")] <- as.data.frame(t(rotate(t(dend_seg[, c("x", "y")]), angle = rot_angle)))
-  dend_seg[, c("xend", "yend")] <- as.data.frame(t(rotate(t(dend_seg[, c("xend", "yend")]), angle = rot_angle)))
+  dend_seg[, c("x", "y")] <- as.data.frame(t(rotate_coord(t(dend_seg[, c("x", "y")]), angle = rot_angle)))
+  dend_seg[, c("xend", "yend")] <- as.data.frame(t(rotate_coord(t(dend_seg[, c("xend", "yend")]), angle = rot_angle)))
 
   # If needed mirror the dendrogram around the middle if the rotation caused it to not line up with the correct rows
   # Since all triangular layouts restrict the possible dendrogram positions and change the row and column orders, need layout-specific conditions
@@ -153,21 +153,22 @@ cluster_dimension <- function(cluster_data, mat, cluster_distance, cluster_metho
 
 #' Rotate cartesian coordinates around 0
 #'
+#' @keywords internal
+#'
 #' @param x Matrix of coordinates to rotate. Should be either a numeric vector of length 2, or a matrix with two rows (for rotating multiple coordinates at once)
 #' @param angle The angle to rotate by. Default is radians.
 #' @param radians Logical indicating if the given angle is in radians. If FALSE, degrees are used.
 #'
 #' @return A numeric matrix of rotated coordinates. Contains two rows (x and y coordinates) and one column per input coordinate.
-#' @export
 #'
 #' @examples
-#' rotate(c(1, 2), pi)
+#' rotate_coord(c(1, 2), pi)
 #'
-#' rotate(matrix(c(1, 2,
-#'                 3, 4),
-#'                 byrow = FALSE, nrow = 2),
-#'        angle = 90, radians = FALSE)
-rotate <- function(x, angle, radians = T) {
+#' rotate_coord(matrix(c(1, 2,
+#'                       3, 4),
+#'                       byrow = FALSE, nrow = 2),
+#'             angle = 90, radians = FALSE)
+rotate_coord <- function(x, angle, radians = T) {
   angle <- ifelse(radians, angle, angle * pi / 180)
 
   matrix(c(cos(angle), -sin(angle), sin(angle), cos(angle)), nrow = 2, ncol = 2, byrow = T) %*% x

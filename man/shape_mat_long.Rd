@@ -22,3 +22,4 @@ Convert a matrix to long format using row names and column names.
 \examples{
 shape_mat_long(cor(mtcars))
 }
+\keyword{internal}
