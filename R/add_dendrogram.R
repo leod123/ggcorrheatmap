@@ -15,13 +15,12 @@ add_dendrogram <- function(ggp, dendro, dend_col = "black", dend_lwd = 0.3, dend
   nod <- dendro$nod
 
   # Draw segments
-  # If no colours specified, use default or specified colour
-  if (all(is.na(seg$col))) {
-    seg[["col"]] <- dend_col
-    seg_colr <- rep(dend_col, nrow(seg))
-  } else {
-    seg_colr <- dplyr::pull(dplyr::distinct(seg, col), col)
-  }
+  # Fill in NAs of col, lwd and lty as using "by_labels_branches_*" in dendextend::set may result in
+  # only some segments having specifications and the rest being NA
+  seg[["col"]][is.na(seg[["col"]])] <- dend_col
+  seg[["lwd"]][is.na(seg[["lwd"]])] <- dend_lwd
+  seg[["lty"]][is.na(seg[["lty"]])] <- dend_lty
+  seg_colr <- dplyr::pull(dplyr::distinct(seg, col), col)
   # Colours for manual scale
   names(seg_colr) <- seg_colr
 
