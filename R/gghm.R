@@ -333,30 +333,12 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   # Start building plot
   plt <- ggplot2::ggplot(mapping = ggplot2::aes(x = col, y = row))
   # Draw diagonal first to draw over with the rest of the plot (only if symmetric matrix)
-  if (isSymmetric(x_mat)) {
-    if (include_diag) {
-      plt <- plt +
-        # Tiles or not
-        list(
-          if (is.numeric(cell_shape)) {
-            ggplot2::geom_point(ggplot2::aes(fill = value, size = value),
-                                # Subset after converting to character as error occurs if factor levels are different
-                                subset(x_long, as.character(row) == as.character(col)),
-                                stroke = border_lwd, colour = border_col, shape = cell_shape,
-                                show.legend = show_legend)
-          } else {
-            ggplot2::geom_tile(ggplot2::aes(fill = value),
-                               subset(x_long, as.character(row) == as.character(col)),
-                               linewidth = border_lwd, colour = border_col, show.legend = show_legend)
-          }
-        )
-
-    } else {
-      # Draw diagonal even if not supposed to be included to get the positions into the plot, for easier labelling
-      plt <- plt +
-        ggplot2::geom_tile(data = subset(x_long, as.character(row) == as.character(col)),
-                           fill = "white", linewidth = 0, alpha = 0)
-    }
+  # If symmetric matrix and triangular layout, draw diagonal invisibly first to reserve space for it, making it easier to place the labels
+  if (isSymmetric(x_mat) & !full_plt & !include_diag) {
+    plt <- plt +
+      # Subset after converting to character as error occurs if factor levels are different
+      ggplot2::geom_tile(data = subset(x_long, as.character(row) == as.character(col)),
+                         fill = "white", linewidth = 0, alpha = 0)
   }
 
   # If a numeric vector is given for the legend position, use the "inside" value for the legend.position arugment
@@ -368,25 +350,25 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     legend_position_inside <- NULL
   }
 
+  # Use different input data depending on desired layout
+  # If include_diag is FALSE, skip where row == col, otherwise use the whole data
+  x_plot_dat <- if (isSymmetric(x_mat) & !full_plt & !include_diag) {
+    subset(x_long, as.character(row) != as.character(col))
+  } else {
+    x_long
+  }
+
   plt <- plt +
     # Plot tiles or points depending on cell_shape
     list(
       if (is.numeric(cell_shape)) {
         ggplot2::geom_point(ggplot2::aes(fill = value, size = value),
-                            data = if (isSymmetric(x_mat)) {
-                              subset(x_long, as.character(row) != as.character(col))
-                            } else {
-                              x_long
-                            },
+                            data = x_plot_dat,
                             stroke = border_lwd, colour = border_col, shape = cell_shape,
                             show.legend = show_legend)
       } else {
         ggplot2::geom_tile(ggplot2::aes(fill = value),
-                           data = if (isSymmetric(x_mat)) {
-                             subset(x_long, as.character(row) != as.character(col))
-                           } else {
-                             x_long
-                           },
+                           data = x_plot_dat,
                            linewidth = border_lwd, colour = border_col, show.legend = show_legend)
       }
     ) +
