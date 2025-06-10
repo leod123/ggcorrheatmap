@@ -20,9 +20,11 @@ Correlation heatmaps can be made easily using the `ggcorrhm` function. `ggcorrhm
 ggcorrhm(mtcars)
 ```
 
-```{r asymmetric correlation heatmap}
+```{r asymmetric correlation heatmap, fig.height=3, fig.width=8}
 ggcorrhm(iris[1:nrow(mtcars), -5], mtcars)
 ```
+
+# Changing the colours
 
 `ggcorrhm` sets the fill scale to use `ggplot2::scale_fill_gradient2()` with limits set to [-1, 1]. The colours can be changed using the `high`, `mid` and `low` arguments. If a discrete scale is desired, `bins` can be used to bin the scale. The scale can be overwritten completely by adding a `ggplot2` scale to the plot.
 
@@ -35,6 +37,8 @@ ggcorrhm(mtcars, names_diag = FALSE, names_x = TRUE, names_y = TRUE,
 ggcorrhm(mtcars) + scale_fill_continuous()
 ```
 
+# Changing the layout
+
 For symmetric heatmaps, the `layout` argument can be used to get triangular layouts. The possible layouts are full matrix (the default), top left, top right, bottom left, and bottom right. EXPLAIN HOW IT WORKS, ALSO MAYBE REWORK TO ADD NEGATION OF TOP/UP/RIGHT.
 
 ```{r heatmap layouts}
@@ -43,12 +47,33 @@ ggcorrhm(mtcars, layout = "topleft")
 ggcorrhm(mtcars, layout = "br", include_diag = TRUE)
 ```
 
+# Label customisation
+
+The looks of the names displayed in the diagonal of symmetric matrices can be adjusted with the `names_diag_params` argument, which takes a named list of parameters to pass to `ggplot2::geom_text`. For names displayed on the x and y axes, use `ggplot2::theme` on the generated plot object to change the appearance.
+
+```{r, fig.width=5, fig.height=4, fig.show='hold', out.width='50%'}
+ggcorrhm(mtcars, layout = "bl", show_legend = FALSE, names_diag_param = list(
+  angle = 45, vjust = 0.5, hjust = 0.5, colour = "magenta"
+))
+# Also take vectorised input
+set.seed(123)
+ggcorrhm(mtcars, layout = "br", names_diag_param = list(
+  angle = c(0, rep(-45, 9), 90),
+  hjust = c(rep(0.7, 10), 0.3),
+  colour = sample(c("red", "green", "blue"), 11, TRUE)
+))
+```
+
+# Legend position
+
 The legend can be moved around using the `legend_position` argument (specifying 'top', 'bottom', 'left', or 'right'). If a numeric vector of length two is given, the legend is placed at those coordinates within the drawing area (scaled to range between 0 and 1).
 
-```{r legend position, fig.show='hide', out.width='50%'}
+```{r legend position, fig.width=5, fig.height=4, fig.show='hold', out.width='50%'}
 ggcorrhm(mtcars, legend_position = "top")
 ggcorrhm(mtcars, layout = "br", legend_position = c(0.2, 0.7))
 ```
+
+# Clustering and annotation
 
 Just like with `gghm`, the heatmap can be clustered and annotated. Triangular layouts limit the positions of annotation and dendrograms to the non-empty sides of the heatmap.
 
@@ -58,13 +83,15 @@ set.seed(123)
 row_annot <- data.frame(.names = colnames(mtcars),
                         annot1 = sample(letters[1:3], ncol(mtcars), TRUE),
                         annot2 = rnorm(ncol(mtcars)))
-ggcorrhm(mtcars, layout = "bl", cluster_rows = TRUE, cluster_cols = TRUE,
-         dend_rows = FALSE, annot_rows_df = row_annot)
+ggcorrhm(mtcars, layout = "tl", cluster_rows = TRUE, cluster_cols = TRUE,
+         dend_rows = FALSE, annot_rows_df = row_annot, annot_rows_label_side = "top")
 ```
+
+# Cell shape
 
 Correlation heatmaps are sometimes plotted with circles. Using the `cell_shape` argument allows for custom cell shapes. The shape size is set to scale with the absolute value of the correlation. `size_scale` can be provided to overwrite this behaviour. 
 
-```{r cell shape}
+```{r cell shape, fig.show='hold', out.width='50%'}
 # If numeric, the R pch symbols are used, meaning 21 produces circles.
 # Any character value results in normal heatmap cells
 ggcorrhm(mtcars, cell_shape = 21) + labs(title = "cell_shape = 21")
@@ -74,7 +101,9 @@ ggcorrhm(mtcars, cell_shape = 23, size_range = c(1, 15)) +
   labs(title = "cell_shape = 23")
 ```
 
-The `label_cells` argument labels cells with the values.
+# Cell text
+
+The `label_cells` argument labels cells with the values. The `cell_label_size` and `cell_label_digits` arguments control the text size and the number of displayed digits, respectively.
 
 ```{r cell labels}
 ggcorrhm(mtcars, layout = "br", label_cells = TRUE)

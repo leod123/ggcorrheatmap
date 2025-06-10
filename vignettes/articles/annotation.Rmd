@@ -25,6 +25,8 @@ rownames(col_annot) <- colnames(mtcars)
 ggcorrhm(mtcars, annot_rows_df = row_annot, annot_cols_df = col_annot)
 ```
 
+# Controlling colours
+
 The colours used for annotation are selected in order from eight brewer palettes (categorical annotations, `ggplot2::scale_fill_brewer`) or eight viridis options (continuous annotations, `ggplot2::scale_fill_viridis_c`), starting again from the beginning if there are more than eight annotations of a certain type. 
 
 ```{r}
@@ -36,7 +38,7 @@ gghm(df_in, annot_rows_df = row_annot, annot_cols_df = col_annot,
      legend_position = "none")
 ```
 
-The colours can be changed by passing a named list of `ggplot2` fill scales or strings (specifying brewer palettes or viridis options) to the `annot_rows_fill` and `annot_cols_fill` arguments. Annotations not included in the list will get the default colours.
+The colours can be changed by passing a named list of `ggplot2` fill scales or strings (specifying brewer palettes or viridis options) to the `annot_rows_fill` and `annot_cols_fill` arguments. Annotations not included in the list will get the default colours. When supplying a scale object, the order of legend may change (by default the main heatmap annotation is first, followed by row annotations in order and column annotations in order). The order can be adjusted by using the `guide` argument of the scale functions, e.g. `guide = ggplot2::guide_legend(order = 3)`.
 
 ```{r}
 # Make annotation with eight columns, half categorical and half continuous
@@ -53,6 +55,24 @@ ggcorrhm(mtcars[, 1:8], annot_cols_df = col_annot,
          annot_cols_fill = col_annot_fill, annot_legend = FALSE)
 ```
 
+# Annotation positioning
+
+The `annot_rows_side` and `annot_cols_side` arguments control which side the annotation should be placed on (`left` or `right` for row annotations, `top` or `bottom` for column annotation). A triangular layout (for symmetric matrices) limits the positions to the non-empty sides.
+
+```{r, fig.height=6, fig.width=6, fig.show='hold', out.width='50%'}
+set.seed(123)
+annot <- data.frame(.names = colnames(mtcars), annot1 = rnorm(ncol(mtcars)))
+
+gghm(cor(mtcars), annot_rows_df = annot, annot_cols_df = annot,
+     annot_rows_side = "left", annot_cols_side = "top",
+     annot_cols_label_side = "right", legend_position = "left",
+     plot_margin = c(10, 50, 30, 10))
+gghm(cor(mtcars), annot_rows_df = annot, annot_cols_df = annot,
+     annot_rows_side = "left", annot_cols_side = "top",
+     plot_margin = c(20, 10, 10, 50),
+     layout = "br", include_diag = TRUE)
+```
+
 The sizes and gaps between annotations and the heatmap can be adjusted.
 
 ```{r}
@@ -67,7 +87,7 @@ ggcorrhm(mtcars, annot_rows_df = row_annot, annot_legend = FALSE,
          annot_size = 2)
 ```
 
-These parameters can be adjusted differently for row and column annotation by using the `annot_rows_params` and `annot_cols_params` arguments. These are named lists that allow you to control the distance to the heatmap, gap between annotations, annotation size, annotation label (show/hide), annotation legend (show/hide), border colour, and border linewidth. The `annot_dist`, `annot_size`, etc arguments shown above are used for both row and column annotations but are overwritten by the `..._params` arguments.
+These parameters can be adjusted independently for row and column annotation by using the `annot_rows_params` and `annot_cols_params` arguments. These are named lists that allow you to control the distance to the heatmap, gap between annotations, annotation size, annotation label (show/hide), annotation legend (show/hide), border colour, and border linewidth. The `annot_dist`, `annot_size`, etc arguments shown above are used for both row and column annotations but are overwritten by the `..._params` arguments.
 
 ```{r}
 df_in <- matrix(1:9, nrow = 3, ncol = 3, byrow = TRUE)
@@ -89,11 +109,60 @@ gghm(df_in, annot_rows_df = row_annot, annot_cols_df = col_annot,
      ))
 ```
 
+# Annotation labels
 
-annotation labels
+The annotation labels can be customised by passing named lists to the `annot_rows_label_params` and `annot_cols_label_params` arguments. The lists are passed on to `grid::textGrob`.
 
-plot margins and annotation labels
+```{r}
+df_in <- matrix(1:9, nrow = 3, ncol = 3, byrow = TRUE)
+row_annot <- data.frame(annot1 = 1:3, annot2 = 4:6)
+col_annot <- data.frame(annot3 = letters[1:3], annot4 = letters[4:6])
 
-partial annotation (NAs, NA handling, not all names in df)
+gghm(df_in, annot_rows_df = row_annot, annot_cols_df = col_annot, annot_legend = FALSE,
+     annot_rows_label_params = list(
+       # Use 'grid::gpar' for the 'gp' argument for a number of text-related parameters
+       gp = grid::gpar(col = "magenta", alpha = 0.5, fontsize = 20, fontface = "bold")
+     ),
+     annot_cols_label_params = list(
+       rot = -45, hjust = 0.7, vjust = 0
+     ))
+```
 
-annotation legend order
+If the annotation labels are too long and are cut off, the plot margins can be adjusted with the `plot_margin` argument. Alternatively, the figure height can be increased, as the heatmap is set to use a fixed aspect ratio (`ggplot2::coord_fixed`).
+
+# Dealing with missing values
+
+If there are NAs in the annotation they are by default coloured grey. The colour can be changed similarly to NAs in the heatmap by specifying a colour for the `na.value` argument in a `ggplot2` scale when supplied using the `annot_rows_fill` and `annot_cols_fill` arguments. The `na_remove` argument can be set to `TRUE` to not display the cells at all (affects the heatmap too). If the annotation data frame does not contain all the names of the axis, those rows/columns will be left empty. 
+
+```{r, fig.show='hold', out.width='50%'}
+set.seed(123)
+# Row annotation with NAs
+row_annot <- data.frame(.names = colnames(mtcars),
+                        a = sample(c("A", "B", NA), ncol(mtcars), TRUE),
+                        b = sample(c("V", "W", NA), ncol(mtcars), TRUE))
+row_fill <- list(a = scale_fill_brewer(palette = "Purples", na.value = "green",
+                                       # Adjust the order of the legend
+                                       guide = guide_legend(order = 2)))
+
+# Column annotation with missing names
+col_annot <- data.frame(.names = sample(colnames(mtcars), 7),
+                        c = rnorm(7),
+                        d = runif(7))
+
+ggcorrhm(mtcars, annot_rows_df = row_annot, annot_cols_df = col_annot,
+         na_remove = TRUE)
+ggcorrhm(mtcars, annot_rows_df = row_annot, annot_cols_df = col_annot,
+         na_remove = FALSE, annot_rows_fill = row_fill)
+```
+
+As can be seen in the plots above, the legends may be cut off if there are many annotations. Fitting the legends can be tricky and may require increasing the figure size. Alternatively a package like `cowplot` can be used to stitch together a legendless version of the plot with a grid of only the legends.
+
+If the annotation data frame contains names not in the heatmap, new rows/columns will be made just to fit the annotation, although this usage is unintended.
+
+```{r}
+row_annot <- data.frame(.names = c(colnames(mtcars), letters[1:10]),
+                        a = rnorm(ncol(mtcars) + 10))
+
+ggcorrhm(mtcars, annot_rows_df = row_annot)
+```
+
