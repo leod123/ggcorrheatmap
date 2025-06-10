@@ -23,7 +23,7 @@
 #' @return `ggplot` object with added annotations.
 #'
 add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_pos, annot_size,
-                           annot_border_lwd = 0.5, annot_border_col = "grey",
+                           annot_border_lwd = 0.5, annot_border_col = "grey", annot_border_lty = 1,
                            draw_legend = T, draw_label = T,
                            na_col = "grey", na_remove = F,
                            col_scale = NULL, legend_order = NULL, label_side, label_params = NULL) {
@@ -58,8 +58,7 @@ add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_p
                                                   fill = .data[[nm]]),
                            width = ifelse(annot_dim[1] == "rows", annot_size, 1),
                            height = ifelse(annot_dim[1] == "rows", 1, annot_size),
-                           linewidth = annot_border_lwd,
-                           colour = annot_border_col),
+                           linewidth = annot_border_lwd, colour = annot_border_col, linetype = annot_border_lty),
 
         # Getting colour scales for filling cells
         if (is.character(col_scale[[nm]])) {

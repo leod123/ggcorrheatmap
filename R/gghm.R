@@ -24,7 +24,8 @@
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
 #' @param cell_label_digits Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to `round`. NULL for no rounding.
 #' @param border_col Colour of cell borders. If `cell_shape` is non-numeric, `border_col` can be set to NA to remove borders completely.
-#' @param border_lwd Size of cell borders, used for the `size` argument in `ggplot2::geom_tile`. If `cell_shape` is numeric, `border_col` can be set to 0 to remove borders.
+#' @param border_lwd Size of cell borders. If `cell_shape` is numeric, `border_col` can be set to 0 to remove borders.
+#' @param border_lty Line type of cell borders. Not supported for numeric `cell_shape`.
 #' @param names_diag Logical indicating if names should be written in the diagonal cells (for a symmetric matrix).
 #' @param names_diag_param List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
 #' @param names_x Logical indicating if names should be written on the x axis. Labels can be customised using `ggplot2::theme()` on the output plot.
@@ -48,6 +49,9 @@
 #' @param annot_gap Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_size Size (width for row annotation, height for column annotation) of annotation cells. Used for both row and column annotation.
 #' @param annot_label Logical controlling if names of annotations should be shown in the drawing area.
+#' @param annot_border_col Colour of cell borders in annotation. Same as `border_col` of the main heatmap if it is of length 1, otherwise uses default (grey).
+#' @param annot_border_lwd Line width of cell borders in annotation. Same as `border_lwd` of the main heatmap if it is of length 1, otherwise uses default (0.5).
+#' @param annot_border_lty Line type of cell borders in annotation. Same as `border_lty` of the main heatmap if it is of length 1, otherwise uses default (solid).
 #' @param annot_na_col Colour to use for NA values in annotations. Annotation-specific colour can be set in the ggplot2 scales in
 #' the `annot_*_fill` arguments.
 #' @param annot_na_remove Logical indicating if NAs in the annotations should be removed (producing empty spaces).
@@ -151,13 +155,16 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
                  layout = "full", include_diag = F, return_data = F,
                  show_legend = c("fill" = TRUE, "size" = TRUE), cell_shape = "heatmap", size_scale = NULL,
                  label_cells = F, cell_label_size = 3, cell_label_digits = NULL,
-                 border_col = "grey", border_lwd = 0.5,
+                 border_col = "grey", border_lwd = 0.5, border_lty = 1,
                  names_diag = TRUE, names_diag_param = NULL,
                  names_x = FALSE, names_x_side = "top", names_y = FALSE, names_y_side = "left",
                  annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
                  annot_rows_side = "right", annot_cols_side = "bottom",
-                 annot_legend = TRUE, annot_dist = 0.2, annot_gap = 0, annot_size = 0.5,
-                 annot_label = TRUE, annot_na_col = "grey", annot_na_remove = na_remove,
+                 annot_legend = TRUE, annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = TRUE,
+                 annot_border_col = if (length(border_col) == 1) border_col else "grey",
+                 annot_border_lwd = if (length(border_lwd) == 1) border_lwd else 0.5,
+                 annot_border_lty = if (length(border_lty) == 1) border_lty else 1,
+                 annot_na_col = "grey", annot_na_remove = na_remove,
                  annot_rows_params = NULL, annot_cols_params = NULL,
                  annot_rows_label_side = "bottom", annot_cols_label_side = "left",
                  annot_rows_label_params = NULL, annot_cols_label_params = NULL,
@@ -295,7 +302,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   # Annotation for rows and columns
   # Default annotation parameters
   annot_default <- list(legend = annot_legend, dist = annot_dist, gap = annot_gap, size = annot_size,
-                        label = annot_label, border_col = border_col, border_lwd = border_lwd, na_col = annot_na_col)
+                        label = annot_label, border_col = annot_border_col, border_lwd = annot_border_lwd,
+                        border_lty = annot_border_lty, na_col = annot_na_col)
   if (is.data.frame(annot_rows_df)) {
     annot_rows_prep <- prepare_annotation(annot_rows_df, annot_default, annot_rows_params, annot_left,
                                           annot_rows_label_params, annot_rows_label_side, ncol(x_mat))
@@ -369,7 +377,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
       } else {
         ggplot2::geom_tile(ggplot2::aes(fill = value),
                            data = x_plot_dat,
-                           linewidth = border_lwd, colour = border_col, show.legend = show_legend)
+                           linewidth = border_lwd, colour = border_col, linetype = border_lty,
+                           show.legend = show_legend)
       }
     ) +
     size_scale +
@@ -434,7 +443,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     names(lgd_order) <- colnames(annot_rows_df)[-which(colnames(annot_rows_df) == ".names")]
 
     plt <- add_annotation(plt, annot_dim = "rows", annot_rows_df, annot_rows_pos, annot_rows_params$size,
-                          annot_rows_params$border_lwd, annot_rows_params$border_col,
+                          annot_rows_params$border_lwd, annot_rows_params$border_col, annot_rows_params$border_lty,
                           annot_rows_params$legend, annot_rows_params$label,
                           annot_na_col, annot_na_remove, annot_col_list[[1]], lgd_order,
                           annot_rows_label_side, annot_rows_label_params)
@@ -446,7 +455,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     names(lgd_order) <- colnames(annot_cols_df)[-which(colnames(annot_cols_df) == ".names")]
 
     plt <- add_annotation(plt, annot_dim = "cols", annot_cols_df, annot_cols_pos, annot_cols_params$size,
-                          annot_cols_params$border_lwd, annot_cols_params$border_col,
+                          annot_cols_params$border_lwd, annot_cols_params$border_col, annot_cols_params$border_lty,
                           annot_cols_params$legend, annot_cols_params$label,
                           annot_na_col, annot_na_remove, annot_col_list[[2]], lgd_order,
                           annot_cols_label_side, annot_cols_label_params)

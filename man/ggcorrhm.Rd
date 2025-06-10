@@ -29,6 +29,7 @@ ggcorrhm(
   cell_label_digits = 2,
   border_col = "grey",
   border_lwd = 0.5,
+  border_lty = 1,
   names_diag = TRUE,
   names_diag_param = NULL,
   names_x = FALSE,
@@ -46,6 +47,9 @@ ggcorrhm(
   annot_gap = 0,
   annot_size = 0.5,
   annot_label = TRUE,
+  annot_border_col = if (length(border_col) == 1) border_col else "grey",
+  annot_border_lwd = if (length(border_lwd) == 1) border_lwd else 0.5,
+  annot_border_lty = if (length(border_lty) == 1) border_lty else 1,
   annot_na_col = "grey",
   annot_na_remove = na_remove,
   annot_rows_params = NULL,
@@ -129,9 +133,11 @@ The default behaviour (NULL) is to use a continuous scale with the absolute valu
 
 \item{cell_label_digits}{Number of digits to display when cells are labelled with correlation coefficients. Default is 2, passed to \code{round}.}
 
-\item{border_col}{Colour of cell borders.}
+\item{border_col}{Colour of cell borders. If \code{cell_shape} is non-numeric, \code{border_col} can be set to NA to remove borders completely.}
 
-\item{border_lwd}{Size of cell borders, used for the \code{size} argument in \code{ggplot2::geom_tile}. Set to 0 to remove cell borders.}
+\item{border_lwd}{Size of cell borders. If \code{cell_shape} is numeric, \code{border_col} can be set to 0 to remove borders.}
+
+\item{border_lty}{Line type of cell borders. Not supported for numeric \code{cell_shape}.}
 
 \item{names_diag}{Logical indicating if names should be written in the diagonal cells (for a symmetric matrix).}
 
@@ -172,6 +178,12 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 \item{annot_size}{Size (width for row annotation, height for column annotation) of annotation cells. Used for both row and column annotation.}
 
 \item{annot_label}{Logical controlling if names of annotations should be shown in the drawing area.}
+
+\item{annot_border_col}{Colour of cell borders in annotation. Same as \code{border_col} of the main heatmap if it is of length 1, otherwise uses default (grey).}
+
+\item{annot_border_lwd}{Line width of cell borders in annotation. Same as \code{border_lwd} of the main heatmap if it is of length 1, otherwise uses default (0.5).}
+
+\item{annot_border_lty}{Line type of cell borders in annotation. Same as \code{border_lty} of the main heatmap if it is of length 1, otherwise uses default (solid).}
 
 \item{annot_na_col}{Colour to use for NA values in annotations. Annotation-specific colour can be set in the ggplot2 scales in
 the \verb{annot_*_fill} arguments.}
