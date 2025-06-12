@@ -9,7 +9,7 @@ apply_dendextend(dendro, dend_list)
 \arguments{
 \item{dendro}{Dendrogram object obtained from \code{stats::as.dendrogram}.}
 
-\item{dend_list}{List specifying dendextend functions to apply. For usage see the details of \code{gg_corr_heatmap}.}
+\item{dend_list}{List specifying dendextend functions to apply. For usage see the details of \code{gghm}.}
 }
 \value{
 A dendrogram object modified with dendextend functions.

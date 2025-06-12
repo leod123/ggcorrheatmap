@@ -67,7 +67,7 @@ add_dendrogram <- function(ggp, dendro, dend_col = "black", dend_lwd = 0.3, dend
 #' @param dend_left Logical indicating if a dendrogram will be plotted to the left or to the right.
 #' @param dend_height Scaling parameter of dendrogram height.
 #' @param full_plt Logical indicating if the whole heatmap is plotted or not.
-#' @param cor_long Data frame containing the correlations that will be plotted in the heatmap.
+#' @param x_long Data frame containing the values that will be plotted in the heatmap.
 #' @param annot_df Data frame containing annotations.
 #' @param annot Logical indicating if annotations will be drawn for the specified dendrogram dimension.
 #' @param annot_side Logical specifying which side the annotation will be drawn, analogous to 'dend_down' or 'dend_left'
@@ -78,7 +78,7 @@ add_dendrogram <- function(ggp, dendro, dend_col = "black", dend_lwd = 0.3, dend
 #' @return Data frame with dendrogram segment and node parameters.
 #'
 prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
-                               dend_down, dend_left, dend_height, full_plt, cor_long,
+                               dend_down, dend_left, dend_height, full_plt, x_long,
                                annot_df, annot_side, annot_pos, annot_size) {
 
   dend_dim <- dend_dim[1]
@@ -87,30 +87,11 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
   # Nodes
   dend_nod  <- dplyr::filter(dendro_in$nodes, !is.na(pch) | !is.na(cex) | !is.na(col))
 
-  rot_angle <- if (dend_dim == "rows") {
-    # If row dendrogram rotate 90 or -90 degrees
-    ifelse(dend_left, pi/2, -pi/2)
-  } else {
-    # Column dendrogram, no rotation or 180 degrees
-    ifelse(!dend_down, 0, pi)
-  }
-  dend_seg[, c("x", "y")] <- as.data.frame(t(rotate_coord(t(dend_seg[, c("x", "y")]), angle = rot_angle)))
-  dend_seg[, c("xend", "yend")] <- as.data.frame(t(rotate_coord(t(dend_seg[, c("xend", "yend")]), angle = rot_angle)))
 
-  # If needed mirror the dendrogram around the middle if the rotation caused it to not line up with the correct rows
-  # Since all triangular layouts restrict the possible dendrogram positions and change the row and column orders, need layout-specific conditions
-  if (dend_dim == "rows") {
-    if ((dend_left & full_plt) | (dend_down & dend_left & !full_plt) | (!dend_down & !dend_left & !full_plt)) {
-      dend_seg <- mirror_dendrogram(dend_seg, dend_dim)
-    }
-  } else if (dend_dim == "cols") {
-    if ((dend_down & full_plt) | (!dend_down & !dend_left & !full_plt) | (dend_down & dend_left & !full_plt)) {
-      dend_seg <- mirror_dendrogram(dend_seg, dend_dim)
-    }
-  }
+  dend_seg <- orient_dendrogram(dend_seg, dend_dim, full_plt, dend_left, dend_down)
 
   # Move dendrogram next to heatmap
-  dend_seg <- move_dendrogram(dend_seg, cor_long, dend_dim,
+  dend_seg <- move_dendrogram(dend_seg, x_long, dend_dim,
                               ifelse(dend_dim == "rows", dend_left, dend_down),
                               annot_df, annot_side, annot_pos, annot_size)
 
@@ -126,23 +107,10 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
     # Add xend and yend columns to work with transformation functions
     dend_nod <- dplyr::mutate(dend_nod, xend = x, yend = y)
 
-    dend_nod[, c("x", "y")] <- as.data.frame(t(rotate_coord(t(dend_nod[, c("x", "y")]), angle = rot_angle)))
-    dend_nod[, c("xend", "yend")] <- as.data.frame(t(rotate_coord(t(dend_nod[, c("xend", "yend")]), angle = rot_angle)))
-
-    # If needed mirror the dendrogram around the middle if the rotation caused it to not line up with the correct rows
-    # Since all triangular layouts restrict the possible dendrogram positions and change the row and column orders, need layout-specific conditions
-    if (dend_dim == "rows") {
-      if ((dend_left & full_plt) | (dend_down & dend_left & !full_plt) | (!dend_down & !dend_left & !full_plt)) {
-        dend_nod <- mirror_dendrogram(dend_nod, dend_dim)
-      }
-    } else if (dend_dim == "cols") {
-      if ((dend_down & full_plt) | (!dend_down & !dend_left & !full_plt) | (dend_down & dend_left & !full_plt)) {
-        dend_nod <- mirror_dendrogram(dend_nod, dend_dim)
-      }
-    }
+    dend_nod <- orient_dendrogram(dend_nod, dend_dim, full_plt, dend_left, dend_down)
 
     # Move dendrogram next to heatmap
-    dend_nod <- move_dendrogram(dend_nod, cor_long, dend_dim,
+    dend_nod <- move_dendrogram(dend_nod, x_long, dend_dim,
                                 ifelse(dend_dim == "rows", dend_left, dend_down),
                                 annot_df, annot_side, annot_pos, annot_size)
 
@@ -203,61 +171,70 @@ cluster_dimension <- function(cluster_data, mat, cluster_distance, cluster_metho
 }
 
 
-#' Rotate cartesian coordinates around 0
+#' Orient a dendrogram.
 #'
 #' @keywords internal
 #'
-#' @param x Matrix of coordinates to rotate. Should be either a numeric vector of length 2, or a matrix with two rows (for rotating multiple coordinates at once)
-#' @param angle The angle to rotate by. Default is radians.
-#' @param radians Logical indicating if the given angle is in radians. If FALSE, degrees are used.
+#' @param dend Dendrogram segments or nodes data frame (containing x, y, xend, yend).
+#' @param dim String, rows or cols to know which dimensions dendrogram should be on.
+#' @param full_plt Logical indicating if it's for the full layout.
+#' @param dend_left Logical indicating if the dendrogram should be placed on the left (only relevant if row dend).
+#' @param dend_down Logical indicating if the dendrogram should be placed at the bottom (only relevant if col dend).
 #'
-#' @return A numeric matrix of rotated coordinates. Contains two rows (x and y coordinates) and one column per input coordinate.
+#' @returns The input dendrogram data frame but rotated and mirrored to fit the plot.
 #'
-#' @examples
-#' rotate_coord(c(1, 2), pi)
-#'
-#' rotate_coord(matrix(c(1, 2,
-#'                       3, 4),
-#'                       byrow = FALSE, nrow = 2),
-#'             angle = 90, radians = FALSE)
-rotate_coord <- function(x, angle, radians = T) {
-  angle <- ifelse(radians, angle, angle * pi / 180)
+orient_dendrogram <- function(dend, dim = c("rows", "cols"), full_plt, dend_left, dend_down) {
 
-  matrix(c(cos(angle), -sin(angle), sin(angle), cos(angle)), nrow = 2, ncol = 2, byrow = T) %*% x
-}
-
-
-#' Mirror coordinates of dendrogram around its middle point
-#'
-#' @description
-#' Mirror a dendrogram around an axis parallel to the height, located in its middle point
-#'
-#' @keywords internal
-#'
-#' @param dend_seg Data frame containing dendrogram segments, attained from `dendextend::as.ggdend()`
-#' @param dend_dim Character specifying whether the dendrogram is linked to rows or columns in the heatmap
-#'
-#' @return Dendrogram segment coordinates dataframe, with the specified dimension mirrored
-#'
-mirror_dendrogram <- function(dend_seg, dend_dim = c("rows", "cols")) {
-
-  stopifnot(dend_dim[1] %in% c("rows", "cols"))
-
-  if (dend_dim[1] == "rows") {
-
-    dend_middle <- (max(c(dend_seg$y, dend_seg$yend)) - min(c(dend_seg$y, dend_seg$yend))) / 2
-    dend_seg$y <- dend_seg$y - 2 * (dend_seg$y - dend_middle)
-    dend_seg$yend <- dend_seg$yend - 2 * (dend_seg$yend - dend_middle)
-
+  dend_new <- if (full_plt) {
+    if (dim[1] == "rows" & dend_left) {
+      # dend_left row dendrogram
+      dplyr::mutate(dend, nx = -y, nxend = -yend, ny = -x, nyend = -xend)
+    } else if (dim[1] == "rows" & !dend_left) {
+      # right row dendrogram
+      dplyr::mutate(dend, nx = y, nxend = yend, ny = -x, nyend = -xend)
+    } else if (dim[1] == "cols" & dend_down) {
+      # bottom column dendrogram
+      dplyr::mutate(dend, nx = x, nxend = xend, ny = -y, nyend = -yend)
+    } else if (dim[1] == "cols" & !dend_down) {
+      # top column dendrogram
+      dplyr::mutate(dend, nx = x, nxend = xend, ny = y, nyend = yend)
+    }
   } else {
-
-    dend_middle <- (max(c(dend_seg$x, dend_seg$xend)) - min(c(dend_seg$x, dend_seg$xend))) / 2
-    dend_seg$x <- dend_seg$x - 2 * (dend_seg$x - dend_middle)
-    dend_seg$xend <- dend_seg$xend - 2 * (dend_seg$xend - dend_middle)
-
+    if (dend_left & !dend_down) {
+      # top dend_left
+      if (dim[1] == "rows") {
+        dplyr::mutate(dend, nx = -y, nxend = -yend, ny = x, nyend = xend)
+      } else if (dim[1] == "cols") {
+        dplyr::mutate(dend, nx = x, nxend = xend, ny = y, nyend = yend)
+      }
+    } else if (!dend_left & !dend_down) {
+      # top right
+      if (dim[1] == "rows") {
+        dplyr::mutate(dend, nx = y, nxend = yend, ny = x, nyend = xend)
+      } else if (dim[1] == "cols") {
+        dplyr::mutate(dend, nx = -x, nxend = -xend, ny = y, nyend = yend)
+      }
+    } else if (!dend_left & dend_down) {
+      # bottom right
+      if (dim[1] == "rows") {
+        dplyr::mutate(dend, nx = y, nxend = yend, ny = -x, nyend = -xend)
+      } else if (dim[1] == "cols") {
+        dplyr::mutate(dend, nx = -x, nxend = -xend, ny = -y, nyend = -yend)
+      }
+    } else if (dend_left & dend_down) {
+      # bottom dend_left
+      if (dim[1] == "rows") {
+        dplyr::mutate(dend, nx = -y, nxend = -yend, ny = -x, nyend = -xend)
+      } else if (dim[1] == "cols") {
+        dplyr::mutate(dend, nx = x, nxend = xend, ny = -y, nyend = -yend)
+      }
+    }
   }
 
-  return(dend_seg)
+  dend_new <- dplyr::select(dend_new, -x, -xend, -y, -yend)
+  dend_new <- dplyr::rename(dend_new, x = nx, xend = nxend, y = ny, yend = nyend)
+
+  return(dend_new)
 }
 
 
@@ -269,7 +246,7 @@ mirror_dendrogram <- function(dend_seg, dend_dim = c("rows", "cols")) {
 #' @keywords internal
 #'
 #' @param dend_seg Data frame containing dendrogram segments, attained from `dendextend::as.ggdend()`
-#' @param cor_long Long format data frame with the correlations
+#' @param x_long Long format data frame with the values
 #' @param dend_dim Character specifying whether the dendrogram is linked to rows or columns in the heatmap
 #' @param dend_side Logical specifying dendrogram position. TRUE is left of the heatmap if row dendrogram, bottom of heatmap if column dendrogram
 #' @param annot_df Data frame with annotations for checking that annotations exist as well as their size
@@ -279,7 +256,7 @@ mirror_dendrogram <- function(dend_seg, dend_dim = c("rows", "cols")) {
 #'
 #' @return Data frame with updated dendrogram coordinates
 #'
-move_dendrogram <- function(dend_seg, cor_long, dend_dim = c("rows", "cols"), dend_side,
+move_dendrogram <- function(dend_seg, x_long, dend_dim = c("rows", "cols"), dend_side,
                             annot_df, annot_side, annot_pos, annot_size) {
 
   if (dend_dim[1] == "rows") {
@@ -294,11 +271,11 @@ move_dendrogram <- function(dend_seg, cor_long, dend_dim = c("rows", "cols"), de
       ifelse(    # Dendrograms on the right, annotation right of rows or not
         is.data.frame(annot_df) & !annot_side,
         max(annot_pos) + 0.5 * annot_size - min(c(dend_seg$x, dend_seg$xend)),
-        length(unique(cor_long$col)) + 0.5 - min(c(dend_seg$x, dend_seg$xend))
+        length(unique(x_long$col)) + 0.5 - min(c(dend_seg$x, dend_seg$xend))
       )
     )
 
-    ymove <- length(unique(cor_long$row)) - max(c(dend_seg$y, dend_seg$yend))
+    ymove <- length(unique(x_long$row)) - max(c(dend_seg$y, dend_seg$yend))
 
   } else {
 
@@ -315,7 +292,7 @@ move_dendrogram <- function(dend_seg, cor_long, dend_dim = c("rows", "cols"), de
       ifelse(    # Dendrogram above heatmap, annotation or not
         is.data.frame(annot_df) & !annot_side,
         max(annot_pos) + 0.5 * annot_size - min(c(dend_seg$y, dend_seg$yend)),
-        length(unique(cor_long$row)) + 0.5 - min(c(dend_seg$y, dend_seg$yend))
+        length(unique(x_long$row)) + 0.5 - min(c(dend_seg$y, dend_seg$yend))
       )
     )
   }
@@ -363,13 +340,13 @@ scale_dendrogram <- function(dend_seg, dend_dim = c("rows", "cols"), dend_side, 
   return(dend_seg_out)
 }
 
-
 #' Check that dendrograms are positioned correctly
 #'
 #' @keywords internal
 #'
 #' @param dat Long format data for plotting.
-#' @param dend_dim Dimension to which the dendrogram is added.
+#' @param dend_dim Dimension to which the dendrogram is added. These are used to directly get the columns
+#' in the long data and thus need to be "row" or "col".
 #' @param dendro The dendrogram segments and nodes list.
 #'
 #' @returns `dendro` is returned as is if the positions are correct. Otherwise there is an error.
@@ -378,13 +355,10 @@ check_dendrogram_pos <- function(dat, dend_dim = c("row", "col"), dendro) {
   coord_dim <- if (dend_dim[1] == "row") "y" else if (dend_dim[1] == "col") "x" else NA
 
   seg <- dendro$seg
-  dend_lab <- dplyr::select(seg, lbl, coord_dim)
+  dend_lab <- dplyr::select(seg, lbl, !!coord_dim)
   dend_lab <- dplyr::filter(dend_lab, !is.na(lbl))
   # Take only distinct rows, in case a segment ends up on the same coordinate as the lowest node
-  # Since they are originally float numbers, they may differ by a very small amount.
-  # Round and get unique rows, but compare the unrounded values later
-  dend_lab$coord_rounded <- round(dend_lab[[coord_dim]], 0)
-  dend_lab <- dplyr::distinct(dend_lab, lbl, coord_rounded, .keep_all = T)
+  dend_lab <- dplyr::distinct(dend_lab, lbl, !!coord_dim, .keep_all = T)
 
   # Add plot coordinates of labels
   dend_lab$plt_coord <- seq_along(levels(dat[[dend_dim[1]]]))[match(dend_lab$lbl, levels(dat[[dend_dim[1]]]))]
@@ -403,7 +377,7 @@ check_dendrogram_pos <- function(dat, dend_dim = c("row", "col"), dendro) {
 #' @keywords internal
 #'
 #' @param dendro Dendrogram object obtained from `stats::as.dendrogram`.
-#' @param dend_list List specifying dendextend functions to apply. For usage see the details of `gg_corr_heatmap`.
+#' @param dend_list List specifying dendextend functions to apply. For usage see the details of `gghm`.
 #'
 #' @returns A dendrogram object modified with dendextend functions.
 #'

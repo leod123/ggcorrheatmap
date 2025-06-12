@@ -11,7 +11,7 @@ prepare_dendrogram(
   dend_left,
   dend_height,
   full_plt,
-  cor_long,
+  x_long,
   annot_df,
   annot_side,
   annot_pos,
@@ -32,7 +32,7 @@ prepare_dendrogram(
 
 \item{full_plt}{Logical indicating if the whole heatmap is plotted or not.}
 
-\item{cor_long}{Data frame containing the correlations that will be plotted in the heatmap.}
+\item{x_long}{Data frame containing the values that will be plotted in the heatmap.}
 
 \item{annot_df}{Data frame containing annotations.}
 
