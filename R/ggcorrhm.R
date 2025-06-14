@@ -12,6 +12,9 @@
 #' @param limits Correlation limits to plot between.
 #' @param bins Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.
 #' @param fill_name String to use for the correlation colour scale. If NULL (default) the text will depend on the correlation method.
+#' @param p_calc Logical indicating if p-values should be calculated. Use with `p_thr` to mark cells, and/or `return_data` to get the p-values in the output data.
+#' @param p_adj String specifying the adjustment method to use for the p-values (default is "none").
+#' @param p_thr Numeric of length 1, any adjusted p-values below the threshold are marked in cells. Leave as NULL to not mark.
 #' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn). This does not affect how
 #' NAs are handled in the correlation computations, use the `cor_use` argument for NA handling in correlation.
 #' @param na_col Colour to use cells with NA.
@@ -22,7 +25,7 @@
 #' 'full', 'whole', or 'all' (or 'f', 'w', 'a') result in the whole correlation matrix being plotted.
 #' For any other strings top and right are selected.
 #' @param include_diag Logical indicating if the diagonal cells should be plotted (included either way if the whole matrix is plotted).
-#' @param return_data Logical indicating if the data used for plotting (i.e. the correlation values) should be returned.
+#' @param return_data Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, p-values) should be returned.
 #' @param show_legend Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends.
 #' Can be specified in an aesthetic-specific manner using a named vector like `c('fill' = TRUE, 'size' = FALSE)`.
 #' @param cell_shape Value specifying what shape the heatmap cells should take. Any non-numeric value will result in a normal heatmap with square cells (default).
@@ -30,7 +33,7 @@
 #' @param size_range Numeric vector of length 2, specifying lower and upper ranges of shape sizes. Ignored if `size_scale` is not NULL.
 #' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `cell_shape` is numeric.
 #' The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.
-#' @param label_cells Logical specifying if the cells should be labelled with the correlation values.
+#' @param label_cor Logical specifying if the cells should be labelled with the correlation values.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
 #' @param cell_label_digits Number of digits to display when cells are labelled with correlation coefficients. Default is 2, passed to `round`.
 #' @param border_col Colour of cell borders. If `cell_shape` is non-numeric, `border_col` can be set to NA to remove borders completely.
@@ -147,11 +150,11 @@
 ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything",
                      high = "sienna2", mid = "white", low = "skyblue2",
                      limits = c(-1, 1), bins = NULL, fill_name = NULL, #...
-                     na_remove = FALSE, na_col = "grey",
+                     p_calc = FALSE, p_adj = "none", p_thr = NULL, na_remove = FALSE, na_col = "grey",
                      layout = "full", include_diag = FALSE, return_data = FALSE,
                      show_legend = c("fill" = TRUE, "size" = FALSE), cell_shape = "heatmap",
                      size_range = c(4, 10), size_scale = NULL,
-                     label_cells = FALSE, cell_label_size = 3, cell_label_digits = 2,
+                     label_cor = FALSE, cell_label_size = 3, cell_label_digits = 2,
                      border_col = "grey", border_lwd = 0.5, border_lty = 1,
                      names_diag = TRUE, names_diag_param = NULL,
                      names_x = FALSE, names_x_side = "top", names_y = FALSE, names_y_side = "left",
@@ -178,6 +181,26 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
     cor(x, method = cor_method, use = cor_use)
   } else {
     cor(x, y, method = cor_method, use = cor_use)
+  }
+
+  if (!p_calc) {
+    if (is.null(y)) {
+      cor_mat <- cor(x, method = cor_method, use = cor_use)
+    } else {
+      cor_mat <- cor(x, y, method = cor_method, use = cor_use)
+    }
+  } else {
+    cor_mat <- test_cor(x, y, full_plt = ifelse(grepl("full|whole|f|w", layout), T, F),
+                        method = cor_method, use = cor_use, p_adj_method = p_adj)
+    # Keep the data for later plotting
+    cor_mat_dat <- cor_mat
+    # Get wide format correlation matrix
+    cor_mat <- reshape(dplyr::select(cor_mat, -p_val, -p_adj), idvar = "row", timevar = "col", direction = "wide")
+    rownames(cor_mat) <- cor_mat[["row"]]
+    cor_mat <- cor_mat[, -which(colnames(cor_mat) == "row")]
+    # Remove "value." from colnames
+    cor_mat <- dplyr::rename_with(cor_mat, function(nm) {substring(nm, 7)})
+    cor_mat <- as.matrix(cor_mat)
   }
 
   # Name of fill legend
@@ -216,10 +239,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 
   # Call with all arguments to get the tooltips when calling this wrapper function
   cor_plt <- gghm(cor_mat, fill_scale = fill_scale, fill_name = fill_name, na_remove = na_remove,
-                  layout = layout, include_diag = include_diag, return_data = return_data,
+                  layout = layout, include_diag = include_diag, return_data = T,
                   show_legend = show_legend, cell_shape = cell_shape, size_scale = size_scale,
-                  label_cells = label_cells, cell_label_size = cell_label_size,
-                  cell_label_digits = cell_label_digits,
                   border_col = border_col, border_lwd = border_lwd, border_lty = border_lty,
                   names_diag = names_diag, names_diag_param = names_diag_param,
                   names_x = names_x, names_x_side = names_x_side,
@@ -245,7 +266,56 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 
   # cor_plt <- gghm(cor_mat, fill_scale = fill_scale, fill_name = fill_name, ...)
 
-  return(cor_plt)
+  # Add cell labels if desired
+  if (label_cor) {
+    # Add p-values labels if desired
+    # If the cells are labelled with the correlation values, add an asterisk for the p-values (needs to set p_thr)
+    if (p_calc & is.numeric(p_thr)) {
+      # Make a data frame for labelling, containing only the values that are actually plotted
+      label_df <- dplyr::left_join(cor_plt[["plot_data"]],
+                                   cor_mat_dat, by = c("row", "col", "value"))
+      # Add a star if below given threshold
+      label_df[["label"]] <- paste0(round(label_df[["value"]], cell_label_digits),
+                                    ifelse(label_df[["p_adj"]] < p_thr, "*", ""))
+
+      # Write the text
+      cor_plt[["plot"]] <- cor_plt[["plot"]] +
+        ggplot2::geom_text(ggplot2::aes(label = label),
+                           # If the diagonal has names written on, don't write more on the diagonal
+                           data = if (isSymmetric(cor_mat) & names_diag) {
+                             subset(label_df, as.character(row) != as.character(col))
+                           } else {
+                             label_df
+                           }, size = cell_label_size)
+      cor_plt[["plot_data"]] <- dplyr::select(label_df, -label)
+    } else {
+      # Just add correlation if no p-values should be added
+      cor_plt[["plot"]] <- cor_plt[["plot"]] +
+        ggplot2::geom_text(ggplot2::aes(label = round(value, cell_label_digits)),
+                           data = if (isSymmetric(cor_mat) & names_diag) {
+                             subset(cor_plt[["plot_data"]], as.character(row) != as.character(col))
+                           } else {
+                             cor_plt[["plot_data"]]
+                           }, size = cell_label_size)
+    }
+  } else {
+    # If cells are not labelled with cor values, add the asterisks with geom_point to get them in the middle of the cells
+    if (p_calc & is.numeric(p_thr)) {
+      label_df <- dplyr::left_join(cor_plt[["plot_data"]], cor_mat_dat, by = c("row", "col", "value"))
+
+      cor_plt[["plot"]] <- cor_plt[["plot"]] +
+        ggplot2::geom_point(ggplot2::aes(), data = if (isSymmetric(cor_mat) & names_diag) {
+          subset(label_df, p_adj < p_thr & as.character(row) != as.character(col))
+        } else {
+          subset(label_df, p_adj < p_thr)
+        },
+        size = cell_label_size, shape = "*")
+      cor_plt[["plot_data"]] <- label_df
+    }
+  }
+
+  cor_out <- if (return_data) {cor_plt} else {cor_plt[["plot"]]}
+  return(cor_out)
 }
 
 

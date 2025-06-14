@@ -15,7 +15,7 @@ gghm(
   show_legend = c(fill = TRUE, size = TRUE),
   cell_shape = "heatmap",
   size_scale = NULL,
-  label_cells = F,
+  label_cor = F,
   cell_label_size = 3,
   cell_label_digits = NULL,
   border_col = "grey",
@@ -101,7 +101,7 @@ A numeric value can be used to specify an R shape (pch) to use, such as 21 for f
 
 \item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{cell_shape} is numeric.}
 
-\item{label_cells}{Logical specifying if the cells should be labelled with the values.}
+\item{label_cor}{Logical specifying if the cells should be labelled with the values.}
 
 \item{cell_label_size}{Size of cell labels, used as the \code{size} argument in \code{ggplot2::geom_text}.}
 

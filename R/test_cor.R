@@ -1,24 +1,67 @@
-# If the layout is triangular, only calculate correlation and p-values for half of the matrix (and skip the diagonal since it is 1 anyway)
-# Is faster than computing the whole matrix, but does not work with ggcorrhm which feeds the whole
-# correlation matrix to gghm
-test_cor <- function(x, y = NULL, full_plt = T, include_diag = F,
+#' Calculate correlations and p-values between columns.
+#'
+#' @keywords internal
+#'
+#' @param x Matrix or data frame with columns to correlate.
+#' @param y Matrix or data frame, if provided will be correlated with x.
+#' @param full_plt Logical indicating if the final plot will have the full layout (triangular if FALSE).
+#' @param method Passed to `stats::cor`.
+#' @param use Passed to `stats::cor`.
+#' @param p_adj_method P-value adjustment method, passed to `stats::p.adjust`.
+#'
+#' @returns Data frame in long format with correlation values and nominal and adjusted p-values.
+#'
+test_cor <- function(x, y = NULL, full_plt = T,
                      method = "pearson", use = "everything", p_adj_method = "none") {
-  # Get the combinations to test
-  if (is.null(y)) {
-    y <- x
-  }
-  all_pairs <- shape_mat_long(matrix(nrow = ncol(x), ncol = ncol(y), dimnames = list(colnames(x), colnames(y))))
-  all_pairs <- dplyr::bind_cols( # Bind together with cor, p, padj for each row
-    dplyr::select(all_pairs, -value), dplyr::bind_rows(
-      apply(all_pairs, 1, function(comb) {
-        tst <- cor.test(x[, comb["row"]], y[, comb["col"]])
-        data.frame(value = unname(tst$estimate), p_val = tst$p.value)
-      }, simplify = T)
+  if (is.null(y) | identical(x, y)) {
+    test_pairs <- shape_mat_long(matrix(nrow = ncol(x), ncol = ncol(x), dimnames = list(colnames(x), colnames(x))), unique_pairs = T)
+
+    # Make a data frame of all relevant combinations to fill in with values later, to avoid running tests for duplicated pairs or diagonals
+    all_pairs <- shape_mat_long(matrix(nrow = ncol(x), ncol = ncol(x), dimnames = list(colnames(x), colnames(x))))
+    all_pairs <- dplyr::select(all_pairs, -value)
+
+    # Get correlations and p-values only for half of the non-diagonal pairs
+    test_pairs <- dplyr::filter(test_pairs, as.character(row) != as.character(col))
+    test_pairs <- dplyr::bind_cols( # Bind together with cor, p, padj for each row
+      dplyr::select(test_pairs, -value), dplyr::bind_rows(
+        apply(test_pairs, 1, function(comb) {
+          tst <- cor.test(x[, comb["row"]], x[, comb["col"]])
+          data.frame(value = unname(tst$estimate), p_val = tst$p.value)
+        }, simplify = T)
+      )
     )
-  )
 
-  # Adjust p-values
-  all_pairs[["p_adj"]] <- p.adjust(all_pairs[["p_val"]], method = p_adj_method)
+    # Adjust p-values
+    test_pairs[["p_adj"]] <- p.adjust(test_pairs[["p_val"]], method = p_adj_method)
+    # Fill the rest of the values
+    # Make column with ID of combination, join by ID to fill in other half of the matrix
+    test_pairs[["rowcol"]] <- apply(test_pairs, 1, function(i) paste(sort(c(i["row"], i["col"])), collapse = "_"))
+    all_pairs[["rowcol"]] <- apply(all_pairs, 1, function(i) paste(sort(c(i["row"], i["col"])), collapse = "_"))
+    all_pairs <- dplyr::left_join(all_pairs, dplyr::select(test_pairs, value, rowcol, p_val, p_adj), by = "rowcol")
+    all_pairs <- dplyr::select(all_pairs, -rowcol)
 
-  return(all_pairs)
+    # Fill in diagonal values
+    all_pairs <- dplyr::mutate(all_pairs,
+                               value = dplyr::case_when(row == col ~ 1, T ~ value),
+                               p_val = dplyr::case_when(row == col ~ 0, T ~ p_val),
+                               p_adj = dplyr::case_when(row == col ~ 0, T ~ p_adj))
+
+    return(all_pairs)
+
+  } else {
+    all_pairs <- shape_mat_long(matrix(nrow = ncol(x), ncol = ncol(y), dimnames = list(colnames(x), colnames(y))))
+    all_pairs <- dplyr::bind_cols( # Bind together with cor, p, padj for each row
+      dplyr::select(all_pairs, -value), dplyr::bind_rows(
+        apply(all_pairs, 1, function(comb) {
+          tst <- cor.test(x[, comb["row"]], y[, comb["col"]])
+          data.frame(value = unname(tst$estimate), p_val = tst$p.value)
+        }, simplify = T)
+      )
+    )
+
+    # Adjust p-values
+    all_pairs[["p_adj"]] <- p.adjust(all_pairs[["p_val"]], method = p_adj_method)
+
+    return(all_pairs)
+  }
 }

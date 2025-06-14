@@ -15,6 +15,9 @@ ggcorrhm(
   limits = c(-1, 1),
   bins = NULL,
   fill_name = NULL,
+  p_calc = FALSE,
+  p_adj = "none",
+  p_thr = NULL,
   na_remove = FALSE,
   na_col = "grey",
   layout = "full",
@@ -24,7 +27,7 @@ ggcorrhm(
   cell_shape = "heatmap",
   size_range = c(4, 10),
   size_scale = NULL,
-  label_cells = FALSE,
+  label_cor = FALSE,
   cell_label_size = 3,
   cell_label_digits = 2,
   border_col = "grey",
@@ -100,6 +103,12 @@ ggcorrhm(
 
 \item{fill_name}{String to use for the correlation colour scale. If NULL (default) the text will depend on the correlation method.}
 
+\item{p_calc}{Logical indicating if p-values should be calculated. Use with \code{p_thr} to mark cells, and/or \code{return_data} to get the p-values in the output data.}
+
+\item{p_adj}{String specifying the adjustment method to use for the p-values (default is "none").}
+
+\item{p_thr}{Numeric of length 1, any adjusted p-values below the threshold are marked in cells. Leave as NULL to not mark.}
+
 \item{na_remove}{Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn). This does not affect how
 NAs are handled in the correlation computations, use the \code{cor_use} argument for NA handling in correlation.}
 
@@ -114,7 +123,7 @@ For any other strings top and right are selected.}
 
 \item{include_diag}{Logical indicating if the diagonal cells should be plotted (included either way if the whole matrix is plotted).}
 
-\item{return_data}{Logical indicating if the data used for plotting (i.e. the correlation values) should be returned.}
+\item{return_data}{Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, p-values) should be returned.}
 
 \item{show_legend}{Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends.
 Can be specified in an aesthetic-specific manner using a named vector like \code{c('fill' = TRUE, 'size' = FALSE)}.}
@@ -127,7 +136,7 @@ A numeric value can be used to specify an R shape (pch) to use, such as 21 for f
 \item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{cell_shape} is numeric.
 The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.}
 
-\item{label_cells}{Logical specifying if the cells should be labelled with the correlation values.}
+\item{label_cor}{Logical specifying if the cells should be labelled with the correlation values.}
 
 \item{cell_label_size}{Size of cell labels, used as the \code{size} argument in \code{ggplot2::geom_text}.}
 
