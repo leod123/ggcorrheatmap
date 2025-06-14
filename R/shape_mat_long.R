@@ -9,7 +9,9 @@
 #' @returns A data frame with the columns 'row', 'column' (indicating combinations), and 'value'
 #'
 #' @examples
+#' \dontrun{
 #' shape_mat_long(cor(mtcars))
+#' }
 shape_mat_long <- function(x, unique_pairs = F, na_remove = F) {
 
   # Convert to long format

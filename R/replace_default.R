@@ -8,7 +8,9 @@
 #' @returns A named list where overlapping elements with overlapping names are replaced.
 #'
 #' @examples
+#' \dontrun{
 #' replace_default(list(a = 1, b = 2, c = 3), list(a = 123, 456, d = 789))
+#' }
 replace_default <- function(default_param, new_param, add_new = F) {
 
   # Ignore unnamed elements

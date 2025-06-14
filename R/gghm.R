@@ -309,6 +309,13 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
                                           annot_rows_label_params, annot_rows_label_side, ncol(x_mat))
     annot_rows_df <- annot_rows_prep[[1]]; annot_rows_params <- annot_rows_prep[[2]];
     annot_rows_pos <- annot_rows_prep[[3]]; annot_rows_label_params <- annot_rows_prep[[4]]
+
+    # Check that names in annotation exist in the plotting data
+    if (any(!annot_rows_df[[".names"]] %in% x_long[["row"]])) {
+      bad_names <- setdiff(annot_rows_df[[".names"]], x_long[["row"]])
+      stop("Some names in the row annotation don't exist in the data: ",
+           paste(bad_names, collapse = ", "))
+    }
   }
 
   if (is.data.frame(annot_cols_df)) {
@@ -316,6 +323,12 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
                                           annot_cols_label_params, annot_cols_label_side, nrow(x_mat))
     annot_cols_df <- annot_cols_prep[[1]]; annot_cols_params <- annot_cols_prep[[2]];
     annot_cols_pos <- annot_cols_prep[[3]]; annot_cols_label_params <- annot_cols_prep[[4]]
+
+    if (any(!annot_cols_df[[".names"]] %in% x_long[["col"]])) {
+      bad_names <- setdiff(annot_cols_df[[".names"]], x_long[["col"]])
+      stop("Some names in the column annotation don't exist in the data: ",
+           paste(bad_names, collapse = ", "))
+    }
   }
 
   # Generate dendrograms, positions depend on annotation sizes

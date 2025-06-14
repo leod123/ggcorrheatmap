@@ -18,6 +18,8 @@ A named list where overlapping elements with overlapping names are replaced.
 Replace default elements in a named list with corresponding elements in a new list.
 }
 \examples{
+\dontrun{
 replace_default(list(a = 1, b = 2, c = 3), list(a = 123, 456, d = 789))
+}
 }
 \keyword{internal}
