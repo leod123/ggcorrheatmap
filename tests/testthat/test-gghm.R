@@ -29,6 +29,7 @@ test_that("snapshots", {
   vdiffr::expect_doppelganger("w_options", gghm(scale(mtcars), cluster_rows = T, cluster_cols = T,
                                                 annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:nrow(mtcars)),
                                                 annot_cols_df = data.frame(.names = colnames(mtcars), b = 1:ncol(mtcars))))
+  vdiffr::expect_doppelganger("cell_shape", gghm(mtcars, cell_shape = 21))
 })
 
 test_that("correct input types", {

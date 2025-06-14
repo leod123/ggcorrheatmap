@@ -17,4 +17,6 @@ test_that("snapshots are ok", {
   vdiffr::expect_doppelganger("corr_w_options", ggcorrhm(mtcars, cluster_rows = T, cluster_cols = T,
                                                          annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:ncol(mtcars)),
                                                          annot_cols_df = data.frame(.names = colnames(mtcars), b = 1:ncol(mtcars))))
+  vdiffr::expect_doppelganger("cell_shape", ggcorrhm(mtcars, cell_shape = 21))
+  vdiffr::expect_doppelganger("pvalues", ggcorrhm(mtcars, p_calc = T, p_thr = 0.05, p_adj = "fdr"))
 })
