@@ -266,15 +266,20 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 
   # cor_plt <- gghm(cor_mat, fill_scale = fill_scale, fill_name = fill_name, ...)
 
+  # Make a data frame with p-values, containing only the values that are actually plotted
+  if (p_calc) {
+    cor_plt[["plot_data"]] <- dplyr::left_join(cor_plt[["plot_data"]],
+                                               cor_mat_dat, by = c("row", "col", "value"))
+  }
+
+
   # Add cell labels if desired
   if (label_cor) {
     # Add p-values labels if desired
     # If the cells are labelled with the correlation values, add an asterisk for the p-values (needs to set p_thr)
     if (p_calc & is.numeric(p_thr)) {
-      # Make a data frame for labelling, containing only the values that are actually plotted
-      label_df <- dplyr::left_join(cor_plt[["plot_data"]],
-                                   cor_mat_dat, by = c("row", "col", "value"))
       # Add a star if below given threshold
+      label_df <- cor_plt[["plot_data"]]
       label_df[["label"]] <- paste0(round(label_df[["value"]], cell_label_digits),
                                     ifelse(label_df[["p_adj"]] < p_thr, "*", ""))
 
@@ -287,7 +292,6 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                            } else {
                              label_df
                            }, size = cell_label_size)
-      cor_plt[["plot_data"]] <- dplyr::select(label_df, -label)
     } else {
       # Just add correlation if no p-values should be added
       cor_plt[["plot"]] <- cor_plt[["plot"]] +
@@ -301,16 +305,14 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   } else {
     # If cells are not labelled with cor values, add the asterisks with geom_point to get them in the middle of the cells
     if (p_calc & is.numeric(p_thr)) {
-      label_df <- dplyr::left_join(cor_plt[["plot_data"]], cor_mat_dat, by = c("row", "col", "value"))
 
       cor_plt[["plot"]] <- cor_plt[["plot"]] +
         ggplot2::geom_point(ggplot2::aes(), data = if (isSymmetric(cor_mat) & names_diag) {
-          subset(label_df, p_adj < p_thr & as.character(row) != as.character(col))
+          subset(cor_plt[["plot_data"]], p_adj < p_thr & as.character(row) != as.character(col))
         } else {
-          subset(label_df, p_adj < p_thr)
+          subset(cor_plot[["plot_data"]], p_adj < p_thr)
         },
         size = cell_label_size, shape = "*")
-      cor_plt[["plot_data"]] <- label_df
     }
   }
 
