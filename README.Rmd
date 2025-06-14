@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # ggcorrheatmap
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/Leod123/ggcorrheatmap/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Leod123/ggcorrheatmap/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 ggcorrheatmap is a convenient package for generating correlation heatmaps made with ggplot2, with support for triangular layouts, clustering and annotation. As the output is a ggplot2 object you can further customise the appearance using familiar ggplot2 functions. ggcorrheatmap can also build general heatmaps.

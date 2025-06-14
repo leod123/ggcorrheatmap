@@ -4,6 +4,8 @@
 # ggcorrheatmap
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/Leod123/ggcorrheatmap/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Leod123/ggcorrheatmap/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 ggcorrheatmap is a convenient package for generating correlation
