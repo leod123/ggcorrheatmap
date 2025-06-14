@@ -156,13 +156,3 @@ ggcorrhm(mtcars, annot_rows_df = row_annot, annot_cols_df = col_annot,
 ```
 
 As can be seen in the plots above, the legends may be cut off if there are many annotations. Fitting the legends can be tricky and may require increasing the figure size. Alternatively a package like `cowplot` can be used to stitch together a legendless version of the plot with a grid of only the legends.
-
-If the annotation data frame contains names not in the heatmap, new rows/columns will be made just to fit the annotation, although this usage is unintended.
-
-```{r}
-row_annot <- data.frame(.names = c(colnames(mtcars), letters[1:10]),
-                        a = rnorm(ncol(mtcars) + 10))
-
-ggcorrhm(mtcars, annot_rows_df = row_annot)
-```
-

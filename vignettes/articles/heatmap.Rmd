@@ -14,7 +14,11 @@ The `gghm` function can be used to make a heatmap from a matrix of data frame. R
 ```{r setup}
 library(ggcorrheatmap)
 library(ggplot2)
+suppressPackageStartupMessages(library(dplyr))
+```
 
+
+```{r heatmap}
 gghm(mtcars)
 ```
 
@@ -41,11 +45,33 @@ gghm(replicate(15, sample(letters[1:3], 15, TRUE)),
      border_col = "thistle1", border_lwd = 1)
 ```
 
-Cell borders are by default grey, but can be removed by setting `border_col` or `border_lwd` to NA (if `cell_shape` is non-numeric, explained more in [correlation heatmaps](correlation.html)) or `border_lwd` to 0 (if `cell_shape` is numeric).
+# Cell borders
+
+Cell borders are by default grey, but can be removed by setting `border_col` or `border_lwd` to NA or `border_lty` to 0 (if `cell_shape` is non-numeric, explained more in [correlation heatmaps](correlation.html#cell-shape)) or `border_lwd` to 0 (if `cell_shape` is numeric).
 
 ```{r}
 gghm(volcano, fill_scale = scale_fill_viridis_c(), border_col = NA,
      names_x = FALSE, names_y = FALSE)
+```
+
+`border_col`, `border_lwd`, and `border_lty` can take either values of length 1 or the same length as the input data. Using the `return_data` argument to get the plotting data makes it easier to implement conditional customisation of borders.
+
+```{r, fig.show='hold', out.width='50%'}
+# Single values as input
+gghm(cor(mtcars), fill_scale = scale_fill_viridis_b(option = "mako"),
+     border_col = "orange", border_lwd = 1, border_lty = 2)
+
+# Two-step approach:
+# - Make a plot with the data of interest, retrieve the plotting data
+# - Make col, lwd, lty vectors based on some condition in the plotting data and pass to gghm
+plt_dat <- gghm(cor(mtcars), return_data = TRUE)$plot_data
+plt_dat <- mutate(plt_dat,
+                  # The plotting data contains the columns 'row', 'col', and 'value', so avoid those names
+                  colr = case_when(row == "hp" ~ "red", col == "vs" ~ "brown", T ~ "grey"),
+                  lwd = case_when(row == "hp" | col == "vs" ~ 1.5, T ~ 0.5),
+                  lty = case_when(value > 0.5 ~ 1, T ~ 2))
+gghm(cor(mtcars), fill_scale = scale_fill_viridis_b(option = "mako"),
+     border_col = plt_dat$colr, border_lwd = plt_dat$lwd, border_lty = plt_dat$lty)
 ```
 
 # Handling NAs
@@ -113,78 +139,3 @@ plot_list$plot +
 ```
 
 There are many arguments, allowing for quite some flexibility in the heatmap layout. Most of the arguments are showcased in the vignettes, hopefully they can be of some help.
-
-```{r}
-set.seed(123)
-annot_df <- cbind(data.frame(.names = colnames(mtcars)), 
-                  replicate(10, sample(letters[1:3], ncol(mtcars), TRUE)))
-row_annot_params <- list(dist = -10, gap = 2, size = 0.1, border_lwd = 0.5, border_col = "blue")
-col_annot_params <- list(dist = 0, gap = -0.5, size = 1, border_lwd = 0.5, border_col = "brown")
-row_label_params <- list(gp = grid::gpar(cex = 2, col = "yellow"))
-col_label_params <- list(rot = 180, hjust = 0)
-diag_params <- list(angle = seq(0, 360, length.out = ncol(mtcars)),
-                    colour = sample(c("red", "green", "blue"), ncol(mtcars), TRUE))
-row_dend_param <- list(height = 1)
-row_dend_extend <- list(set = list("branches_k_color", k = 3),
-                        highlight_branches_lwd = NULL)
-col_dend_extend <- list(highlight_branches_col = NULL,
-                        set = list("branches_lty", 1:3),
-                        set = list("branches_lwd", 2))
-
-gghm(cor(mtcars), fill_scale = scale_fill_steps2(high = "magenta", mid = "orange", low = "cyan"),
-     label_cells = TRUE, cell_label_digits = 2, cell_label_size = 3,
-     annot_rows_df = annot_df[, 1:6], annot_cols_df = annot_df[, c(1, 7:11)],
-     annot_rows_params = row_annot_params, annot_cols_params = col_annot_params,
-     annot_rows_label_params = row_label_params, annot_cols_label_params = col_label_params,
-     annot_rows_label_side = "top", layout = "br", cluster_rows = TRUE, cluster_cols = TRUE,
-     names_diag_param = diag_params, names_x = TRUE, names_y = TRUE,
-     dend_rows_params = row_dend_param, dend_rows_extend = row_dend_extend,
-     dend_cols_extend = col_dend_extend)
-```
-
-```{r}
-library(dplyr)
-library(dendextend)
-set.seed(123)
-annot <- cbind(data.frame(colnames(mtcars)),
-               as.data.frame(replicate(5, {
-                   sample(letters[1:3], ncol(mtcars), T)
-               })),
-               as.data.frame(replicate(5, {
-                   rnorm(ncol(mtcars))
-               }))) %>% `colnames<-`(c(".names", paste0("V", 1:10)))
-ggcorrhm(mtcars, cluster_rows = T, cluster_cols = T,
-         high = "orange", mid = "green", low = "blue",
-         names_x = T, names_y = T,
-         names_diag_param = list(angle = seq(0, 360, length.out = 11),
-                                 colour = c("black", "red", "green", "white", "yellow", "blue", "salmon", "purple", "cyan", "gold", "grey"),
-                                 size = runif(11, 2, 5)),
-         border_col = "beige",
-         dend_rows_side = "left",
-         annot_rows_df = annot[, seq(1, 11, by = 2)],
-         annot_cols_df = annot[, c(1, seq(2, 6, by = 2))],
-         annot_rows_params = list(dist = -3, gap = 1.5, size = 0.5, border_col = "magenta"),
-         annot_cols_params = list(gap = 0.5, size = 2, border_col = "yellow", border_lwd = .7),
-         dend_height = 1, annot_rows_label_side = "top",
-         dend_rows_extend = list(
-             set = list("nodes_pch", 21),
-             set = list("nodes_col", "red"),
-             set = list("nodes_cex", 2),
-             set = list("leaves_pch", 19),
-             set = list("leaves_col", "brown"),
-             set = list("leaves_cex", 3),
-             highlight_branches_col = list(),
-             highlight_branches_lwd = list(c(.5, 1, 2, 3))
-         ),
-         dend_cols_extend = list(
-             set = list("by_labels_branches_col", value = c("hp", "disp"), TF_values = "purple", type = "any"),
-             set = list("by_labels_branches_lwd", value = c("wt", "vs", "am")),
-             set = list("by_labels_branches_lty", value = c("am", "drat", "disp"), TF_values = 2, type = "any"),
-             set = list("by_labels_branches_col", value = "wt", TF_values = "orange"),
-             set = list("nodes_pch", c(1:6)),
-             set = list("nodes_cex", seq(.5, 3, by = .6))
-         ),
-         annot_rows_label_params = list(rot = 180, gp = grid::gpar(col = "yellow", cex = 2)),
-         annot_cols_label_params = list(rot = -90, gp = grid::gpar(col = "blue", cex = 1.5)))
-```
-

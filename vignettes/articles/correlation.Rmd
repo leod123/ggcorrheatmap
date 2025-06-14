@@ -12,6 +12,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(ggcorrheatmap)
 library(ggplot2)
+library(dplyr)
 ```
 
 Correlation heatmaps can be made easily using the `ggcorrhm` function. `ggcorrhm` is a wrapper for (and shares most of its arguments with) `gghm` and calculates the correlation matrix for the input passed to `gghm`. If one matrix is provided the column-column correlations are plotted. If two matrices are provided, the correlations between the columns in the two matrices are plotted. Using the `cor_method` and `cor_use` different `method` and `use` arguments can be passed to `stats::cor`.
@@ -103,8 +104,33 @@ ggcorrhm(mtcars, cell_shape = 23, size_range = c(1, 15)) +
 
 # Cell text
 
-The `label_cells` argument labels cells with the values. The `cell_label_size` and `cell_label_digits` arguments control the text size and the number of displayed digits, respectively.
+The `label_cor` argument labels cells with the values. The `cell_label_size` and `cell_label_digits` arguments control the text size and the number of displayed digits, respectively.
 
 ```{r cell labels}
-ggcorrhm(mtcars, layout = "br", label_cells = TRUE)
+ggcorrhm(mtcars, layout = "br", label_cor = TRUE)
 ```
+
+# P-values
+
+P-values can be calculated by setting the `p_calc` argument to `TRUE`. The values can be adjusted for multiple testing by passing a string specifying the adjustment method to `p_adj`. If the correlation matrix is symmetric, the diagonal is excluded and only half of the off-diagonal values are used for the adjustment. This alone only means that the p-values will be calculated (which will be a bit slower than if `p_calc` is `FALSE`). The calculated p-values (nominal and adjusted) can be returned in the output by setting `return_data` to `TRUE`. To mark cells, set `p_thr` to a value between 0 and 1 and adjusted p-values below the threshold will be marked by asterisks (if `label_cor` is `TRUE` the asterisk is added to the correlation value). 
+
+```{r, fig.show='hold', out.width='50%'}
+ggcorrhm(mtcars, p_calc = TRUE, p_thr = 0.05, cell_label_size = 6)
+ggcorrhm(mtcars, p_calc = TRUE, p_thr = 0.05, label_cor = TRUE)
+```
+
+By returning the data and using `ggplot2` functions it is possible to be more creative with the p-value marking than `ggcorrhm` allows out of the box.
+
+```{r}
+p <- ggcorrhm(mtcars, p_calc = TRUE, p_adj = "bonferroni", return_data = TRUE,
+              layout = "br", include_diag = TRUE)
+p$plot_data <- mutate(p$plot_data,
+                      p_lty = case_when(p_adj < 0.05 ~ 1, T ~ 3),
+                      p_lwd = case_when(p_adj < 0.05 ~ 1, T ~ 0.5),
+                      p_lab = case_when(p_adj < 0.001 ~ "***", p_adj < 0.01 ~ "**", p_adj < 0.05 ~ "*", T ~ ""))
+ggcorrhm(mtcars, border_lty = p$plot_data$p_lty, border_lwd = p$plot_data$p_lwd,
+         layout = "br", include_diag = TRUE) +
+  geom_text(aes(label = p_lab), data = p$plot_data %>%
+              filter(as.character(row) != as.character(col)))
+```
+
