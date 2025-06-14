@@ -1,27 +1,34 @@
 test_that("basic functionality works", {
   expect_no_error(gghm(mtcars))
   # Even without row or colnames
-  expect_no_condition(gghm(replicate(10, rnorm(15))))
+  expect_no_error(gghm(replicate(10, rnorm(15))))
   # Different dimensions
   expect_no_error(gghm(mtcars[1:2, ]))
   expect_no_error(gghm(mtcars[, 1:2]))
   expect_no_error(gghm(mtcars[1:2, 1:2]))
   # Clustering and annotation
-  expect_no_condition(gghm(mtcars, cluster_rows = T, cluster_cols = T,
-                           annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:nrow(mtcars)),
-                           annot_cols_df = data.frame(matrix(1:ncol(mtcars), ncol = 1,
-                                                             dimnames = list(colnames(mtcars), "b"))),
-                           dend_rows_extend = list(set = list("nodes_pch", 19),
-                                                   highlight_branches_col = list()),
-                           dend_cols_extend = list(set = list("branches_k_color", k = 3),
-                                                   set = list("leaves_pch", 21)),
-                           return_data = T))
+  expect_no_error(gghm(mtcars, cluster_rows = T, cluster_cols = T,
+                       annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:nrow(mtcars)),
+                       annot_cols_df = data.frame(matrix(1:ncol(mtcars), ncol = 1,
+                                                         dimnames = list(colnames(mtcars), "b"))),
+                       dend_rows_extend = list(set = list("nodes_pch", 19),
+                                               highlight_branches_col = list()),
+                       dend_cols_extend = list(set = list("branches_k_color", k = 3),
+                                               set = list("leaves_pch", 21)),
+                       return_data = T))
   # More things to cover
-  expect_no_condition(gghm(cor(mtcars), cluster_rows = T, cluster_cols = T, layout = "br",
-                           legend_position = c(0.2, 0.8), cell_shape = 21,
-                           show_legend = c("fill" = T, "size" = F),
-                           names_diag_param = list(angle = -45),
-                           label_cor = T))
+  expect_no_error(gghm(cor(mtcars), cluster_rows = T, cluster_cols = T, layout = "br",
+                       legend_position = c(0.2, 0.8), cell_shape = 21,
+                       show_legend = c("fill" = T, "size" = F),
+                       names_diag_param = list(angle = -45),
+                       label_cor = T))
+})
+
+test_that("snapshots", {
+  vdiffr::expect_doppelganger("basic_plot", gghm(mtcars))
+  vdiffr::expect_doppelganger("w_options", gghm(scale(mtcars), cluster_rows = T, cluster_cols = T,
+                                                annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:nrow(mtcars)),
+                                                annot_cols_df = data.frame(.names = colnames(mtcars), b = 1:ncol(mtcars))))
 })
 
 test_that("correct input types", {
