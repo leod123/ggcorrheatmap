@@ -4,6 +4,7 @@
 #'
 #' @param default_param Named list with elements to potentially replace ("defaults").
 #' @param new_param Named list with elements to replace with.
+#' @param add_new Logical, if TRUE elements with names unique to `new_param` will be added to the output.
 #'
 #' @returns A named list where overlapping elements with overlapping names are replaced.
 #'

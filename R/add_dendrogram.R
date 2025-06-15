@@ -3,7 +3,7 @@
 #' @keywords internal
 #'
 #' @param ggp ggplot object to add dendrogram to.
-#' @param dend_seg Dendrogram segment and node data obtained from the `prepare_dendrogram` function.
+#' @param dendro Dendrogram segment and node data obtained from the `prepare_dendrogram` function.
 #' @param dend_col String specifying colour of dendrogram (used if the colours have not been changed using other options).
 #' @param dend_lwd Line width of dendrogram segments (used if not changed using other options).
 #' @param dend_lty Line type of dendrogram (used if not changed using other options).
@@ -69,7 +69,6 @@ add_dendrogram <- function(ggp, dendro, dend_col = "black", dend_lwd = 0.3, dend
 #' @param full_plt Logical indicating if the whole heatmap is plotted or not.
 #' @param x_long Data frame containing the values that will be plotted in the heatmap.
 #' @param annot_df Data frame containing annotations.
-#' @param annot Logical indicating if annotations will be drawn for the specified dendrogram dimension.
 #' @param annot_side Logical specifying which side the annotation will be drawn, analogous to 'dend_down' or 'dend_left'
 #' (use the one in the same dimension as the dendrogram).
 #' @param annot_pos Vector of the annotation positions along the opposite dimension.

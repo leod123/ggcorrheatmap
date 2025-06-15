@@ -42,8 +42,6 @@ prepare_dendrogram(
 \item{annot_pos}{Vector of the annotation positions along the opposite dimension.}
 
 \item{annot_size}{Size of annotation cells, specified in heatmap cells (1 being the size of one cell).}
-
-\item{annot}{Logical indicating if annotations will be drawn for the specified dendrogram dimension.}
 }
 \value{
 Data frame with dendrogram segment and node parameters.

@@ -10,6 +10,8 @@ replace_default(default_param, new_param, add_new = F)
 \item{default_param}{Named list with elements to potentially replace ("defaults").}
 
 \item{new_param}{Named list with elements to replace with.}
+
+\item{add_new}{Logical, if TRUE elements with names unique to \code{new_param} will be added to the output.}
 }
 \value{
 A named list where overlapping elements with overlapping names are replaced.

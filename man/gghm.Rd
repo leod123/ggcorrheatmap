@@ -237,7 +237,7 @@ The \code{dend_rows_extend} and \code{dend_cols_extend} arguments make it possib
 The argument should be a named list, each element named after the \code{dendextend} function to use (consecutive usage of the \code{set} function
 is supported due to duplicate list names being possible). Each element should contain any arguments given to the \code{dendextend} function,
 such as the \code{what} argument used in the \code{set} function. Alternatively, \code{dendextend} functions can be provided in a functional sequence ("fseq" object)
-by piping together functions using the \verb{\%>\%} pipe. See examples for example usage.
+by piping together functions using the \verb{\%>\%} pipe. See examples and the clustering vignette for example usage.
 }
 \examples{
 
@@ -280,11 +280,4 @@ gghm(scale(hm_in), cluster_rows = TRUE, dend_rows_extend =
   list("set" = list("branches_lty", c(1, 2, 3)),
        # Empty list element (or NULL) if no arguments to be given
        "highlight_branches_col" = list()))
-
-# dend_*_extend with functional sequence
-library(dplyr)
-library(dendextend)
-gghm(scale(hm_in), cluster_cols = TRUE,
-     dend_cols_extend = . \%>\% set("branches_k_col", k = 3) \%>\% highlight_branches_lwd())
-
 }

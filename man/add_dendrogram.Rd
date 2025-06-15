@@ -9,13 +9,13 @@ add_dendrogram(ggp, dendro, dend_col = "black", dend_lwd = 0.3, dend_lty = 1)
 \arguments{
 \item{ggp}{ggplot object to add dendrogram to.}
 
+\item{dendro}{Dendrogram segment and node data obtained from the \code{prepare_dendrogram} function.}
+
 \item{dend_col}{String specifying colour of dendrogram (used if the colours have not been changed using other options).}
 
 \item{dend_lwd}{Line width of dendrogram segments (used if not changed using other options).}
 
 \item{dend_lty}{Line type of dendrogram (used if not changed using other options).}
-
-\item{dend_seg}{Dendrogram segment and node data obtained from the \code{prepare_dendrogram} function.}
 }
 \value{
 A ggplot object with a dendrogram added.

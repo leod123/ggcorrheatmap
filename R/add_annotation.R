@@ -12,7 +12,10 @@
 #' @param annot_size Size of annotations, width of row annotations, height if column annotations.
 #' @param annot_border_lwd Linewidth of border lines of annotation cells.
 #' @param annot_border_col Colour of border lines of annotation cells.
+#' @param annot_border_lty Linetype of border lines of annotation cells.
 #' @param draw_legend Logical indicating if a legend should be drawn.
+#' @param draw_label Logical indicating if the annotation names should be drawn.
+#' @param na_col Colour of NA cells if not removed.
 #' @param na_remove Logical indicating if NA values should be removed.
 #' @param col_scale Named list of fill scales to use, named after the columns in the annotation data frame.
 #' Each element should either be a `scale_fill_*` object or a string specifying a brewer palette or viridis option.

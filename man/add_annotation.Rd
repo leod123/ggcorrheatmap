@@ -41,7 +41,13 @@ Positions are given by the middle coordinate of the annotation cells.}
 
 \item{annot_border_col}{Colour of border lines of annotation cells.}
 
+\item{annot_border_lty}{Linetype of border lines of annotation cells.}
+
 \item{draw_legend}{Logical indicating if a legend should be drawn.}
+
+\item{draw_label}{Logical indicating if the annotation names should be drawn.}
+
+\item{na_col}{Colour of NA cells if not removed.}
 
 \item{na_remove}{Logical indicating if NA values should be removed.}
 
