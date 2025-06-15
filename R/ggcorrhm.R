@@ -114,7 +114,7 @@
 #'
 #' The size scale, used when a numeric cell shape is specified, is set to vary the shape size between 4 and 10 (can be changed with the `size_range` argument)
 #' and to transform the values to absolute values (so that both positive and negative correlations are treated equally).
-#' This behaviour can be overwritten by setting `size_scale` to #' another `ggplot2::scale_size_*` function with the desired
+#' This behaviour can be overwritten by setting `size_scale` to another `ggplot2::scale_size_*` function with the desired
 #' arguments, or `ggplot2::scale_size()` for no special behaviour.
 #' When the absolute value transformation is used the legend for sizes loses its meaning (only displaying positive values)
 #' and is therefore set to not be shown in the `show_legend` argument.
@@ -140,13 +140,6 @@
 #' ggcorrhm(mtcars, layout = "tr", annot_rows_df = annot,
 #'          # Change margins to fit annotation labels
 #'          plot_margin = c(20, 10, 60, 20))
-#'
-#' # Using the dend_options argument
-#' ggcorrhm(mtcars, cluster_rows = TRUE, dend_rows_extend =
-#'   list("set" = list("branches_lty", c(1, 2, 3)),
-#'        "set" = list("branches_k_color", k = 3),
-#'        # Empty list element (or NULL) if no arguments to be given
-#'        "highlight_branches_lwd" = list()))
 ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything",
                      high = "sienna2", mid = "white", low = "skyblue2",
                      limits = c(-1, 1), bins = NULL, fill_name = NULL, #...

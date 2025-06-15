@@ -101,7 +101,7 @@
 #' The argument should be a named list, each element named after the `dendextend` function to use (consecutive usage of the `set` function
 #' is supported due to duplicate list names being possible). Each element should contain any arguments given to the `dendextend` function,
 #' such as the `what` argument used in the `set` function. Alternatively, `dendextend` functions can be provided in a functional sequence ("fseq" object)
-#' by piping together functions using the `%>%` pipe. See examples for example usage.
+#' by piping together functions using the `%>%` pipe. See examples and the clustering vignette for example usage.
 #'
 #' @examples
 #'
@@ -144,13 +144,6 @@
 #'   list("set" = list("branches_lty", c(1, 2, 3)),
 #'        # Empty list element (or NULL) if no arguments to be given
 #'        "highlight_branches_col" = list()))
-#'
-#' # dend_*_extend with functional sequence
-#' library(dplyr)
-#' library(dendextend)
-#' gghm(scale(hm_in), cluster_cols = TRUE,
-#'      dend_cols_extend = . %>% set("branches_k_col", k = 3) %>% highlight_branches_lwd())
-#'
 gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
                  layout = "full", include_diag = F, return_data = F,
                  show_legend = c("fill" = TRUE, "size" = TRUE), cell_shape = "heatmap", size_scale = NULL,

@@ -128,7 +128,7 @@ gghm(df_in, annot_rows_df = row_annot, annot_cols_df = col_annot, annot_legend =
      ))
 ```
 
-If the annotation labels are too long and are cut off, the plot margins can be adjusted with the `plot_margin` argument. Alternatively, the figure height can be increased, as the heatmap is set to use a fixed aspect ratio (`ggplot2::coord_fixed`).
+If the annotation labels are too long and are cut off, the plot margins can be adjusted with the `plot_margin` argument. Alternatively, the figure height can be increased, as the heatmap is set to use a fixed aspect ratio (`ggplot2::coord_fixed`). This can be overwritten by adding `ggplot2::coord_cartesian` to the output plot.
 
 # Dealing with missing values
 
