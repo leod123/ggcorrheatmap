@@ -78,10 +78,6 @@
 #' @param dend_cols_params Named list for column dendrogram parameters. See details for more information.
 #' @param dend_rows_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row dendrogram. See details for usage.
 #' @param dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the column dendrogram. See details for usage.
-#' @param legend_position Position of the legends, given to `ggplot2::theme`. Either a string for the position outside the plotting area,
-#' or a numeric vector of length 2 for normalised coordinates inside the plotting area. If "none", no legends are drawn.
-#' @param plot_margin Plot margins, specified as a numeric vector of length 4 in the order of top, right, bottom, left.
-#' @param margin_unit Unit to use for the specified margin.
 #'
 #' @return The heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),
@@ -104,6 +100,7 @@
 #' by piping together functions using the `%>%` pipe. See examples and the clustering vignette for example usage.
 #'
 #' @examples
+#' library(ggplot2)
 #'
 #' # Use part of the mtcars data (for visibility)
 #' hm_in <- mtcars[1:15, ]
@@ -135,9 +132,9 @@
 #' gghm(scale(hm_in),
 #'      # Change colours of heatmap
 #'      fill_scale = ggplot2::scale_fill_gradient(low = "beige", high = "sienna2"),
-#'      annot_rows_df = annot_rows, annot_rows_fill = annot_fill,
-#'      # Change margins to fit annotation labels,
-#'      plot_margin = c(20, 10, 60, 20))
+#'      annot_rows_df = annot_rows, annot_rows_fill = annot_fill) +
+#'      # Use ggplot2::theme to adjust margins to fit the annotation labels
+#'      theme(plot.margin = margin(20, 10, 60, 20))
 #'
 #' # Using the dend_*_extend arguments
 #' gghm(scale(hm_in), cluster_rows = TRUE, dend_rows_extend =
@@ -166,9 +163,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
                  dend_rows = TRUE, dend_cols = TRUE, dend_rows_side = "right", dend_cols_side = "bottom",
                  dend_col = "black", dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
                  dend_rows_params = NULL, dend_cols_params = NULL,
-                 dend_rows_extend = NULL, dend_cols_extend = NULL,
-                 legend_position = "right",
-                 plot_margin = c(20, 10, 10, 20), margin_unit = "pt") {
+                 dend_rows_extend = NULL, dend_cols_extend = NULL) {
 
   if (!is.matrix(x) & !is.data.frame(x)) stop("x must be a matrix or data frame.")
 
@@ -355,15 +350,6 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
                          fill = "white", linewidth = 0, alpha = 0)
   }
 
-  # If a numeric vector is given for the legend position, use the "inside" value for the legend.position arugment
-  # and give the vector as input for the legend.position.inside argument in the theme() function
-  if (is.numeric(legend_position)) {
-    legend_position_inside <- legend_position
-    legend_position <- "inside"
-  } else {
-    legend_position_inside <- NULL
-  }
-
   # Use different input data depending on desired layout
   # If include_diag is FALSE, skip where row == col, otherwise use the whole data
   x_plot_dat <- if (isSymmetric(x_mat) & !full_plt & !include_diag) {
@@ -397,14 +383,12 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     ggplot2::coord_fixed(clip = "off") +
     ggplot2::labs(fill = fill_name) +
     ggplot2::theme_classic() +
-    # Remove axis elements, move legend, set margins
+    # Remove axis elements
     ggplot2::theme(axis.line = ggplot2::element_blank(),
                    axis.text.x = ggplot2::element_blank(),
                    axis.text.y = if (names_y) ggplot2::element_text() else ggplot2::element_blank(),
                    axis.ticks = ggplot2::element_blank(),
-                   axis.title = ggplot2::element_blank(),
-                   legend.position = legend_position, legend.position.inside = legend_position_inside,
-                   plot.margin = ggplot2::margin(plot_margin[1], plot_margin[2], plot_margin[3], plot_margin[4], margin_unit))
+                   axis.title = ggplot2::element_blank())
 
   # Rotate x labels if names on x axis
   if (names_x) {

@@ -67,11 +67,12 @@ ggcorrhm(mtcars, layout = "br", names_diag_param = list(
 
 # Legend position
 
-The legend can be moved around using the `legend_position` argument (specifying 'top', 'bottom', 'left', or 'right'). If a numeric vector of length two is given, the legend is placed at those coordinates within the drawing area (scaled to range between 0 and 1).
+The legend can be moved around by adding to the theme of the output plot using `ggplot2::theme`. Use the `legend.position.inside` argument to move the legend to the plotting area to make use of the empty space of triangular layouts.
 
 ```{r legend position, fig.width=5, fig.height=4, fig.show='hold', out.width='50%'}
-ggcorrhm(mtcars, legend_position = "top")
-ggcorrhm(mtcars, layout = "br", legend_position = c(0.2, 0.7))
+ggcorrhm(mtcars) + theme(legend.position = "top")
+ggcorrhm(mtcars, layout = "br") +
+  theme(legend.position = "inside", legend.position.inside = c(0.2, 0.7))
 ```
 
 # Clustering and annotation

@@ -91,10 +91,6 @@
 #' @param dend_cols_params Named list for column dendrogram parameters. See details of `gghm` for more information.
 #' @param dend_rows_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row dendrogram. See details of `gghm` for usage.
 #' @param dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the column dendrogram. See details of `gghm` for usage.
-#' @param legend_position Position of the legends, given to `ggplot2::theme`. Either a string for the position outside the plotting area,
-#' or a numeric vector of length 2 for normalised coordinates inside the plotting area. If "none", no legends are drawn.
-#' @param plot_margin Plot margins, specified as a numeric vector of length 4 in the order of top, right, bottom, left.
-#' @param margin_unit Unit to use for the specified margin.
 #'
 #' @return The correlation heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),
@@ -137,9 +133,7 @@
 #' annot <- data.frame(.names = colnames(mtcars),
 #'                     annot1 = rnorm(ncol(mtcars)),
 #'                     annot2 = sample(letters[1:3], ncol(mtcars), TRUE))
-#' ggcorrhm(mtcars, layout = "tr", annot_rows_df = annot,
-#'          # Change margins to fit annotation labels
-#'          plot_margin = c(20, 10, 60, 20))
+#' ggcorrhm(mtcars, layout = "tr", annot_cols_df = annot)
 ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything",
                      high = "sienna2", mid = "white", low = "skyblue2",
                      limits = c(-1, 1), bins = NULL, fill_name = NULL, #...
@@ -166,9 +160,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      dend_rows = TRUE, dend_cols = TRUE, dend_rows_side = "right", dend_cols_side = "bottom",
                      dend_col = "black", dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
                      dend_rows_params = NULL, dend_cols_params = NULL,
-                     dend_rows_extend = NULL, dend_cols_extend = NULL,
-                     legend_position = "right",
-                     plot_margin = c(20, 10, 10, 20), margin_unit = "pt") {
+                     dend_rows_extend = NULL, dend_cols_extend = NULL) {
 
   cor_mat <- if (is.null(y)) {
     cor(x, method = cor_method, use = cor_use)
@@ -254,8 +246,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                   dend_rows_side = dend_rows_side, dend_cols_side = dend_cols_side,
                   dend_col = dend_col, dend_height = dend_height, dend_lwd = dend_lwd, dend_lty = dend_lty,
                   dend_rows_params = dend_rows_params, dend_cols_params = dend_cols_params,
-                  dend_rows_extend = dend_rows_extend, dend_cols_extend = dend_cols_extend,
-                  legend_position = legend_position, plot_margin = plot_margin, margin_unit = margin_unit)
+                  dend_rows_extend = dend_rows_extend, dend_cols_extend = dend_cols_extend)
 
   # cor_plt <- gghm(cor_mat, fill_scale = fill_scale, fill_name = fill_name, ...)
 

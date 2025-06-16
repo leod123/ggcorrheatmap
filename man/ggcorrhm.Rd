@@ -76,10 +76,7 @@ ggcorrhm(
   dend_rows_params = NULL,
   dend_cols_params = NULL,
   dend_rows_extend = NULL,
-  dend_cols_extend = NULL,
-  legend_position = "right",
-  plot_margin = c(20, 10, 10, 20),
-  margin_unit = "pt"
+  dend_cols_extend = NULL
 )
 }
 \arguments{
@@ -243,13 +240,6 @@ the \verb{annot_*_fill} arguments.}
 \item{dend_rows_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the row dendrogram. See details of \code{gghm} for usage.}
 
 \item{dend_cols_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the column dendrogram. See details of \code{gghm} for usage.}
-
-\item{legend_position}{Position of the legends, given to \code{ggplot2::theme}. Either a string for the position outside the plotting area,
-or a numeric vector of length 2 for normalised coordinates inside the plotting area. If "none", no legends are drawn.}
-
-\item{plot_margin}{Plot margins, specified as a numeric vector of length 4 in the order of top, right, bottom, left.}
-
-\item{margin_unit}{Unit to use for the specified margin.}
 }
 \value{
 The correlation heatmap as a \code{ggplot} object.
@@ -294,7 +284,5 @@ set.seed(123)
 annot <- data.frame(.names = colnames(mtcars),
                     annot1 = rnorm(ncol(mtcars)),
                     annot2 = sample(letters[1:3], ncol(mtcars), TRUE))
-ggcorrhm(mtcars, layout = "tr", annot_rows_df = annot,
-         # Change margins to fit annotation labels
-         plot_margin = c(20, 10, 60, 20))
+ggcorrhm(mtcars, layout = "tr", annot_cols_df = annot)
 }

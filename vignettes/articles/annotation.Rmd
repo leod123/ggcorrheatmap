@@ -35,7 +35,7 @@ df_in <- matrix(1:9, nrow = 3, ncol = 3, byrow = TRUE)
 row_annot <- as.data.frame(replicate(12, letters[1:3]))
 col_annot <- as.data.frame(replicate(12, 1:3))
 gghm(df_in, annot_rows_df = row_annot, annot_cols_df = col_annot,
-     legend_position = "none")
+     show_legend = FALSE, annot_legend = FALSE)
 ```
 
 The colours can be changed by passing a named list of `ggplot2` fill scales or strings (specifying brewer palettes or viridis options) to the `annot_rows_fill` and `annot_cols_fill` arguments. Annotations not included in the list will get the default colours. When supplying a scale object, the order of legend may change (by default the main heatmap annotation is first, followed by row annotations in order and column annotations in order). The order can be adjusted by using the `guide` argument of the scale functions, e.g. `guide = ggplot2::guide_legend(order = 3)`.
@@ -65,12 +65,14 @@ annot <- data.frame(.names = colnames(mtcars), annot1 = rnorm(ncol(mtcars)))
 
 gghm(cor(mtcars), annot_rows_df = annot, annot_cols_df = annot,
      annot_rows_side = "left", annot_cols_side = "top",
-     annot_cols_label_side = "right", legend_position = "left",
-     plot_margin = c(10, 50, 30, 10))
+     annot_cols_label_side = "right") +
+  # Adjust legend position and margins
+  theme(legend.position = "left",
+        plot.margin = margin(10, 50, 30, 10))
 gghm(cor(mtcars), annot_rows_df = annot, annot_cols_df = annot,
      annot_rows_side = "left", annot_cols_side = "top",
-     plot_margin = c(20, 10, 10, 50),
-     layout = "br", include_diag = TRUE)
+     layout = "br", include_diag = TRUE) +
+  theme(plot.margin = margin(20, 10, 10, 50))
 ```
 
 The sizes and gaps between annotations and the heatmap can be adjusted.

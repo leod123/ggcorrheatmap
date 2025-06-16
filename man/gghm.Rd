@@ -64,10 +64,7 @@ gghm(
   dend_rows_params = NULL,
   dend_cols_params = NULL,
   dend_rows_extend = NULL,
-  dend_cols_extend = NULL,
-  legend_position = "right",
-  plot_margin = c(20, 10, 10, 20),
-  margin_unit = "pt"
+  dend_cols_extend = NULL
 )
 }
 \arguments{
@@ -208,13 +205,6 @@ the \verb{annot_*_fill} arguments.}
 \item{dend_rows_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the row dendrogram. See details for usage.}
 
 \item{dend_cols_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the column dendrogram. See details for usage.}
-
-\item{legend_position}{Position of the legends, given to \code{ggplot2::theme}. Either a string for the position outside the plotting area,
-or a numeric vector of length 2 for normalised coordinates inside the plotting area. If "none", no legends are drawn.}
-
-\item{plot_margin}{Plot margins, specified as a numeric vector of length 4 in the order of top, right, bottom, left.}
-
-\item{margin_unit}{Unit to use for the specified margin.}
 }
 \value{
 The heatmap as a \code{ggplot} object.
@@ -240,6 +230,7 @@ such as the \code{what} argument used in the \code{set} function. Alternatively,
 by piping together functions using the \verb{\%>\%} pipe. See examples and the clustering vignette for example usage.
 }
 \examples{
+library(ggplot2)
 
 # Use part of the mtcars data (for visibility)
 hm_in <- mtcars[1:15, ]
@@ -271,9 +262,9 @@ annot_fill <- list(annot1 = "G")
 gghm(scale(hm_in),
      # Change colours of heatmap
      fill_scale = ggplot2::scale_fill_gradient(low = "beige", high = "sienna2"),
-     annot_rows_df = annot_rows, annot_rows_fill = annot_fill,
-     # Change margins to fit annotation labels,
-     plot_margin = c(20, 10, 60, 20))
+     annot_rows_df = annot_rows, annot_rows_fill = annot_fill) +
+     # Use ggplot2::theme to adjust margins to fit the annotation labels
+     theme(plot.margin = margin(20, 10, 60, 20))
 
 # Using the dend_*_extend arguments
 gghm(scale(hm_in), cluster_rows = TRUE, dend_rows_extend =
