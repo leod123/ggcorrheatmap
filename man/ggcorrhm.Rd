@@ -15,9 +15,9 @@ ggcorrhm(
   limits = c(-1, 1),
   bins = NULL,
   fill_name = NULL,
-  p_calc = FALSE,
-  p_adj = "none",
-  p_thr = NULL,
+  p_values = FALSE,
+  p_adjust = "none",
+  p_thresholds = c(`***` = 0.001, `**` = 0.01, `*` = 0.05, 1),
   na_remove = FALSE,
   na_col = "grey",
   layout = "full",
@@ -100,11 +100,12 @@ ggcorrhm(
 
 \item{fill_name}{String to use for the correlation colour scale. If NULL (default) the text will depend on the correlation method.}
 
-\item{p_calc}{Logical indicating if p-values should be calculated. Use with \code{p_thr} to mark cells, and/or \code{return_data} to get the p-values in the output data.}
+\item{p_values}{Logical indicating if p-values should be calculated. Use with \code{p_thresholds} to mark cells, and/or \code{return_data} to get the p-values in the output data.}
 
-\item{p_adj}{String specifying the adjustment method to use for the p-values (default is "none").}
+\item{p_adjust}{String specifying the adjustment method to use for the p-values (default is "none").}
 
-\item{p_thr}{Numeric of length 1, any adjusted p-values below the threshold are marked in cells. Leave as NULL to not mark.}
+\item{p_thresholds}{Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
+Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).}
 
 \item{na_remove}{Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn). This does not affect how
 NAs are handled in the correlation computations, use the \code{cor_use} argument for NA handling in correlation.}
@@ -245,6 +246,7 @@ the \verb{annot_*_fill} arguments.}
 The correlation heatmap as a \code{ggplot} object.
 If \code{return_data} is TRUE the output is a list containing the plot (named 'plot'),
 the correlations ('plot_data'), and the result of the clustering ('clustering', only if \code{cluster_data} is TRUE).
+If p-values were calculated, two additional columns named 'p_val' and 'p_adj' are included, containing nominal and adjusted p-values.
 }
 \description{
 Wrapper function for \code{gghm} to make a correlation heatmap from input matrices. Uses a diverging colour scale centered around 0.

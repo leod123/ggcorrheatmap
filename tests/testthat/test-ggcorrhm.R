@@ -4,10 +4,20 @@ test_that("it runs without error", {
   # Two input matrices
   expect_no_error(ggcorrhm(mtcars, iris[1:32, -5], return_data = T, label_cor = T))
   # P-values
-  expect_no_error(ggcorrhm(mtcars, p_calc = T, p_adj = "fdr", p_thr = 0.05, return_data = T))
-  expect_no_error(ggcorrhm(mtcars, p_calc = T, p_adj = "fdr", p_thr = 0.05, return_data = F,
-                           label_cor = T))
-  expect_no_error(ggcorrhm(mtcars, iris[1:32, -5], p_calc = T))
+  expect_no_error(ggcorrhm(mtcars, p_values = T, p_adjust = "fdr", return_data = T))
+  expect_no_error(ggcorrhm(mtcars, p_values = T, p_adjust = "fdr", return_data = F, label_cor = T))
+  expect_no_error(ggcorrhm(mtcars, iris[1:32, -5], p_values = T))
+})
+
+test_that("p-value errors work", {
+  expect_error(ggcorrhm(mtcars, p_values = T, p_thresholds = c("a" = -1, "b" = 0.5, "c" = 1)),
+               "The p-value thresholds must be above 0")
+  expect_error(ggcorrhm(mtcars, p_values = T, p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, .1)),
+               "The last value of 'p_thresholds' must be 1 or larger")
+  expect_error(ggcorrhm(mtcars, p_values = T, p_thresholds = c(0.001, 0.01, 0.05, 1)),
+               "'p_thresholds' must have named elements")
+  expect_error(ggcorrhm(mtcars, p_values = T, p_thresholds = c("***" = 0.001, "***" = 0.01, "*" = .05, 1)),
+               "P-value threshold symbols must be unique")
 })
 
 test_that("snapshots are ok", {
@@ -18,5 +28,5 @@ test_that("snapshots are ok", {
                                                          annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:ncol(mtcars)),
                                                          annot_cols_df = data.frame(.names = colnames(mtcars), b = 1:ncol(mtcars))))
   vdiffr::expect_doppelganger("cell_shape", ggcorrhm(mtcars, cell_shape = 21))
-  vdiffr::expect_doppelganger("pvalues", ggcorrhm(mtcars, p_calc = T, p_thr = 0.05, p_adj = "fdr"))
+  vdiffr::expect_doppelganger("p_values", ggcorrhm(mtcars, p_values = T, p_adjust = "fdr"))
 })

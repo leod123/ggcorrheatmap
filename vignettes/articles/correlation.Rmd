@@ -113,25 +113,38 @@ ggcorrhm(mtcars, layout = "br", label_cor = TRUE)
 
 # P-values
 
-P-values can be calculated by setting the `p_calc` argument to `TRUE`. The values can be adjusted for multiple testing by passing a string specifying the adjustment method to `p_adj`. If the correlation matrix is symmetric, the diagonal is excluded and only half of the off-diagonal values are used for the adjustment. This alone only means that the p-values will be calculated (which will be a bit slower than if `p_calc` is `FALSE`). The calculated p-values (nominal and adjusted) can be returned in the output by setting `return_data` to `TRUE`. To mark cells, set `p_thr` to a value between 0 and 1 and adjusted p-values below the threshold will be marked by asterisks (if `label_cor` is `TRUE` the asterisk is added to the correlation value). 
+P-values can be calculated by setting the `p_values` argument to `TRUE`. The values can be adjusted for multiple testing by passing a string specifying the adjustment method to `p_adjust`. If the correlation matrix is symmetric, the diagonal is excluded and only half of the off-diagonal values are used for the adjustment. The calculated p-values will be included in the data if `return_data` is `TRUE`.
 
-```{r, fig.show='hold', out.width='50%'}
-ggcorrhm(mtcars, p_calc = TRUE, p_thr = 0.05, cell_label_size = 6)
-ggcorrhm(mtcars, p_calc = TRUE, p_thr = 0.05, label_cor = TRUE)
+By default, cells are marked with asterisks if `p_values` is `TRUE`. The `p_thresholds` argument controls the p-value thresholds. `p_thresholds` must be a named numeric vector where the values specify the thresholds (in ascending order) and the names are the symbols to use when a p-value is below those thresholds. `stats::symnum` is used to convert p-values and the last value of `p_thresholds` must be 1 (or any higher number) to set the upper bound. By default, `p_thresholds` is set to be `c("***" = 0.001, "**" = 0.01, "*" = 0.05", 1)`. As can be seen, 1 is left unnamed so that any p-values between 0.05 and 1 are unmarked.
+
+If `label_cor` is `TRUE` (so that correlation values are written in the cells), the symbols from `p_thresholds` are added at the end of the correlation values.
+
+```{r, fig.show='hold', out.width='33%'}
+# P-value symbols added to the plot
+ggcorrhm(mtcars, p_values = TRUE, p_adjust = "bonferroni", cell_label_size = 6)
+# With correlation text
+ggcorrhm(mtcars, p_values = TRUE, p_adjust = "bonferroni", label_cor = TRUE)
+# Changing the symbols
+ggcorrhm(mtcars, p_values = TRUE, p_adjust = "bonferroni",
+         p_thresholds = c("+" = 0.01, "*" = 0.05, "ns" = 1))
 ```
 
 By returning the data and using `ggplot2` functions it is possible to be more creative with the p-value marking than `ggcorrhm` allows out of the box.
 
 ```{r}
-p <- ggcorrhm(mtcars, p_calc = TRUE, p_adj = "bonferroni", return_data = TRUE,
+p <- ggcorrhm(mtcars, p_values = TRUE, p_thresholds = NULL,
+              p_adjust = "bonferroni", return_data = TRUE,
               layout = "br", include_diag = TRUE)
 p$plot_data <- mutate(p$plot_data,
                       p_lty = case_when(p_adj < 0.05 ~ 1, T ~ 3),
                       p_lwd = case_when(p_adj < 0.05 ~ 1, T ~ 0.5),
-                      p_lab = case_when(p_adj < 0.001 ~ "***", p_adj < 0.01 ~ "**", p_adj < 0.05 ~ "*", T ~ ""))
+                      p_size = -log10(p_adj))
 ggcorrhm(mtcars, border_lty = p$plot_data$p_lty, border_lwd = p$plot_data$p_lwd,
          layout = "br", include_diag = TRUE) +
-  geom_text(aes(label = p_lab), data = p$plot_data %>%
-              filter(as.character(row) != as.character(col)))
+  geom_point(aes(size = p_size), data = p$plot_data %>%
+               filter(p_adj < 0.05, as.character(row) != as.character(col)),
+             shape = "*") +
+  scale_size(range = c(4, 8)) +
+  labs(size = "-log10(p_adj)")
 ```
 

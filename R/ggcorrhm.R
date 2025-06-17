@@ -12,9 +12,10 @@
 #' @param limits Correlation limits to plot between.
 #' @param bins Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.
 #' @param fill_name String to use for the correlation colour scale. If NULL (default) the text will depend on the correlation method.
-#' @param p_calc Logical indicating if p-values should be calculated. Use with `p_thr` to mark cells, and/or `return_data` to get the p-values in the output data.
-#' @param p_adj String specifying the adjustment method to use for the p-values (default is "none").
-#' @param p_thr Numeric of length 1, any adjusted p-values below the threshold are marked in cells. Leave as NULL to not mark.
+#' @param p_values Logical indicating if p-values should be calculated. Use with `p_thresholds` to mark cells, and/or `return_data` to get the p-values in the output data.
+#' @param p_adjust String specifying the adjustment method to use for the p-values (default is "none").
+#' @param p_thresholds Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
+#' Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).
 #' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn). This does not affect how
 #' NAs are handled in the correlation computations, use the `cor_use` argument for NA handling in correlation.
 #' @param na_col Colour to use cells with NA.
@@ -95,6 +96,7 @@
 #' @return The correlation heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),
 #' the correlations ('plot_data'), and the result of the clustering ('clustering', only if `cluster_data` is TRUE).
+#' If p-values were calculated, two additional columns named 'p_val' and 'p_adj' are included, containing nominal and adjusted p-values.
 #' @export
 #'
 #' @details
@@ -137,7 +139,8 @@
 ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything",
                      high = "sienna2", mid = "white", low = "skyblue2",
                      limits = c(-1, 1), bins = NULL, fill_name = NULL, #...
-                     p_calc = FALSE, p_adj = "none", p_thr = NULL, na_remove = FALSE, na_col = "grey",
+                     p_values = FALSE, p_adjust = "none", p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, 1),
+                     na_remove = FALSE, na_col = "grey",
                      layout = "full", include_diag = FALSE, return_data = FALSE,
                      show_legend = c("fill" = TRUE, "size" = FALSE), cell_shape = "heatmap",
                      size_range = c(4, 10), size_scale = NULL,
@@ -162,13 +165,21 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      dend_rows_params = NULL, dend_cols_params = NULL,
                      dend_rows_extend = NULL, dend_cols_extend = NULL) {
 
+  # If p-values are computed and thresholds given, check that they range between 0 and 1 and that they have enough names
+  if (p_values & is.numeric(p_thresholds)) {
+    if (any(p_thresholds < 0)) stop("The p-value thresholds must be above 0.")
+    if (p_thresholds[length(p_thresholds)] < 1) stop("The last value of 'p_thresholds' must be 1 or larger.")
+    if (is.null(names(p_thresholds))) stop("'p_thresholds' must have named elements (up to one unnamed).")
+    if (any(duplicated(names(p_thresholds)))) stop("P-value threshold symbols must be unique.")
+  }
+
   cor_mat <- if (is.null(y)) {
     cor(x, method = cor_method, use = cor_use)
   } else {
     cor(x, y, method = cor_method, use = cor_use)
   }
 
-  if (!p_calc) {
+  if (!p_values) {
     if (is.null(y)) {
       cor_mat <- cor(x, method = cor_method, use = cor_use)
     } else {
@@ -176,7 +187,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
     }
   } else {
     cor_mat <- test_cor(x, y, full_plt = ifelse(grepl("full|whole|f|w", layout), T, F),
-                        method = cor_method, use = cor_use, p_adj_method = p_adj)
+                        method = cor_method, use = cor_use, p_adj_method = p_adjust)
     # Keep the data for later plotting
     cor_mat_dat <- cor_mat
     # Get wide format correlation matrix
@@ -251,21 +262,26 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   # cor_plt <- gghm(cor_mat, fill_scale = fill_scale, fill_name = fill_name, ...)
 
   # Make a data frame with p-values, containing only the values that are actually plotted
-  if (p_calc) {
+  if (p_values) {
     cor_plt[["plot_data"]] <- dplyr::left_join(cor_plt[["plot_data"]],
                                                cor_mat_dat, by = c("row", "col", "value"))
+    if (is.numeric(p_thresholds)) {
+      # Convert p-values to symbols
+      label_df <- cor_plt[["plot_data"]]
+      label_df[["p_sym"]] <- as.character(symnum(x = label_df[["p_adj"]],
+                                                 # Add 0 to set the range of possible values
+                                                 cutpoints = c(0, p_thresholds),
+                                                 symbols = names(p_thresholds)))
+    }
   }
 
 
   # Add cell labels if desired
   if (label_cor) {
     # Add p-values labels if desired
-    # If the cells are labelled with the correlation values, add an asterisk for the p-values (needs to set p_thr)
-    if (p_calc & is.numeric(p_thr)) {
-      # Add a star if below given threshold
-      label_df <- cor_plt[["plot_data"]]
-      label_df[["label"]] <- paste0(round(label_df[["value"]], cell_label_digits),
-                                    ifelse(label_df[["p_adj"]] < p_thr, "*", ""))
+    # If the cells are labelled with the correlation values, add symbols for the p-values (needs to set p_thresholds)
+    if (p_values & is.numeric(p_thresholds)) {
+      label_df[["label"]] <- paste0(round(label_df[["value"]], cell_label_digits), label_df[["p_sym"]])
 
       # Write the text
       cor_plt[["plot"]] <- cor_plt[["plot"]] +
@@ -288,15 +304,14 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
     }
   } else {
     # If cells are not labelled with cor values, add the asterisks with geom_point to get them in the middle of the cells
-    if (p_calc & is.numeric(p_thr)) {
+    if (p_values & is.numeric(p_thresholds)) {
 
       cor_plt[["plot"]] <- cor_plt[["plot"]] +
-        ggplot2::geom_point(ggplot2::aes(), data = if (isSymmetric(cor_mat) & names_diag) {
-          subset(cor_plt[["plot_data"]], p_adj < p_thr & as.character(row) != as.character(col))
+        ggplot2::geom_text(ggplot2::aes(label = p_sym), data = if (isSymmetric(cor_mat) & names_diag) {
+          subset(label_df, as.character(row) != as.character(col))
         } else {
-          subset(cor_plot[["plot_data"]], p_adj < p_thr)
-        },
-        size = cell_label_size, shape = "*")
+          label_df
+        }, size = cell_label_size)
     }
   }
 
