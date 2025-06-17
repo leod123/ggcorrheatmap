@@ -11,8 +11,8 @@ Create correlation heatmaps in ggplot with clustering and annotation.
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/Leod123/ggcorrheatmap}
-  \item Report bugs at \url{https://github.com/Leod123/ggcorrheatmap/issues}
+  \item \url{https://github.com/leod123/ggcorrheatmap}
+  \item Report bugs at \url{https://github.com/leod123/ggcorrheatmap/issues}
 }
 
 }

@@ -5,7 +5,7 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/Leod123/ggcorrheatmap/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Leod123/ggcorrheatmap/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/leod123/ggcorrheatmap/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/leod123/ggcorrheatmap/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 ggcorrheatmap is a convenient package for generating correlation
@@ -21,7 +21,7 @@ You can install the development version of ggcorrheatmap from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("Leod123/ggcorrheatmap")
+devtools::install_github("leod123/ggcorrheatmap")
 ```
 
 ## Example
