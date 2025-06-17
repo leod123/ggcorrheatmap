@@ -8,10 +8,8 @@
 #' If NAs are kept, the fill colour can be set in the `ggplot2` scale.
 #' @param layout String specifying the layout of the output heatmap. Possible layouts include
 #' top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the matrix is asymmetric).
-#' The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right).
-#' Bottom can be specified by 'bottom', 'lower', 'down', or the first letter of these. Left is specified by 'left' or 'l'.
-#' 'full', 'whole', or 'all' (or 'f', 'w', 'a') result in the whole matrix being plotted.
-#' For any other strings top and right are selected.
+#' The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right), or just 'full' or 'whole' for the full layout.
+#' A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
 #' @param include_diag Logical indicating if the diagonal cells should be plotted (ignored if the whole matrix is plotted).
 #' Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.
 #' @param return_data Logical indicating if the data used for plotting should be returned.
@@ -183,9 +181,16 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   # Check that there are rownames
   if (is.null(rownames(x))) {rownames(x) <- 1:nrow(x)}
 
+  # Check that layout is valid
+  if (!layout %in% c("full", "f", "whole", "w",
+                     "bottomleft", "bl", "topleft", "tl",
+                     "topright", "tr", "bottomright", "br")) {
+    stop("Not a supported layout. Supported layouts are full/f/whole/w, topleft/tl, topright/tr, bottomleft/bl, and bottomright/br.")
+  }
+
   x_mat <- as.matrix(x)
 
-  full_plt <- grepl("full|whole|all|^a|^w|^f", layout)
+  full_plt <- layout %in% c("full", "f", "whole", "w")
 
   # If the matrix is non-symmetric, triangular layouts break! Throw a warning
   if (!isSymmetric(x_mat) & !full_plt) {
@@ -238,42 +243,20 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     lclust_cols <- T
   }
 
-  # Reorder rows and columns depending on clustering
-  # Different ways to reorder depending on position of triangular matrix, default to bottom right if no correct pattern is recognised
-  # Allow for specification of dendrogram positions only when the whole matrix is drawn
-
-  # Make long format data
-  x_long <- shape_mat_long(x_mat, unique_pairs = !full_plt, na_remove = na_remove)
+  # Make long format data, ordering columns to fit layout
+  x_long <- layout_hm(x_mat, layout = layout, na_remove = na_remove)
 
   if (full_plt) {
+    # Allow for specification of dendrogram positions only when the whole matrix is drawn
     dend_left <- dend_rows_side %in% c("left", "l")
     dend_down <- dend_cols_side %in% c("bottom", "down", "b", "d")
     annot_left <- annot_rows_side %in% c("left", "l")
     annot_down <- annot_cols_side %in% c("bottom", "down", "b", "d")
     include_diag <- T
   } else {
-    pos_left = dend_left = annot_left <- grepl("left", layout) | substring(layout, 2, 2) == "l"
-    pos_down = dend_down = annot_down <- grepl("lower|bottom|down", layout) | substring(layout, 1, 1) %in% c("l", "b", "d")
+    pos_left = dend_left = annot_left <- layout %in% c("topleft", "tl", "bottomleft", "bl")
+    pos_down = dend_down = annot_down <- layout %in% c("bottomleft", "bl", "bottomright", "br")
   }
-
-  # Change order of rows and columns to match plot layout and clustering
-  x_long$row <- factor(x_long$row,
-                       levels = if (full_plt) {
-                         # In the full plot, reverse row name order to have them in order from top to bottom
-                         if (lclust_rows) {rev(row_clustering$dendro$labels$label)} else {rev(rownames(x_mat))}
-                       } else if (pos_down) {
-                         if (lclust_rows) {rev(row_clustering$dendro$labels$label)} else {rev(rownames(x_mat))}
-                       } else {
-                         if (lclust_rows) {row_clustering$dendro$labels$label} else {rownames(x_mat)}
-                       })
-  x_long$col <- factor(x_long$col,
-                       levels = if (full_plt) {
-                         if (lclust_cols) {col_clustering$dendro$labels$label} else {colnames(x_mat)}
-                       } else if (!pos_left) {
-                         if (lclust_cols) {rev(col_clustering$dendro$labels$label)} else {rev(colnames(x_mat))}
-                       } else {
-                         if (lclust_cols) {col_clustering$dendro$labels$label} else {colnames(x_mat)}
-                       })
 
   # Set colour scale if none provided to change order of legends (if not set, the legend may end up after the annotation legens)
   # Check if the fill legend is supposed to be drawn at all (otherwise it might draw the legend even if show_legend is c(fill = FALSE))

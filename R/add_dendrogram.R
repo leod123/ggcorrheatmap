@@ -209,16 +209,16 @@ orient_dendrogram <- function(dend, dim = c("rows", "cols"), full_plt, dend_left
     } else if (!dend_left & !dend_down) {
       # top right
       if (dim[1] == "rows") {
-        dplyr::mutate(dend, nx = y, nxend = yend, ny = x, nyend = xend)
+        dplyr::mutate(dend, nx = y, nxend = yend, ny = -x, nyend = -xend)
       } else if (dim[1] == "cols") {
-        dplyr::mutate(dend, nx = -x, nxend = -xend, ny = y, nyend = yend)
+        dplyr::mutate(dend, nx = x, nxend = xend, ny = y, nyend = yend)
       }
     } else if (!dend_left & dend_down) {
       # bottom right
       if (dim[1] == "rows") {
-        dplyr::mutate(dend, nx = y, nxend = yend, ny = -x, nyend = -xend)
+        dplyr::mutate(dend, nx = y, nxend = yend, ny = x, nyend = xend)
       } else if (dim[1] == "cols") {
-        dplyr::mutate(dend, nx = -x, nxend = -xend, ny = -y, nyend = -yend)
+        dplyr::mutate(dend, nx = x, nxend = xend, ny = -y, nyend = -yend)
       }
     } else if (dend_left & dend_down) {
       # bottom dend_left

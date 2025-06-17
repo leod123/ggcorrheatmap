@@ -37,12 +37,21 @@ test_that("correct input types", {
 })
 
 test_that("warnings for layouts and clustering", {
+  expect_error(gghm(cor(mtcars), layout = "nice"), "Not a supported layout.")
   expect_warning(gghm(mtcars, layout = "br"), "A triangular layout with an a")
   expect_warning(gghm(cor(mtcars), layout = "br", cluster_rows = T), "Cannot cluster only one")
   expect_warning(gghm(cor(mtcars), layout = "bl",
                       cluster_rows = hclust(dist(cor(mtcars))),
                       cluster_cols = hclust(dist(cor(mtcars), method = "manhattan"), method = "ward.D2")),
                  "If the row and column clusterings are not identical")
+  # No warnings for any layout with clustering
+  expect_no_warning(gghm(cor(mtcars), cluster_rows = T))
+  expect_no_warning(gghm(cor(mtcars), cluster_cols = T))
+  expect_no_warning(gghm(cor(mtcars), cluster_rows = T, cluster_cols = T))
+  expect_no_warning(gghm(cor(mtcars), layout = "tl", cluster_rows = T, cluster_cols = T))
+  expect_no_warning(gghm(cor(mtcars), layout = "tr", cluster_rows = T, cluster_cols = T))
+  expect_no_warning(gghm(cor(mtcars), layout = "bl", cluster_rows = T, cluster_cols = T))
+  expect_no_warning(gghm(cor(mtcars), layout = "br", cluster_rows = T, cluster_cols = T))
 })
 
 test_that("annotation names must exist in the data", {

@@ -80,10 +80,8 @@ If NAs are kept, the fill colour can be set in the \code{ggplot2} scale.}
 
 \item{layout}{String specifying the layout of the output heatmap. Possible layouts include
 top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the matrix is asymmetric).
-The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right).
-Bottom can be specified by 'bottom', 'lower', 'down', or the first letter of these. Left is specified by 'left' or 'l'.
-'full', 'whole', or 'all' (or 'f', 'w', 'a') result in the whole matrix being plotted.
-For any other strings top and right are selected.}
+The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right), or just 'full' or 'whole' for the full layout.
+A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).}
 
 \item{include_diag}{Logical indicating if the diagonal cells should be plotted (ignored if the whole matrix is plotted).
 Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.}

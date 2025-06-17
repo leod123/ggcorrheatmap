@@ -4,14 +4,16 @@
 \alias{shape_mat_long}
 \title{Convert a matrix to long format using row names and column names.}
 \usage{
-shape_mat_long(x, unique_pairs = F, na_remove = F)
+shape_mat_long(x, unique_pairs = F, na_remove = F, nan_remove = F)
 }
 \arguments{
 \item{x}{Matrix to convert to long format.}
 
 \item{unique_pairs}{Whether only unique combinations should be included in the output (for symmetric matrices).}
 
-\item{na_remove}{Logical indicating if NAs should be excluded.}
+\item{na_remove}{Logical indicating if NAs should be excluded (removes NaNs too).}
+
+\item{nan_remove}{Logical indicating if NaNs should be excluded (if want to keep NAs but remove some cells that are NaN).}
 }
 \value{
 A data frame with the columns 'row', 'column' (indicating combinations), and 'value'
