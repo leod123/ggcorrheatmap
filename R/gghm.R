@@ -185,7 +185,10 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   if (!layout %in% c("full", "f", "whole", "w",
                      "bottomleft", "bl", "topleft", "tl",
                      "topright", "tr", "bottomright", "br")) {
-    stop("Not a supported layout. Supported layouts are full/f/whole/w, topleft/tl, topright/tr, bottomleft/bl, and bottomright/br.")
+    stop("Not a supported layout. Supported layouts are
+         full/f/whole/w,
+         topleft/tl, topright/tr,
+         bottomleft/bl, and bottomright/br")
   }
 
   x_mat <- as.matrix(x)
@@ -194,8 +197,9 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
 
   # If the matrix is non-symmetric, triangular layouts break! Throw a warning
   if (!isSymmetric(x_mat) & !full_plt) {
-    warning("A triangular layout with an asymmetric matrix is not supported, plotting the full matrix instead.")
+    warning("A triangular layout with an asymmetric matrix is not supported,\nplotting the full matrix instead.")
     full_plt <- T
+    layout <- "f"
   }
 
   # Don't display names on the diagonal if the plot is non-symmetric as it will cause
