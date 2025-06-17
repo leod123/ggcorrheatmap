@@ -50,6 +50,11 @@ gghm(replicate(15, sample(letters[1:3], 15, TRUE)),
 Cell borders are by default grey, but can be removed by setting `border_col` or `border_lwd` to NA or `border_lty` to 0 (if `cell_shape` is non-numeric, explained more in [correlation heatmaps](correlation.html#cell-shape)) or `border_lwd` to 0 (if `cell_shape` is numeric).
 
 ```{r}
+# Use the volcano data
+# It contains many rows and columns making the axes hard to read.
+# Can either turn off labels with `names_x` and `names_y`, or use
+# ggplot2::scale_x/y_discrete to change the labels
+# (keep in mind that the y label order is reversed and that overwriting the scale can change the label positions)
 gghm(volcano, fill_scale = scale_fill_viridis_c(), border_col = NA,
      names_x = FALSE, names_y = FALSE)
 ```

@@ -157,4 +157,4 @@ ggcorrhm(mtcars, annot_rows_df = row_annot, annot_cols_df = col_annot,
          na_remove = FALSE, annot_rows_fill = row_fill)
 ```
 
-As can be seen in the plots above, the legends may be cut off if there are many annotations. Fitting the legends can be tricky and may require increasing the figure size. Alternatively a package like `cowplot` can be used to stitch together a legendless version of the plot with a grid of only the legends.
+As can be seen in the plots above, the legends may be cut off if there are many annotations. Fitting the legends can be tricky and may require increasing the figure size or playing around with legend positions and directions. Alternatively a package like `cowplot` can be used to stitch together a legendless version of the plot with a grid of only the legends.
