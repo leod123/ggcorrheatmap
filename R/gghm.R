@@ -385,7 +385,6 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     ggplot2::theme_classic() +
     # Remove axis elements
     ggplot2::theme(axis.line = ggplot2::element_blank(),
-                   axis.text.x = ggplot2::element_blank(),
                    axis.text.y = if (names_y) ggplot2::element_text() else ggplot2::element_blank(),
                    axis.ticks = ggplot2::element_blank(),
                    axis.title = ggplot2::element_blank())
@@ -395,6 +394,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     plt <- plt +
       if (names_x_side == "top") ggplot2::theme(axis.text.x.top = ggplot2::element_text(angle = 90, hjust = 0, vjust = 0.3))
       else if (names_x_side == "bottom") ggplot2::theme(axis.text.x.bottom = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.3))
+  } else {
+    plt <- plt + ggplot2::theme(axis.text.x = ggplot2::element_blank())
   }
 
   # Names on the diagonal
