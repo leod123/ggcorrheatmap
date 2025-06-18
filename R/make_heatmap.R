@@ -1,13 +1,17 @@
-make_heatmap <- function(x_long, plt = NULL, layout = "f", include_diag = F, invisible_diag = F,
-                         cell_shape = NULL, border_lwd = 0.5, border_col = "grey", border_lty = 1,
+make_heatmap <- function(x_long, plt = NULL, mode = "heatmap", layout = "f",
+                         include_diag = F, invisible_diag = F,
+                         border_lwd = 0.5, border_col = "grey", border_lty = 1,
                          names_diag = T, names_x = F, names_y = F, names_diag_param = NULL,
                          names_x_side = "top", names_y_side = "left", show_legend = T,
-                         fill_scale = NULL, fill_name = "value", size_scale = NULL) {
+                         fill_scale = NULL, fill_name = "value", col_scale = NULL, col_name = fill_name,
+                         size_scale = NULL, cell_labels = F, cell_label_size = 3, cell_label_digits = 2) {
   # Base plot
   plt_provided <- !is.null(plt)
   if (is.null(plt)) {
     plt <- ggplot2::ggplot(mapping = ggplot2::aes(x = col, y = row))
   }
+
+  shape_mode <- mode %in% as.character(21:25)
 
   # Draw diagonal invisibly to reserve space for it, making it easier to place the labels
   # (only needed if symmetric matrix with triangular layout and hidden diagonal)
@@ -27,30 +31,42 @@ make_heatmap <- function(x_long, plt = NULL, layout = "f", include_diag = F, inv
   }
 
   plt <- plt +
-    # Plot tiles or points depending on cell_shape
+    # Plot tiles or points depending on cell shape
     list(
-      if (is.numeric(cell_shape)) {
-        ggplot2::geom_point(ggplot2::aes(fill = value, size = value),
-                            data = x_plot_dat,
-                            stroke = border_lwd, colour = border_col, shape = cell_shape,
-                            show.legend = show_legend)
-      } else {
+      if (mode %in% c("heatmap", "hm")) {
         ggplot2::geom_tile(ggplot2::aes(fill = value),
                            data = x_plot_dat,
                            linewidth = border_lwd, colour = border_col, linetype = border_lty,
                            show.legend = show_legend)
+      } else if (shape_mode) {
+        ggplot2::geom_point(ggplot2::aes(fill = value, size = value),
+                            data = x_plot_dat,
+                            stroke = border_lwd, colour = border_col, shape = as.numeric(mode),
+                            show.legend = show_legend)
+      } else if (mode == "text") {
+        ggplot2::geom_text(
+          # Round values if value are numeric and cell_label_digits is numeric
+          ggplot2::aes(label = if (is.numeric(.data[["value"]]) & is.numeric(cell_label_digits)) {
+            round(value, cell_label_digits)
+          } else {value}, colour = value),
+          # For text, skip diagonals if names are written there
+          data = if (names_diag) {
+            subset(x_plot_dat, as.character(row) != as.character(col))
+          } else {x_plot_dat},
+          size = cell_label_size,
+          show.legend = show_legend
+        )
       }
     ) +
-    size_scale +
-    fill_scale +
-    ggplot2::labs(fill = fill_name)
+    size_scale + col_scale + fill_scale +
+    ggplot2::labs(fill = fill_name, colour = col_name)
 
   # Only add scales and coordinate systems once to avoid messages
   if (!plt_provided) {
-    # Remove extra space on axes (if drawing tiles) and place on specified sides
     plt <- plt +
-      ggplot2::scale_x_discrete(expand = if (is.numeric(cell_shape)) c(.05, .05) else c(0, 0), position = names_x_side) +
-      ggplot2::scale_y_discrete(expand = if (is.numeric(cell_shape)) c(.05, .05) else c(0, 0), position = names_y_side) +
+      # Remove extra space on axes (if drawing tiles) and place on specified sides
+      ggplot2::scale_x_discrete(expand = if (shape_mode | mode == "text") c(.05, .05) else c(0, 0), position = names_x_side) +
+      ggplot2::scale_y_discrete(expand = if (shape_mode | mode == "text") c(.05, .05) else c(0, 0), position = names_y_side) +
       # Make cells square
       ggplot2::coord_fixed(clip = "off") +
       ggplot2::theme_classic() +
@@ -81,6 +97,20 @@ make_heatmap <- function(x_long, plt = NULL, layout = "f", include_diag = F, inv
 
     plt <- plt +
       do.call(ggplot2::geom_text, text_call_params)
+  }
+
+  # Cell labels
+  if (cell_labels) {
+    # Don't draw in the diagonal cells if are hidden or if they are already occupied by names
+    cell_data <- if (include_diag & !names_diag) x_long else subset(x_long, as.character(row) != as.character(col))
+
+    plt <- plt +
+      ggplot2::geom_text(data = cell_data,
+                         mapping = ggplot2::aes(x = col, y = row,
+                                                label = if (is.numeric(cell_data[["value"]]) & is.numeric(cell_label_digits)) {
+                                                  round(value, cell_label_digits)
+                                                } else {value}),
+                         size = cell_label_size)
   }
 
   return(plt)

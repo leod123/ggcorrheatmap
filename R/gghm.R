@@ -139,13 +139,13 @@
 #'   list("set" = list("branches_lty", c(1, 2, 3)),
 #'        # Empty list element (or NULL) if no arguments to be given
 #'        "highlight_branches_col" = list()))
-gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
-                 layout = "full", include_diag = F, return_data = F,
-                 show_legend = c("fill" = TRUE, "size" = TRUE), cell_shape = "heatmap", size_scale = NULL,
-                 cell_labels = F, cell_label_size = 3, cell_label_digits = NULL,
+gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, col_name = fill_name,
+                 na_remove = FALSE, mode = "heatmap", layout = "full", include_diag = TRUE, return_data = FALSE,
+                 show_legend = c("fill" = TRUE, "colour" = TRUE, "size" = TRUE), size_scale = NULL,
+                 cell_labels = F, cell_label_size = 3, cell_label_digits = 2,
                  border_col = "grey", border_lwd = 0.5, border_lty = 1,
-                 names_diag = TRUE, names_diag_param = NULL,
-                 names_x = FALSE, names_x_side = "top", names_y = FALSE, names_y_side = "left",
+                 names_diag = FALSE, names_diag_param = NULL,
+                 names_x = TRUE, names_x_side = "top", names_y = TRUE, names_y_side = "left",
                  annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
                  annot_rows_side = "right", annot_cols_side = "bottom",
                  annot_legend = TRUE, annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = TRUE,
@@ -193,6 +193,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     }
   } else if (length(layout) == 2) {
     # Only allow for combinations of topleft + bottomright and topright + bottomleft
+
   } else {
     stop("layout must be length 1 or 2.")
   }
@@ -212,9 +213,6 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   # new ghost columns to be added to draw the names where row == col
   if (!isSymmetric(x_mat)) {
     names_diag <- F
-    # Also display x and y names by default, but remove if specified as FALSE (when specified as a named argument)
-    names_x <- eval(replace_default(list("names_x" = T), as.list(sys.call()))$names_x)
-    names_y <- eval(replace_default(list("names_y" = T), as.list(sys.call()))$names_y)
   }
 
   # If clustering a symmetric matrix with a triangular layout, both rows and columns must be clustered. Automatically cluster both and throw a warning
@@ -260,8 +258,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   } else if (length(layout) == 2) {
     # Mixed layout, generate one per half and mark by layout. The first one gets the diagonal
     x_long <- dplyr::bind_rows(
-      dplyr::mutate(layout_hm(x_mat, layout = names(layout)[1], na_remove = na_remove, include_diag = T), lt = names(layout)[1]),
-      dplyr::mutate(layout_hm(x_mat, layout = names(layout)[2], na_remove = na_remove, include_diag = F), lt = names(layout)[2])
+      dplyr::mutate(layout_hm(x_mat, layout = layout[1], na_remove = na_remove, include_diag = T), lt = layout[1]),
+      dplyr::mutate(layout_hm(x_mat, layout = layout[2], na_remove = na_remove, include_diag = F), lt = layout[2])
     )
   }
 
@@ -342,39 +340,32 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
 
   # Build plot
   if (length(layout) == 1) {
-    plt <- make_heatmap(x_long, plt = NULL, layout, include_diag,
+    plt <- make_heatmap(x_long, plt = NULL, mode, layout, include_diag,
                         invisible_diag = isSymmetric(x_mat) & !include_diag,
-                        cell_shape, border_lwd, border_col, border_lty,
+                        border_lwd, border_col, border_lty,
                         names_diag, names_x, names_y, names_diag_param,
                         names_x_side, names_y_side, show_legend,
-                        fill_scale, fill_name, size_scale)
+                        fill_scale, fill_name, col_scale, col_name, size_scale,
+                        cell_labels, cell_label_size, cell_label_digits)
   } else if (length(layout) == 2) {
     # First half of the plot
-    plt <- make_heatmap(dplyr::filter(x_long, lt == names(layout)[1]), plt = NULL,
-                        layout = names(layout)[1], include_diag = include_diag, invisible_diag = !include_diag,
-                        cell_shape, border_lwd, border_col, border_lty,
+    plt <- make_heatmap(dplyr::filter(x_long, lt == layout[1]), plt = NULL,
+                        mode = mode[1], layout = layout[1],
+                        include_diag = include_diag, invisible_diag = !include_diag,
+                        border_lwd, border_col, border_lty,
                         names_diag, names_x, names_y, names_diag_param,
                         names_x_side, names_y_side, show_legend,
-                        fill_scale, fill_name, size_scale)
+                        fill_scale, fill_name, col_scale, col_name, size_scale,
+                        cell_labels, cell_label_size, cell_label_digits)
     # Remaining half
-    plt <- make_heatmap(dplyr::filter(x_long, lt == names(layout)[2]), plt = plt,
-                        layout = names(layout)[2], include_diag = F, invisible_diag = F,
-                        cell_shape, border_lwd, border_col, border_lty,
+    plt <- make_heatmap(dplyr::filter(x_long, lt == layout[2]), plt = plt,
+                        mode = mode[2], layout = layout[2],
+                        include_diag = F, invisible_diag = F,
+                        border_lwd, border_col, border_lty,
                         names_diag = F, names_x, names_y, names_diag_param,
                         names_x_side, names_y_side, show_legend,
-                        fill_scale = NULL, fill_name, size_scale = NULL)
-  }
-
-  # Cell labels
-  if (cell_labels) {
-    # Don't draw in the diagonal cells if are hidden or if they are already occupied by names
-    cell_data <- if (include_diag & !names_diag) x_long else subset(x_long, as.character(row) != as.character(col))
-
-    plt <- plt +
-      ggplot2::geom_text(data = cell_data,
-                         mapping = ggplot2::aes(x = col, y = row,
-                                                label = if (!is.null(cell_label_digits)) {round(value, cell_label_digits)} else {value}),
-                         size = cell_label_size)
+                        fill_scale = NULL, fill_name, col_scale = NULL, col_name, size_scale = NULL,
+                        cell_labels, cell_label_size, cell_label_digits)
   }
 
   # Prepare default colour scales
@@ -416,8 +407,11 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
 
   if (return_data) {
 
+    # If layout is included (for mixed layouts), rename column
+    if ("lt" %in% colnames(x_long)) {x_long <- dplyr::rename(x_long, layout = lt)}
+
     # Data to return. If not drawing the diagonal, skip those values
-    data_out <- if (!full_plt & !include_diag) {
+    data_out <- if (!include_diag) {
       dplyr::filter(x_long, as.character(row) != as.character(col))
     } else {
       x_long

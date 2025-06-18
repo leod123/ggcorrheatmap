@@ -107,6 +107,8 @@
 #' if two matrices are provided they should have the same number of rows and the rows should be ordered in a meaningful way
 #' (i.e. same sample/individual/etc in the same row in both).
 #'
+#' Row and column names are displayed in the diagonal by default if the correlation matrix is symmetric (only `x` is provided or `x` and `y` are identical).
+#'
 #' The colour scale is set to be a diverging gradient around 0, with options to change the low, mid, and high colours and the limits.
 #' The `bins` argument converts the scale to a discrete scale divided into `bins` equally distributed bins.
 #'
@@ -138,11 +140,11 @@
 #' ggcorrhm(mtcars, layout = "tr", annot_cols_df = annot)
 ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything",
                      high = "sienna2", mid = "white", low = "skyblue2",
-                     limits = c(-1, 1), bins = NULL, fill_name = NULL, #...
+                     limits = c(-1, 1), bins = NULL, fill_name = NULL, col_name = fill_name, #...
                      p_values = FALSE, p_adjust = "none", p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, 1),
                      na_remove = FALSE, na_col = "grey",
-                     layout = "full", include_diag = FALSE, return_data = FALSE,
-                     show_legend = c("fill" = TRUE, "size" = FALSE), cell_shape = "heatmap",
+                     mode = "heatmap", layout = "full", include_diag = TRUE, return_data = FALSE,
+                     show_legend = c("fill" = TRUE, "colour" = TRUE, "size" = FALSE),
                      size_range = c(4, 10), size_scale = NULL,
                      cell_labels = FALSE, cell_label_size = 3, cell_label_digits = 2,
                      border_col = "grey", border_lwd = 0.5, border_lty = 1,
@@ -228,15 +230,16 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   }
 
   # Make size scale (controlling the size range and transforming to be absolute values)
-  if (is.numeric(cell_shape) & is.null(size_scale)) {
+  if (is.numeric(mode) & is.null(size_scale)) {
     size_scale <- ggplot2::scale_size_continuous(range = size_range,
                                                  transform = scales::trans_new("abs", abs, abs))
   }
 
   # Call with all arguments to get the tooltips when calling this wrapper function
   cor_plt <- gghm(cor_mat, fill_scale = fill_scale, fill_name = fill_name, na_remove = na_remove,
-                  layout = layout, include_diag = include_diag, return_data = T,
-                  show_legend = show_legend, cell_shape = cell_shape, size_scale = size_scale,
+                  mode = mode, layout = layout, include_diag = include_diag, return_data = T,
+                  show_legend = show_legend, size_scale = size_scale,
+                  cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
                   border_col = border_col, border_lwd = border_lwd, border_lty = border_lty,
                   names_diag = names_diag, names_diag_param = names_diag_param,
                   names_x = names_x, names_x_side = names_x_side,

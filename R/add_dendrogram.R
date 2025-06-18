@@ -186,7 +186,8 @@ orient_dendrogram <- function(dend, dim = c("rows", "cols"), full_plt, layout, d
 
   # If mixed layout (treated as full plot) with topleft and bottomright, the row dendrogram must be flipped
   mixed_tl_br <- if (length(layout) == 2) {
-    if (sum(c("tl", "topleft", "br", "bottomright") %in% names(layout)) >= 2) {TRUE} else {FALSE}
+    if (sum(c("tl", "topleft") %in% names(layout)) == 1 &
+        sum(c("br", "bottomright") %in% names(layout)) == 1) {TRUE} else {FALSE}
   } else {
     FALSE
   }
