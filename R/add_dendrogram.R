@@ -77,7 +77,7 @@ add_dendrogram <- function(ggp, dendro, dend_col = "black", dend_lwd = 0.3, dend
 #' @return Data frame with dendrogram segment and node parameters.
 #'
 prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
-                               dend_down, dend_left, dend_height, full_plt, x_long,
+                               dend_down, dend_left, dend_height, full_plt, layout, x_long,
                                annot_df, annot_side, annot_pos, annot_size) {
 
   dend_dim <- dend_dim[1]
@@ -87,7 +87,7 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
   dend_nod  <- dplyr::filter(dendro_in$nodes, !is.na(pch) | !is.na(cex) | !is.na(col))
 
 
-  dend_seg <- orient_dendrogram(dend_seg, dend_dim, full_plt, dend_left, dend_down)
+  dend_seg <- orient_dendrogram(dend_seg, dend_dim, full_plt, layout, dend_left, dend_down)
 
   # Move dendrogram next to heatmap
   dend_seg <- move_dendrogram(dend_seg, x_long, dend_dim,
@@ -106,7 +106,7 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
     # Add xend and yend columns to work with transformation functions
     dend_nod <- dplyr::mutate(dend_nod, xend = x, yend = y)
 
-    dend_nod <- orient_dendrogram(dend_nod, dend_dim, full_plt, dend_left, dend_down)
+    dend_nod <- orient_dendrogram(dend_nod, dend_dim, full_plt, layout, dend_left, dend_down)
 
     # Move dendrogram next to heatmap
     dend_nod <- move_dendrogram(dend_nod, x_long, dend_dim,
@@ -182,15 +182,24 @@ cluster_dimension <- function(cluster_data, mat, cluster_distance, cluster_metho
 #'
 #' @returns The input dendrogram data frame but rotated and mirrored to fit the plot.
 #'
-orient_dendrogram <- function(dend, dim = c("rows", "cols"), full_plt, dend_left, dend_down) {
+orient_dendrogram <- function(dend, dim = c("rows", "cols"), full_plt, layout, dend_left, dend_down) {
+
+  # If mixed layout (treated as full plot) with topleft and bottomright, the row dendrogram must be flipped
+  mixed_tl_br <- if (length(layout) == 2) {
+    if (sum(c("tl", "topleft", "br", "bottomright") %in% names(layout)) >= 2) {TRUE} else {FALSE}
+  } else {
+    FALSE
+  }
 
   dend_new <- if (full_plt) {
     if (dim[1] == "rows" & dend_left) {
       # dend_left row dendrogram
-      dplyr::mutate(dend, nx = -y, nxend = -yend, ny = -x, nyend = -xend)
+      dplyr::mutate(dend, nx = -y, nxend = -yend,
+                    ny = -x * ifelse(mixed_tl_br, -1, 1), nyend = -xend * ifelse(mixed_tl_br, -1, 1))
     } else if (dim[1] == "rows" & !dend_left) {
       # right row dendrogram
-      dplyr::mutate(dend, nx = y, nxend = yend, ny = -x, nyend = -xend)
+      dplyr::mutate(dend, nx = y, nxend = yend,
+                    ny = -x * ifelse(mixed_tl_br, -1, 1), nyend = -xend * ifelse(mixed_tl_br, -1, 1))
     } else if (dim[1] == "cols" & dend_down) {
       # bottom column dendrogram
       dplyr::mutate(dend, nx = x, nxend = xend, ny = -y, nyend = -yend)

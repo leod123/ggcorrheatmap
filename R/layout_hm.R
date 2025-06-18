@@ -6,7 +6,7 @@
 #'
 #' @returns Long format data for plotting.
 #'
-layout_hm <- function(x, layout = "f", na_remove = F) {
+layout_hm <- function(x, layout = "f", na_remove = F, include_diag = T) {
   x <- as.matrix(x)
 
   if (isSymmetric(x) & layout %in% c("bottomleft", "bl", "topleft", "tl")) {
@@ -27,6 +27,10 @@ layout_hm <- function(x, layout = "f", na_remove = F) {
                            rev(rownames(x))
                          })
   x_long$col <- factor(x_long$col, levels = colnames(x))
+
+  if (!include_diag) {
+    x_long <- dplyr::filter(x_long, as.character(row) != as.character(col))
+  }
 
   return(x_long)
 }

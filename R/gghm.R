@@ -182,21 +182,27 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   if (is.null(rownames(x))) {rownames(x) <- 1:nrow(x)}
 
   # Check that layout is valid
-  if (!layout %in% c("full", "f", "whole", "w",
-                     "bottomleft", "bl", "topleft", "tl",
-                     "topright", "tr", "bottomright", "br")) {
-    stop("Not a supported layout. Supported layouts are
+  if (length(layout) == 1) {
+    if (!layout %in% c("full", "f", "whole", "w",
+                       "bottomleft", "bl", "topleft", "tl",
+                       "topright", "tr", "bottomright", "br")) {
+      stop("Not a supported layout. Supported layouts are
          full/f/whole/w,
          topleft/tl, topright/tr,
          bottomleft/bl, and bottomright/br")
+    }
+  } else if (length(layout) == 2) {
+    # Only allow for combinations of topleft + bottomright and topright + bottomleft
+  } else {
+    stop("layout must be length 1 or 2.")
   }
 
   x_mat <- as.matrix(x)
 
-  full_plt <- layout %in% c("full", "f", "whole", "w")
+  full_plt <- if (length(layout) == 1) {layout %in% c("full", "f", "whole", "w")} else {TRUE}
 
   # If the matrix is non-symmetric, triangular layouts break! Throw a warning
-  if (!isSymmetric(x_mat) & !full_plt) {
+  if (!isSymmetric(x_mat) & (!full_plt | length(layout) == 2)) {
     warning("A triangular layout with an asymmetric matrix is not supported,\nplotting the full matrix instead.")
     full_plt <- T
     layout <- "f"
@@ -248,7 +254,16 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   }
 
   # Make long format data, ordering columns to fit layout
-  x_long <- layout_hm(x_mat, layout = layout, na_remove = na_remove)
+  if (length(layout) == 1) {
+    x_long <- layout_hm(x_mat, layout = layout, na_remove = na_remove)
+
+  } else if (length(layout) == 2) {
+    # Mixed layout, generate one per half and mark by layout. The first one gets the diagonal
+    x_long <- dplyr::bind_rows(
+      dplyr::mutate(layout_hm(x_mat, layout = names(layout)[1], na_remove = na_remove, include_diag = T), lt = names(layout)[1]),
+      dplyr::mutate(layout_hm(x_mat, layout = names(layout)[2], na_remove = na_remove, include_diag = F), lt = names(layout)[2])
+    )
+  }
 
   if (full_plt) {
     # Allow for specification of dendrogram positions only when the whole matrix is drawn
@@ -256,7 +271,6 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     dend_down <- dend_cols_side %in% c("bottom", "down", "b", "d")
     annot_left <- annot_rows_side %in% c("left", "l")
     annot_down <- annot_cols_side %in% c("bottom", "down", "b", "d")
-    include_diag <- T
   } else {
     pos_left = dend_left = annot_left <- layout %in% c("topleft", "tl", "bottomleft", "bl")
     pos_down = dend_down = annot_down <- layout %in% c("bottomleft", "bl", "bottomright", "br")
@@ -312,7 +326,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
     # Replace default parameters if any are provided
     dend_rows_params <- replace_default(dend_defaults, dend_rows_params)
 
-    dendro_rows <- prepare_dendrogram(row_clustering$dendro, "rows", dend_down, dend_left, dend_rows_params$height, full_plt, x_long,
+    dendro_rows <- prepare_dendrogram(row_clustering$dendro, "rows", dend_down, dend_left, dend_rows_params$height, full_plt, layout, x_long,
                                         annot_rows_df, annot_left, annot_rows_pos, annot_rows_params$size)
     # Check that the dendrogram labels are in the correct positions after mirroring and shifting
     dendro_rows <- check_dendrogram_pos(x_long, "row", dendro_rows)
@@ -321,82 +335,34 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   if (lclust_cols & dend_cols) {
     dend_cols_params <- replace_default(dend_defaults, dend_cols_params)
 
-    dendro_cols <- prepare_dendrogram(col_clustering$dendro, "cols", dend_down, dend_left, dend_cols_params$height, full_plt, x_long,
+    dendro_cols <- prepare_dendrogram(col_clustering$dendro, "cols", dend_down, dend_left, dend_cols_params$height, full_plt, layout, x_long,
                                         annot_cols_df, annot_down, annot_cols_pos, annot_cols_params$size)
     dendro_cols <- check_dendrogram_pos(x_long, "col", dendro_cols)
   }
 
-  # Start building plot
-  plt <- ggplot2::ggplot(mapping = ggplot2::aes(x = col, y = row))
-  # Draw diagonal first to draw over with the rest of the plot (only if symmetric matrix)
-  # If symmetric matrix and triangular layout, draw diagonal invisibly first to reserve space for it, making it easier to place the labels
-  if (isSymmetric(x_mat) & !full_plt & !include_diag) {
-    plt <- plt +
-      # Subset after converting to character as error occurs if factor levels are different
-      ggplot2::geom_tile(data = subset(x_long, as.character(row) == as.character(col)),
-                         fill = "white", linewidth = 0, alpha = 0)
-  }
-
-  # Use different input data depending on desired layout
-  # If include_diag is FALSE, skip where row == col, otherwise use the whole data
-  x_plot_dat <- if (isSymmetric(x_mat) & !full_plt & !include_diag) {
-    subset(x_long, as.character(row) != as.character(col))
-  } else {
-    x_long
-  }
-
-  plt <- plt +
-    # Plot tiles or points depending on cell_shape
-    list(
-      if (is.numeric(cell_shape)) {
-        ggplot2::geom_point(ggplot2::aes(fill = value, size = value),
-                            data = x_plot_dat,
-                            stroke = border_lwd, colour = border_col, shape = cell_shape,
-                            show.legend = show_legend)
-      } else {
-        ggplot2::geom_tile(ggplot2::aes(fill = value),
-                           data = x_plot_dat,
-                           linewidth = border_lwd, colour = border_col, linetype = border_lty,
-                           show.legend = show_legend)
-      }
-    ) +
-    size_scale +
-    # Remove extra space on axes (if drawing tiles) and place on specified sides
-    ggplot2::scale_x_discrete(expand = if (is.numeric(cell_shape)) c(.05, .05) else c(0, 0), position = names_x_side) +
-    ggplot2::scale_y_discrete(expand = if (is.numeric(cell_shape)) c(.05, .05) else c(0, 0), position = names_y_side) +
-    # Add colour
-    fill_scale +
-    # Make cells square
-    ggplot2::coord_fixed(clip = "off") +
-    ggplot2::labs(fill = fill_name) +
-    ggplot2::theme_classic() +
-    # Remove axis elements
-    ggplot2::theme(axis.line = ggplot2::element_blank(),
-                   axis.text.y = if (names_y) ggplot2::element_text() else ggplot2::element_blank(),
-                   axis.ticks = ggplot2::element_blank(),
-                   axis.title = ggplot2::element_blank())
-
-  # Rotate x labels if names on x axis
-  if (names_x) {
-    plt <- plt +
-      if (names_x_side == "top") ggplot2::theme(axis.text.x.top = ggplot2::element_text(angle = 90, hjust = 0, vjust = 0.3))
-      else if (names_x_side == "bottom") ggplot2::theme(axis.text.x.bottom = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.3))
-  } else {
-    plt <- plt + ggplot2::theme(axis.text.x = ggplot2::element_blank())
-  }
-
-  # Names on the diagonal
-  if (names_diag) {
-    axis_lab <- data.frame(lab = levels(x_long$row))
-
-    # Construct call using optional parameters
-    text_call_params <- list(data = axis_lab, mapping = ggplot2::aes(x = lab, y = lab, label = lab))
-    if (is.list(names_diag_param)) {
-      text_call_params <- append(text_call_params, names_diag_param)
-    }
-
-    plt <- plt +
-      do.call(ggplot2::geom_text, text_call_params)
+  # Build plot
+  if (length(layout) == 1) {
+    plt <- make_heatmap(x_long, plt = NULL, layout, include_diag,
+                        invisible_diag = isSymmetric(x_mat) & !include_diag,
+                        cell_shape, border_lwd, border_col, border_lty,
+                        names_diag, names_x, names_y, names_diag_param,
+                        names_x_side, names_y_side, show_legend,
+                        fill_scale, fill_name, size_scale)
+  } else if (length(layout) == 2) {
+    # First half of the plot
+    plt <- make_heatmap(dplyr::filter(x_long, lt == names(layout)[1]), plt = NULL,
+                        layout = names(layout)[1], include_diag = include_diag, invisible_diag = !include_diag,
+                        cell_shape, border_lwd, border_col, border_lty,
+                        names_diag, names_x, names_y, names_diag_param,
+                        names_x_side, names_y_side, show_legend,
+                        fill_scale, fill_name, size_scale)
+    # Remaining half
+    plt <- make_heatmap(dplyr::filter(x_long, lt == names(layout)[2]), plt = plt,
+                        layout = names(layout)[2], include_diag = F, invisible_diag = F,
+                        cell_shape, border_lwd, border_col, border_lty,
+                        names_diag = F, names_x, names_y, names_diag_param,
+                        names_x_side, names_y_side, show_legend,
+                        fill_scale = NULL, fill_name, size_scale = NULL)
   }
 
   # Cell labels
