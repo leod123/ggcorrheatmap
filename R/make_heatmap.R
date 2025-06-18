@@ -58,6 +58,13 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap", layout = "f",
         )
       }
     ) +
+    # Add empty cells as a grid for shape and text modes
+    list(
+      if (shape_mode | mode == "text") {
+        ggplot2::geom_tile(data = x_plot_dat, linewidth = border_lwd, colour = border_col,
+                           linetype = border_lty, alpha = 0)
+      }
+    ) +
     size_scale + col_scale + fill_scale +
     ggplot2::labs(fill = fill_name, colour = col_name)
 

@@ -220,6 +220,13 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 
   # Make the fill colour scale
   show_fill <- if ("fill" %in% names(show_legend)) show_legend["fill"] else show_legend
+  show_col <- if ("colour" %in% names(show_legend)) {
+    show_legend["colour"]
+  } else if ("color" %in% names(show_legend)) {
+    show_legend["color"]
+  } else {
+    show_legend
+  }
   fill_scale <- if (!is.null(bins)) {
     ggplot2::scale_fill_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
                                breaks = seq(limits[1], limits[2], length.out = bins),
@@ -228,15 +235,24 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
     ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
                                   guide = if (show_fill) ggplot2::guide_colourbar(order = 1) else "none")
   }
+  col_scale <- if (!is.null(bins)) {
+    ggplot2::scale_colour_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
+                                 breaks = seq(limits[1], limits[2], length.out = bins),
+                                 guide = if (show_col) ggplot2::guide_colourbar(order = 1) else "none")
+  } else {
+    ggplot2::scale_colour_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
+                                    guide = if (show_col) ggplot2::guide_colourbar(order = 1) else "none")
+  }
 
   # Make size scale (controlling the size range and transforming to be absolute values)
-  if (is.numeric(mode) & is.null(size_scale)) {
+  if (any(21:25 %in% mode) & is.null(size_scale)) {
     size_scale <- ggplot2::scale_size_continuous(range = size_range,
                                                  transform = scales::trans_new("abs", abs, abs))
   }
 
   # Call with all arguments to get the tooltips when calling this wrapper function
-  cor_plt <- gghm(cor_mat, fill_scale = fill_scale, fill_name = fill_name, na_remove = na_remove,
+  cor_plt <- gghm(cor_mat, fill_scale = fill_scale, fill_name = fill_name,
+                  col_scale = col_scale, col_name = col_name, na_remove = na_remove,
                   mode = mode, layout = layout, include_diag = include_diag, return_data = T,
                   show_legend = show_legend, size_scale = size_scale,
                   cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
