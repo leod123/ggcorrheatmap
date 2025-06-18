@@ -34,7 +34,7 @@
 #' @param size_range Numeric vector of length 2, specifying lower and upper ranges of shape sizes. Ignored if `size_scale` is not NULL.
 #' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `cell_shape` is numeric.
 #' The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.
-#' @param label_cor Logical specifying if the cells should be labelled with the correlation values.
+#' @param cell_labels Logical specifying if the cells should be labelled with the correlation values.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
 #' @param cell_label_digits Number of digits to display when cells are labelled with correlation coefficients. Default is 2, passed to `round`.
 #' @param border_col Colour of cell borders. If `cell_shape` is non-numeric, `border_col` can be set to NA to remove borders completely.
@@ -144,7 +144,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      layout = "full", include_diag = FALSE, return_data = FALSE,
                      show_legend = c("fill" = TRUE, "size" = FALSE), cell_shape = "heatmap",
                      size_range = c(4, 10), size_scale = NULL,
-                     label_cor = FALSE, cell_label_size = 3, cell_label_digits = 2,
+                     cell_labels = FALSE, cell_label_size = 3, cell_label_digits = 2,
                      border_col = "grey", border_lwd = 0.5, border_lty = 1,
                      names_diag = TRUE, names_diag_param = NULL,
                      names_x = FALSE, names_x_side = "top", names_y = FALSE, names_y_side = "left",
@@ -277,7 +277,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 
 
   # Add cell labels if desired
-  if (label_cor) {
+  if (cell_labels) {
     # Add p-values labels if desired
     # If the cells are labelled with the correlation values, add symbols for the p-values (needs to set p_thresholds)
     if (p_values & is.numeric(p_thresholds)) {

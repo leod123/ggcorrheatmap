@@ -27,7 +27,7 @@ ggcorrhm(
   cell_shape = "heatmap",
   size_range = c(4, 10),
   size_scale = NULL,
-  label_cor = FALSE,
+  cell_labels = FALSE,
   cell_label_size = 3,
   cell_label_digits = 2,
   border_col = "grey",
@@ -134,7 +134,7 @@ A numeric value can be used to specify an R shape (pch) to use, such as 21 for f
 \item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{cell_shape} is numeric.
 The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.}
 
-\item{label_cor}{Logical specifying if the cells should be labelled with the correlation values.}
+\item{cell_labels}{Logical specifying if the cells should be labelled with the correlation values.}
 
 \item{cell_label_size}{Size of cell labels, used as the \code{size} argument in \code{ggplot2::geom_text}.}
 

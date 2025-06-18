@@ -20,7 +20,7 @@ test_that("basic functionality works", {
   expect_no_error(gghm(cor(mtcars), cluster_rows = T, cluster_cols = T, layout = "br",
                        cell_shape = 21, show_legend = c("fill" = T, "size" = F),
                        names_diag_param = list(angle = -45),
-                       label_cor = T))
+                       cell_labels = T))
 })
 
 test_that("snapshots", {

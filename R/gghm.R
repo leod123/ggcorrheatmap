@@ -18,7 +18,7 @@
 #' @param cell_shape Value specifying what shape the heatmap cells should take. Any non-numeric value will result in a normal heatmap with square cells (default).
 #' A numeric value can be used to specify an R shape (pch) to use, such as 21 for filled circles. Note that only shapes 21-25 support filling (others will not display the heatmap colour properly).
 #' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `cell_shape` is numeric.
-#' @param label_cor Logical specifying if the cells should be labelled with the values.
+#' @param cell_labels Logical specifying if the cells should be labelled with the values.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
 #' @param cell_label_digits Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to `round`. NULL for no rounding.
 #' @param border_col Colour of cell borders. If `cell_shape` is non-numeric, `border_col` can be set to NA to remove borders completely.
@@ -142,7 +142,7 @@
 gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
                  layout = "full", include_diag = F, return_data = F,
                  show_legend = c("fill" = TRUE, "size" = TRUE), cell_shape = "heatmap", size_scale = NULL,
-                 label_cor = F, cell_label_size = 3, cell_label_digits = NULL,
+                 cell_labels = F, cell_label_size = 3, cell_label_digits = NULL,
                  border_col = "grey", border_lwd = 0.5, border_lty = 1,
                  names_diag = TRUE, names_diag_param = NULL,
                  names_x = FALSE, names_x_side = "top", names_y = FALSE, names_y_side = "left",
@@ -400,7 +400,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", na_remove = FALSE,
   }
 
   # Cell labels
-  if (label_cor) {
+  if (cell_labels) {
     # Don't draw in the diagonal cells if are hidden or if they are already occupied by names
     cell_data <- if (include_diag & !names_diag) x_long else subset(x_long, as.character(row) != as.character(col))
 

@@ -2,10 +2,10 @@ test_that("it runs without error", {
   expect_no_error(ggcorrhm(mtcars))
   expect_no_error(ggcorrhm(mtcars, bins = 5, cell_shape = 21))
   # Two input matrices
-  expect_no_error(ggcorrhm(mtcars, iris[1:32, -5], return_data = T, label_cor = T))
+  expect_no_error(ggcorrhm(mtcars, iris[1:32, -5], return_data = T, cell_labels = T))
   # P-values
   expect_no_error(ggcorrhm(mtcars, p_values = T, p_adjust = "fdr", return_data = T))
-  expect_no_error(ggcorrhm(mtcars, p_values = T, p_adjust = "fdr", return_data = F, label_cor = T))
+  expect_no_error(ggcorrhm(mtcars, p_values = T, p_adjust = "fdr", return_data = F, cell_labels = T))
   expect_no_error(ggcorrhm(mtcars, iris[1:32, -5], p_values = T))
 })
 

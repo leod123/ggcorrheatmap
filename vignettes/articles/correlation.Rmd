@@ -105,10 +105,10 @@ ggcorrhm(mtcars, cell_shape = 23, size_range = c(1, 15)) +
 
 # Cell text
 
-The `label_cor` argument labels cells with the values. The `cell_label_size` and `cell_label_digits` arguments control the text size and the number of displayed digits, respectively.
+The `cell_labels` argument labels cells with the values. The `cell_label_size` and `cell_label_digits` arguments control the text size and the number of displayed digits, respectively.
 
 ```{r cell labels}
-ggcorrhm(mtcars, layout = "br", label_cor = TRUE)
+ggcorrhm(mtcars, layout = "br", cell_labels = TRUE)
 ```
 
 # P-values
@@ -117,13 +117,13 @@ P-values can be calculated by setting the `p_values` argument to `TRUE`. The val
 
 By default, cells are marked with asterisks if `p_values` is `TRUE`. The `p_thresholds` argument controls the p-value thresholds. `p_thresholds` must be a named numeric vector where the values specify the thresholds (in ascending order) and the names are the symbols to use when a p-value is below those thresholds. `stats::symnum` is used to convert p-values and the last value of `p_thresholds` must be 1 (or any higher number) to set the upper bound. By default, `p_thresholds` is set to be `c("***" = 0.001, "**" = 0.01, "*" = 0.05", 1)`. As can be seen, 1 is left unnamed so that any p-values between 0.05 and 1 are unmarked.
 
-If `label_cor` is `TRUE` (so that correlation values are written in the cells), the symbols from `p_thresholds` are added at the end of the correlation values.
+If `cell_labels` is `TRUE` (so that correlation values are written in the cells), the symbols from `p_thresholds` are added at the end of the correlation values.
 
 ```{r, fig.show='hold', out.width='33%'}
 # P-value symbols added to the plot
 ggcorrhm(mtcars, p_values = TRUE, p_adjust = "bonferroni", cell_label_size = 6)
 # With correlation text
-ggcorrhm(mtcars, p_values = TRUE, p_adjust = "bonferroni", label_cor = TRUE)
+ggcorrhm(mtcars, p_values = TRUE, p_adjust = "bonferroni", cell_labels = TRUE)
 # Changing the symbols
 ggcorrhm(mtcars, p_values = TRUE, p_adjust = "bonferroni",
          p_thresholds = c("+" = 0.01, "*" = 0.05, "ns" = 1))
