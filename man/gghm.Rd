@@ -8,24 +8,27 @@ gghm(
   x,
   fill_scale = NULL,
   fill_name = "value",
-  na_remove = FALSE,
+  col_scale = NULL,
+  col_name = fill_name,
+  mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
   layout = "full",
-  include_diag = F,
-  return_data = F,
-  show_legend = c(fill = TRUE, size = TRUE),
-  cell_shape = "heatmap",
+  include_diag = TRUE,
+  na_remove = FALSE,
+  return_data = FALSE,
+  show_legend = c(fill = TRUE, colour = TRUE, size = TRUE),
   size_scale = NULL,
   cell_labels = F,
+  cell_label_col = "black",
   cell_label_size = 3,
-  cell_label_digits = NULL,
+  cell_label_digits = 2,
   border_col = "grey",
   border_lwd = 0.5,
   border_lty = 1,
-  names_diag = TRUE,
+  names_diag = FALSE,
   names_diag_param = NULL,
-  names_x = FALSE,
+  names_x = TRUE,
   names_x_side = "top",
-  names_y = FALSE,
+  names_y = TRUE,
   names_y_side = "left",
   annot_rows_df = NULL,
   annot_cols_df = NULL,
@@ -73,40 +76,49 @@ If a column named \code{.names} (containing unique row identifiers) is present i
 
 \item{fill_scale}{A \code{ggplot2} scale object for the cell fill colour scale. NULL (default) uses the \code{ggplot2} default.}
 
-\item{fill_name}{String to use for the colour scale legend title.}
+\item{fill_name}{String to use for the fill scale legend title.}
 
-\item{na_remove}{Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
-If NAs are kept, the fill colour can be set in the \code{ggplot2} scale.}
+\item{col_scale}{A \code{ggplot2} scale object for colour scale (Applied to text). NULL (default) uses the \code{ggplot2} default.}
+
+\item{col_name}{String to use for the colour scale legend title.}
+
+\item{mode}{A string specifying plotting mode. Possible values are \code{heatmap}/\code{hm} for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
+\code{text} to write the cell values instead of cells (colour scaling with value), and \code{none} for blank cells (used internally).}
 
 \item{layout}{String specifying the layout of the output heatmap. Possible layouts include
 top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the matrix is asymmetric).
 The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right), or just 'full' or 'whole' for the full layout.
-A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).}
+A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
+If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
+\code{mode} needs a vector of length two (applied in the same order as layout) and the \verb{cell_label*} and \verb{border_*} arguments can take length two arguments
+(vectors or lists). See details for more information.}
 
 \item{include_diag}{Logical indicating if the diagonal cells should be plotted (ignored if the whole matrix is plotted).
 Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.}
+
+\item{na_remove}{Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
+If NAs are kept, the fill colour can be set in the \code{ggplot2} scale.}
 
 \item{return_data}{Logical indicating if the data used for plotting should be returned.}
 
 \item{show_legend}{Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends.
 Can be specified in an aesthetic-specific manner using a named vector like \code{c('fill' = TRUE, 'size' = FALSE)}.}
 
-\item{cell_shape}{Value specifying what shape the heatmap cells should take. Any non-numeric value will result in a normal heatmap with square cells (default).
-A numeric value can be used to specify an R shape (pch) to use, such as 21 for filled circles. Note that only shapes 21-25 support filling (others will not display the heatmap colour properly).}
-
-\item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{cell_shape} is numeric.}
+\item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{mode} is a number from 1 to 25 (R pch).}
 
 \item{cell_labels}{Logical specifying if the cells should be labelled with the values.}
+
+\item{cell_label_col}{Colour to use for cell labels.}
 
 \item{cell_label_size}{Size of cell labels, used as the \code{size} argument in \code{ggplot2::geom_text}.}
 
 \item{cell_label_digits}{Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to \code{round}. NULL for no rounding.}
 
-\item{border_col}{Colour of cell borders. If \code{cell_shape} is non-numeric, \code{border_col} can be set to NA to remove borders completely.}
+\item{border_col}{Colour of cell borders. If \code{mode} is not a number, \code{border_col} can be set to NA to remove borders completely.}
 
-\item{border_lwd}{Size of cell borders. If \code{cell_shape} is numeric, \code{border_col} can be set to 0 to remove borders.}
+\item{border_lwd}{Size of cell borders. If \code{mode} is a number, \code{border_col} can be set to 0 to remove borders.}
 
-\item{border_lty}{Line type of cell borders. Not supported for numeric \code{cell_shape}.}
+\item{border_lty}{Line type of cell borders. Not supported for numeric \code{mode}.}
 
 \item{names_diag}{Logical indicating if names should be written in the diagonal cells (for a symmetric matrix).}
 
@@ -213,6 +225,10 @@ the plotting data ('plot_data'), and the result of the clustering ('row_clusteri
 Make a heatmap with ggplot2.
 }
 \details{
+When using mixed layouts (\code{layout} is length two), \code{mode} needs to be length two as well, specifying the mode to use in each triangle.
+The \verb{cell_label_*} and \verb{border_*} arguments can all be length one to apply to the whole heatmap, length two vectors to apply to each triangle,
+or lists of length two, each element containing one value (apply to whole triangle) or a value per cell (apply cell-wise in triangle). (\code{cell_labels} can also be a vector of length two).
+
 The annotation parameter arguments \code{annot_rows_params} and \code{annot_cols_params} should be named lists, where the possible options correspond to
 the different \verb{annot_*} arguments. The possible options are "legend" (logical, if legends should be drawn), "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
 "size" (cell size), "label" (logical, if the annotation names should be displayed), "border_col" (colour of border) and "border_lwd" (border line width).
@@ -237,7 +253,11 @@ hm_in <- mtcars[1:15, ]
 gghm(hm_in)
 
 # Different layout (using a symmetric matrix)
-gghm(cor(mtcars), layout = "br")
+gghm(cor(mtcars), layout = "tl")
+
+# Mixed layouts
+gghm(cor(mtcars), layout = c("tr", "bl"),
+  show_legend = c(fill = TRUE, colour = FALSE))
 
 # With clustering
 gghm(scale(hm_in), cluster_rows = TRUE, cluster_cols = TRUE)

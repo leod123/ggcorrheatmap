@@ -25,7 +25,7 @@ test_cor <- function(x, y = NULL, full_plt = T,
     test_pairs <- dplyr::bind_cols( # Bind together with cor, p, padj for each row
       dplyr::select(test_pairs, -value), dplyr::bind_rows(
         apply(test_pairs, 1, function(comb) {
-          tst <- cor.test(x[, comb["row"]], x[, comb["col"]])
+          tst <- cor.test(x[, comb["row"]], x[, comb["col"]], method = method, use = use)
           data.frame(value = unname(tst$estimate), p_val = tst$p.value)
         }, simplify = T)
       )
@@ -53,7 +53,7 @@ test_cor <- function(x, y = NULL, full_plt = T,
     all_pairs <- dplyr::bind_cols( # Bind together with cor, p, padj for each row
       dplyr::select(all_pairs, -value), dplyr::bind_rows(
         apply(all_pairs, 1, function(comb) {
-          tst <- cor.test(x[, comb["row"]], y[, comb["col"]])
+          tst <- cor.test(x[, comb["row"]], y[, comb["col"]], method = method, use = use)
           data.frame(value = unname(tst$estimate), p_val = tst$p.value)
         }, simplify = T)
       )

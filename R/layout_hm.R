@@ -3,6 +3,7 @@
 #' @param x Matrix to plot.
 #' @param layout Layout (full, triangular (topleft, topright, bottomleft, bottomright)).
 #' @param na_remove Logical indicating if NAs should be removed.
+#' @param include_diag Logical indicating if the diagonal should be included.
 #'
 #' @returns Long format data for plotting.
 #'

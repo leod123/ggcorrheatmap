@@ -11,6 +11,7 @@ prepare_dendrogram(
   dend_left,
   dend_height,
   full_plt,
+  layout,
   x_long,
   annot_df,
   annot_side,

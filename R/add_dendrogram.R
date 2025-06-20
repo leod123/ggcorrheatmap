@@ -2,7 +2,7 @@
 #'
 #' @keywords internal
 #'
-#' @param ggp ggplot object to add dendrogram to.
+#' @param plt ggplot object to add dendrogram to.
 #' @param dendro Dendrogram segment and node data obtained from the `prepare_dendrogram` function.
 #' @param dend_col String specifying colour of dendrogram (used if the colours have not been changed using other options).
 #' @param dend_lwd Line width of dendrogram segments (used if not changed using other options).
@@ -10,7 +10,7 @@
 #'
 #' @returns A ggplot object with a dendrogram added.
 #'
-add_dendrogram <- function(ggp, dendro, dend_col = "black", dend_lwd = 0.3, dend_lty = 1) {
+add_dendrogram <- function(plt, dendro, dend_col = "black", dend_lwd = 0.3, dend_lty = 1) {
   seg <- dendro$seg
   nod <- dendro$nod
 
@@ -24,7 +24,7 @@ add_dendrogram <- function(ggp, dendro, dend_col = "black", dend_lwd = 0.3, dend
   # Colours for manual scale
   names(seg_colr) <- seg_colr
 
-  ggp <- ggp +
+  plt <- plt +
     ggnewscale::new_scale_colour() +
     ggplot2::geom_segment(ggplot2::aes(x = x, y = y, xend = xend, yend = yend, colour = col), seg,
                           linewidth = if (all(is.na(seg$lwd))) {dend_lwd}
@@ -44,7 +44,7 @@ add_dendrogram <- function(ggp, dendro, dend_col = "black", dend_lwd = 0.3, dend
     nod_colr <- dplyr::pull(dplyr::distinct(nod, col), col)
     names(nod_colr) <- nod_colr
 
-    ggp <- ggp +
+    plt <- plt +
       ggnewscale::new_scale_colour() +
       ggplot2::geom_point(ggplot2::aes(x = x, y = y, colour = col), nod,
                           size = 1 * nod$cex, shape = nod$pch,
@@ -52,7 +52,7 @@ add_dendrogram <- function(ggp, dendro, dend_col = "black", dend_lwd = 0.3, dend
       ggplot2::scale_colour_manual(values = nod_colr)
   }
 
-  return(ggp)
+  return(plt)
 }
 
 
@@ -186,8 +186,7 @@ orient_dendrogram <- function(dend, dim = c("rows", "cols"), full_plt, layout, d
 
   # If mixed layout (treated as full plot) with topleft and bottomright, the row dendrogram must be flipped
   mixed_tl_br <- if (length(layout) == 2) {
-    if (sum(c("tl", "topleft") %in% names(layout)) == 1 &
-        sum(c("br", "bottomright") %in% names(layout)) == 1) {TRUE} else {FALSE}
+    sum(c("tl", "topleft") %in% layout) == 1 & sum(c("br", "bottomright") %in% layout) == 1
   } else {
     FALSE
   }

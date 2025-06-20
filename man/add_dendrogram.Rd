@@ -4,10 +4,10 @@
 \alias{add_dendrogram}
 \title{Add dendrogram to ggplot object.}
 \usage{
-add_dendrogram(ggp, dendro, dend_col = "black", dend_lwd = 0.3, dend_lty = 1)
+add_dendrogram(plt, dendro, dend_col = "black", dend_lwd = 0.3, dend_lty = 1)
 }
 \arguments{
-\item{ggp}{ggplot object to add dendrogram to.}
+\item{plt}{ggplot object to add dendrogram to.}
 
 \item{dendro}{Dendrogram segment and node data obtained from the \code{prepare_dendrogram} function.}
 

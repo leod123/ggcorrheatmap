@@ -3,27 +3,33 @@
 #' @param x Matrix or data frame in wide format to make a heatmap of. If rownames are present they are used for the y axis labels, otherwise the row number is used.
 #' If a column named `.names` (containing unique row identifiers) is present it will be used as rownames.
 #' @param fill_scale A `ggplot2` scale object for the cell fill colour scale. NULL (default) uses the `ggplot2` default.
-#' @param fill_name String to use for the colour scale legend title.
-#' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
-#' If NAs are kept, the fill colour can be set in the `ggplot2` scale.
+#' @param fill_name String to use for the fill scale legend title.
+#' @param col_scale A `ggplot2` scale object for colour scale (Applied to text). NULL (default) uses the `ggplot2` default.
+#' @param col_name String to use for the colour scale legend title.
+#' @param mode A string specifying plotting mode. Possible values are `heatmap`/`hm` for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
+#' `text` to write the cell values instead of cells (colour scaling with value), and `none` for blank cells (used internally).
 #' @param layout String specifying the layout of the output heatmap. Possible layouts include
 #' top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the matrix is asymmetric).
 #' The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right), or just 'full' or 'whole' for the full layout.
 #' A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
+#' If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
+#' `mode` needs a vector of length two (applied in the same order as layout) and the `cell_label*` and `border_*` arguments can take length two arguments
+#' (vectors or lists). See details for more information.
 #' @param include_diag Logical indicating if the diagonal cells should be plotted (ignored if the whole matrix is plotted).
 #' Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.
+#' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
+#' If NAs are kept, the fill colour can be set in the `ggplot2` scale.
 #' @param return_data Logical indicating if the data used for plotting should be returned.
 #' @param show_legend Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends.
 #' Can be specified in an aesthetic-specific manner using a named vector like `c('fill' = TRUE, 'size' = FALSE)`.
-#' @param cell_shape Value specifying what shape the heatmap cells should take. Any non-numeric value will result in a normal heatmap with square cells (default).
-#' A numeric value can be used to specify an R shape (pch) to use, such as 21 for filled circles. Note that only shapes 21-25 support filling (others will not display the heatmap colour properly).
-#' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `cell_shape` is numeric.
+#' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `mode` is a number from 1 to 25 (R pch).
 #' @param cell_labels Logical specifying if the cells should be labelled with the values.
+#' @param cell_label_col Colour to use for cell labels.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
 #' @param cell_label_digits Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to `round`. NULL for no rounding.
-#' @param border_col Colour of cell borders. If `cell_shape` is non-numeric, `border_col` can be set to NA to remove borders completely.
-#' @param border_lwd Size of cell borders. If `cell_shape` is numeric, `border_col` can be set to 0 to remove borders.
-#' @param border_lty Line type of cell borders. Not supported for numeric `cell_shape`.
+#' @param border_col Colour of cell borders. If `mode` is not a number, `border_col` can be set to NA to remove borders completely.
+#' @param border_lwd Size of cell borders. If `mode` is a number, `border_col` can be set to 0 to remove borders.
+#' @param border_lty Line type of cell borders. Not supported for numeric `mode`.
 #' @param names_diag Logical indicating if names should be written in the diagonal cells (for a symmetric matrix).
 #' @param names_diag_param List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
 #' @param names_x Logical indicating if names should be written on the x axis. Labels can be customised using `ggplot2::theme()` on the output plot.
@@ -83,6 +89,11 @@
 #' @export
 #'
 #' @details
+#'
+#' When using mixed layouts (`layout` is length two), `mode` needs to be length two as well, specifying the mode to use in each triangle.
+#' The `cell_label_*` and `border_*` arguments can all be length one to apply to the whole heatmap, length two vectors to apply to each triangle,
+#' or lists of length two, each element containing one value (apply to whole triangle) or a value per cell (apply cell-wise in triangle). (`cell_labels` can also be a vector of length two).
+#'
 #' The annotation parameter arguments `annot_rows_params` and `annot_cols_params` should be named lists, where the possible options correspond to
 #' the different `annot_*` arguments. The possible options are "legend" (logical, if legends should be drawn), "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
 #' "size" (cell size), "label" (logical, if the annotation names should be displayed), "border_col" (colour of border) and "border_lwd" (border line width).
@@ -107,7 +118,11 @@
 #' gghm(hm_in)
 #'
 #' # Different layout (using a symmetric matrix)
-#' gghm(cor(mtcars), layout = "br")
+#' gghm(cor(mtcars), layout = "tl")
+#'
+#' # Mixed layouts
+#' gghm(cor(mtcars), layout = c("tr", "bl"),
+#'   show_legend = c(fill = TRUE, colour = FALSE))
 #'
 #' # With clustering
 #' gghm(scale(hm_in), cluster_rows = TRUE, cluster_cols = TRUE)
@@ -140,9 +155,10 @@
 #'        # Empty list element (or NULL) if no arguments to be given
 #'        "highlight_branches_col" = list()))
 gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, col_name = fill_name,
-                 na_remove = FALSE, mode = "heatmap", layout = "full", include_diag = TRUE, return_data = FALSE,
+                 mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
+                 layout = "full", include_diag = TRUE, na_remove = FALSE, return_data = FALSE,
                  show_legend = c("fill" = TRUE, "colour" = TRUE, "size" = TRUE), size_scale = NULL,
-                 cell_labels = F, cell_label_size = 3, cell_label_digits = 2,
+                 cell_labels = F, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
                  border_col = "grey", border_lwd = 0.5, border_lty = 1,
                  names_diag = FALSE, names_diag_param = NULL,
                  names_x = TRUE, names_x_side = "top", names_y = TRUE, names_y_side = "left",
@@ -181,6 +197,19 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
   # Check that there are rownames
   if (is.null(rownames(x))) {rownames(x) <- 1:nrow(x)}
 
+  x_mat <- as.matrix(x)
+
+  # Logical for full plot layout or not
+  full_plt <- if (length(layout) == 1) {layout %in% c("full", "f", "whole", "w")} else {TRUE}
+
+  # If the matrix is asymmetric, triangular layouts break! Throw a warning
+  if (!isSymmetric(x_mat) & (!full_plt | length(layout) == 2)) {
+    warning("A triangular layout with an asymmetric matrix is not supported,\nplotting the full matrix instead.")
+    full_plt <- T
+    layout <- "f"
+    mode <- mode[1]
+  }
+
   # Check that layout is valid
   if (length(layout) == 1) {
     if (!layout %in% c("full", "f", "whole", "w",
@@ -191,22 +220,34 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
          topleft/tl, topright/tr,
          bottomleft/bl, and bottomright/br")
     }
+
+    # Check that mode is also ok
+    if (!mode %in% c("heatmap", "hm", as.character(1:25), "text", "none")) {
+      stop("mode must be one of 'heatmap' ('hm'), '1'-'25', 'text', or 'none'.")
+    }
+
   } else if (length(layout) == 2) {
     # Only allow for combinations of topleft + bottomright and topright + bottomleft
+    if (!((sum(layout %in% c("topleft", "tl")) == 1 & sum(layout %in% c("bottomright", "br")) == 1) |
+          (sum(layout %in% c("topright", "tr")) == 1 & sum(layout %in% c("bottomleft", "bl")) == 1))) {
+      stop("Mixed layouts must consist of combinations of opposite triangles.")
+    }
 
+    # border_* and cell_label*  allow for triangle-specific customisation in mixed layouts
+    border_col <- prepare_mixed_param(border_col, "border_col")
+    border_lwd <- prepare_mixed_param(border_lwd, "border_lwd")
+    border_lty <- prepare_mixed_param(border_lty, "border_lty")
+    cell_labels <- prepare_mixed_param(cell_labels, "cell_labels")
+    cell_label_col <- prepare_mixed_param(cell_label_col, "cell_label_col")
+    cell_label_size <- prepare_mixed_param(cell_label_size, "cell_label_size")
+    cell_label_digits <- prepare_mixed_param(cell_label_digits, "cell_label_digits")
+
+    # mode must also be length 2
+    if (length(mode) != 2 | any(!mode %in% c("heatmap", "hm", as.character(1:25), "text", "none"))) {
+      stop("mode must be two of 'heatmap' ('hm'), '1'-'25', 'text', and 'none'.")
+    }
   } else {
     stop("layout must be length 1 or 2.")
-  }
-
-  x_mat <- as.matrix(x)
-
-  full_plt <- if (length(layout) == 1) {layout %in% c("full", "f", "whole", "w")} else {TRUE}
-
-  # If the matrix is non-symmetric, triangular layouts break! Throw a warning
-  if (!isSymmetric(x_mat) & (!full_plt | length(layout) == 2)) {
-    warning("A triangular layout with an asymmetric matrix is not supported,\nplotting the full matrix instead.")
-    full_plt <- T
-    layout <- "f"
   }
 
   # Don't display names on the diagonal if the plot is non-symmetric as it will cause
@@ -216,7 +257,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
   }
 
   # If clustering a symmetric matrix with a triangular layout, both rows and columns must be clustered. Automatically cluster both and throw a warning
-  if (isSymmetric(x_mat) & !full_plt) {
+  if (isSymmetric(x_mat) & (!full_plt | length(layout) == 2)) {
 
     if (((!isFALSE(cluster_rows) & isFALSE(cluster_cols)) | (isFALSE(cluster_rows) & !isFALSE(cluster_cols)))) {
       warning("Cannot cluster only one dimension for triangular layouts, clustering both rows and columns.")
@@ -292,8 +333,10 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
                         label = annot_label, border_col = annot_border_col, border_lwd = annot_border_lwd,
                         border_lty = annot_border_lty, na_col = annot_na_col)
   if (is.data.frame(annot_rows_df)) {
-    annot_rows_prep <- prepare_annotation(annot_rows_df, annot_default, annot_rows_params, annot_left,
-                                          annot_rows_label_params, annot_rows_label_side, ncol(x_mat))
+    annot_rows_prep <- prepare_annotation(annot_df = annot_rows_df, annot_defaults = annot_default,
+                                          annot_params = annot_rows_params, lannot_side = annot_left,
+                                          annot_label_params = annot_rows_label_params,
+                                          annot_label_side = annot_rows_label_side, data_size = ncol(x_mat))
     annot_rows_df <- annot_rows_prep[[1]]; annot_rows_params <- annot_rows_prep[[2]];
     annot_rows_pos <- annot_rows_prep[[3]]; annot_rows_label_params <- annot_rows_prep[[4]]
 
@@ -306,8 +349,10 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
   }
 
   if (is.data.frame(annot_cols_df)) {
-    annot_cols_prep <- prepare_annotation(annot_cols_df, annot_default, annot_cols_params, annot_down,
-                                          annot_cols_label_params, annot_cols_label_side, nrow(x_mat))
+    annot_cols_prep <- prepare_annotation(annot_df = annot_cols_df, annot_defaults = annot_default,
+                                          annot_params = annot_cols_params, lannot_side = annot_down,
+                                          annot_label_params = annot_cols_label_params,
+                                          annot_label_side = annot_cols_label_side, data_size = nrow(x_mat))
     annot_cols_df <- annot_cols_prep[[1]]; annot_cols_params <- annot_cols_prep[[2]];
     annot_cols_pos <- annot_cols_prep[[3]]; annot_cols_label_params <- annot_cols_prep[[4]]
 
@@ -324,48 +369,64 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     # Replace default parameters if any are provided
     dend_rows_params <- replace_default(dend_defaults, dend_rows_params)
 
-    dendro_rows <- prepare_dendrogram(row_clustering$dendro, "rows", dend_down, dend_left, dend_rows_params$height, full_plt, layout, x_long,
-                                        annot_rows_df, annot_left, annot_rows_pos, annot_rows_params$size)
+    dendro_rows <- prepare_dendrogram(dendro_in = row_clustering$dendro, dend_dim = "rows",
+                                      dend_down = dend_down, dend_left = dend_left,
+                                      dend_height = dend_rows_params$height,
+                                      full_plt = full_plt, layout = layout, x_long = x_long,
+                                      annot_df = annot_rows_df, annot_side = annot_left,
+                                      annot_pos = annot_rows_pos, annot_size = annot_rows_params$size)
     # Check that the dendrogram labels are in the correct positions after mirroring and shifting
-    dendro_rows <- check_dendrogram_pos(x_long, "row", dendro_rows)
+    dendro_rows <- check_dendrogram_pos(dat = x_long, dend_dim = "row", dendro = dendro_rows)
   }
 
   if (lclust_cols & dend_cols) {
     dend_cols_params <- replace_default(dend_defaults, dend_cols_params)
 
-    dendro_cols <- prepare_dendrogram(col_clustering$dendro, "cols", dend_down, dend_left, dend_cols_params$height, full_plt, layout, x_long,
-                                        annot_cols_df, annot_down, annot_cols_pos, annot_cols_params$size)
+    dendro_cols <- prepare_dendrogram(dendro_in = col_clustering$dendro, dend_dim = "cols",
+                                      dend_down = dend_down, dend_left = dend_left,
+                                      dend_height = dend_cols_params$height,
+                                      full_plt = full_plt, layout = layout, x_long = x_long,
+                                      annot_df = annot_cols_df, annot_side = annot_down,
+                                      annot_pos = annot_cols_pos, annot_size = annot_cols_params$size)
     dendro_cols <- check_dendrogram_pos(x_long, "col", dendro_cols)
   }
 
   # Build plot
   if (length(layout) == 1) {
-    plt <- make_heatmap(x_long, plt = NULL, mode, layout, include_diag,
+    plt <- make_heatmap(x_long = x_long, plt = NULL, mode = mode, layout = layout, include_diag = include_diag,
                         invisible_diag = isSymmetric(x_mat) & !include_diag,
-                        border_lwd, border_col, border_lty,
-                        names_diag, names_x, names_y, names_diag_param,
-                        names_x_side, names_y_side, show_legend,
-                        fill_scale, fill_name, col_scale, col_name, size_scale,
-                        cell_labels, cell_label_size, cell_label_digits)
+                        border_lwd = border_lwd, border_col = border_col, border_lty = border_lty,
+                        names_diag = names_diag, names_x = names_x, names_y = names_y,
+                        names_x_side = names_x_side, names_y_side = names_y_side,
+                        names_diag_param = names_diag_param, show_legend = show_legend,
+                        fill_scale = fill_scale, fill_name = fill_name,
+                        col_scale = col_scale, col_name = col_name, size_scale = size_scale,
+                        cell_labels = cell_labels, cell_label_col = cell_label_col,
+                        cell_label_size = cell_label_size, cell_label_digits = cell_label_digits)
   } else if (length(layout) == 2) {
     # First half of the plot
-    plt <- make_heatmap(dplyr::filter(x_long, lt == layout[1]), plt = NULL,
+    plt <- make_heatmap(x_long = dplyr::filter(x_long, lt == layout[1]), plt = NULL,
                         mode = mode[1], layout = layout[1],
                         include_diag = include_diag, invisible_diag = !include_diag,
-                        border_lwd, border_col, border_lty,
-                        names_diag, names_x, names_y, names_diag_param,
-                        names_x_side, names_y_side, show_legend,
-                        fill_scale, fill_name, col_scale, col_name, size_scale,
-                        cell_labels, cell_label_size, cell_label_digits)
+                        border_lwd = border_lwd[[1]], border_col = border_col[[1]], border_lty = border_lty[[1]],
+                        names_diag = names_diag, names_x = names_x, names_y = names_y,
+                        names_x_side = names_x_side, names_y_side = names_y_side,
+                        names_diag_param = names_diag_param, show_legend = show_legend,
+                        fill_scale = fill_scale, fill_name = fill_name,
+                        col_scale = col_scale, col_name = col_name, size_scale = size_scale,
+                        cell_labels = cell_labels[[1]], cell_label_col = cell_label_col[[1]],
+                        cell_label_size = cell_label_size[[1]], cell_label_digits = cell_label_digits[[1]])
     # Remaining half
-    plt <- make_heatmap(dplyr::filter(x_long, lt == layout[2]), plt = plt,
+    plt <- make_heatmap(x_long = dplyr::filter(x_long, lt == layout[2]), plt = plt,
                         mode = mode[2], layout = layout[2],
                         include_diag = F, invisible_diag = F,
-                        border_lwd, border_col, border_lty,
-                        names_diag = F, names_x, names_y, names_diag_param,
-                        names_x_side, names_y_side, show_legend,
-                        fill_scale = NULL, fill_name, col_scale = NULL, col_name, size_scale = NULL,
-                        cell_labels, cell_label_size, cell_label_digits)
+                        border_lwd = border_lwd[[2]], border_col = border_col[[2]], border_lty = border_lty[[2]],
+                        names_diag = F, names_x = names_x, names_y = names_y,
+                        names_x_side = names_x_side, names_y_side = names_y_side, show_legend = show_legend,
+                        names_diag_param = names_diag_param,
+                        fill_scale = NULL, fill_name = fill_name, col_scale = NULL, col_name = col_name, size_scale = NULL,
+                        cell_labels = cell_labels[[2]], cell_label_col = cell_label_col[[2]],
+                        cell_label_size = cell_label_size[[2]], cell_label_digits = cell_label_digits[[2]])
   }
 
   # Prepare default colour scales
@@ -377,11 +438,12 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     lgd_order <- seq_along(annot_rows_df)[-1]
     names(lgd_order) <- colnames(annot_rows_df)[-which(colnames(annot_rows_df) == ".names")]
 
-    plt <- add_annotation(plt, annot_dim = "rows", annot_rows_df, annot_rows_pos, annot_rows_params$size,
-                          annot_rows_params$border_lwd, annot_rows_params$border_col, annot_rows_params$border_lty,
-                          annot_rows_params$legend, annot_rows_params$label,
-                          annot_na_col, annot_na_remove, annot_col_list[[1]], lgd_order,
-                          annot_rows_label_side, annot_rows_label_params)
+    plt <- add_annotation(plt = plt, annot_dim = "rows", annot_df = annot_rows_df, annot_pos = annot_rows_pos,
+                          annot_size = annot_rows_params$size, annot_border_lwd = annot_rows_params$border_lwd,
+                          annot_border_col = annot_rows_params$border_col, annot_border_lty = annot_rows_params$border_lty,
+                          draw_legend = annot_rows_params$legend, draw_label = annot_rows_params$label,
+                          na_col = annot_na_col, na_remove = annot_na_remove, col_scale = annot_col_list[[1]],
+                          legend_order = lgd_order, label_side = annot_rows_label_side, label_params = annot_rows_label_params)
   }
 
   if (is.data.frame(annot_cols_df)) {
@@ -389,20 +451,23 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     else {seq_along(annot_cols_df)[-1]}
     names(lgd_order) <- colnames(annot_cols_df)[-which(colnames(annot_cols_df) == ".names")]
 
-    plt <- add_annotation(plt, annot_dim = "cols", annot_cols_df, annot_cols_pos, annot_cols_params$size,
-                          annot_cols_params$border_lwd, annot_cols_params$border_col, annot_cols_params$border_lty,
-                          annot_cols_params$legend, annot_cols_params$label,
-                          annot_na_col, annot_na_remove, annot_col_list[[2]], lgd_order,
-                          annot_cols_label_side, annot_cols_label_params)
+    plt <- add_annotation(plt = plt, annot_dim = "cols", annot_df = annot_cols_df, annot_pos = annot_cols_pos,
+                          annot_size = annot_cols_params$size, annot_border_lwd = annot_cols_params$border_lwd,
+                          annot_border_col = annot_cols_params$border_col, annot_border_lty = annot_cols_params$border_lty,
+                          draw_legend = annot_cols_params$legend, draw_label = annot_cols_params$label,
+                          na_col = annot_na_col, na_remove = annot_na_remove, col_scale = annot_col_list[[2]],
+                          legend_order = lgd_order, label_side = annot_cols_label_side, label_params = annot_cols_label_params)
   }
 
   # Add dendrograms
   if (lclust_rows & dend_rows) {
-    plt <- add_dendrogram(plt, dendro_rows, dend_rows_params$col, dend_rows_params$lwd, dend_rows_params$lty)
+    plt <- add_dendrogram(plt = plt, dendro = dendro_rows, dend_col = dend_rows_params$col,
+                          dend_lwd = dend_rows_params$lwd, dend_lty = dend_rows_params$lty)
   }
 
   if (lclust_cols & dend_cols) {
-    plt <- add_dendrogram(plt, dendro_cols, dend_cols_params$col, dend_cols_params$lwd, dend_cols_params$lty)
+    plt <- add_dendrogram(plt = plt, dendro = dendro_cols, dend_col = dend_cols_params$col,
+                          dend_lwd = dend_cols_params$lwd, dend_lty = dend_cols_params$lty)
   }
 
   if (return_data) {
@@ -433,3 +498,24 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
 }
 
 
+#' Prepare parameters for mixed layouts.
+#'
+#' @keywords internal
+#'
+#' @param param Parameter to prepare.
+#' @param param_name Parameter name (for error messages).
+#'
+#' @returns If length one, it is returned duplicated in a list for use in each triangle. If longer than 1
+#' an error message is returned. In other cases, the input parameter is returned (length two input).
+#'
+prepare_mixed_param <- function(param, param_name) {
+  if (length(param) == 1) {
+    param_out <- list(param, param)
+  } else if (length(param) != 2) {
+    stop(param_name, " must be either a vector length one (used for all cells) or\nlength two (used for each triangle), or a list of length two where each\nelement is a vector with values for the cells in the triangle.")
+  } else {
+    param_out <- param
+  }
+
+  return(param_out)
+}

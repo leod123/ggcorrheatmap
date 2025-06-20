@@ -13,7 +13,7 @@
 #' \dontrun{
 #' shape_mat_long(cor(mtcars))
 #' }
-shape_mat_long <- function(x, unique_pairs = F, na_remove = F, nan_remove = F) {
+shape_mat_long <- function(x, unique_pairs = F, na_remove = F) {
 
   # Convert to long format
   mat_long <- as.data.frame(x)
@@ -33,11 +33,6 @@ shape_mat_long <- function(x, unique_pairs = F, na_remove = F, nan_remove = F) {
   # Remove NAs if desired (makes for completely empty cells and a cleaner look) (also removes NaN)
   if (na_remove) {
     mat_long <- dplyr::filter(mat_long, !is.na(value))
-  }
-
-  # Remove NaNs if desired
-  if (nan_remove) {
-    mat_long <- dplyr::filter(mat_long, !is.nan(value))
   }
 
   # Keep only the necessary columns and remove rownames to prevent problems with downstream functions

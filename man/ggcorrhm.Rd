@@ -15,19 +15,21 @@ ggcorrhm(
   limits = c(-1, 1),
   bins = NULL,
   fill_name = NULL,
+  col_name = fill_name,
   p_values = FALSE,
   p_adjust = "none",
   p_thresholds = c(`***` = 0.001, `**` = 0.01, `*` = 0.05, 1),
+  mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
+  layout = "full",
+  include_diag = TRUE,
   na_remove = FALSE,
   na_col = "grey",
-  layout = "full",
-  include_diag = FALSE,
   return_data = FALSE,
-  show_legend = c(fill = TRUE, size = FALSE),
-  cell_shape = "heatmap",
+  show_legend = c(fill = TRUE, colour = FALSE, size = FALSE),
   size_range = c(4, 10),
   size_scale = NULL,
   cell_labels = FALSE,
+  cell_label_col = "black",
   cell_label_size = 3,
   cell_label_digits = 2,
   border_col = "grey",
@@ -98,7 +100,9 @@ ggcorrhm(
 
 \item{bins}{Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.}
 
-\item{fill_name}{String to use for the correlation colour scale. If NULL (default) the text will depend on the correlation method.}
+\item{fill_name}{String to use for the correlation fill scale. If NULL (default) the text will depend on the correlation method.}
+
+\item{col_name}{String to use for the correlation colour scale. If NULL (default) the text will depend on the correlation method.}
 
 \item{p_values}{Logical indicating if p-values should be calculated. Use with \code{p_thresholds} to mark cells, and/or \code{return_data} to get the p-values in the output data.}
 
@@ -107,10 +111,8 @@ ggcorrhm(
 \item{p_thresholds}{Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
 Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).}
 
-\item{na_remove}{Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn). This does not affect how
-NAs are handled in the correlation computations, use the \code{cor_use} argument for NA handling in correlation.}
-
-\item{na_col}{Colour to use cells with NA.}
+\item{mode}{A string specifying plotting mode. Possible values are \code{heatmap}/\code{hm} for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
+\code{text} to write the cell values instead of cells (colour scaling with value), and \code{none} for blank cells (used internally).}
 
 \item{layout}{String specifying the layout of the output correlation heatmap. Possible layouts include
 top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the correlation matrix is asymmetric).
@@ -121,30 +123,34 @@ For any other strings top and right are selected.}
 
 \item{include_diag}{Logical indicating if the diagonal cells should be plotted (included either way if the whole matrix is plotted).}
 
+\item{na_remove}{Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn). This does not affect how
+NAs are handled in the correlation computations, use the \code{cor_use} argument for NA handling in correlation.}
+
+\item{na_col}{Colour to use cells with NA.}
+
 \item{return_data}{Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, p-values) should be returned.}
 
 \item{show_legend}{Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends.
 Can be specified in an aesthetic-specific manner using a named vector like \code{c('fill' = TRUE, 'size' = FALSE)}.}
 
-\item{cell_shape}{Value specifying what shape the heatmap cells should take. Any non-numeric value will result in a normal heatmap with square cells (default).
-A numeric value can be used to specify an R shape (pch) to use, such as 21 for filled circles. Note that only shapes 21-25 support filling (others will not display the heatmap colour properly).}
-
 \item{size_range}{Numeric vector of length 2, specifying lower and upper ranges of shape sizes. Ignored if \code{size_scale} is not NULL.}
 
-\item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{cell_shape} is numeric.
+\item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{mode} is a number from 1 to 25 (R pch).
 The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.}
 
 \item{cell_labels}{Logical specifying if the cells should be labelled with the correlation values.}
+
+\item{cell_label_col}{Colour to use for cell labels.}
 
 \item{cell_label_size}{Size of cell labels, used as the \code{size} argument in \code{ggplot2::geom_text}.}
 
 \item{cell_label_digits}{Number of digits to display when cells are labelled with correlation coefficients. Default is 2, passed to \code{round}.}
 
-\item{border_col}{Colour of cell borders. If \code{cell_shape} is non-numeric, \code{border_col} can be set to NA to remove borders completely.}
+\item{border_col}{Colour of cell borders. If \code{mode} is not a number, \code{border_col} can be set to NA to remove borders completely.}
 
-\item{border_lwd}{Size of cell borders. If \code{cell_shape} is numeric, \code{border_col} can be set to 0 to remove borders.}
+\item{border_lwd}{Size of cell borders. If \code{mode} is a number, \code{border_col} can be set to 0 to remove borders.}
 
-\item{border_lty}{Line type of cell borders. Not supported for numeric \code{cell_shape}.}
+\item{border_lty}{Line type of cell borders. Not supported for numeric \code{mode}.}
 
 \item{names_diag}{Logical indicating if names should be written in the diagonal cells (for a symmetric matrix).}
 
@@ -257,6 +263,8 @@ The input values can either be one matrix or data frame with columns to correlat
 matrices or data frames with columns to correlate between the matrices. No rownames are needed, but
 if two matrices are provided they should have the same number of rows and the rows should be ordered in a meaningful way
 (i.e. same sample/individual/etc in the same row in both).
+
+Row and column names are displayed in the diagonal by default if the correlation matrix is symmetric (only \code{x} is provided or \code{x} and \code{y} are identical).
 
 The colour scale is set to be a diverging gradient around 0, with options to change the low, mid, and high colours and the limits.
 The \code{bins} argument converts the scale to a discrete scale divided into \code{bins} equally distributed bins.

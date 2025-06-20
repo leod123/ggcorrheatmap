@@ -2,7 +2,7 @@
 #'
 #' @keywords internal
 #'
-#' @param ggp `ggplot` object with `geom_tile` layer to add annotations to
+#' @param plt `ggplot` object with `geom_tile` layer to add annotations to
 #' @param annot_dim Dimension to add annotations to, either "rows" or "columns"
 #' @param annot_df Data frame containing the annotations.
 #' The first column must contain the labels used in the heatmap rows or columns.
@@ -25,7 +25,7 @@
 #'
 #' @return `ggplot` object with added annotations.
 #'
-add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_pos, annot_size,
+add_annotation <- function(plt, annot_dim = c("rows", "cols"), annot_df, annot_pos, annot_size,
                            annot_border_lwd = 0.5, annot_border_col = "grey", annot_border_lty = 1,
                            draw_legend = T, draw_label = T,
                            na_col = "grey", na_remove = F,
@@ -46,7 +46,7 @@ add_annotation <- function(ggp, annot_dim = c("rows", "cols"), annot_df, annot_p
   # Check that it contains the names of the annotations, otherwise fill in with missing names
   col_scale[annot_names[!annot_names %in% names(col_scale)]] <- lapply(seq_along(annot_names[!annot_names %in% names(col_scale)]), function(x) NULL)
 
-  plt_out <- ggp +
+  plt_out <- plt +
     lapply(annot_names, \(nm) {
       list(
         # Add separate colour scale for each annotation

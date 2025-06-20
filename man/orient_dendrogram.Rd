@@ -8,6 +8,7 @@ orient_dendrogram(
   dend,
   dim = c("rows", "cols"),
   full_plt,
+  layout,
   dend_left,
   dend_down
 )

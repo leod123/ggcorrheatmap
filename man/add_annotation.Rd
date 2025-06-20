@@ -5,7 +5,7 @@
 \title{Add annotations to ggplot heatmap}
 \usage{
 add_annotation(
-  ggp,
+  plt,
   annot_dim = c("rows", "cols"),
   annot_df,
   annot_pos,
@@ -24,7 +24,7 @@ add_annotation(
 )
 }
 \arguments{
-\item{ggp}{\code{ggplot} object with \code{geom_tile} layer to add annotations to}
+\item{plt}{\code{ggplot} object with \code{geom_tile} layer to add annotations to}
 
 \item{annot_dim}{Dimension to add annotations to, either "rows" or "columns"}
 

@@ -12,6 +12,8 @@ layout_hm(x, layout = "f", na_remove = F, include_diag = T)
 \item{layout}{Layout (full, triangular (topleft, topright, bottomleft, bottomright)).}
 
 \item{na_remove}{Logical indicating if NAs should be removed.}
+
+\item{include_diag}{Logical indicating if the diagonal should be included.}
 }
 \value{
 Long format data for plotting.

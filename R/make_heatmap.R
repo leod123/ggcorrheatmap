@@ -4,14 +4,15 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap", layout = "f",
                          names_diag = T, names_x = F, names_y = F, names_diag_param = NULL,
                          names_x_side = "top", names_y_side = "left", show_legend = T,
                          fill_scale = NULL, fill_name = "value", col_scale = NULL, col_name = fill_name,
-                         size_scale = NULL, cell_labels = F, cell_label_size = 3, cell_label_digits = 2) {
+                         size_scale = NULL, cell_labels = F, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2) {
   # Base plot
   plt_provided <- !is.null(plt)
   if (is.null(plt)) {
     plt <- ggplot2::ggplot(mapping = ggplot2::aes(x = col, y = row))
   }
 
-  shape_mode <- mode %in% as.character(21:25)
+  shape_mode_fill <- mode %in% as.character(21:25)
+  shape_mode_col <- mode %in% as.character(1:20)
 
   # Draw diagonal invisibly to reserve space for it, making it easier to place the labels
   # (only needed if symmetric matrix with triangular layout and hidden diagonal)
@@ -38,10 +39,15 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap", layout = "f",
                            data = x_plot_dat,
                            linewidth = border_lwd, colour = border_col, linetype = border_lty,
                            show.legend = show_legend)
-      } else if (shape_mode) {
+      } else if (shape_mode_fill) {
         ggplot2::geom_point(ggplot2::aes(fill = value, size = value),
                             data = x_plot_dat,
                             stroke = border_lwd, colour = border_col, shape = as.numeric(mode),
+                            show.legend = show_legend)
+      } else if (shape_mode_col) {
+        ggplot2::geom_point(ggplot2::aes(colour = value, size = value),
+                            data = x_plot_dat,
+                            stroke = border_lwd, shape = as.numeric(mode),
                             show.legend = show_legend)
       } else if (mode == "text") {
         ggplot2::geom_text(
@@ -56,11 +62,13 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap", layout = "f",
           size = cell_label_size,
           show.legend = show_legend
         )
+      } else if (mode == "none") {
+        # Draw nothing, mostly for internal use to mimic text mode with ggcorrhm
       }
     ) +
-    # Add empty cells as a grid for shape and text modes
+    # Add empty cells as a grid for text and none modes
     list(
-      if (shape_mode | mode == "text") {
+      if (mode %in% c("text", "none")) {
         ggplot2::geom_tile(data = x_plot_dat, linewidth = border_lwd, colour = border_col,
                            linetype = border_lty, alpha = 0)
       }
@@ -72,8 +80,8 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap", layout = "f",
   if (!plt_provided) {
     plt <- plt +
       # Remove extra space on axes (if drawing tiles) and place on specified sides
-      ggplot2::scale_x_discrete(expand = if (shape_mode | mode == "text") c(.05, .05) else c(0, 0), position = names_x_side) +
-      ggplot2::scale_y_discrete(expand = if (shape_mode | mode == "text") c(.05, .05) else c(0, 0), position = names_y_side) +
+      ggplot2::scale_x_discrete(expand = if (shape_mode_fill | shape_mode_col | mode == "text") c(.05, .05) else c(0, 0), position = names_x_side) +
+      ggplot2::scale_y_discrete(expand = if (shape_mode_fill | shape_mode_col | mode == "text") c(.05, .05) else c(0, 0), position = names_y_side) +
       # Make cells square
       ggplot2::coord_fixed(clip = "off") +
       ggplot2::theme_classic() +
@@ -112,12 +120,11 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap", layout = "f",
     cell_data <- if (include_diag & !names_diag) x_long else subset(x_long, as.character(row) != as.character(col))
 
     plt <- plt +
-      ggplot2::geom_text(data = cell_data,
-                         mapping = ggplot2::aes(x = col, y = row,
-                                                label = if (is.numeric(cell_data[["value"]]) & is.numeric(cell_label_digits)) {
-                                                  round(value, cell_label_digits)
-                                                } else {value}),
-                         size = cell_label_size)
+          ggplot2::geom_text(data = cell_data, size = cell_label_size, colour = cell_label_col,
+                             mapping = ggplot2::aes(x = col, y = row,
+                                                    label = if (is.numeric(value) & is.numeric(cell_label_digits)) {
+                                                      round(value, cell_label_digits)
+                                                    } else {value}))
   }
 
   return(plt)
