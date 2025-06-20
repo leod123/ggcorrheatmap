@@ -54,7 +54,7 @@ Cell borders are by default grey, but can be removed by setting `border_col` or 
 # It contains many rows and columns making the axes hard to read.
 # Can either turn off labels with `names_x` and `names_y`, or use
 # ggplot2::scale_x/y_discrete to change the labels
-# (keep in mind that the y label order is reversed and that overwriting the scale can change the label positions)
+# (keep in mind that the y label order is reversed in the default layout and that overwriting the scale can change the label positions)
 gghm(volcano, fill_scale = scale_fill_viridis_c(), border_col = NA,
      names_x = FALSE, names_y = FALSE)
 ```
@@ -81,7 +81,7 @@ gghm(cor(mtcars), fill_scale = scale_fill_viridis_b(option = "mako"),
 
 # Handling NAs
 
-NAs in the data can be removed or set to a specific colour using the `na_remove` argument or the `fill_scale`argument, respectively.
+NAs in the data can be removed or set to a specific colour using the `na_remove` argument or the `fill_scale`argument, respectively. Setting `na_remove` to `TRUE` removes NAs from the plot (if a row or column is all NAs it will be dropped), but they can still interfere with clustering.
 
 ```{r, fig.width=4, fig.height=5, fig.show='hold', out.width='33%'}
 # Introduce NAs

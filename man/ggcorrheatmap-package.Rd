@@ -4,9 +4,9 @@
 \name{ggcorrheatmap-package}
 \alias{ggcorrheatmap}
 \alias{ggcorrheatmap-package}
-\title{ggcorrheatmap: Advanced ggplot Correlation Heatmaps}
+\title{ggcorrheatmap: Flexible ggplot Correlation Heatmaps}
 \description{
-Create correlation heatmaps in ggplot with clustering and annotation.
+Create heatmaps and correlation heatmaps in ggplot with clustering and annotation.
 }
 \seealso{
 Useful links:

@@ -1,0 +1,81 @@
+---
+title: "Mixed layouts"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ggcorrheatmap)
+```
+
+If the matrix is symmetric it is possible to plot mixed layouts by giving two triangles (opposite each other) to the `layout` argument. Two modes must be provided, the default modes being `heatmap` for the first element and `text` for the second. The first element of `layout` gets the diagonal (if it is drawn).
+
+```{r}
+ggcorrhm(mtcars, layout = c("tl", "br"))
+ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("21", "23"))
+```
+
+Since mixed layouts consist of two triangular layout heatmaps, clustering can only be applied if both rows and columns are clustered (like for the simple triangular layouts).
+
+```{r}
+ggcorrhm(mtcars, layout = c("tr", "bl"), cluster_rows = T)
+```
+
+
+returning data -> contains layout for each cell
+
+general behaviour of parameters when using mixed layouts
+
+
+```{r}
+# The Brewer Spectral palette
+colr <- c("#9E0142", "#D53E4F", "#F46D43", "#FDAE61", "#FEE08B", "#FFFFBF", "#E6F598", "#ABDDA4", "#66C2A5", "#3288BD", "#5E4FA2")
+
+ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("text", "hm"),
+         # One value for the whole heatmap (border linewidth)
+         border_lwd = 1.5,
+         # Length two vector, each value being used for the whole corresponding triangle
+         border_lty = c(1, 3),
+         # A list with values for each triangle
+         border_col = list(
+           # The first triangle is 66 values (if the diagonal is drawn), second 55
+           # If not known, can return the plotting data and count the rows with each layout
+           # First triangle, provide all values, moving down each column from the left
+           rev(unlist(sapply(seq_along(colr), function(i) rep(colr[i], i)))),
+           # Second triangle, recycle one value
+           "grey"
+         ))
+```
+
+p-values
+
+```{r}
+ggcorrhm(mtcars, layout = c("tl", "br"), p_values = T)
+ggcorrhm(mtcars, layout = c("tl", "br"), p_values = c(T, F))
+```
+
+Using mixed layouts with mode "none" it is possible to "hack" annotation and dendrogram onto the empty sides of the triangular layouts.
+
+```{r}
+annot <- data.frame(.names = colnames(mtcars), a = 1:11)
+ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "none"),
+         cluster_rows = T, cluster_cols = T, border_lwd = c(0.5, 0),
+         annot_rows_df = annot, annot_cols_df = annot)
+```
+
+
+
+```{r}
+q <- gghm(cor(mtcars), mode = "none", return_data = T)
+q$plot_data <- q$plot_data %>%
+  mutate(lbl = case_when(row == "carb" & col == "wt" ~ "V",
+                         row == "gear" & col == "drat" ~ "\\"))
+q$plot +
+  geom_text(data = q$plot_data %>% filter(!is.na(lbl)), mapping = aes(label = lbl))
+```
+
