@@ -80,8 +80,8 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap", layout = "f",
   if (!plt_provided) {
     plt <- plt +
       # Remove extra space on axes (if drawing tiles) and place on specified sides
-      ggplot2::scale_x_discrete(expand = if (shape_mode_fill | shape_mode_col | mode == "text") c(.05, .05) else c(0, 0), position = names_x_side) +
-      ggplot2::scale_y_discrete(expand = if (shape_mode_fill | shape_mode_col | mode == "text") c(.05, .05) else c(0, 0), position = names_y_side) +
+      ggplot2::scale_x_discrete(position = names_x_side) +
+      ggplot2::scale_y_discrete(position = names_y_side) +
       # Make cells square
       ggplot2::coord_fixed(clip = "off") +
       ggplot2::theme_classic() +
