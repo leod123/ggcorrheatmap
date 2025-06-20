@@ -6,6 +6,8 @@ test_that("basic functionality works", {
   expect_no_error(gghm(mtcars[1:2, ]))
   expect_no_error(gghm(mtcars[, 1:2]))
   expect_no_error(gghm(mtcars[1:2, 1:2]))
+  # A heatmap with discrete values (with coercion)
+  expect_no_error(gghm(iris[1:5, ]))
   # Clustering and annotation
   expect_no_error(gghm(mtcars, cluster_rows = T, cluster_cols = T,
                        annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:nrow(mtcars)),
@@ -18,9 +20,11 @@ test_that("basic functionality works", {
                        return_data = T))
   # More things to cover
   expect_no_error(gghm(cor(mtcars), cluster_rows = T, cluster_cols = T, layout = "br",
-                       cell_shape = 21, show_legend = c("fill" = T, "size" = F),
+                       mode = "21", show_legend = c("fill" = T, "size" = F),
                        names_diag_param = list(angle = -45),
                        cell_labels = T))
+  expect_no_error(gghm(cor(mtcars), layout = c("tr", "bl"), mode = c("hm", "23"),
+                       cluster_rows = T, cluster_cols = T))
 })
 
 test_that("snapshots", {
@@ -28,7 +32,9 @@ test_that("snapshots", {
   vdiffr::expect_doppelganger("w_options", gghm(scale(mtcars), cluster_rows = T, cluster_cols = T,
                                                 annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:nrow(mtcars)),
                                                 annot_cols_df = data.frame(.names = colnames(mtcars), b = 1:ncol(mtcars))))
-  vdiffr::expect_doppelganger("cell_shape", gghm(mtcars, cell_shape = 21))
+  vdiffr::expect_doppelganger("cell_shape", gghm(mtcars, mode = "21"))
+  vdiffr::expect_doppelganger("text_mode", gghm(mtcars, mode = "text"))
+  vdiffr::expect_doppelganger("mixed_mode", gghm(cor(mtcars), layout = c("tl", "br")))
 })
 
 test_that("correct input types", {
@@ -37,6 +43,7 @@ test_that("correct input types", {
 })
 
 test_that("warnings for layouts and clustering", {
+  expect_error(gghm(cor(mtcars), mode = "nothing"), "mode must be one of ")
   expect_error(gghm(cor(mtcars), layout = "nice"), "Not a supported layout.")
   expect_warning(gghm(mtcars, layout = "br"), "A triangular layout with an a")
   expect_warning(gghm(cor(mtcars), layout = "br", cluster_rows = T), "Cannot cluster only one")
@@ -80,4 +87,12 @@ test_that("annotation names must exist in the data", {
                                  annot3 = rnorm(ncol(mtcars) + 2),
                                  annot4 = sample(letters[1:3], ncol(mtcars) + 2, T))),
                "Some names in the row annotation")
+})
+
+test_that("mixed_layout_errors", {
+  expect_warning(gghm(mtcars, layout = c("tl", "br")), "A triangular layout with an asymmetric")
+  expect_error(gghm(cor(mtcars), layout = c("tr", "br")), "Mixed layouts must consist of ")
+  expect_error(gghm(cor(mtcars), layout = c("tl", "br"), mode = "heatmap"), "mode must be two of ")
+  expect_error(gghm(cor(mtcars), layout = c("too", "many", "layouts", "!")), "layout must be length 1 or 2")
+  expect_error(gghm(cor(mtcars), layout = c("tl", "br"), border_col = c()), "border_col must be either a ")
 })

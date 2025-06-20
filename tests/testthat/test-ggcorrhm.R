@@ -1,12 +1,13 @@
 test_that("it runs without error", {
   expect_no_error(ggcorrhm(mtcars))
-  expect_no_error(ggcorrhm(mtcars, bins = 5, cell_shape = 21))
+  expect_no_error(ggcorrhm(mtcars, bins = 5, mode = "21"))
   # Two input matrices
   expect_no_error(ggcorrhm(mtcars, iris[1:32, -5], return_data = T, cell_labels = T))
   # P-values
   expect_no_error(ggcorrhm(mtcars, p_values = T, p_adjust = "fdr", return_data = T))
   expect_no_error(ggcorrhm(mtcars, p_values = T, p_adjust = "fdr", return_data = F, cell_labels = T))
   expect_no_error(ggcorrhm(mtcars, iris[1:32, -5], p_values = T))
+  expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "18")))
 })
 
 test_that("p-value errors work", {
@@ -27,6 +28,8 @@ test_that("snapshots are ok", {
   vdiffr::expect_doppelganger("corr_w_options", ggcorrhm(mtcars, cluster_rows = T, cluster_cols = T,
                                                          annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:ncol(mtcars)),
                                                          annot_cols_df = data.frame(.names = colnames(mtcars), b = 1:ncol(mtcars))))
-  vdiffr::expect_doppelganger("cell_shape", ggcorrhm(mtcars, cell_shape = 21))
+  vdiffr::expect_doppelganger("cell_shape", ggcorrhm(mtcars, mode = 21))
   vdiffr::expect_doppelganger("p_values", ggcorrhm(mtcars, p_values = T, p_adjust = "fdr"))
+  vdiffr::expect_doppelganger("mixed_layout", ggcorrhm(mtcars, layout = c("tl", "br")))
+  vdiffr::expect_doppelganger("mixed_w_p", ggcorrhm(mtcars, layout = c("tr", "bl"), p_values = c(T, F)))
 })
