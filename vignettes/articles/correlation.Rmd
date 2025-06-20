@@ -40,12 +40,13 @@ ggcorrhm(mtcars) + scale_fill_continuous()
 
 # Changing the layout
 
-For symmetric heatmaps, the `layout` argument can be used to get triangular layouts. The possible layouts are full matrix (the default), top left, top right, bottom left, and bottom right. EXPLAIN HOW IT WORKS, ALSO MAYBE REWORK TO ADD NEGATION OF TOP/UP/RIGHT.
+For symmetric heatmaps, the `layout` argument can be used to get triangular layouts. The possible layouts are full matrix, top left, top right, bottom left, and bottom right.
 
 ```{r heatmap layouts}
 ggcorrhm(mtcars, layout = "topleft")
-# The diagonal is hidden by default but can be displayed using the `include_diag` argument
-ggcorrhm(mtcars, layout = "br", include_diag = TRUE)
+# The diagonal is displayed by default but can be hidden using the `include_diag` argument
+# Layouts can be specified by the first letters e.g. br, tl, f (for full), w (whole, same as full)
+ggcorrhm(mtcars, layout = "br", include_diag = FALSE)
 ```
 
 # Label customisation
@@ -53,16 +54,18 @@ ggcorrhm(mtcars, layout = "br", include_diag = TRUE)
 The looks of the names displayed in the diagonal of symmetric matrices can be adjusted with the `names_diag_params` argument, which takes a named list of parameters to pass to `ggplot2::geom_text`. For names displayed on the x and y axes, use `ggplot2::theme` on the generated plot object to change the appearance.
 
 ```{r, fig.width=5, fig.height=4, fig.show='hold', out.width='50%'}
-ggcorrhm(mtcars, layout = "bl", show_legend = FALSE, names_diag_param = list(
-  angle = 45, vjust = 0.5, hjust = 0.5, colour = "magenta"
-))
+ggcorrhm(mtcars, layout = "bl", show_legend = FALSE, include_diag = FALSE,
+         names_diag_param = list(
+           angle = 45, vjust = 0.5, hjust = 0.5, colour = "magenta"
+         ))
 # Also take vectorised input
 set.seed(123)
-ggcorrhm(mtcars, layout = "br", names_diag_param = list(
-  angle = c(0, rep(-45, 9), 90),
-  hjust = c(rep(0.7, 10), 0.3),
-  colour = sample(c("red", "green", "blue"), 11, TRUE)
-))
+ggcorrhm(mtcars, layout = "br", include_diag = FALSE,
+         names_diag_param = list(
+           angle = c(0, rep(-45, 9), 90),
+           hjust = c(rep(0.7, 10), 0.3),
+           colour = sample(c("red", "green", "blue"), 11, TRUE)
+         ))
 ```
 
 # Legend position
@@ -91,16 +94,23 @@ ggcorrhm(mtcars, layout = "tl", cluster_rows = TRUE, cluster_cols = TRUE,
 
 # Cell shape
 
-Correlation heatmaps are sometimes plotted with circles. Using the `cell_shape` argument allows for custom cell shapes. The shape size is set to scale with the absolute value of the correlation. `size_scale` can be provided to overwrite this behaviour. 
+Correlation heatmaps are sometimes plotted with circles. Using the `mode` argument allows for custom cell shapes. The shape size is set to scale with the absolute value of the correlation. `size_scale` can be provided to overwrite this behaviour. Setting `mode` to 'text' writes the values in empty cells, with the text colour scaling with the value.
 
 ```{r cell shape, fig.show='hold', out.width='50%'}
 # If numeric, the R pch symbols are used, meaning 21 produces circles.
 # Any character value results in normal heatmap cells
-ggcorrhm(mtcars, cell_shape = 21) + labs(title = "cell_shape = 21")
+ggcorrhm(mtcars, mode = 21) + labs(title = "mode = 21")
 # It is also possible to use shapes other than circles. Only 21-25 support filling.
 # Change the size range using the size_range argument
-ggcorrhm(mtcars, cell_shape = 23, size_range = c(1, 15)) +
-  labs(title = "cell_shape = 23")
+ggcorrhm(mtcars, mode = 23, size_range = c(1, 15)) +
+  labs(title = "mode = 23")
+```
+
+It's also possible to draw mixed layouts by providing two values to `layout` and `mode`. See the [mixed layouts](mixed.html) vignette for more details.
+
+```{r}
+# Default modes for mixed layouts is 'heatmap' and 'text'
+ggcorrhm(mtcars, layout = c("tr", "bl"))
 ```
 
 # Cell text
@@ -115,7 +125,7 @@ ggcorrhm(mtcars, layout = "br", cell_labels = TRUE)
 
 P-values can be calculated by setting the `p_values` argument to `TRUE`. The values can be adjusted for multiple testing by passing a string specifying the adjustment method to `p_adjust`. If the correlation matrix is symmetric, the diagonal is excluded and only half of the off-diagonal values are used for the adjustment. The calculated p-values will be included in the data if `return_data` is `TRUE`.
 
-By default, cells are marked with asterisks if `p_values` is `TRUE`. The `p_thresholds` argument controls the p-value thresholds. `p_thresholds` must be a named numeric vector where the values specify the thresholds (in ascending order) and the names are the symbols to use when a p-value is below those thresholds. `stats::symnum` is used to convert p-values and the last value of `p_thresholds` must be 1 (or any higher number) to set the upper bound. By default, `p_thresholds` is set to be `c("***" = 0.001, "**" = 0.01, "*" = 0.05", 1)`. As can be seen, 1 is left unnamed so that any p-values between 0.05 and 1 are unmarked.
+By default, cells are marked with asterisks if `p_values` is `TRUE`. The `p_thresholds` argument controls the p-value thresholds. `p_thresholds` must be a named numeric vector where the values specify the thresholds (in ascending order) and the names are the symbols to use when an adjusted p-value is below each threshold. `stats::symnum` is used to convert p-values and the last value of `p_thresholds` must be 1 (or any higher number) to set the upper bound. By default, `p_thresholds` is set to be `c("***" = 0.001, "**" = 0.01, "*" = 0.05", 1)`. As can be seen, 1 is left unnamed so that any p-values between 0.05 and 1 are unmarked.
 
 If `cell_labels` is `TRUE` (so that correlation values are written in the cells), the symbols from `p_thresholds` are added at the end of the correlation values.
 
@@ -136,8 +146,8 @@ p <- ggcorrhm(mtcars, p_values = TRUE, p_thresholds = NULL,
               p_adjust = "bonferroni", return_data = TRUE,
               layout = "br", include_diag = TRUE)
 p$plot_data <- mutate(p$plot_data,
-                      p_lty = case_when(p_adj < 0.05 ~ 1, T ~ 3),
-                      p_lwd = case_when(p_adj < 0.05 ~ 1, T ~ 0.5),
+                      p_lty = case_when(p_adj < 0.05 ~ 1, TRUE ~ 3),
+                      p_lwd = case_when(p_adj < 0.05 ~ 1, TRUE ~ 0.5),
                       p_size = -log10(p_adj))
 ggcorrhm(mtcars, border_lty = p$plot_data$p_lty, border_lwd = p$plot_data$p_lwd,
          layout = "br", include_diag = TRUE) +

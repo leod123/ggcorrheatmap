@@ -24,7 +24,7 @@ gghm(mtcars)
 
 The `ggcorrhm` function uses `gghm` to build a correlation heatmap. The correlations between the columns in the input are computed and plotted.
 
-If the matrix being plotted is symmetric (as such a correlation matrix is), the axis labels are drawn on the diagonal. This behaviour can be changed using the `names_diag`, `names_x` and `names_y` arguments. A symmetric heatmap can also be plotted using triangular layouts, explained more in the [correlation matrix](correlation.html) vignette.
+If the matrix being plotted is symmetric (as such a correlation matrix is), the axis labels are drawn on the diagonal. This behaviour can be changed using the `names_diag`, `names_x` and `names_y` arguments. A symmetric heatmap can also be plotted using triangular and mixed triangular layouts, explained more in the [correlation matrix](correlation.html) and [mixed layouts](mixed.html) vignettes.
 
 ```{r correlation heatmap}
 ggcorrhm(mtcars)
@@ -45,9 +45,21 @@ gghm(replicate(15, sample(letters[1:3], 15, TRUE)),
      border_col = "thistle1", border_lwd = 1)
 ```
 
+# Plotting modes
+
+The `mode` argument takes a string and determines how the values will be plotted. 'heatmap' or 'hm' gives the default heatmap, 'text' results in the values being written out (the colour scaling with the cell value, specified by the `col_scale` argument), and any number from 1 to 25 changes the cells to the corresponding shapes (pch). There is also a 'none' mode which draws empty tiles (used internally by `ggcorrhm`).
+
+Aside from the text mode, cells can be labelled with their values by setting `cell_labels` to `TRUE`. Unlike the text in text mode, cell label colours do not scale with the cell values. If cell labels are added to text mode the labels will be drawn on top (obscuring the colours and making the legend useless).
+
+```{r}
+gghm(mtcars[1:15, ], mode = "text")
+gghm(mtcars[1:15, ], mode = 8)
+gghm(mtcars[1:15, ], mode = "none")
+```
+
 # Cell borders
 
-Cell borders are by default grey, but can be removed by setting `border_col` or `border_lwd` to NA or `border_lty` to 0 (if `cell_shape` is non-numeric, explained more in [correlation heatmaps](correlation.html#cell-shape)) or `border_lwd` to 0 (if `cell_shape` is numeric).
+Cell borders are by default grey, but can be removed by setting `border_col` (border colour) or `border_lwd` (border linewidth) to NA or `border_lty` (border linetype) to 0 (if `mode` is non-numeric) or `border_lwd` to 0 (if `mode` is numeric).
 
 ```{r}
 # Use the volcano data
@@ -72,9 +84,9 @@ gghm(cor(mtcars), fill_scale = scale_fill_viridis_b(option = "mako"),
 plt_dat <- gghm(cor(mtcars), return_data = TRUE)$plot_data
 plt_dat <- mutate(plt_dat,
                   # The plotting data contains the columns 'row', 'col', and 'value', so avoid those names
-                  colr = case_when(row == "hp" ~ "red", col == "vs" ~ "brown", T ~ "grey"),
-                  lwd = case_when(row == "hp" | col == "vs" ~ 1.5, T ~ 0.5),
-                  lty = case_when(value > 0.5 ~ 1, T ~ 2))
+                  colr = case_when(row == "hp" ~ "red", col == "vs" ~ "brown", TRUE ~ "grey"),
+                  lwd = case_when(row == "hp" | col == "vs" ~ 1.5, TRUE ~ 0.5),
+                  lty = case_when(value > 0.5 ~ 1, TRUE ~ 2))
 gghm(cor(mtcars), fill_scale = scale_fill_viridis_b(option = "mako"),
      border_col = plt_dat$colr, border_lwd = plt_dat$lwd, border_lty = plt_dat$lty)
 ```
@@ -131,7 +143,7 @@ plot_list <- gghm(scale(mtcars[, 1:10]), return_data = TRUE, border_col = NA,
                   fill_scale = scale_fill_gradient2(low = "deepskyblue", mid = "white", high = "salmon"))
 
 # Add own labels
-plot_list$plot_data$lab <- sample(letters[1:6], nrow(plot_list$plot_data), TRUE)
+plot_list$plot_data$lab <- sample(1:3, nrow(plot_list$plot_data), TRUE)
 
 plot_list$plot +
   geom_text(aes(label = lab), plot_list$plot_data, size = 3)
@@ -144,3 +156,8 @@ plot_list$plot +
 ```
 
 There are many arguments, allowing for quite some flexibility in the heatmap layout. Most of the arguments are showcased in the vignettes, hopefully they can be of some help.
+
+```{r}
+gghm(cor(mtcars), mode = "none")
+```
+

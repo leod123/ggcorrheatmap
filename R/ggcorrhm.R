@@ -19,12 +19,13 @@
 #' Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).
 #' @param mode A string specifying plotting mode. Possible values are `heatmap`/`hm` for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
 #' `text` to write the cell values instead of cells (colour scaling with value), and `none` for blank cells (used internally).
-#' @param layout String specifying the layout of the output correlation heatmap. Possible layouts include
-#' top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the correlation matrix is asymmetric).
-#' The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right).
-#' Bottom can be specified by 'bottom', 'lower', 'down', or the first letter of these. Left is specified by 'left' or 'l'.
-#' 'full', 'whole', or 'all' (or 'f', 'w', 'a') result in the whole correlation matrix being plotted.
-#' For any other strings top and right are selected.
+#' @param layout layout String specifying the layout of the output heatmap. Possible layouts include
+#' top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the matrix is asymmetric).
+#' The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right), or just 'full' or 'whole' for the full layout.
+#' A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
+#' If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
+#' `mode` needs a vector of length two (applied in the same order as layout) and the `cell_label*` and `border_*` arguments can take length two arguments
+#' (vectors or lists). See details for more information.
 #' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn). This does not affect how
 #' NAs are handled in the correlation computations, use the `cor_use` argument for NA handling in correlation.
 #' @param na_col Colour to use cells with NA.

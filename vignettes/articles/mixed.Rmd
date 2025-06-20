@@ -23,7 +23,7 @@ ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("21", "23"))
 Since mixed layouts consist of two triangular layout heatmaps, clustering can only be applied if both rows and columns are clustered (like for the simple triangular layouts).
 
 ```{r}
-ggcorrhm(mtcars, layout = c("tr", "bl"), cluster_rows = T)
+ggcorrhm(mtcars, layout = c("tr", "bl"), cluster_rows = TRUE)
 ```
 
 
@@ -55,27 +55,18 @@ ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("text", "hm"),
 p-values
 
 ```{r}
-ggcorrhm(mtcars, layout = c("tl", "br"), p_values = T)
-ggcorrhm(mtcars, layout = c("tl", "br"), p_values = c(T, F))
+ggcorrhm(mtcars, layout = c("tl", "br"), p_values = TRUE)
+ggcorrhm(mtcars, layout = c("tl", "br"), p_values = c(TRUE, FALSE))
 ```
 
-Using mixed layouts with mode "none" it is possible to "hack" annotation and dendrogram onto the empty sides of the triangular layouts.
+Using mixed layouts with mode "none" it is possible to "hack" annotation and dendrograms onto the empty sides of the triangular layouts.
 
 ```{r}
 annot <- data.frame(.names = colnames(mtcars), a = 1:11)
 ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "none"),
-         cluster_rows = T, cluster_cols = T, border_lwd = c(0.5, 0),
+         cluster_rows = TRUE, cluster_cols = TRUE, border_lwd = c(0.5, 0),
          annot_rows_df = annot, annot_cols_df = annot)
 ```
 
 
-
-```{r}
-q <- gghm(cor(mtcars), mode = "none", return_data = T)
-q$plot_data <- q$plot_data %>%
-  mutate(lbl = case_when(row == "carb" & col == "wt" ~ "V",
-                         row == "gear" & col == "drat" ~ "\\"))
-q$plot +
-  geom_text(data = q$plot_data %>% filter(!is.na(lbl)), mapping = aes(label = lbl))
-```
-
+and more...
