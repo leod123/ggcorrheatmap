@@ -10,14 +10,15 @@ layout_hm <- function(x, layout = "f", na_remove = F, include_diag = T) {
   x <- as.matrix(x)
 
   if (isSymmetric(x) & layout %in% c("bottomleft", "bl", "topleft", "tl")) {
-    x[upper.tri(x)] <- NaN
+    x_long <- remove_triangle(x, tri_remove = "upper", na_remove = na_remove)
 
   } else if (isSymmetric(x) & layout %in% c("topright", "tr", "bottomright", "br")) {
-    x[lower.tri(x)] <- NaN
-  }
+    x_long <- remove_triangle(x, tri_remove = "lower", na_remove = na_remove)
 
-  # Get matrix in long format, remove NaN if triangular layout
-  x_long <- shape_mat_long(x, na_remove = na_remove, nan_remove = T)
+  } else {
+    x_long <- shape_mat_long(x, na_remove = na_remove)
+
+  }
 
   # Reverse order of y-axis (rows) for specific layouts
   x_long$row <- factor(x_long$row, levels =
@@ -33,4 +34,36 @@ layout_hm <- function(x, layout = "f", na_remove = F, include_diag = T) {
   }
 
   return(x_long)
+}
+
+#' Title
+#'
+#' @keywords internal
+#'
+#' @param x Matrix to remove triangle from (and make long).
+#' @param tri_remove Triangle to remove.
+#' @param na_remove If NAs should be removed.
+#'
+#' @returns Matrix in long format with triangle removed.
+#'
+remove_triangle <- function(x, tri_remove = "upper", na_remove = F) {
+  # Make the base for the output
+  x_out <- shape_mat_long(x, na_remove = na_remove)
+
+  # Make a matrix to get the rows that should be removed
+  x_remove <- x
+  # Fill with ones (to remove any potential NAs or NaNs), add NAs
+  x_remove[] <- 1
+  # Keep rows to remove in the original input
+  if (tri_remove == "upper") {
+    x_remove[lower.tri(x_remove, diag = T)] <- NA
+  } else if (tri_remove == "lower") {
+    x_remove[upper.tri(x_remove, diag = T)] <- NA
+  }
+  x_remove <- shape_mat_long(x_remove, na_remove = T)
+  rows_remove <- paste0(x_remove$row, x_remove$col)
+
+  x_out <- x_out[which(!paste0(x_out$row, x_out$col) %in% rows_remove), ]
+  rownames(x_out) <- NULL
+  return(x_out)
 }

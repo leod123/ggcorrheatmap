@@ -4,7 +4,7 @@
 \alias{layout_hm}
 \title{Layout heatmap data for plotting}
 \usage{
-layout_hm(x, layout = "f", na_remove = F)
+layout_hm(x, layout = "f", na_remove = F, include_diag = T)
 }
 \arguments{
 \item{x}{Matrix to plot.}
