@@ -92,6 +92,21 @@ ggcorrhm(mtcars, layout = "tl", cluster_rows = TRUE, cluster_cols = TRUE,
          dend_rows = FALSE, annot_rows_df = row_annot, annot_rows_label_side = "top")
 ```
 
+# Cell text
+
+The `cell_labels` argument labels cells with their values. The `cell_label_col`, `cell_label_size` and `cell_label_digits` arguments control the text colour, size and the number of displayed digits, respectively.
+
+```{r cell labels, fig.show='hold', out.width='50%'}
+ggcorrhm(mtcars, layout = "br", cell_labels = TRUE)
+set.seed(123)
+ggcorrhm(mtcars, layout = "br", cell_labels = TRUE,
+         cell_label_digits = 1,
+         # cell_label_col and cell_label_size take one value or
+         # one for each cell being labelled (not counting names on the diagonal)
+         cell_label_col = "white",
+         cell_label_size = sample(2:4, 55, TRUE))
+```
+
 # Cell shape
 
 Correlation heatmaps are sometimes plotted with circles. Using the `mode` argument allows for custom cell shapes. The shape size is set to scale with the absolute value of the correlation. `size_scale` can be provided to overwrite this behaviour. Setting `mode` to 'text' writes the values in empty cells, with the text colour scaling with the value.
@@ -111,14 +126,6 @@ It's also possible to draw mixed layouts by providing two values to `layout` and
 ```{r}
 # Default modes for mixed layouts is 'heatmap' and 'text'
 ggcorrhm(mtcars, layout = c("tr", "bl"))
-```
-
-# Cell text
-
-The `cell_labels` argument labels cells with the values. The `cell_label_size` and `cell_label_digits` arguments control the text size and the number of displayed digits, respectively.
-
-```{r cell labels}
-ggcorrhm(mtcars, layout = "br", cell_labels = TRUE)
 ```
 
 # P-values

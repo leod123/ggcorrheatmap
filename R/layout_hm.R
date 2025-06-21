@@ -1,5 +1,7 @@
 #' Layout heatmap data for plotting
 #'
+#' @keywords internal
+#'
 #' @param x Matrix to plot.
 #' @param layout Layout (full, triangular (topleft, topright, bottomleft, bottomright)).
 #' @param na_remove Logical indicating if NAs should be removed.

@@ -45,7 +45,7 @@ test_that("correct input types", {
 test_that("warnings for layouts and clustering", {
   expect_error(gghm(cor(mtcars), mode = "nothing"), "mode must be one of ")
   expect_error(gghm(cor(mtcars), layout = "nice"), "Not a supported layout.")
-  expect_warning(gghm(mtcars, layout = "br"), "A triangular layout with an a")
+  expect_warning(gghm(mtcars, layout = "br"), "Triangular layouts are not supported for asymmetric matrices")
   expect_warning(gghm(cor(mtcars), layout = "br", cluster_rows = T), "Cannot cluster only one")
   expect_warning(gghm(cor(mtcars), layout = "bl",
                       cluster_rows = hclust(dist(cor(mtcars))),
@@ -90,7 +90,7 @@ test_that("annotation names must exist in the data", {
 })
 
 test_that("mixed_layout_errors", {
-  expect_warning(gghm(mtcars, layout = c("tl", "br")), "A triangular layout with an asymmetric")
+  expect_warning(gghm(mtcars, layout = c("tl", "br")), "Triangular layouts are not supported for asymmetric matrices")
   expect_error(gghm(cor(mtcars), layout = c("tr", "br")), "Mixed layouts must consist of ")
   expect_error(gghm(cor(mtcars), layout = c("tl", "br"), mode = "heatmap"), "mode must be two of ")
   expect_error(gghm(cor(mtcars), layout = c("too", "many", "layouts", "!")), "layout must be length 1 or 2")

@@ -204,7 +204,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
 
   # If the matrix is asymmetric, triangular layouts break! Throw a warning
   if (!isSymmetric(x_mat) & (!full_plt | length(layout) == 2)) {
-    warning("A triangular layout with an asymmetric matrix is not supported,\nplotting the full matrix instead.")
+    warning("Triangular layouts are not supported for asymmetric matrices,\nplotting the full matrix instead.")
     full_plt <- T
     layout <- "f"
     mode <- mode[1]

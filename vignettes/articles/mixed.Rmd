@@ -15,7 +15,7 @@ library(ggcorrheatmap)
 
 If the matrix is symmetric it is possible to plot mixed layouts by giving two triangles (opposite each other) to the `layout` argument. Two modes must be provided, the default modes being `heatmap` for the first element and `text` for the second. The first element of `layout` gets the diagonal (if it is drawn).
 
-```{r}
+```{r, fig.show='hold', out.width='50%'}
 ggcorrhm(mtcars, layout = c("tl", "br"))
 ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("21", "23"))
 ```
@@ -26,11 +26,15 @@ Since mixed layouts consist of two triangular layout heatmaps, clustering can on
 ggcorrhm(mtcars, layout = c("tr", "bl"), cluster_rows = TRUE)
 ```
 
+If `return_data` is `TRUE` there will be an extra column called `layout`, showing which triangle each cell belongs to.
 
-returning data -> contains layout for each cell
+```{r}
+head(ggcorrhm(mtcars, layout = c("tl", "br"), return_data = TRUE)$plot_data)
+```
 
-general behaviour of parameters when using mixed layouts
+When the layout is mixed, a few arguments can take vectors or lists of length two. If a vector, each element is applied to the whole corresponding triangle in `layout`. If a list is provided, the elements can be whatever values that would be applicable for non-mixed layouts, i.e. a single value to apply to the whole triangle, or a vector with one value for each cell. 
 
+The arguments that work like this are `border_col`, `border_lwd`, `border_lty`, `cell_labels`, `cell_label_col`, `cell_label_size`, `cell_label_digits`, and (for `ggcorrhm`) `p_values`.
 
 ```{r}
 # The Brewer Spectral palette
@@ -44,7 +48,9 @@ ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("text", "hm"),
          # A list with values for each triangle
          border_col = list(
            # The first triangle is 66 values (if the diagonal is drawn), second 55
-           # If not known, can return the plotting data and count the rows with each layout
+           # If not known, can return the plotting data to see how many cells are in each triangle
+           # Since the matrix must be symmetric the numbers can also be calculated
+           # Total: ncol*ncol, triangle without diagonal: (total - ncol) / 2, with diagonal: without + ncol
            # First triangle, provide all values, moving down each column from the left
            rev(unlist(sapply(seq_along(colr), function(i) rep(colr[i], i)))),
            # Second triangle, recycle one value
@@ -52,9 +58,9 @@ ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("text", "hm"),
          ))
 ```
 
-p-values
+As mentioned above, p-values can be added to only one half of the heatmap if desired.
 
-```{r}
+```{r, fig.show='hold', out.width='50%'}
 ggcorrhm(mtcars, layout = c("tl", "br"), p_values = TRUE)
 ggcorrhm(mtcars, layout = c("tl", "br"), p_values = c(TRUE, FALSE))
 ```
@@ -64,9 +70,9 @@ Using mixed layouts with mode "none" it is possible to "hack" annotation and den
 ```{r}
 annot <- data.frame(.names = colnames(mtcars), a = 1:11)
 ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "none"),
-         cluster_rows = TRUE, cluster_cols = TRUE, border_lwd = c(0.5, 0),
-         annot_rows_df = annot, annot_cols_df = annot)
+         annot_rows_df = annot, annot_cols_df = annot,
+         cluster_rows = TRUE, cluster_cols = TRUE,
+         # Hide cell borders only in the 'none' triangle
+         border_lwd = c(0.5, 0))
 ```
 
-
-and more...
