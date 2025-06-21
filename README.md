@@ -44,6 +44,16 @@ ggcorrhm(mtcars, layout = "br", cluster_rows = TRUE, cluster_cols = TRUE,
 
 <img src="man/figures/README-example1-1.png" width="70%" style="display: block; margin: auto;" />
 
+Or a mixed layout that displays different things in the different
+triangles.
+
+``` r
+# With correlation values and p-values
+ggcorrhm(mtcars, layout = c("topright", "bottomleft"), p_values = c(FALSE, TRUE))
+```
+
+<img src="man/figures/README-example2-1.png" width="70%" style="display: block; margin: auto;" />
+
 It is also possible to make a normal heatmap, for a more flexible
 output.
 
@@ -53,4 +63,4 @@ gghm(scale(mtcars), cluster_rows = TRUE, cluster_cols = TRUE) +
   theme(axis.text.x.top = element_text(angle = 90, vjust = 0.3, hjust = 0))
 ```
 
-![](man/figures/README-example2-1.png)<!-- -->
+![](man/figures/README-example3-1.png)<!-- -->
