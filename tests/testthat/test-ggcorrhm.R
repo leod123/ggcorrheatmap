@@ -19,6 +19,8 @@ test_that("p-value errors work", {
                "'p_thresholds' must have named elements")
   expect_error(ggcorrhm(mtcars, p_values = T, p_thresholds = c("***" = 0.001, "***" = 0.01, "*" = .05, 1)),
                "P-value threshold symbols must be unique")
+  expect_warning(ggcorrhm(mtcars, p_values = F, cell_labels = T, cell_label_p = T),
+                 "Writing correlation values as no p-values have been computed")
 })
 
 test_that("snapshots are ok", {
@@ -32,4 +34,7 @@ test_that("snapshots are ok", {
   vdiffr::expect_doppelganger("p_values", ggcorrhm(mtcars, p_values = T, p_adjust = "fdr"))
   vdiffr::expect_doppelganger("mixed_layout", ggcorrhm(mtcars, layout = c("tl", "br")))
   vdiffr::expect_doppelganger("mixed_w_p", ggcorrhm(mtcars, layout = c("tr", "bl"), p_values = c(T, F)))
+  vdiffr::expect_doppelganger("mixed_w_p_w_labels", ggcorrhm(mtcars, layout = c("tr", "bl"), p_values = c(FALSE, TRUE),
+                                                             cell_labels = TRUE, cell_label_p = c(FALSE, TRUE),
+                                                             p_adjust = "bonferroni"))
 })

@@ -21,3 +21,4 @@ Long format data for plotting.
 \description{
 Layout heatmap data for plotting
 }
+\keyword{internal}

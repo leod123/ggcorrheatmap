@@ -29,6 +29,7 @@ ggcorrhm(
   size_range = c(4, 10),
   size_scale = NULL,
   cell_labels = FALSE,
+  cell_label_p = FALSE,
   cell_label_col = "black",
   cell_label_size = 3,
   cell_label_digits = 2,
@@ -114,12 +115,13 @@ Names must be unique, but one element can be left unnamed (by default 1 is unnam
 \item{mode}{A string specifying plotting mode. Possible values are \code{heatmap}/\code{hm} for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
 \code{text} to write the cell values instead of cells (colour scaling with value), and \code{none} for blank cells (used internally).}
 
-\item{layout}{String specifying the layout of the output correlation heatmap. Possible layouts include
-top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the correlation matrix is asymmetric).
-The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right).
-Bottom can be specified by 'bottom', 'lower', 'down', or the first letter of these. Left is specified by 'left' or 'l'.
-'full', 'whole', or 'all' (or 'f', 'w', 'a') result in the whole correlation matrix being plotted.
-For any other strings top and right are selected.}
+\item{layout}{layout String specifying the layout of the output heatmap. Possible layouts include
+top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the matrix is asymmetric).
+The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right), or just 'full' or 'whole' for the full layout.
+A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
+If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
+\code{mode} needs a vector of length two (applied in the same order as layout) and the \verb{cell_label*} and \verb{border_*} arguments can take length two arguments
+(vectors or lists). See details for more information.}
 
 \item{include_diag}{Logical indicating if the diagonal cells should be plotted (included either way if the whole matrix is plotted).}
 
@@ -139,6 +141,8 @@ Can be specified in an aesthetic-specific manner using a named vector like \code
 The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.}
 
 \item{cell_labels}{Logical specifying if the cells should be labelled with the correlation values.}
+
+\item{cell_label_p}{Logical indicating if, when \code{cell_labels} is \code{TRUE}, p-values should be written instead of correlation values.}
 
 \item{cell_label_col}{Colour to use for cell labels.}
 

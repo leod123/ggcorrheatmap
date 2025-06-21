@@ -37,6 +37,7 @@
 #' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `mode` is a number from 1 to 25 (R pch).
 #' The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.
 #' @param cell_labels Logical specifying if the cells should be labelled with the correlation values.
+#' @param cell_label_p Logical indicating if, when `cell_labels` is `TRUE`, p-values should be written instead of correlation values.
 #' @param cell_label_col Colour to use for cell labels.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
 #' @param cell_label_digits Number of digits to display when cells are labelled with correlation coefficients. Default is 2, passed to `round`.
@@ -149,7 +150,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      layout = "full", include_diag = TRUE, na_remove = FALSE, na_col = "grey", return_data = FALSE,
                      show_legend = c("fill" = TRUE, "colour" = FALSE, "size" = FALSE),
                      size_range = c(4, 10), size_scale = NULL,
-                     cell_labels = FALSE, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
+                     cell_labels = FALSE, cell_label_p = FALSE, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
                      border_col = "grey", border_lwd = 0.5, border_lty = 1,
                      names_diag = TRUE, names_diag_param = NULL,
                      names_x = FALSE, names_x_side = "top", names_y = FALSE, names_y_side = "left",
@@ -195,6 +196,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
     cell_label_size <- prepare_mixed_param(cell_label_size, "cell_label_size")
     cell_label_digits <- prepare_mixed_param(cell_label_digits, "cell_label_digits")
     p_values <- prepare_mixed_param(p_values, "p_values")
+    cell_label_p <- prepare_mixed_param(cell_label_p, "cell_label_p")
   }
 
   cor_mat <- if (is.null(y)) {
@@ -309,8 +311,9 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                                    mode = mode_og, skip_diag = isSymmetric(cor_mat) & names_diag,
                                    cell_labels = cell_labels, cell_label_col = cell_label_col,
                                    cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
-                                   p_thresholds = p_thresholds, border_col = border_col,border_lwd = border_lwd,
-                                   border_lty = border_lty, show_legend = show_legend, col_scale = col_scale)
+                                   cell_label_p = cell_label_p, p_thresholds = p_thresholds,
+                                   border_col = border_col,border_lwd = border_lwd, border_lty = border_lty,
+                                   show_legend = show_legend, col_scale = col_scale)
     } else if (length(layout) == 2) {
       # Avoid name clash
       lt <- layout
@@ -320,8 +323,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                                   cor_plt_plt = cor_plt[["plot"]], mode = mode_og[[1]],
                                   skip_diag = isSymmetric(cor_mat) & names_diag, cell_labels = cell_labels[[1]],
                                   cell_label_col = cell_label_col[[1]], cell_label_size = cell_label_size[[1]],
-                                  cell_label_digits = cell_label_digits[[1]], p_thresholds = p_thresholds,
-                                  border_col = border_col[[1]], border_lwd = border_lwd[[1]],
+                                  cell_label_digits = cell_label_digits[[1]], cell_label_p = cell_label_p[[1]],
+                                  p_thresholds = p_thresholds, border_col = border_col[[1]], border_lwd = border_lwd[[1]],
                                   border_lty = border_lty[[1]], show_legend = show_legend, col_scale = col_scale)
 
       # Second half, use the returned plot
@@ -330,8 +333,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                                   cor_plt_plt = p_plt1[["plot"]], mode = mode_og[[2]],
                                   skip_diag = isSymmetric(cor_mat) & names_diag, cell_labels = cell_labels[[2]],
                                   cell_label_col = cell_label_col[[2]], cell_label_size = cell_label_size[[2]],
-                                  cell_label_digits = cell_label_digits[[2]], p_thresholds = p_thresholds,
-                                  border_col = border_col[[2]], border_lwd = border_lwd[[2]],
+                                  cell_label_digits = cell_label_digits[[2]], cell_label_p = cell_label_p[[2]],
+                                  p_thresholds = p_thresholds, border_col = border_col[[2]], border_lwd = border_lwd[[2]],
                                   border_lty = border_lty[[2]], show_legend = show_legend, col_scale = col_scale)
 
       # Since only the plotted part of the data is returned, bind them together
@@ -367,14 +370,20 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 #' @returns Plot with labels added.
 #'
 add_pvalue_labels <- function(cor_mat_dat = NULL, cor_plt_dat, cor_plt_plt, mode, skip_diag = F,
-                              cell_labels, cell_label_col, cell_label_size, cell_label_digits,
+                              cell_labels, cell_label_p, cell_label_col, cell_label_size, cell_label_digits,
                               p_thresholds, border_col, border_lwd, border_lty, show_legend, col_scale) {
+
+  if (cell_label_p & is.null(cor_mat_dat)) {
+    warning("Writing correlation values as no p-values have been computed.")
+  }
 
   label_df <- cor_plt_dat
   label_df[["label"]] <- round(label_df[["value"]], cell_label_digits)
 
   # Add p-values if computed
   if (!is.null(cor_mat_dat)) {
+    lab_name <- ifelse(cell_label_p, "p_adj", "value")
+
     cor_plt_dat <- dplyr::left_join(cor_plt_dat, cor_mat_dat, by = c("row", "col", "value"))
     if (is.numeric(p_thresholds)) {
       # Convert p-values to symbols
@@ -385,7 +394,7 @@ add_pvalue_labels <- function(cor_mat_dat = NULL, cor_plt_dat, cor_plt_plt, mode
                                                  symbols = names(p_thresholds)))
       if (cell_labels | mode == "text") {
         # Add symbols to labels if both p-values and labels
-        label_df[["label"]] <- paste0(round(label_df[["value"]], cell_label_digits), label_df[["p_sym"]])
+        label_df[["label"]] <- paste0(round(label_df[[lab_name]], cell_label_digits), label_df[["p_sym"]])
       } else {
         # Just plot the symbols if no labels
         label_df[["label"]] <- label_df[["p_sym"]]

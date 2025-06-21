@@ -40,7 +40,7 @@ The arguments that work like this are `border_col`, `border_lwd`, `border_lty`, 
 # The Brewer Spectral palette
 colr <- c("#9E0142", "#D53E4F", "#F46D43", "#FDAE61", "#FEE08B", "#FFFFBF", "#E6F598", "#ABDDA4", "#66C2A5", "#3288BD", "#5E4FA2")
 
-ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("text", "hm"),
+ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("none", "hm"),
          # One value for the whole heatmap (border linewidth)
          border_lwd = 1.5,
          # Length two vector, each value being used for the whole corresponding triangle
@@ -55,6 +55,14 @@ ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("text", "hm"),
            rev(unlist(sapply(seq_along(colr), function(i) rep(colr[i], i)))),
            # Second triangle, recycle one value
            "grey"
+         ),
+         # Also draw cell labels on the first triangle and set the same colours as the cells
+         cell_labels = c(TRUE, FALSE),
+         cell_label_col = list(
+           # Provide the same values as for the cell border colours, but minus one as the diagonal
+           # names are written instead of cell labels and are controlled differently
+           rev(unlist(sapply(seq_along(colr), function(i) rep(colr[i], i - 1)))),
+           1 # Anything as there are no labels
          ))
 ```
 
@@ -62,7 +70,15 @@ As mentioned above, p-values can be added to only one half of the heatmap if des
 
 ```{r, fig.show='hold', out.width='50%'}
 ggcorrhm(mtcars, layout = c("tl", "br"), p_values = TRUE)
-ggcorrhm(mtcars, layout = c("tl", "br"), p_values = c(TRUE, FALSE))
+ggcorrhm(mtcars, layout = c("tl", "br"), p_values = c(FALSE, TRUE))
+```
+
+By using the `cell_label_p` argument, one triangle can be set to show correlation values and the other to show p-values.
+
+```{r}
+ggcorrhm(mtcars, layout = c("tr", "bl"), p_values = c(FALSE, TRUE),
+         cell_labels = TRUE, cell_label_p = c(FALSE, TRUE),
+         p_adjust = "bonferroni")
 ```
 
 Using mixed layouts with mode "none" it is possible to "hack" annotation and dendrograms onto the empty sides of the triangular layouts.

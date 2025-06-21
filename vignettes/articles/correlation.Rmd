@@ -134,7 +134,7 @@ P-values can be calculated by setting the `p_values` argument to `TRUE`. The val
 
 By default, cells are marked with asterisks if `p_values` is `TRUE`. The `p_thresholds` argument controls the p-value thresholds. `p_thresholds` must be a named numeric vector where the values specify the thresholds (in ascending order) and the names are the symbols to use when an adjusted p-value is below each threshold. `stats::symnum` is used to convert p-values and the last value of `p_thresholds` must be 1 (or any higher number) to set the upper bound. By default, `p_thresholds` is set to be `c("***" = 0.001, "**" = 0.01, "*" = 0.05", 1)`. As can be seen, 1 is left unnamed so that any p-values between 0.05 and 1 are unmarked.
 
-If `cell_labels` is `TRUE` (so that correlation values are written in the cells), the symbols from `p_thresholds` are added at the end of the correlation values.
+If `cell_labels` is `TRUE` (so that correlation values are written in the cells), the symbols from `p_thresholds` are added at the end of the correlation values. It is also possible to write out the p-values instead of correlation values by setting both `cell_labels` and `cell_label_p` to TRUE.
 
 ```{r, fig.show='hold', out.width='33%'}
 # P-value symbols added to the plot

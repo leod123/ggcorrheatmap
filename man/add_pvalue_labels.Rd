@@ -11,6 +11,7 @@ add_pvalue_labels(
   mode,
   skip_diag = F,
   cell_labels,
+  cell_label_p,
   cell_label_col,
   cell_label_size,
   cell_label_digits,

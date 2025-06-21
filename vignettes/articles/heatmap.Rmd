@@ -136,7 +136,7 @@ gghm(scale(mtcars), cluster_rows = TRUE, annot_rows_df = row_annot)
 
 # External customisation
 
-The plotting data can be returned by setting the `return_data` argument to `TRUE`, allowing for further customisation of e.g. cell labels.
+The plotting data can be returned by setting the `return_data` argument to `TRUE`, allowing for further customisation of e.g. cell labels. The drawing order can get a bit confusing; for the full, top right and bottom left layouts the cells are drawn from the top left moving down each column; by contrast, for top left and bottom right layouts cells are drawn from the bottom left moving up each column (due to the y-axis levels being reversed). The rows are ordered in their drawing order in the data returned when `return_data` is `TRUE` so that can be used as a reference.
 
 ```{r, fig.show='hold', out.width='50%', fig.width=4, fig.height=5}
 plot_list <- gghm(scale(mtcars[, 1:10]), return_data = TRUE, border_col = NA,
