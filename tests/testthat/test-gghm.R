@@ -59,6 +59,8 @@ test_that("warnings for layouts and clustering", {
   expect_no_warning(gghm(cor(mtcars), layout = "tr", cluster_rows = T, cluster_cols = T))
   expect_no_warning(gghm(cor(mtcars), layout = "bl", cluster_rows = T, cluster_cols = T))
   expect_no_warning(gghm(cor(mtcars), layout = "br", cluster_rows = T, cluster_cols = T))
+  expect_no_warning(gghm(cor(mtcars), layout = c("tl", "br"), cluster_rows = T, cluster_cols = T))
+  expect_no_warning(gghm(cor(mtcars), layout = c("tr", "bl"), cluster_rows = T, cluster_cols = T))
 })
 
 test_that("annotation names must exist in the data", {
