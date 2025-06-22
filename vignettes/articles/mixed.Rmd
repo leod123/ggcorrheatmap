@@ -37,8 +37,7 @@ When the layout is mixed, a few arguments can take vectors or lists of length tw
 The arguments that work like this are `border_col`, `border_lwd`, `border_lty`, `cell_labels`, `cell_label_col`, `cell_label_size`, `cell_label_digits`, and (for `ggcorrhm`) `p_values` and `cell_label_p`.
 
 ```{r}
-# The Brewer Spectral palette
-colr <- c("#9E0142", "#D53E4F", "#F46D43", "#FDAE61", "#FEE08B", "#FFFFBF", "#E6F598", "#ABDDA4", "#66C2A5", "#3288BD", "#5E4FA2")
+colr <- c("#70369D", "#59369D", "#4A44AB", "#486ED8", "#5B9892", "#79C314", "#C6DB28", "#FBDD2B", "#FEB30A", "#F56B08", "#E81416")
 
 ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("none", "hm"),
          # One value for the whole heatmap (border linewidth)
