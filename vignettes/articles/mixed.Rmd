@@ -34,7 +34,7 @@ head(ggcorrhm(mtcars, layout = c("tl", "br"), return_data = TRUE)$plot_data)
 
 When the layout is mixed, a few arguments can take vectors or lists of length two. If a vector, each element is applied to the whole corresponding triangle in `layout`. If a list is provided, the elements can be whatever values that would be applicable for non-mixed layouts, i.e. a single value to apply to the whole triangle, or a vector with one value for each cell. 
 
-The arguments that work like this are `border_col`, `border_lwd`, `border_lty`, `cell_labels`, `cell_label_col`, `cell_label_size`, `cell_label_digits`, and (for `ggcorrhm`) `p_values`.
+The arguments that work like this are `border_col`, `border_lwd`, `border_lty`, `cell_labels`, `cell_label_col`, `cell_label_size`, `cell_label_digits`, and (for `ggcorrhm`) `p_values` and `cell_label_p`.
 
 ```{r}
 # The Brewer Spectral palette
@@ -76,9 +76,9 @@ ggcorrhm(mtcars, layout = c("tl", "br"), p_values = c(FALSE, TRUE))
 By using the `cell_label_p` argument, one triangle can be set to show correlation values and the other to show p-values.
 
 ```{r}
-ggcorrhm(mtcars, layout = c("tr", "bl"), p_values = c(FALSE, TRUE),
-         cell_labels = TRUE, cell_label_p = c(FALSE, TRUE),
-         p_adjust = "bonferroni")
+ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("hm", "hm"),
+         p_values = c(FALSE, TRUE), cell_label_p = c(FALSE, TRUE),
+         p_adjust = "bonferroni", cell_labels = TRUE)
 ```
 
 Using mixed layouts with mode "none" it is possible to "hack" annotation and dendrograms onto the empty sides of the triangular layouts.
