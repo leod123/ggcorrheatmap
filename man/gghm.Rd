@@ -78,37 +78,35 @@ If a column named \code{.names} (containing unique row identifiers) is present i
 
 \item{fill_name}{String to use for the fill scale legend title.}
 
-\item{col_scale}{A \code{ggplot2} scale object for colour scale (Applied to text). NULL (default) uses the \code{ggplot2} default.}
+\item{col_scale}{A \code{ggplot2} scale object for colour scale (Applied to text and non-filled shapes). NULL (default) uses the \code{ggplot2} default.}
 
 \item{col_name}{String to use for the colour scale legend title.}
 
 \item{mode}{A string specifying plotting mode. Possible values are \code{heatmap}/\code{hm} for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
-\code{text} to write the cell values instead of cells (colour scaling with value), and \code{none} for blank cells (used internally).}
+\code{text} to write the cell values instead of cells (colour scaling with value), and \code{none} for blank cells.}
 
 \item{layout}{String specifying the layout of the output heatmap. Possible layouts include
-top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the matrix is asymmetric).
-The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right), or just 'full' or 'whole' for the full layout.
+'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
 A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
 If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
-\code{mode} needs a vector of length two (applied in the same order as layout) and the \verb{cell_label*} and \verb{border_*} arguments can take length two arguments
-(vectors or lists). See details for more information.}
+\code{mode} needs a vector of length two (applied in the same order as layout). See details for more information.}
 
-\item{include_diag}{Logical indicating if the diagonal cells should be plotted (ignored if the whole matrix is plotted).
+\item{include_diag}{Logical indicating if the diagonal cells (of a symmetric matrix) should be plotted.
 Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.}
 
 \item{na_remove}{Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
 If NAs are kept, the fill colour can be set in the \code{ggplot2} scale.}
 
-\item{return_data}{Logical indicating if the data used for plotting should be returned.}
+\item{return_data}{Logical indicating if the data used for plotting and clustering results should be returned.}
 
-\item{show_legend}{Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends.
+\item{show_legend}{Logical vector indicating if main heatmap legends (fill, colour and size) should be shown. If length 1 it is applied to all legends.
 Can be specified in an aesthetic-specific manner using a named vector like \code{c('fill' = TRUE, 'size' = FALSE)}.}
 
 \item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{mode} is a number from 1 to 25 (R pch).}
 
 \item{cell_labels}{Logical specifying if the cells should be labelled with the values.}
 
-\item{cell_label_col}{Colour to use for cell labels.}
+\item{cell_label_col}{Colour to use for cell labels, passed to \code{ggplot2::geom_text}.}
 
 \item{cell_label_size}{Size of cell labels, used as the \code{size} argument in \code{ggplot2::geom_text}.}
 
@@ -140,7 +138,7 @@ colour scale while factor or character columns use discrete scales.}
 \item{annot_cols_df}{Same usage as \code{annot_rows_df} but for column annotation.}
 
 \item{annot_rows_fill}{Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
-Elements can be strings or ggplot2 "Scale" class objects. If a string it is used as the brewer palette (categorical annotation) or viridis option (continuous annotation).
+Elements can be strings or ggplot2 "Scale" class objects. If a string, it is used as the brewer palette (categorical variables) or viridis option (continuous variables).
 If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
 specify order using the \code{guide} argument in the \code{ggplot2} scale function.}
 
@@ -160,11 +158,11 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 
 \item{annot_label}{Logical controlling if names of annotations should be shown in the drawing area.}
 
-\item{annot_border_col}{Colour of cell borders in annotation. Same as \code{border_col} of the main heatmap if it is of length 1, otherwise uses default (grey).}
+\item{annot_border_col}{Colour of cell borders in annotation. By default it is the same as \code{border_col} of the main heatmap if it is of length 1, otherwise uses default (grey).}
 
-\item{annot_border_lwd}{Line width of cell borders in annotation. Same as \code{border_lwd} of the main heatmap if it is of length 1, otherwise uses default (0.5).}
+\item{annot_border_lwd}{Line width of cell borders in annotation. By default it is the same as \code{border_lwd} of the main heatmap if it is of length 1, otherwise uses default (0.5).}
 
-\item{annot_border_lty}{Line type of cell borders in annotation. Same as \code{border_lty} of the main heatmap if it is of length 1, otherwise uses default (solid).}
+\item{annot_border_lty}{Line type of cell borders in annotation. By default it is the same as \code{border_lty} of the main heatmap if it is of length 1, otherwise uses default (solid).}
 
 \item{annot_na_col}{Colour to use for NA values in annotations. Annotation-specific colour can be set in the ggplot2 scales in
 the \verb{annot_*_fill} arguments.}
@@ -220,6 +218,7 @@ the \verb{annot_*_fill} arguments.}
 The heatmap as a \code{ggplot} object.
 If \code{return_data} is TRUE the output is a list containing the plot (named 'plot'),
 the plotting data ('plot_data'), and the result of the clustering ('row_clustering' and/or 'col_clustering).
+If the layout is mixed, an extra column named 'layout' is included, showing which triangle each cell belongs to.
 }
 \description{
 Make a heatmap with ggplot2.

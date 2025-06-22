@@ -5,10 +5,10 @@
 #' @param x Matrix or data frame in wide format containing the columns to correlate against each other or against the columns in `y`.
 #' @param y Optional matrix or data frame in wide format containing columns to correlate with the columns in `x`.
 #' @param cor_method String specifying correlation method to use in the `cor` function. Default is 'pearson'.
-#' @param cor_use String specifying the `use` argument of `cor`, which defineshow to deal with missing values. Default is 'everything'.
-#' @param high Name of the colour to use for the highest value of the colour scale.
-#' @param mid Name of the colour to use for 0 in the colour scale.
-#' @param low Name of the colour to use for the lowest value of the colour scale.
+#' @param cor_use String specifying the `use` argument of `cor`, which defines how to deal with missing values. Default is 'everything'.
+#' @param high Colour to use for the highest value of the colour scale.
+#' @param mid Colour to use for 0 in the colour scale.
+#' @param low Colour to use for the lowest value of the colour scale.
 #' @param limits Correlation limits to plot between.
 #' @param bins Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.
 #' @param fill_name String to use for the correlation fill scale. If NULL (default) the text will depend on the correlation method.
@@ -18,29 +18,27 @@
 #' @param p_thresholds Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
 #' Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).
 #' @param mode A string specifying plotting mode. Possible values are `heatmap`/`hm` for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
-#' `text` to write the cell values instead of cells (colour scaling with value), and `none` for blank cells (used internally).
-#' @param layout layout String specifying the layout of the output heatmap. Possible layouts include
-#' top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the matrix is asymmetric).
-#' The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right), or just 'full' or 'whole' for the full layout.
+#' `text` to write the cell values instead of cells (colour scaling with value), and `none` for blank cells.
+#' @param layout String specifying the layout of the output heatmap. Possible layouts include
+#' 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
 #' A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
 #' If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
-#' `mode` needs a vector of length two (applied in the same order as layout) and the `cell_label*` and `border_*` arguments can take length two arguments
-#' (vectors or lists). See details for more information.
+#' `mode` needs a vector of length two (applied in the same order as layout). See details for more information.
+#' @param include_diag Logical indicating if the diagonal cells should be plotted (if the matrix is symmetric).
 #' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn). This does not affect how
 #' NAs are handled in the correlation computations, use the `cor_use` argument for NA handling in correlation.
-#' @param na_col Colour to use cells with NA.
-#' @param include_diag Logical indicating if the diagonal cells should be plotted (included either way if the whole matrix is plotted).
-#' @param return_data Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, p-values) should be returned.
-#' @param show_legend Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends.
+#' @param na_col Colour to use for cells with NA.
+#' @param return_data Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, clustering and p-values) should be returned.
+#' @param show_legend Logical vector indicating if main heatmap legends (fill, colour and size) should be shown. If length 1 it is applied to all legends.
 #' Can be specified in an aesthetic-specific manner using a named vector like `c('fill' = TRUE, 'size' = FALSE)`.
 #' @param size_range Numeric vector of length 2, specifying lower and upper ranges of shape sizes. Ignored if `size_scale` is not NULL.
 #' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `mode` is a number from 1 to 25 (R pch).
 #' The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.
 #' @param cell_labels Logical specifying if the cells should be labelled with the correlation values.
 #' @param cell_label_p Logical indicating if, when `cell_labels` is `TRUE`, p-values should be written instead of correlation values.
-#' @param cell_label_col Colour to use for cell labels.
+#' @param cell_label_col Colour to use for cell labels, passed to `ggplot2::geom_text`.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
-#' @param cell_label_digits Number of digits to display when cells are labelled with correlation coefficients. Default is 2, passed to `round`.
+#' @param cell_label_digits Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to `round`. NULL for no rounding.
 #' @param border_col Colour of cell borders. If `mode` is not a number, `border_col` can be set to NA to remove borders completely.
 #' @param border_lwd Size of cell borders. If `mode` is a number, `border_col` can be set to 0 to remove borders.
 #' @param border_lty Line type of cell borders. Not supported for numeric `mode`.
@@ -56,20 +54,20 @@
 #' colour scale while factor or character columns use discrete scales.
 #' @param annot_cols_df Same usage as `annot_rows_df` but for column annotation.
 #' @param annot_rows_fill Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
-#' Elements can be strings or ggplot2 "Scale" class objects. If a string it is used as the brewer palette (categorical annotation) or viridis option (continuous annotation).
+#' Elements can be strings or ggplot2 "Scale" class objects. If a string, it is used as the brewer palette (categorical variables) or viridis option (continuous variables).
 #' If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
 #' specify order using the `guide` argument in the `ggplot2` scale function.
 #' @param annot_cols_fill Named list used for column annotation colour scales, used like `annot_rows_fill`.
-#' @param annot_rows_side String specifying which side row annotation should be drawn ('left' for left, otherwise right).
-#' @param annot_cols_side String specifying which side column annotation should be drawn ('bottom', 'down', 'lower' for bottom, otherwise top).
+#' @param annot_rows_side String specifying which side row annotation should be drawn ('left' or 'l' for left, otherwise right).
+#' @param annot_cols_side String specifying which side column annotation should be drawn ('bottom', 'down', 'b', 'd' for bottom, otherwise top).
 #' @param annot_legend Logical indicating if row and column annotations should have legends.
 #' @param annot_dist Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_gap Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_size Size (width for row annotation, height for column annotation) of annotation cells. Used for both row and column annotation.
 #' @param annot_label Logical controlling if names of annotations should be shown in the drawing area.
-#' @param annot_border_col Colour of cell borders in annotation. Same as `border_col` of the main heatmap if it is of length 1, otherwise uses default (grey).
-#' @param annot_border_lwd Line width of cell borders in annotation. Same as `border_lwd` of the main heatmap if it is of length 1, otherwise uses default (0.5).
-#' @param annot_border_lty Line type of cell borders in annotation. Same as `border_lty` of the main heatmap if it is of length 1, otherwise uses default (solid).
+#' @param annot_border_col Colour of cell borders in annotation. By default it is the same as `border_col` of the main heatmap if it is of length 1, otherwise uses default (grey).
+#' @param annot_border_lwd Line width of cell borders in annotation. By default it is the same as `border_lwd` of the main heatmap if it is of length 1, otherwise uses default (0.5).
+#' @param annot_border_lty Line type of cell borders in annotation. By default it is the same as `border_lty` of the main heatmap if it is of length 1, otherwise uses default (solid).
 #' @param annot_na_col Colour to use for NA values in annotations. Annotation-specific colour can be set in the ggplot2 scales in
 #' the `annot_*_fill` arguments.
 #' @param annot_na_remove Logical indicating if NAs in the annotations should be removed (producing empty spaces).
@@ -99,8 +97,10 @@
 #'
 #' @return The correlation heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),
-#' the correlations ('plot_data'), and the result of the clustering ('clustering', only if `cluster_data` is TRUE).
+#' the correlations ('plot_data'), and the result of the clustering ('row_clustering' and 'col_clustering', if clustered).
 #' If p-values were calculated, two additional columns named 'p_val' and 'p_adj' are included, containing nominal and adjusted p-values.
+#' If the layout is mixed, an extra column named 'layout' is included, showing which triangle each cell belongs to.
+#'
 #' @export
 #'
 #' @details
@@ -306,14 +306,16 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   # Add p-values and cell labels
   if ("text" %in% mode_og | any(unlist(p_values)) | any(unlist(cell_labels))) {
     if (length(layout) == 1) {
-      cor_plt <- add_pvalue_labels(cor_mat_dat = if (p_values) {cor_mat_dat} else {NULL},
-                                   cor_plt_dat = cor_plt[["plot_data"]], cor_plt_plt = cor_plt[["plot"]],
-                                   mode = mode_og, skip_diag = isSymmetric(cor_mat) & names_diag,
-                                   cell_labels = cell_labels, cell_label_col = cell_label_col,
-                                   cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
-                                   cell_label_p = cell_label_p, p_thresholds = p_thresholds,
-                                   border_col = border_col,border_lwd = border_lwd, border_lty = border_lty,
-                                   show_legend = show_legend, col_scale = col_scale)
+      cor_plt_lab <- add_pvalue_labels(cor_mat_dat = if (p_values) {cor_mat_dat} else {NULL},
+                                       cor_plt_dat = cor_plt[["plot_data"]], cor_plt_plt = cor_plt[["plot"]],
+                                       mode = mode_og, skip_diag = isSymmetric(cor_mat) & names_diag,
+                                       cell_labels = cell_labels, cell_label_col = cell_label_col,
+                                       cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
+                                       cell_label_p = cell_label_p, p_thresholds = p_thresholds,
+                                       border_col = border_col,border_lwd = border_lwd, border_lty = border_lty,
+                                       show_legend = show_legend, col_scale = col_scale)
+      cor_plt[["plot"]] <- cor_plt_lab[["plot"]]
+      cor_plt[["plot_data"]] <- cor_plt_lab[["plot_data"]]
     } else if (length(layout) == 2) {
       # Avoid name clash
       lt <- layout
@@ -338,8 +340,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                                   border_lty = border_lty[[2]], show_legend = show_legend, col_scale = col_scale)
 
       # Since only the plotted part of the data is returned, bind them together
-      cor_plt <- list(plot = p_plt2[["plot"]],
-                      plot_data = dplyr::bind_rows(p_plt1[["plot_data"]], p_plt2[["plot_data"]]))
+      cor_plt[["plot"]] <- p_plt2[["plot"]]
+      cor_plt[["plot_data"]] <- dplyr::bind_rows(p_plt1[["plot_data"]], p_plt2[["plot_data"]])
     }
   }
 

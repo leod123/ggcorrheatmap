@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(ggcorrheatmap)
 library(ggplot2)
-library(dplyr)
+suppressPackageStartupMessages(library(dplyr))
 ```
 
 Correlation heatmaps can be made easily using the `ggcorrhm` function. `ggcorrhm` is a wrapper for (and shares most of its arguments with) `gghm` and calculates the correlation matrix for the input passed to `gghm`. If one matrix is provided the column-column correlations are plotted. If two matrices are provided, the correlations between the columns in the two matrices are plotted. Using the `cor_method` and `cor_use` different `method` and `use` arguments can be passed to `stats::cor`.
@@ -136,7 +136,7 @@ By default, cells are marked with asterisks if `p_values` is `TRUE`. The `p_thre
 
 If `cell_labels` is `TRUE` (so that correlation values are written in the cells), the symbols from `p_thresholds` are added at the end of the correlation values. It is also possible to write out the p-values instead of correlation values by setting both `cell_labels` and `cell_label_p` to TRUE.
 
-```{r, fig.show='hold', out.width='33%'}
+```{r}
 # P-value symbols added to the plot
 ggcorrhm(mtcars, p_values = TRUE, p_adjust = "bonferroni", cell_label_size = 6)
 # With correlation text
@@ -163,5 +163,15 @@ ggcorrhm(mtcars, border_lty = p$plot_data$p_lty, border_lwd = p$plot_data$p_lwd,
              shape = "*") +
   scale_size(range = c(4, 8)) +
   labs(size = "-log10(p_adj)")
+```
+
+```{r}
+p <- ggcorrhm(mtcars, p_values = TRUE, p_thresholds = NULL,
+              p_adjust = "bonferroni", return_data = TRUE,
+              layout = "tl", include_diag = FALSE)
+ggcorrhm(mtcars, layout = "tl", include_diag = FALSE) +
+  geom_point(data = p$plot_data %>%
+               filter(p_adj >= 0.05 , as.character(row) != as.character(col)),
+             shape = 4, size = 8)
 ```
 

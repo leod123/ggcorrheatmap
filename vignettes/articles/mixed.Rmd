@@ -68,7 +68,7 @@ ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("none", "hm"),
 
 As mentioned above, p-values can be added to only one half of the heatmap if desired.
 
-```{r, fig.show='hold', out.width='50%'}
+```{r}
 ggcorrhm(mtcars, layout = c("tl", "br"), p_values = TRUE)
 ggcorrhm(mtcars, layout = c("tl", "br"), p_values = c(FALSE, TRUE))
 ```

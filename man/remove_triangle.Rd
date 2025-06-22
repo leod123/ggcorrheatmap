@@ -2,7 +2,7 @@
 % Please edit documentation in R/layout_hm.R
 \name{remove_triangle}
 \alias{remove_triangle}
-\title{Title}
+\title{Remove triangle from symmetric matrix and return long format data.}
 \usage{
 remove_triangle(x, tri_remove = "upper", na_remove = F)
 }
@@ -17,6 +17,6 @@ remove_triangle(x, tri_remove = "upper", na_remove = F)
 Matrix in long format with triangle removed.
 }
 \description{
-Title
+Remove triangle from symmetric matrix and return long format data.
 }
 \keyword{internal}

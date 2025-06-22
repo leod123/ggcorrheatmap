@@ -39,7 +39,7 @@ layout_hm <- function(x, layout = "f", na_remove = F, include_diag = T) {
   return(x_long)
 }
 
-#' Title
+#' Remove triangle from symmetric matrix and return long format data.
 #'
 #' @keywords internal
 #'

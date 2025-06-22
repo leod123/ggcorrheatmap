@@ -17,7 +17,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Leo Dahl \email{leo.dahl@scilifelab.se} (\href{https://orcid.org/0000-0003-1492-3052}{ORCID})
+\strong{Maintainer}: Leo Dahl \email{leo.dahl@scilifelab.se}
 
 }
 \keyword{internal}

@@ -89,13 +89,13 @@ ggcorrhm(
 
 \item{cor_method}{String specifying correlation method to use in the \code{cor} function. Default is 'pearson'.}
 
-\item{cor_use}{String specifying the \code{use} argument of \code{cor}, which defineshow to deal with missing values. Default is 'everything'.}
+\item{cor_use}{String specifying the \code{use} argument of \code{cor}, which defines how to deal with missing values. Default is 'everything'.}
 
-\item{high}{Name of the colour to use for the highest value of the colour scale.}
+\item{high}{Colour to use for the highest value of the colour scale.}
 
-\item{mid}{Name of the colour to use for 0 in the colour scale.}
+\item{mid}{Colour to use for 0 in the colour scale.}
 
-\item{low}{Name of the colour to use for the lowest value of the colour scale.}
+\item{low}{Colour to use for the lowest value of the colour scale.}
 
 \item{limits}{Correlation limits to plot between.}
 
@@ -113,26 +113,24 @@ ggcorrhm(
 Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).}
 
 \item{mode}{A string specifying plotting mode. Possible values are \code{heatmap}/\code{hm} for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
-\code{text} to write the cell values instead of cells (colour scaling with value), and \code{none} for blank cells (used internally).}
+\code{text} to write the cell values instead of cells (colour scaling with value), and \code{none} for blank cells.}
 
-\item{layout}{layout String specifying the layout of the output heatmap. Possible layouts include
-top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the matrix is asymmetric).
-The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right), or just 'full' or 'whole' for the full layout.
+\item{layout}{String specifying the layout of the output heatmap. Possible layouts include
+'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
 A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
 If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
-\code{mode} needs a vector of length two (applied in the same order as layout) and the \verb{cell_label*} and \verb{border_*} arguments can take length two arguments
-(vectors or lists). See details for more information.}
+\code{mode} needs a vector of length two (applied in the same order as layout). See details for more information.}
 
-\item{include_diag}{Logical indicating if the diagonal cells should be plotted (included either way if the whole matrix is plotted).}
+\item{include_diag}{Logical indicating if the diagonal cells should be plotted (if the matrix is symmetric).}
 
 \item{na_remove}{Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn). This does not affect how
 NAs are handled in the correlation computations, use the \code{cor_use} argument for NA handling in correlation.}
 
-\item{na_col}{Colour to use cells with NA.}
+\item{na_col}{Colour to use for cells with NA.}
 
-\item{return_data}{Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, p-values) should be returned.}
+\item{return_data}{Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, clustering and p-values) should be returned.}
 
-\item{show_legend}{Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends.
+\item{show_legend}{Logical vector indicating if main heatmap legends (fill, colour and size) should be shown. If length 1 it is applied to all legends.
 Can be specified in an aesthetic-specific manner using a named vector like \code{c('fill' = TRUE, 'size' = FALSE)}.}
 
 \item{size_range}{Numeric vector of length 2, specifying lower and upper ranges of shape sizes. Ignored if \code{size_scale} is not NULL.}
@@ -144,11 +142,11 @@ The default behaviour (NULL) is to use a continuous scale with the absolute valu
 
 \item{cell_label_p}{Logical indicating if, when \code{cell_labels} is \code{TRUE}, p-values should be written instead of correlation values.}
 
-\item{cell_label_col}{Colour to use for cell labels.}
+\item{cell_label_col}{Colour to use for cell labels, passed to \code{ggplot2::geom_text}.}
 
 \item{cell_label_size}{Size of cell labels, used as the \code{size} argument in \code{ggplot2::geom_text}.}
 
-\item{cell_label_digits}{Number of digits to display when cells are labelled with correlation coefficients. Default is 2, passed to \code{round}.}
+\item{cell_label_digits}{Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to \code{round}. NULL for no rounding.}
 
 \item{border_col}{Colour of cell borders. If \code{mode} is not a number, \code{border_col} can be set to NA to remove borders completely.}
 
@@ -176,15 +174,15 @@ colour scale while factor or character columns use discrete scales.}
 \item{annot_cols_df}{Same usage as \code{annot_rows_df} but for column annotation.}
 
 \item{annot_rows_fill}{Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
-Elements can be strings or ggplot2 "Scale" class objects. If a string it is used as the brewer palette (categorical annotation) or viridis option (continuous annotation).
+Elements can be strings or ggplot2 "Scale" class objects. If a string, it is used as the brewer palette (categorical variables) or viridis option (continuous variables).
 If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
 specify order using the \code{guide} argument in the \code{ggplot2} scale function.}
 
 \item{annot_cols_fill}{Named list used for column annotation colour scales, used like \code{annot_rows_fill}.}
 
-\item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' for left, otherwise right).}
+\item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' or 'l' for left, otherwise right).}
 
-\item{annot_cols_side}{String specifying which side column annotation should be drawn ('bottom', 'down', 'lower' for bottom, otherwise top).}
+\item{annot_cols_side}{String specifying which side column annotation should be drawn ('bottom', 'down', 'b', 'd' for bottom, otherwise top).}
 
 \item{annot_legend}{Logical indicating if row and column annotations should have legends.}
 
@@ -196,11 +194,11 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 
 \item{annot_label}{Logical controlling if names of annotations should be shown in the drawing area.}
 
-\item{annot_border_col}{Colour of cell borders in annotation. Same as \code{border_col} of the main heatmap if it is of length 1, otherwise uses default (grey).}
+\item{annot_border_col}{Colour of cell borders in annotation. By default it is the same as \code{border_col} of the main heatmap if it is of length 1, otherwise uses default (grey).}
 
-\item{annot_border_lwd}{Line width of cell borders in annotation. Same as \code{border_lwd} of the main heatmap if it is of length 1, otherwise uses default (0.5).}
+\item{annot_border_lwd}{Line width of cell borders in annotation. By default it is the same as \code{border_lwd} of the main heatmap if it is of length 1, otherwise uses default (0.5).}
 
-\item{annot_border_lty}{Line type of cell borders in annotation. Same as \code{border_lty} of the main heatmap if it is of length 1, otherwise uses default (solid).}
+\item{annot_border_lty}{Line type of cell borders in annotation. By default it is the same as \code{border_lty} of the main heatmap if it is of length 1, otherwise uses default (solid).}
 
 \item{annot_na_col}{Colour to use for NA values in annotations. Annotation-specific colour can be set in the ggplot2 scales in
 the \verb{annot_*_fill} arguments.}
@@ -255,8 +253,9 @@ the \verb{annot_*_fill} arguments.}
 \value{
 The correlation heatmap as a \code{ggplot} object.
 If \code{return_data} is TRUE the output is a list containing the plot (named 'plot'),
-the correlations ('plot_data'), and the result of the clustering ('clustering', only if \code{cluster_data} is TRUE).
+the correlations ('plot_data'), and the result of the clustering ('row_clustering' and 'col_clustering', if clustered).
 If p-values were calculated, two additional columns named 'p_val' and 'p_adj' are included, containing nominal and adjusted p-values.
+If the layout is mixed, an extra column named 'layout' is included, showing which triangle each cell belongs to.
 }
 \description{
 Wrapper function for \code{gghm} to make a correlation heatmap from input matrices. Uses a diverging colour scale centered around 0.

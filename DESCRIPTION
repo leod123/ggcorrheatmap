@@ -1,11 +1,10 @@
 Package: ggcorrheatmap
 Title: Flexible ggplot Correlation Heatmaps
-Version: 0.1.0
+Version: 0.0.0.9000
 Authors@R: 
     person(given = "Leo", family = "Dahl",
            email = "leo.dahl@scilifelab.se",
-           role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0003-1492-3052"))
+           role = c("aut", "cre"))
 Description: Create heatmaps and correlation heatmaps in ggplot with clustering and annotation.
 License: MIT + file LICENSE
 Encoding: UTF-8

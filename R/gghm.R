@@ -4,27 +4,25 @@
 #' If a column named `.names` (containing unique row identifiers) is present it will be used as rownames.
 #' @param fill_scale A `ggplot2` scale object for the cell fill colour scale. NULL (default) uses the `ggplot2` default.
 #' @param fill_name String to use for the fill scale legend title.
-#' @param col_scale A `ggplot2` scale object for colour scale (Applied to text). NULL (default) uses the `ggplot2` default.
+#' @param col_scale A `ggplot2` scale object for colour scale (Applied to text and non-filled shapes). NULL (default) uses the `ggplot2` default.
 #' @param col_name String to use for the colour scale legend title.
 #' @param mode A string specifying plotting mode. Possible values are `heatmap`/`hm` for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
-#' `text` to write the cell values instead of cells (colour scaling with value), and `none` for blank cells (used internally).
+#' `text` to write the cell values instead of cells (colour scaling with value), and `none` for blank cells.
 #' @param layout String specifying the layout of the output heatmap. Possible layouts include
-#' top left, top right, bottom left, bottom right, or the whole heatmap (default and only possible option if the matrix is asymmetric).
-#' The string should be composed of the vertical position (top or bottom) followed by the horizontal position (left or right), or just 'full' or 'whole' for the full layout.
+#' 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
 #' A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
 #' If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
-#' `mode` needs a vector of length two (applied in the same order as layout) and the `cell_label*` and `border_*` arguments can take length two arguments
-#' (vectors or lists). See details for more information.
-#' @param include_diag Logical indicating if the diagonal cells should be plotted (ignored if the whole matrix is plotted).
+#' `mode` needs a vector of length two (applied in the same order as layout). See details for more information.
+#' @param include_diag Logical indicating if the diagonal cells (of a symmetric matrix) should be plotted.
 #' Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.
 #' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
 #' If NAs are kept, the fill colour can be set in the `ggplot2` scale.
-#' @param return_data Logical indicating if the data used for plotting should be returned.
-#' @param show_legend Logical vector indicating if main heatmap legends (fill and size) should be shown. If length 1 it is applied to both fill and size legends.
+#' @param return_data Logical indicating if the data used for plotting and clustering results should be returned.
+#' @param show_legend Logical vector indicating if main heatmap legends (fill, colour and size) should be shown. If length 1 it is applied to all legends.
 #' Can be specified in an aesthetic-specific manner using a named vector like `c('fill' = TRUE, 'size' = FALSE)`.
 #' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `mode` is a number from 1 to 25 (R pch).
 #' @param cell_labels Logical specifying if the cells should be labelled with the values.
-#' @param cell_label_col Colour to use for cell labels.
+#' @param cell_label_col Colour to use for cell labels, passed to `ggplot2::geom_text`.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
 #' @param cell_label_digits Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to `round`. NULL for no rounding.
 #' @param border_col Colour of cell borders. If `mode` is not a number, `border_col` can be set to NA to remove borders completely.
@@ -42,7 +40,7 @@
 #' colour scale while factor or character columns use discrete scales.
 #' @param annot_cols_df Same usage as `annot_rows_df` but for column annotation.
 #' @param annot_rows_fill Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
-#' Elements can be strings or ggplot2 "Scale" class objects. If a string it is used as the brewer palette (categorical annotation) or viridis option (continuous annotation).
+#' Elements can be strings or ggplot2 "Scale" class objects. If a string, it is used as the brewer palette (categorical variables) or viridis option (continuous variables).
 #' If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
 #' specify order using the `guide` argument in the `ggplot2` scale function.
 #' @param annot_cols_fill Named list used for column annotation colour scales, used like `annot_rows_fill`.
@@ -53,9 +51,9 @@
 #' @param annot_gap Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_size Size (width for row annotation, height for column annotation) of annotation cells. Used for both row and column annotation.
 #' @param annot_label Logical controlling if names of annotations should be shown in the drawing area.
-#' @param annot_border_col Colour of cell borders in annotation. Same as `border_col` of the main heatmap if it is of length 1, otherwise uses default (grey).
-#' @param annot_border_lwd Line width of cell borders in annotation. Same as `border_lwd` of the main heatmap if it is of length 1, otherwise uses default (0.5).
-#' @param annot_border_lty Line type of cell borders in annotation. Same as `border_lty` of the main heatmap if it is of length 1, otherwise uses default (solid).
+#' @param annot_border_col Colour of cell borders in annotation. By default it is the same as `border_col` of the main heatmap if it is of length 1, otherwise uses default (grey).
+#' @param annot_border_lwd Line width of cell borders in annotation. By default it is the same as `border_lwd` of the main heatmap if it is of length 1, otherwise uses default (0.5).
+#' @param annot_border_lty Line type of cell borders in annotation. By default it is the same as `border_lty` of the main heatmap if it is of length 1, otherwise uses default (solid).
 #' @param annot_na_col Colour to use for NA values in annotations. Annotation-specific colour can be set in the ggplot2 scales in
 #' the `annot_*_fill` arguments.
 #' @param annot_na_remove Logical indicating if NAs in the annotations should be removed (producing empty spaces).
@@ -86,6 +84,8 @@
 #' @return The heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),
 #' the plotting data ('plot_data'), and the result of the clustering ('row_clustering' and/or 'col_clustering).
+#' If the layout is mixed, an extra column named 'layout' is included, showing which triangle each cell belongs to.
+#'
 #' @export
 #'
 #' @details
@@ -484,10 +484,10 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     list_out <- list("plot" = plt, "plot_data" = data_out)
 
     if (!isFALSE(cluster_rows)) {
-      list_out$row_clustering <- row_clustering$clust
+      list_out[["row_clustering"]] <- row_clustering[["clust"]]
     }
     if (!isFALSE(cluster_cols)) {
-      list_out$col_clustering <- col_clustering$clust
+      list_out[["col_clustering"]] <- col_clustering[["clust"]]
     }
 
     return(list_out)
