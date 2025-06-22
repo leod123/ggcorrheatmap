@@ -144,7 +144,7 @@
 #' ggcorrhm(mtcars, layout = "tr", annot_cols_df = annot)
 ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything",
                      high = "sienna2", mid = "white", low = "skyblue2",
-                     limits = c(-1, 1), bins = NULL, fill_name = NULL, col_name = fill_name, #...
+                     limits = c(-1, 1), bins = NULL, fill_name = NULL, col_name = fill_name,
                      p_values = FALSE, p_adjust = "none", p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, 1),
                      mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
                      layout = "full", include_diag = TRUE, na_remove = FALSE, na_col = "grey", return_data = FALSE,
@@ -184,19 +184,6 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   # If text mode, switch to none and add text later
   if ("text" %in% mode) {
     mode[mode == "text"] <- "none"
-  }
-
-  # If mixed layout, convert some parameters to length two (if not already the case)
-  if (length(layout) == 2) {
-    border_col <- prepare_mixed_param(border_col, "border_col")
-    border_lwd <- prepare_mixed_param(border_lwd, "border_lwd")
-    border_lty <- prepare_mixed_param(border_lty, "border_lty")
-    cell_labels <- prepare_mixed_param(cell_labels, "cell_labels")
-    cell_label_col <- prepare_mixed_param(cell_label_col, "cell_label_col")
-    cell_label_size <- prepare_mixed_param(cell_label_size, "cell_label_size")
-    cell_label_digits <- prepare_mixed_param(cell_label_digits, "cell_label_digits")
-    p_values <- prepare_mixed_param(p_values, "p_values")
-    cell_label_p <- prepare_mixed_param(cell_label_p, "cell_label_p")
   }
 
   cor_mat <- if (is.null(y)) {
@@ -301,7 +288,18 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                   dend_rows_params = dend_rows_params, dend_cols_params = dend_cols_params,
                   dend_rows_extend = dend_rows_extend, dend_cols_extend = dend_cols_extend)
 
-  # cor_plt <- gghm(cor_mat, fill_scale = fill_scale, fill_name = fill_name, ...)
+  # Prepare parameters for two-length layouts (separate from what is done in gghm)
+  if (length(layout) == 2) {
+    border_col <- prepare_mixed_param(border_col, "border_col")
+    border_lwd <- prepare_mixed_param(border_lwd, "border_lwd")
+    border_lty <- prepare_mixed_param(border_lty, "border_lty")
+    cell_labels <- prepare_mixed_param(cell_labels, "cell_labels")
+    cell_label_col <- prepare_mixed_param(cell_label_col, "cell_label_col")
+    cell_label_size <- prepare_mixed_param(cell_label_size, "cell_label_size")
+    cell_label_digits <- prepare_mixed_param(cell_label_digits, "cell_label_digits")
+    p_values <- prepare_mixed_param(p_values, "p_values")
+    cell_label_p <- prepare_mixed_param(cell_label_p, "cell_label_p")
+  }
 
   # Add p-values and cell labels
   if ("text" %in% mode_og | any(unlist(p_values)) | any(unlist(cell_labels))) {
