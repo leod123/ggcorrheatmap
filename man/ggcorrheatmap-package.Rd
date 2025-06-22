@@ -4,9 +4,9 @@
 \name{ggcorrheatmap-package}
 \alias{ggcorrheatmap}
 \alias{ggcorrheatmap-package}
-\title{ggcorrheatmap: Flexible ggplot Correlation Heatmaps}
+\title{ggcorrheatmap: Flexible 'ggplot' Correlation Heatmaps}
 \description{
-Create heatmaps and correlation heatmaps in ggplot with clustering and annotation.
+Create flexible 'ggplot2' heatmaps and correlation heatmaps with clustering and annotation.
 }
 \seealso{
 Useful links:
@@ -17,7 +17,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Leo Dahl \email{leo.dahl@scilifelab.se}
+\strong{Maintainer}: Leo Dahl \email{leokosdah@gmail.com} [copyright holder]
 
 }
 \keyword{internal}

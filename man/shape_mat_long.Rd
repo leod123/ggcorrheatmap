@@ -21,9 +21,4 @@ A data frame with the columns 'row', 'column' (indicating combinations), and 'va
 \description{
 Convert a matrix to long format using row names and column names.
 }
-\examples{
-\dontrun{
-shape_mat_long(cor(mtcars))
-}
-}
 \keyword{internal}

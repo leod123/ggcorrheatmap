@@ -18,7 +18,7 @@ suppressPackageStartupMessages(library(dplyr))
 ```
 
 
-```{r heatmap}
+```{r heatmap, fig.alt='A heatmap of the mtcars data with a colour scale going from dark blue to blue.'}
 gghm(mtcars)
 ```
 
@@ -26,7 +26,7 @@ The `ggcorrhm` function uses `gghm` to build a correlation heatmap. The correlat
 
 If the matrix being plotted is symmetric (as such a correlation matrix is), the axis labels are drawn on the diagonal. This behaviour can be changed using the `names_diag`, `names_x` and `names_y` arguments. A symmetric heatmap can also be plotted using triangular and mixed triangular layouts, explained more in the [correlation matrix](correlation.html) and [mixed layouts](mixed.html) vignettes.
 
-```{r correlation heatmap}
+```{r correlation heatmap, fig.alt='A symmetric heatmap showing the Pearson correlation between columns in the mtcars data. Colours range from blue (low) to red (high). The names of the variables are displayed on the diagonal.'}
 ggcorrhm(mtcars)
 ```
 
