@@ -14,6 +14,7 @@
 #' shape_mat_long(cor(mtcars))
 #' }
 shape_mat_long <- function(x, unique_pairs = F, na_remove = F) {
+  rowcol <- value <- NULL
 
   # Convert to long format
   mat_long <- as.data.frame(x)

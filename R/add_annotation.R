@@ -30,6 +30,7 @@ add_annotation <- function(plt, annot_dim = c("rows", "cols"), annot_df, annot_p
                            draw_legend = T, draw_label = T,
                            na_col = "grey", na_remove = F,
                            col_scale = NULL, legend_order = NULL, label_side, label_params = NULL) {
+  .names <- .data <- NULL
 
   annot_names <- colnames(annot_df)[-which(colnames(annot_df) == ".names")]
   # Vector for determining the order in which to draw the annotation legends
@@ -53,7 +54,7 @@ add_annotation <- function(plt, annot_dim = c("rows", "cols"), annot_df, annot_p
         ggnewscale::new_scale_fill(),
 
         # Draw annotation
-        ggplot2::geom_tile(data = dplyr::filter(dplyr::select(annot_df, .names, all_of(nm)), if (na_remove) !is.na(get(nm)) else T),
+        ggplot2::geom_tile(data = dplyr::filter(dplyr::select(annot_df, .names, dplyr::all_of(nm)), if (na_remove) !is.na(get(nm)) else T),
                            mapping = ggplot2::aes(x = if (annot_dim[1] == "rows") {annot_pos[nm]}
                                                   else {.data[[".names"]]},
                                                   y = if (annot_dim[1] == "rows") {.data[[".names"]]}

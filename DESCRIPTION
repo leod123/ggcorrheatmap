@@ -17,7 +17,8 @@ Imports:
     scales,
     dplyr,
     dendextend,
-    ggnewscale
+    ggnewscale,
+    stats
 Suggests: 
     testthat (>= 3.0.0),
     vdiffr

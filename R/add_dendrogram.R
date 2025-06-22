@@ -11,6 +11,8 @@
 #' @returns A ggplot object with a dendrogram added.
 #'
 add_dendrogram <- function(plt, dendro, dend_col = "black", dend_lwd = 0.3, dend_lty = 1) {
+  x <- y <- xend <- yend <- NULL
+
   seg <- dendro$seg
   nod <- dendro$nod
 
@@ -79,6 +81,7 @@ add_dendrogram <- function(plt, dendro, dend_col = "black", dend_lwd = 0.3, dend
 prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
                                dend_down, dend_left, dend_height, full_plt, layout, x_long,
                                annot_df, annot_side, annot_pos, annot_size) {
+  pch <- cex <- x <- y <- NULL
 
   dend_dim <- dend_dim[1]
   # Segments
@@ -183,6 +186,7 @@ cluster_dimension <- function(cluster_data, mat, cluster_distance, cluster_metho
 #' @returns The input dendrogram data frame but rotated and mirrored to fit the plot.
 #'
 orient_dendrogram <- function(dend, dim = c("rows", "cols"), full_plt, layout, dend_left, dend_down) {
+  y <- yend <- x <- xend <- nx <- nxend <- ny <- nyend <- NULL
 
   # If mixed layout (treated as full plot) with topleft and bottomright, the row dendrogram must be flipped
   mixed_tl_br <- if (length(layout) == 2) {
@@ -325,6 +329,7 @@ move_dendrogram <- function(dend_seg, x_long, dend_dim = c("rows", "cols"), dend
 #' @return Data frame containing coordinates for dendrogram segments (and any colour, linewidth, line type parameters)
 #'
 scale_dendrogram <- function(dend_seg, dend_dim = c("rows", "cols"), dend_side, dend_height) {
+  xend <- x <- yend <- y <- NULL
 
   if (dend_dim[1] == "rows") {
     dend_seg_out <- dplyr::mutate(
@@ -360,6 +365,8 @@ scale_dendrogram <- function(dend_seg, dend_dim = c("rows", "cols"), dend_side, 
 #' @returns `dendro` is returned as is if the positions are correct. Otherwise there is an error.
 #'
 check_dendrogram_pos <- function(dat, dend_dim = c("row", "col"), dendro) {
+  lbl <- NULL
+
   coord_dim <- if (dend_dim[1] == "row") "y" else if (dend_dim[1] == "col") "x" else NA
 
   seg <- dendro$seg

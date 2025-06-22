@@ -217,7 +217,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
     # Keep the data for later plotting
     cor_mat_dat <- cor_mat
     # Get wide format correlation matrix
-    cor_mat <- reshape(dplyr::select(cor_mat, -p_val, -p_adj), idvar = "row", timevar = "col", direction = "wide")
+    cor_mat <- reshape(dplyr::select(cor_mat, -"p_val", -"p_adj"), idvar = "row", timevar = "col", direction = "wide")
     rownames(cor_mat) <- cor_mat[["row"]]
     cor_mat <- cor_mat[, -which(colnames(cor_mat) == "row")]
     # Remove "value." from colnames
@@ -442,6 +442,8 @@ add_pvalue_labels <- function(cor_mat_dat = NULL, cor_plt_dat, cor_plt_plt, mode
 #'
 add_text_geom <- function(dat, plt, type = c("text_mode", "cell_label"), show_legend, skip_diag,
                           cell_label_col, cell_label_size, border_col, border_lwd, border_lty, col_scale) {
+  label <- value <- NULL
+
   if (type == "text_mode") {
     # Text, colour scaling with value and with tiles around
     plt <- plt +

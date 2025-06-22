@@ -5,6 +5,8 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap", layout = "f",
                          names_x_side = "top", names_y_side = "left", show_legend = T,
                          fill_scale = NULL, fill_name = "value", col_scale = NULL, col_name = fill_name,
                          size_scale = NULL, cell_labels = F, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2) {
+  value <- .data <- lab <- NULL
+
   # Base plot
   plt_provided <- !is.null(plt)
   if (is.null(plt)) {

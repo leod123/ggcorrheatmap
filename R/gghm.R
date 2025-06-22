@@ -189,7 +189,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
 
   if (".names" %in% colnames(x)) {
     rownames(x) <- x[[".names"]]
-    x <- dplyr::select(x, -.names)
+    x <- dplyr::select(x, -".names")
   }
   # Explicitly define the rownames to prevent ggplot2 error if x is a data frame without explicit rownames
   rownames(x) <- rownames(x)
@@ -299,8 +299,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
   } else if (length(layout) == 2) {
     # Mixed layout, generate one per half and mark by layout. The first one gets the diagonal
     x_long <- dplyr::bind_rows(
-      dplyr::mutate(layout_hm(x_mat, layout = layout[1], na_remove = na_remove, include_diag = T), lt = layout[1]),
-      dplyr::mutate(layout_hm(x_mat, layout = layout[2], na_remove = na_remove, include_diag = F), lt = layout[2])
+      dplyr::mutate(layout_hm(x_mat, layout = layout[1], na_remove = na_remove, include_diag = T), layout = layout[1]),
+      dplyr::mutate(layout_hm(x_mat, layout = layout[2], na_remove = na_remove, include_diag = F), layout = layout[2])
     )
   }
 
@@ -404,8 +404,10 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
                         cell_labels = cell_labels, cell_label_col = cell_label_col,
                         cell_label_size = cell_label_size, cell_label_digits = cell_label_digits)
   } else if (length(layout) == 2) {
+    # Avoid name clash
+    lt <- layout
     # First half of the plot
-    plt <- make_heatmap(x_long = dplyr::filter(x_long, lt == layout[1]), plt = NULL,
+    plt <- make_heatmap(x_long = dplyr::filter(x_long, layout == lt[1]), plt = NULL,
                         mode = mode[1], layout = layout[1],
                         include_diag = include_diag, invisible_diag = !include_diag,
                         border_lwd = border_lwd[[1]], border_col = border_col[[1]], border_lty = border_lty[[1]],
@@ -417,7 +419,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
                         cell_labels = cell_labels[[1]], cell_label_col = cell_label_col[[1]],
                         cell_label_size = cell_label_size[[1]], cell_label_digits = cell_label_digits[[1]])
     # Remaining half
-    plt <- make_heatmap(x_long = dplyr::filter(x_long, lt == layout[2]), plt = plt,
+    plt <- make_heatmap(x_long = dplyr::filter(x_long, layout == lt[2]), plt = plt,
                         mode = mode[2], layout = layout[2],
                         include_diag = F, invisible_diag = F,
                         border_lwd = border_lwd[[2]], border_col = border_col[[2]], border_lty = border_lty[[2]],
