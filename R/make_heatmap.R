@@ -1,3 +1,35 @@
+#' Make main heatmap part of plot for gghm.
+#'
+#' @keywords internal
+#'
+#' @param x_long Long format data.
+#' @param plt A ggplot object to build onto. If NULL, makes a new plot.
+#' @param mode Plotting mode.
+#' @param layout Layout for plot component to add/make.
+#' @param include_diag Logical indicating if diagonal should be included.
+#' @param invisible_diag Logical indicating if an invisible diagonal should be included.
+#' @param border_lwd Border linewidth.
+#' @param border_col Border colour.
+#' @param border_lty Border linetype.
+#' @param names_diag Logical indicating if names should be displayed on the diagonal.
+#' @param names_x Logical indicating if names should be displayed on the x axis.
+#' @param names_y Logical indicating if names should be displayed on the y axis.
+#' @param names_diag_param Parameters for diagonal names.
+#' @param names_x_side X axis side.
+#' @param names_y_side Y axis side.
+#' @param show_legend Logical indicating which, if any, legends should be drawn.
+#' @param fill_scale Scale for fill aesthetic.
+#' @param fill_name Name for fill aesthetic.
+#' @param col_scale Scale for colour aesthetic.
+#' @param col_name Name for colour aesthetic.
+#' @param size_scale Scale for size aesthetic.
+#' @param cell_labels Logical indicating if cell labels should be written.
+#' @param cell_label_col Colour of cell labels.
+#' @param cell_label_size Size of cell labels.
+#' @param cell_label_digits Number of digits for cell labels if numeric.
+#'
+#' @returns ggplot object with heatmap component.
+#'
 make_heatmap <- function(x_long, plt = NULL, mode = "heatmap", layout = "f",
                          include_diag = F, invisible_diag = F,
                          border_lwd = 0.5, border_col = "grey", border_lty = 1,

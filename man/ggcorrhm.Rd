@@ -119,7 +119,7 @@ Names must be unique, but one element can be left unnamed (by default 1 is unnam
 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
 A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
 If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
-\code{mode} needs a vector of length two (applied in the same order as layout). See details for more information.}
+\code{mode} needs a vector of length two (applied in the same order as layout). See details of \code{gghm} for more information.}
 
 \item{include_diag}{Logical indicating if the diagonal cells should be plotted (if the matrix is symmetric).}
 
@@ -230,9 +230,9 @@ the \verb{annot_*_fill} arguments.}
 
 \item{dend_cols}{Logical indicating if a dendrogram should be drawn for the columns.}
 
-\item{dend_rows_side}{Which side to draw the row dendrogram on ('left' for left, otherwise right).}
+\item{dend_rows_side}{Which side to draw the row dendrogram on ('left' or 'l' for left, otherwise right).}
 
-\item{dend_cols_side}{Which side to draw the column dendrogram on ('bottom', 'down', 'lower' for bottom, otherwise top).}
+\item{dend_cols_side}{Which side to draw the column dendrogram on ('bottom', 'down', 'b', 'd' for bottom, otherwise top).}
 
 \item{dend_col}{Colour to use for dendrogram lines, applied to both row and column dendrograms.}
 
@@ -261,7 +261,7 @@ If the layout is mixed, an extra column named 'layout' is included, showing whic
 Wrapper function for \code{gghm} to make a correlation heatmap from input matrices. Uses a diverging colour scale centered around 0.
 }
 \details{
-\code{ggcorrhm} is a wrapper function for \code{gghm}, making it convenient to make correlation heatmaps.
+\code{ggcorrhm} makes it convenient to make correlation heatmaps, taking the input matrix or data frame to visualise the correlations between columns with the \code{gghm} function.
 The input values can either be one matrix or data frame with columns to correlate with each other, or two
 matrices or data frames with columns to correlate between the matrices. No rownames are needed, but
 if two matrices are provided they should have the same number of rows and the rows should be ordered in a meaningful way

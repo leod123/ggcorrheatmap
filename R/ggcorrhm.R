@@ -2,6 +2,8 @@
 #'
 #' Wrapper function for `gghm` to make a correlation heatmap from input matrices. Uses a diverging colour scale centered around 0.
 #'
+#' @inheritParams gghm
+#'
 #' @param x Matrix or data frame in wide format containing the columns to correlate against each other or against the columns in `y`.
 #' @param y Optional matrix or data frame in wide format containing columns to correlate with the columns in `x`.
 #' @param cor_method String specifying correlation method to use in the `cor` function. Default is 'pearson'.
@@ -17,20 +19,16 @@
 #' @param p_adjust String specifying the adjustment method to use for the p-values (default is "none").
 #' @param p_thresholds Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
 #' Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).
-#' @param mode A string specifying plotting mode. Possible values are `heatmap`/`hm` for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
-#' `text` to write the cell values instead of cells (colour scaling with value), and `none` for blank cells.
 #' @param layout String specifying the layout of the output heatmap. Possible layouts include
 #' 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
 #' A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
 #' If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
-#' `mode` needs a vector of length two (applied in the same order as layout). See details for more information.
+#' `mode` needs a vector of length two (applied in the same order as layout). See details of `gghm` for more information.
 #' @param include_diag Logical indicating if the diagonal cells should be plotted (if the matrix is symmetric).
 #' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn). This does not affect how
 #' NAs are handled in the correlation computations, use the `cor_use` argument for NA handling in correlation.
 #' @param na_col Colour to use for cells with NA.
 #' @param return_data Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, clustering and p-values) should be returned.
-#' @param show_legend Logical vector indicating if main heatmap legends (fill, colour and size) should be shown. If length 1 it is applied to all legends.
-#' Can be specified in an aesthetic-specific manner using a named vector like `c('fill' = TRUE, 'size' = FALSE)`.
 #' @param size_range Numeric vector of length 2, specifying lower and upper ranges of shape sizes. Ignored if `size_scale` is not NULL.
 #' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `mode` is a number from 1 to 25 (R pch).
 #' The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.
@@ -38,58 +36,8 @@
 #' @param cell_label_p Logical indicating if, when `cell_labels` is `TRUE`, p-values should be written instead of correlation values.
 #' @param cell_label_col Colour to use for cell labels, passed to `ggplot2::geom_text`.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
-#' @param cell_label_digits Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to `round`. NULL for no rounding.
-#' @param border_col Colour of cell borders. If `mode` is not a number, `border_col` can be set to NA to remove borders completely.
-#' @param border_lwd Size of cell borders. If `mode` is a number, `border_col` can be set to 0 to remove borders.
-#' @param border_lty Line type of cell borders. Not supported for numeric `mode`.
-#' @param names_diag Logical indicating if names should be written in the diagonal cells (for a symmetric matrix).
-#' @param names_diag_param List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
-#' @param names_x Logical indicating if names should be written on the x axis. Labels can be customised using `ggplot2::theme()` on the output plot.
-#' @param names_x_side String specifying position of the x axis names ("top" or "bottom").
-#' @param names_y Logical indicating if names should be written on the y axis.
-#' @param names_y_side String specifying position of the y axis names ("left" or "right").
-#' @param annot_rows_df Data frame for row annotations. The names of the columns in the data must be included,
-#' either as row names or in a column named `.names`. Each other column specifies an annotation where the column name
-#' will be used as the annotation name (in the legend and next to the annotation). Numeric columns will use a continuous
-#' colour scale while factor or character columns use discrete scales.
-#' @param annot_cols_df Same usage as `annot_rows_df` but for column annotation.
-#' @param annot_rows_fill Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
-#' Elements can be strings or ggplot2 "Scale" class objects. If a string, it is used as the brewer palette (categorical variables) or viridis option (continuous variables).
-#' If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
-#' specify order using the `guide` argument in the `ggplot2` scale function.
-#' @param annot_cols_fill Named list used for column annotation colour scales, used like `annot_rows_fill`.
-#' @param annot_rows_side String specifying which side row annotation should be drawn ('left' or 'l' for left, otherwise right).
-#' @param annot_cols_side String specifying which side column annotation should be drawn ('bottom', 'down', 'b', 'd' for bottom, otherwise top).
-#' @param annot_legend Logical indicating if row and column annotations should have legends.
-#' @param annot_dist Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.
-#' @param annot_gap Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.
-#' @param annot_size Size (width for row annotation, height for column annotation) of annotation cells. Used for both row and column annotation.
-#' @param annot_label Logical controlling if names of annotations should be shown in the drawing area.
-#' @param annot_border_col Colour of cell borders in annotation. By default it is the same as `border_col` of the main heatmap if it is of length 1, otherwise uses default (grey).
-#' @param annot_border_lwd Line width of cell borders in annotation. By default it is the same as `border_lwd` of the main heatmap if it is of length 1, otherwise uses default (0.5).
-#' @param annot_border_lty Line type of cell borders in annotation. By default it is the same as `border_lty` of the main heatmap if it is of length 1, otherwise uses default (solid).
-#' @param annot_na_col Colour to use for NA values in annotations. Annotation-specific colour can be set in the ggplot2 scales in
-#' the `annot_*_fill` arguments.
-#' @param annot_na_remove Logical indicating if NAs in the annotations should be removed (producing empty spaces).
 #' @param annot_rows_params Named list with parameters for row annotations to overwrite the defaults set by the `annot_*` arguments, each name corresponding to the `*` part
 #' (see details of `gghm` for more information).
-#' @param annot_cols_params Named list with parameters for column annotations, used like `annot_rows_params`.
-#' @param annot_rows_label_side String specifying which side the row annotation labels should be on. Either "top" or "bottom".
-#' @param annot_cols_label_side String specifying which side the column annotation labels should be on. Either "left" or "right".
-#' @param annot_rows_label_params Named list of parameters for row annotation labels. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
-#' @param annot_cols_label_params Named list of parameters for column annotation labels. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
-#' @param cluster_rows Logical indicating if rows should be clustered.
-#' @param cluster_cols Logical indicating if columns should be clustered.
-#' @param cluster_distance String with the distance metric to use for clustering, given to `dist`.
-#' @param cluster_method String with the clustering method to use, given to `hclust`.
-#' @param dend_rows Logical indicating if a dendrogram should be drawn for the rows.
-#' @param dend_cols Logical indicating if a dendrogram should be drawn for the columns.
-#' @param dend_rows_side Which side to draw the row dendrogram on ('left' for left, otherwise right).
-#' @param dend_cols_side Which side to draw the column dendrogram on ('bottom', 'down', 'lower' for bottom, otherwise top).
-#' @param dend_col Colour to use for dendrogram lines, applied to both row and column dendrograms.
-#' @param dend_height Number by which to scale dendrogram height, applied to both row and column dendrograms.
-#' @param dend_lwd Linewidth of dendrogram lines, applied to both row and column dendrograms.
-#' @param dend_lty Dendrogram line type, applied to both row and column dendrograms.
 #' @param dend_rows_params Named list for row dendrogram parameters. See details of `gghm` for more information.
 #' @param dend_cols_params Named list for column dendrogram parameters. See details of `gghm` for more information.
 #' @param dend_rows_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row dendrogram. See details of `gghm` for usage.
@@ -105,7 +53,7 @@
 #'
 #' @details
 #'
-#' `ggcorrhm` is a wrapper function for `gghm`, making it convenient to make correlation heatmaps.
+#' `ggcorrhm` makes it convenient to make correlation heatmaps, taking the input matrix or data frame to visualise the correlations between columns with the `gghm` function.
 #' The input values can either be one matrix or data frame with columns to correlate with each other, or two
 #' matrices or data frames with columns to correlate between the matrices. No rownames are needed, but
 #' if two matrices are provided they should have the same number of rows and the rows should be ordered in a meaningful way
