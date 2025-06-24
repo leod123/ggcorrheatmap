@@ -121,10 +121,10 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 
   # If p-values are computed and thresholds given, check that they range between 0 and 1 and that they have enough names
   if (any(unlist(p_values)) & is.numeric(p_thresholds)) {
-    if (any(p_thresholds < 0)) stop("The p-value thresholds must be above 0.")
-    if (p_thresholds[length(p_thresholds)] < 1) stop("The last value of 'p_thresholds' must be 1 or larger.")
-    if (is.null(names(p_thresholds))) stop("'p_thresholds' must have named elements (up to one unnamed).")
-    if (any(duplicated(names(p_thresholds)))) stop("P-value threshold symbols must be unique.")
+    if (any(p_thresholds < 0)) cli::cli_abort("Values in {.var p_thresholds} must be above 0.", class = "p_thr_error")
+    if (p_thresholds[length(p_thresholds)] < 1) cli::cli_abort("The last value of {.var p_thresholds} must be 1 or larger.", class = "p_thr_error")
+    if (is.null(names(p_thresholds))) cli::cli_abort("{.var p_thresholds} must have named elements to be used as symbols (up to one unnamed).", class = "p_thr_error")
+    if (any(duplicated(names(p_thresholds)))) cli::cli_abort("Symbols (the names) of {.var p_thresholds} must be unique.", class = "p_thr_error")
   }
 
   # Save input mode in case it is changed
@@ -322,7 +322,9 @@ add_pvalue_labels <- function(cor_mat_dat = NULL, cor_plt_dat, cor_plt_plt, mode
                               p_thresholds, border_col, border_lwd, border_lty, show_legend, col_scale) {
 
   if (cell_label_p & is.null(cor_mat_dat)) {
-    warning("Writing correlation values as no p-values have been computed.")
+    cli::cli_warn("{.var cell_label_p} is {.val TRUE} but {.var p_values} is {.val FALSE}.
+                  Writing correlation values as no p-values have been computed.",
+                  class = "cell_label_p_warn")
   }
 
   label_df <- cor_plt_dat

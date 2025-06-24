@@ -38,19 +38,19 @@ test_that("snapshots", {
 })
 
 test_that("correct input types", {
-  expect_error(gghm("a"), "x must be a matrix or data frame")
-  expect_error(gghm(1), "x must be a m")
+  expect_error(gghm("a"), class = "input_class_error")
+  expect_error(gghm(1), class = "input_class_error")
 })
 
 test_that("warnings for layouts and clustering", {
-  expect_error(gghm(cor(mtcars), mode = "nothing"), "mode must be one of ")
-  expect_error(gghm(cor(mtcars), layout = "nice"), "Not a supported layout.")
-  expect_warning(gghm(mtcars, layout = "br"), "Triangular layouts are not supported for asymmetric matrices")
-  expect_warning(gghm(cor(mtcars), layout = "br", cluster_rows = T), "Cannot cluster only one")
+  expect_error(gghm(cor(mtcars), mode = "nothing"), class = "nonsup_mode_error")
+  expect_error(gghm(cor(mtcars), layout = "nice"), class = "nonsup_layout_error")
+  expect_warning(gghm(mtcars, layout = "br"), class = "force_full_warn")
+  expect_warning(gghm(cor(mtcars), layout = "br", cluster_rows = T), class = "force_clust_warn")
   expect_warning(gghm(cor(mtcars), layout = "bl",
                       cluster_rows = hclust(dist(cor(mtcars))),
                       cluster_cols = hclust(dist(cor(mtcars), method = "manhattan"), method = "ward.D2")),
-                 "If the row and column clusterings are not identical")
+                class = "unequal_clust_warn")
   # No warnings for any layout with clustering
   expect_no_warning(gghm(cor(mtcars), cluster_rows = T))
   expect_no_warning(gghm(cor(mtcars), cluster_cols = T))
@@ -72,29 +72,18 @@ test_that("annotation names must exist in the data", {
                       data.frame(.names = c(rownames(mtcars), "asdf", "qwer"),
                                  annot1 = rnorm(nrow(mtcars) + 2),
                                  annot2 = sample(letters[1:3], nrow(mtcars) + 2, T))),
-               "Some names in the row annotation")
+               class = "annot_names_error")
   expect_error(gghm(mtcars, annot_cols_df =
                       data.frame(.names = c(colnames(mtcars), "asdf", "qwer"),
                                  annot1 = rnorm(ncol(mtcars) + 2),
                                  annot2 = sample(letters[1:3], ncol(mtcars) + 2, T))),
-               "Some names in the column annotation")
-  # Row annotations are checked first
-  expect_error(gghm(mtcars,
-                    annot_rows_df =
-                      data.frame(.names = c(rownames(mtcars), "asdf", "qwer"),
-                                 annot1 = rnorm(nrow(mtcars) + 2),
-                                 annot2 = sample(letters[1:3], nrow(mtcars) + 2, T)),
-                    annot_cols_df =
-                      data.frame(.names = c(colnames(mtcars), "asdf", "qwer"),
-                                 annot3 = rnorm(ncol(mtcars) + 2),
-                                 annot4 = sample(letters[1:3], ncol(mtcars) + 2, T))),
-               "Some names in the row annotation")
+               class = "annot_names_error")
 })
 
 test_that("mixed_layout_errors", {
   expect_warning(gghm(mtcars, layout = c("tl", "br")), "Triangular layouts are not supported for asymmetric matrices")
-  expect_error(gghm(cor(mtcars), layout = c("tr", "br")), "Mixed layouts must consist of ")
-  expect_error(gghm(cor(mtcars), layout = c("tl", "br"), mode = "heatmap"), "mode must be two of ")
-  expect_error(gghm(cor(mtcars), layout = c("too", "many", "layouts", "!")), "layout must be length 1 or 2")
-  expect_error(gghm(cor(mtcars), layout = c("tl", "br"), border_col = c()), "border_col must be either a ")
+  expect_error(gghm(cor(mtcars), layout = c("tr", "br")), class = "nonsup_layout_error")
+  expect_error(gghm(cor(mtcars), layout = c("tl", "br"), mode = "heatmap"), class = "layout_mode_len_error")
+  expect_error(gghm(cor(mtcars), layout = c("too", "many", "layouts", "!")), class = "layout_mode_len_error")
+  expect_error(gghm(cor(mtcars), layout = c("tl", "br"), border_col = c()), class = "param_len_error")
 })

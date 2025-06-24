@@ -154,7 +154,7 @@ The default behaviour (NULL) is to use a continuous scale with the absolute valu
 
 \item{border_lty}{Line type of cell borders. Not supported for numeric \code{mode}.}
 
-\item{names_diag}{Logical indicating if names should be written in the diagonal cells (for a symmetric matrix).}
+\item{names_diag}{Logical indicating if names should be written in the diagonal cells (for symmetric input).}
 
 \item{names_diag_param}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
 

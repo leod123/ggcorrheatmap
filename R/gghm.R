@@ -28,7 +28,7 @@
 #' @param border_col Colour of cell borders. If `mode` is not a number, `border_col` can be set to NA to remove borders completely.
 #' @param border_lwd Size of cell borders. If `mode` is a number, `border_col` can be set to 0 to remove borders.
 #' @param border_lty Line type of cell borders. Not supported for numeric `mode`.
-#' @param names_diag Logical indicating if names should be written in the diagonal cells (for a symmetric matrix).
+#' @param names_diag Logical indicating if names should be written in the diagonal cells (for symmetric input).
 #' @param names_diag_param List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
 #' @param names_x Logical indicating if names should be written on the x axis. Labels can be customised using `ggplot2::theme()` on the output plot.
 #' @param names_x_side String specifying position of the x axis names ("top" or "bottom").
@@ -179,7 +179,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
                  dend_rows_params = NULL, dend_cols_params = NULL,
                  dend_rows_extend = NULL, dend_cols_extend = NULL) {
 
-  if (!is.matrix(x) & !is.data.frame(x)) stop("x must be a matrix or data frame.")
+  if (!is.matrix(x) & !is.data.frame(x)) cli::cli_abort("{.var x} must be a matrix or data frame.", class = "input_class_error")
 
   # Convert a tibble to a data frame to support row names
   if (inherits(x, "tbl_df")) {x <- as.data.frame(x)}
@@ -199,40 +199,23 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
 
   x_mat <- as.matrix(x)
 
+  # Check layout and mode
+  check_layout(layout, mode)
+
   # Logical for full plot layout or not
   full_plt <- if (length(layout) == 1) {layout %in% c("full", "f", "whole", "w")} else {TRUE}
 
   # If the matrix is asymmetric, triangular layouts break! Throw a warning
   if (!isSymmetric(x_mat) & (!full_plt | length(layout) == 2)) {
-    warning("Triangular layouts are not supported for asymmetric matrices,\nplotting the full matrix instead.")
+    cli::cli_warn("Triangular layouts are not supported for asymmetric matrices, plotting the full matrix instead.",
+                  class = "force_full_warn")
     full_plt <- T
     layout <- "f"
     mode <- mode[1]
   }
 
-  # Check that layout is valid
-  if (length(layout) == 1) {
-    if (!layout %in% c("full", "f", "whole", "w",
-                       "bottomleft", "bl", "topleft", "tl",
-                       "topright", "tr", "bottomright", "br")) {
-      stop("Not a supported layout. Supported layouts are
-         full/f/whole/w,
-         topleft/tl, topright/tr,
-         bottomleft/bl, and bottomright/br")
-    }
-
-    # Check that mode is also ok
-    if (!mode %in% c("heatmap", "hm", as.character(1:25), "text", "none")) {
-      stop("mode must be one of 'heatmap' ('hm'), '1'-'25', 'text', or 'none'.")
-    }
-
-  } else if (length(layout) == 2) {
-    # Only allow for combinations of topleft + bottomright and topright + bottomleft
-    if (!((sum(layout %in% c("topleft", "tl")) == 1 & sum(layout %in% c("bottomright", "br")) == 1) |
-          (sum(layout %in% c("topright", "tr")) == 1 & sum(layout %in% c("bottomleft", "bl")) == 1))) {
-      stop("Mixed layouts must consist of combinations of opposite triangles.")
-    }
-
+  # Prepare parameters for mixed layouts
+  if (length(layout) == 2) {
     # border_* and cell_label*  allow for triangle-specific customisation in mixed layouts
     border_col <- prepare_mixed_param(border_col, "border_col")
     border_lwd <- prepare_mixed_param(border_lwd, "border_lwd")
@@ -241,17 +224,12 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     cell_label_col <- prepare_mixed_param(cell_label_col, "cell_label_col")
     cell_label_size <- prepare_mixed_param(cell_label_size, "cell_label_size")
     cell_label_digits <- prepare_mixed_param(cell_label_digits, "cell_label_digits")
-
-    # mode must also be length 2
-    if (length(mode) != 2 | any(!mode %in% c("heatmap", "hm", as.character(1:25), "text", "none"))) {
-      stop("mode must be two of 'heatmap' ('hm'), '1'-'25', 'text', and 'none'.")
-    }
-  } else {
-    stop("layout must be length 1 or 2.")
   }
 
-  # Don't display names on the diagonal if the plot is non-symmetric as it will cause
+  # Overwrite names_diag if the input is non-symmetric as it would cause
   # new ghost columns to be added to draw the names where row == col
+  # This does not prevent diag names in initially symmetric matrices that become asymmetric as a result
+  # of unequal clustering of rows and columns, the result will look a bit strange but no new columns are created
   if (!isSymmetric(x_mat)) {
     names_diag <- F
   }
@@ -260,7 +238,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
   if (isSymmetric(x_mat) & (!full_plt | length(layout) == 2)) {
 
     if (((!isFALSE(cluster_rows) & isFALSE(cluster_cols)) | (isFALSE(cluster_rows) & !isFALSE(cluster_cols)))) {
-      warning("Cannot cluster only one dimension for triangular layouts, clustering both rows and columns.")
+      cli::cli_warn("Cannot cluster only one dimension for triangular layouts, clustering both rows and columns.",
+                    class = "force_clust_warn")
       if (isFALSE(cluster_rows)) {cluster_rows <- cluster_cols}
       else if (isFALSE(cluster_cols)) {cluster_cols <- cluster_rows}
     }
@@ -268,7 +247,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     # If different clusterings are provided, warn that the output may look strange
     if ((inherits(cluster_rows, "hclust") | inherits(cluster_cols, "hclust")) &
         !identical(cluster_rows, cluster_cols)) {
-      warning("If the row and column clusterings are not identical the output may look strange with triangular layouts.")
+      cli::cli_warn("If the row and column clusterings are not identical the output may look strange with triangular layouts.",
+                    class = "unequal_clust_warn")
     }
   }
 
@@ -343,8 +323,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     # Check that names in annotation exist in the plotting data
     if (any(!annot_rows_df[[".names"]] %in% x_long[["row"]])) {
       bad_names <- setdiff(annot_rows_df[[".names"]], x_long[["row"]])
-      stop("Some names in the row annotation don't exist in the data: ",
-           paste(bad_names, collapse = ", "))
+      cli::cli_abort("Some names in the row annotation don't exist in the data: {.val {bad_names}}",
+                     class = "annot_names_error")
     }
   }
 
@@ -358,8 +338,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
 
     if (any(!annot_cols_df[[".names"]] %in% x_long[["col"]])) {
       bad_names <- setdiff(annot_cols_df[[".names"]], x_long[["col"]])
-      stop("Some names in the column annotation don't exist in the data: ",
-           paste(bad_names, collapse = ", "))
+      cli::cli_abort("Some names in the column annotation don't exist in the data: {.val {bad_names}}",
+                     class = "annot_names_error")
     }
   }
 
@@ -500,6 +480,58 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
 }
 
 
+#' Check that layout and mode are correct
+#'
+#' @keywords internal
+#'
+#' @param layout Plot layout.
+#' @param mode Plot mode.
+#'
+#' @returns Error if incorrect layout or mode, otherwise nothing.
+#'
+check_layout <- function(layout, mode) {
+  # Check layout and mode
+  supported_layouts <- c("full", "f", "whole", "w",
+                         "bottomleft", "bl", "topleft", "tl",
+                         "topright", "tr", "bottomright", "br")
+  supported_modes <- c("heatmap", "hm", "text", as.character(1:25), "none")
+  mode_cli_vec <- cli::cli_vec(supported_modes, list("vec-trunc" = 6)) # For error messages
+
+  if (!(length(mode) == 1 & length(layout) == 1) & !(length(mode) == 2 & length(layout) == 2)) {
+    cli::cli_abort("{.var layout} and {.var mode} must be the same length (1 or 2).", class = "layout_mode_len_error")
+  }
+
+  if (length(layout) == 1) {
+    if (!layout %in% supported_layouts) {
+      cli::cli_abort(c("{.val {layout}} is not a supported layout.",
+                       "i" = "Supported layouts are {.val {supported_layouts}}"),
+                     class = "nonsup_layout_error")
+    }
+
+    if (!mode %in% supported_modes) {
+      cli::cli_abort(c("{.val {mode}} is not a supported mode for this layout.",
+                       "i" = paste0("When {.var layout} has length 1, {.var mode} must be ", cli::style_bold("one"), " of {.val {mode_cli_vec}}")),
+                     class = "nonsup_mode_error")
+    }
+
+  } else if (length(layout) == 2) {
+    # Only allow for combinations of topleft + bottomright and topright + bottomleft
+    if (!((sum(layout %in% c("topleft", "tl")) == 1 & sum(layout %in% c("bottomright", "br")) == 1) |
+          (sum(layout %in% c("topright", "tr")) == 1 & sum(layout %in% c("bottomleft", "bl")) == 1))) {
+      cli::cli_abort(c("{.val {layout}} is not a supported combination of layouts.",
+                       "i" = "Mixed layouts must consist of combinations of opposite triangles."),
+                     class = "nonsup_layout_error")
+    }
+    # mode must also be length 2
+    if (any(!mode %in% supported_modes)) {
+      cli::cli_abort(c("{.val {mode}} is not a supported combination of modes.",
+                       "i" = paste0("When {.var layout} has length 2, {.var mode} must be ", cli::style_bold("two"), " of {.val {mode_cli_vec}}")),
+                     class = "nonsup_mode_error")
+    }
+
+  }
+}
+
 #' Prepare parameters for mixed layouts.
 #'
 #' @keywords internal
@@ -514,7 +546,9 @@ prepare_mixed_param <- function(param, param_name) {
   if (length(param) == 1) {
     param_out <- list(param, param)
   } else if (length(param) != 2) {
-    stop(param_name, " must be either a vector length one (used for all cells) or\nlength two (used for each triangle), or a list of length two where each\nelement is a vector with values for the cells in the triangle.")
+    cli::cli_abort(paste0("In a mixed layout, {.var {param_name}} must be either a vector of length one (used for all)
+                          or two (used for each triangle), or a list of length two with a vector for each triangle."),
+                   class = "param_len_error")
   } else {
     param_out <- param
   }

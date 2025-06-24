@@ -12,15 +12,15 @@ test_that("it runs without error", {
 
 test_that("p-value errors work", {
   expect_error(ggcorrhm(mtcars, p_values = T, p_thresholds = c("a" = -1, "b" = 0.5, "c" = 1)),
-               "The p-value thresholds must be above 0")
+               class = "p_thr_error")
   expect_error(ggcorrhm(mtcars, p_values = T, p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, .1)),
-               "The last value of 'p_thresholds' must be 1 or larger")
+               class = "p_thr_error")
   expect_error(ggcorrhm(mtcars, p_values = T, p_thresholds = c(0.001, 0.01, 0.05, 1)),
-               "'p_thresholds' must have named elements")
+               class = "p_thr_error")
   expect_error(ggcorrhm(mtcars, p_values = T, p_thresholds = c("***" = 0.001, "***" = 0.01, "*" = .05, 1)),
-               "P-value threshold symbols must be unique")
+               class = "p_thr_error")
   expect_warning(ggcorrhm(mtcars, p_values = F, cell_labels = T, cell_label_p = T),
-                 "Writing correlation values as no p-values have been computed")
+                 class = "cell_label_p_warn")
 })
 
 test_that("snapshots are ok", {

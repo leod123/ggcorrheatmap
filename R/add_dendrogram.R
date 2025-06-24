@@ -380,7 +380,7 @@ check_dendrogram_pos <- function(dat, dend_dim = c("row", "col"), dendro) {
 
   # Check if same coordinates (within tolerance)
   if (!all(dplyr::near(dend_lab[[coord_dim]], dend_lab[["plt_coord"]]))) {
-    warning("Something went wrong with dendrogram positioning! The leaves may be in the wrong coordinates. Please inform the author.")
+    cli::cli_warn("Something went wrong with dendrogram positioning! The leaves may be in the wrong coordinates. Please inform the author.")
   }
 
   return(dendro)
