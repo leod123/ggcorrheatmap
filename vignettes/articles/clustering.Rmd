@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 library(ggcorrheatmap)
 ```
 
-Heatmap rows and columns are clustered if the `cluster_rows` and `cluster_cols` arguments are set to `TRUE`. Distance measure and clustering method can be specified with the `cluster_distance` and `cluster_method` arguments, passed on to the `dist` and `hclust` functions, respectively.
+Heatmap rows and columns are clustered if the `cluster_rows` and `cluster_cols` arguments are set to `TRUE`. Distance measure and clustering method can be specified with the `cluster_distance` and `cluster_method` arguments, passed on to the `stats::dist()` and `stats::hclust()` functions, respectively.
 
 ```{r clustering}
 ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE)
@@ -90,7 +90,7 @@ ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE, dend_height = 1,
 #            highlight_branches_col())
 ```
 
-Using the `..._extend` arguments also makes it possible to display the nodes of the dendrograms.
+Using the `dend_*_extend` arguments also makes it possible to display the nodes of the dendrograms.
 
 ```{r}
 # Get clustered labels

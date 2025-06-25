@@ -47,7 +47,7 @@ gghm(replicate(15, sample(letters[1:3], 15, TRUE)),
 
 # Plotting modes
 
-The `mode` argument takes a string and determines how the values will be plotted. 'heatmap' or 'hm' gives the default heatmap, 'text' results in the values being written out (the colour scaling with the cell value, specified by the `col_scale` argument), and any number from 1 to 25 changes the cells to the corresponding shapes (pch). There is also a 'none' mode which draws empty tiles (used internally by `ggcorrhm`).
+The `mode` argument takes a string and determines how the values will be plotted. 'heatmap' or 'hm' gives the default heatmap, 'text' results in the values being written out (the colour scaling with the cell value, specified by the `col_scale` argument), and any number from 1 to 25 changes the cells to the corresponding shapes (pch). There is also a 'none' mode which draws empty tiles (used internally by `ggcorrhm()`).
 
 Aside from the text mode, cells can be labelled with their values by setting `cell_labels` to `TRUE`. Unlike the text in text mode, cell label colours do not scale with the cell values. If cell labels are added to text mode the labels will be drawn on top (obscuring the colours and making the legend useless).
 
@@ -84,7 +84,7 @@ gghm(cor(mtcars), fill_scale = scale_fill_viridis_b(option = "mako"),
 plt_dat <- gghm(cor(mtcars), return_data = TRUE)$plot_data
 plt_dat <- mutate(plt_dat,
                   # The plotting data contains the columns 'row', 'col', and 'value', so avoid those names
-                  colr = case_when(row == "hp" ~ "red", col == "vs" ~ "brown", TRUE ~ "grey"),
+                  colr = case_when(row == "hp" ~ "red", col == "vs" ~ "yellow", TRUE ~ "grey"),
                   lwd = case_when(row == "hp" | col == "vs" ~ 1.5, TRUE ~ 0.5),
                   lty = case_when(value > 0.5 ~ 1, TRUE ~ 2))
 gghm(cor(mtcars), fill_scale = scale_fill_viridis_b(option = "mako"),
@@ -136,7 +136,9 @@ gghm(scale(mtcars), cluster_rows = TRUE, annot_rows_df = row_annot)
 
 # External customisation
 
-The plotting data can be returned by setting the `return_data` argument to `TRUE`, allowing for further customisation of e.g. cell labels. The drawing order can get a bit confusing; for the full, top right and bottom left layouts the cells are drawn from the top left moving down each column; by contrast, for top left and bottom right layouts cells are drawn from the bottom left moving up each column (due to the y-axis levels being reversed). The rows are ordered in their drawing order in the data returned when `return_data` is `TRUE` so that can be used as a reference.
+The plotting data can be returned by setting the `return_data` argument to `TRUE`, allowing for further customisation of e.g. cell labels by adding geoms to the finished plot as shown below.
+
+As explained in the 'Cell borders' section, arguments where the values are passed on to `ggplot2::geom_*` functions can be vectors with one value per cell. The drawing order can get a bit confusing; for the full, top right and bottom left layouts the cells are drawn from the top left moving down each column; by contrast, for top left and bottom right layouts cells are drawn from the bottom left moving up each column (due to the y-axis levels being reversed). The rows are ordered in their drawing order in the data returned when `return_data` is `TRUE` so that can be used as a reference. However, in general, passing vectors to static aesthetics in `ggplot2` can become tricky and adding another geom to the output plot is more robust.
 
 ```{r, fig.show='hold', out.width='50%', fig.width=4, fig.height=5}
 plot_list <- gghm(scale(mtcars[, 1:10]), return_data = TRUE, border_col = NA,

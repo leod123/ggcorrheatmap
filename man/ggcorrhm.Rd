@@ -113,7 +113,7 @@ ggcorrhm(
 Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).}
 
 \item{mode}{A string specifying plotting mode. Possible values are \code{heatmap}/\code{hm} for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
-\code{text} to write the cell values instead of cells (colour scaling with value), and \code{none} for blank cells.}
+\code{text} to write the cell values instead of filling cells (colour scaling with value), and \code{none} for blank cells.}
 
 \item{layout}{String specifying the layout of the output heatmap. Possible layouts include
 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
@@ -253,9 +253,10 @@ the \verb{annot_*_fill} arguments.}
 \value{
 The correlation heatmap as a \code{ggplot} object.
 If \code{return_data} is TRUE the output is a list containing the plot (named 'plot'),
-the correlations ('plot_data'), and the result of the clustering ('row_clustering' and 'col_clustering', if clustered).
-If p-values were calculated, two additional columns named 'p_val' and 'p_adj' are included, containing nominal and adjusted p-values.
-If the layout is mixed, an extra column named 'layout' is included, showing which triangle each cell belongs to.
+the correlations ('plot_data', with factor columns 'row' and 'col' and a column 'value' containing the cell values),
+and the result of the clustering ('row_clustering' and 'col_clustering', if clustered).
+If p-values were calculated, two additional columns named 'p_val' and 'p_adj' are included in 'plot_data', containing nominal and adjusted p-values.
+If the layout is mixed, an extra factor column named 'layout' is included, showing which triangle each cell belongs to.
 }
 \description{
 Make a correlation heatmap from input matrices. Uses a diverging colour scale centered around 0.

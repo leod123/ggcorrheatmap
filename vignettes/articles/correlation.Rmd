@@ -15,7 +15,7 @@ library(ggplot2)
 suppressPackageStartupMessages(library(dplyr))
 ```
 
-Correlation heatmaps can be made easily using the `ggcorrhm` function. `ggcorrhm` is a wrapper for (and shares most of its arguments with) `gghm` and calculates the correlation matrix for the input passed to `gghm`. If one matrix is provided the column-column correlations are plotted. If two matrices are provided, the correlations between the columns in the two matrices are plotted. Using the `cor_method` and `cor_use` different `method` and `use` arguments can be passed to `stats::cor`.
+Correlation heatmaps can be made easily using the `ggcorrhm()` function. `ggcorrhm()` is a wrapper for (and shares most of its arguments with) `gghm()` and calculates the correlation matrix for the input passed to `gghm()`. If one matrix is provided the column-column correlations are plotted. If two matrices are provided, the correlations between the columns in the two matrices are plotted. Using the `cor_method` and `cor_use` different `method` and `use` arguments can be passed to `stats::cor`.
 
 ```{r symmetric correlation heatmap}
 ggcorrhm(mtcars)
@@ -27,7 +27,7 @@ ggcorrhm(iris[1:nrow(mtcars), -5], mtcars)
 
 # Changing the colours
 
-`ggcorrhm` sets the fill scale to use `ggplot2::scale_fill_gradient2()` with limits set to [-1, 1]. The colours can be changed using the `high`, `mid` and `low` arguments. If a discrete scale is desired, `bins` can be used to bin the scale. The scale can be overwritten completely by adding a `ggplot2` scale to the plot.
+`ggcorrhm()` sets the fill scale to use `ggplot2::scale_fill_gradient2()` with limits set to [-1, 1]. The colours can be changed using the `high`, `mid` and `low` arguments. If a discrete scale is desired, `bins` can be used to bin the scale. The scale can be overwritten completely by adding a `ggplot2` scale to the plot.
 
 For symmetric matrices, the axis names are drawn on the diagonal. The `names_diag`, `names_x` and `names_y` arguments control where names should be drawn.
 
@@ -51,7 +51,7 @@ ggcorrhm(mtcars, layout = "br", include_diag = FALSE)
 
 # Label customisation
 
-The looks of the names displayed in the diagonal of symmetric matrices can be adjusted with the `names_diag_params` argument, which takes a named list of parameters to pass to `ggplot2::geom_text`. For names displayed on the x and y axes, use `ggplot2::theme` on the generated plot object to change the appearance.
+The looks of the names displayed in the diagonal of symmetric matrices can be adjusted with the `names_diag_params` argument, which takes a named list of parameters to pass to `ggplot2::geom_text()`. For names displayed on the x and y axes, use `ggplot2::theme()` on the generated plot object to change the appearance.
 
 ```{r, fig.width=5, fig.height=4, fig.show='hold', out.width='50%'}
 ggcorrhm(mtcars, layout = "bl", show_legend = FALSE, include_diag = FALSE,
@@ -70,7 +70,7 @@ ggcorrhm(mtcars, layout = "br", include_diag = FALSE,
 
 # Legend position
 
-The legend can be moved around by adding to the theme of the output plot using `ggplot2::theme`. Use the `legend.position.inside` argument to move the legend to the plotting area to make use of the empty space of triangular layouts.
+The legend can be moved around by adding to the theme of the output plot using `ggplot2::theme()`. Use the `legend.position.inside` argument to move the legend to the plotting area to make use of the empty space of triangular layouts.
 
 ```{r legend position, fig.width=5, fig.height=4, fig.show='hold', out.width='50%'}
 ggcorrhm(mtcars) + theme(legend.position = "top")
@@ -80,7 +80,7 @@ ggcorrhm(mtcars, layout = "br") +
 
 # Clustering and annotation
 
-Just like with `gghm`, the heatmap can be clustered and annotated. Triangular layouts limit the positions of annotation and dendrograms to the non-empty sides of the heatmap.
+Just like with `gghm()`, the heatmap can be clustered and annotated. Triangular layouts limit the positions of annotation and dendrograms to the non-empty sides of the heatmap.
 
 ```{r clustering and annotation}
 set.seed(123)
@@ -132,9 +132,9 @@ ggcorrhm(mtcars, layout = c("tr", "bl"))
 
 P-values can be calculated by setting the `p_values` argument to `TRUE`. The values can be adjusted for multiple testing by passing a string specifying the adjustment method to `p_adjust`. If the correlation matrix is symmetric, the diagonal is excluded and only half of the off-diagonal values are used for the adjustment. The calculated p-values will be included in the data if `return_data` is `TRUE`.
 
-By default, cells are marked with asterisks if `p_values` is `TRUE`. The `p_thresholds` argument controls the p-value thresholds. `p_thresholds` must be a named numeric vector where the values specify the thresholds (in ascending order) and the names are the symbols to use when an adjusted p-value is below each threshold. `stats::symnum` is used to convert p-values and the last value of `p_thresholds` must be 1 (or any higher number) to set the upper bound. By default, `p_thresholds` is set to be `c("***" = 0.001, "**" = 0.01, "*" = 0.05", 1)`. As can be seen, 1 is left unnamed so that any p-values between 0.05 and 1 are unmarked.
+By default, cells are marked with asterisks if `p_values` is `TRUE`. The `p_thresholds` argument controls the p-value thresholds. `p_thresholds` must be a named numeric vector where the values specify the thresholds (in ascending order) and the names are the symbols to use when an adjusted p-value is below each threshold. `stats::symnum()` is used to convert p-values and the last value of `p_thresholds` must be 1 (or any higher number) to set the upper bound. By default, `p_thresholds` is set to be `c("***" = 0.001, "**" = 0.01, "*" = 0.05", 1)`. As can be seen, 1 is left unnamed so that any p-values between 0.05 and 1 are unmarked.
 
-If `cell_labels` is `TRUE` (so that correlation values are written in the cells), the symbols from `p_thresholds` are added at the end of the correlation values. It is also possible to write out the p-values instead of correlation values by setting both `cell_labels` and `cell_label_p` to TRUE.
+If `cell_labels` is `TRUE` (so that correlation values are written in the cells), the symbols from `p_thresholds` are added at the end of the correlation values. It is also possible to write out the p-values instead of correlation values by setting both `cell_labels` and `cell_label_p` to `TRUE`.
 
 ```{r}
 # P-value symbols added to the plot
@@ -151,13 +151,13 @@ By returning the data and using `ggplot2` functions it is possible to be more cr
 ```{r}
 p <- ggcorrhm(mtcars, p_values = TRUE, p_thresholds = NULL,
               p_adjust = "bonferroni", return_data = TRUE,
-              layout = "br", include_diag = TRUE)
+              layout = "br", include_diag = FALSE)
 p$plot_data <- mutate(p$plot_data,
                       p_lty = case_when(p_adj < 0.05 ~ 1, TRUE ~ 3),
                       p_lwd = case_when(p_adj < 0.05 ~ 1, TRUE ~ 0.5),
                       p_size = -log10(p_adj))
 ggcorrhm(mtcars, border_lty = p$plot_data$p_lty, border_lwd = p$plot_data$p_lwd,
-         layout = "br", include_diag = TRUE) +
+         layout = "br", include_diag = FALSE) +
   geom_point(aes(size = p_size), data = p$plot_data %>%
                filter(p_adj < 0.05, as.character(row) != as.character(col)),
              shape = "*") +
@@ -171,7 +171,8 @@ p <- ggcorrhm(mtcars, p_values = TRUE, p_thresholds = NULL,
               layout = "tl", include_diag = FALSE)
 ggcorrhm(mtcars, layout = "tl", include_diag = FALSE) +
   geom_point(data = p$plot_data %>%
-               filter(p_adj >= 0.05 , as.character(row) != as.character(col)),
+               # Mark cells above a threshold
+               filter(p_adj >= 0.05, as.character(row) != as.character(col)),
              shape = 4, size = 8)
 ```
 

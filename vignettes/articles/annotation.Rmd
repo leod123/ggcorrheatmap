@@ -27,7 +27,7 @@ ggcorrhm(mtcars, annot_rows_df = row_annot, annot_cols_df = col_annot)
 
 # Controlling colours
 
-The colours used for annotation are selected in order from eight brewer palettes (categorical annotations, `ggplot2::scale_fill_brewer`) or eight viridis options (continuous annotations, `ggplot2::scale_fill_viridis_c`), starting again from the beginning if there are more than eight annotations of a certain type. 
+The colours used for annotation are selected in order from eight brewer palettes (categorical annotations, `ggplot2::scale_fill_brewer()`) or eight viridis options (continuous annotations, `ggplot2::scale_fill_viridis_c()`), starting again from the beginning if there are more than eight annotations of a certain type. 
 
 ```{r}
 df_in <- matrix(1:9, nrow = 3, ncol = 3, byrow = TRUE)
@@ -90,7 +90,7 @@ ggcorrhm(mtcars, annot_rows_df = row_annot, annot_legend = FALSE,
          annot_size = 2)
 ```
 
-These parameters can be adjusted independently for row and column annotation by using the `annot_rows_params` and `annot_cols_params` arguments. These are named lists that allow you to control the distance to the heatmap, gap between annotations, annotation size, annotation label (show/hide), annotation legend (show/hide), border colour, and border linewidth. The `annot_dist`, `annot_size`, etc arguments shown above are used for both row and column annotations but are overwritten by the `..._params` arguments.
+These parameters can be adjusted independently for row and column annotation by using the `annot_rows_params` and `annot_cols_params` arguments. These are named lists that allow you to control the distance to the heatmap, gap between annotations, annotation size, annotation label (show/hide), annotation legend (show/hide), border colour, and border linewidth. The `annot_dist`, `annot_size`, etc arguments shown above are used for both row and column annotations but are overwritten by the `annot_*_params` arguments.
 
 ```{r}
 df_in <- matrix(1:9, nrow = 3, ncol = 3, byrow = TRUE)
@@ -114,7 +114,7 @@ gghm(df_in, annot_rows_df = row_annot, annot_cols_df = col_annot,
 
 # Annotation labels
 
-The annotation labels can be customised by passing named lists to the `annot_rows_label_params` and `annot_cols_label_params` arguments. The lists are passed on to `grid::textGrob`.
+The annotation labels can be customised by passing named lists to the `annot_rows_label_params` and `annot_cols_label_params` arguments. The lists are passed on to `grid::textGrob()`.
 
 ```{r}
 df_in <- matrix(1:9, nrow = 3, ncol = 3, byrow = TRUE)
@@ -131,7 +131,7 @@ gghm(df_in, annot_rows_df = row_annot, annot_cols_df = col_annot, annot_legend =
      ))
 ```
 
-If the annotation labels are too long and are cut off, the plot margins can be adjusted by using the `ggplot2::theme` function and its `plot.margin` argument. Alternatively, the figure height can be increased, as the heatmap is set to use a fixed aspect ratio (`ggplot2::coord_fixed`). This can be overwritten by adding `ggplot2::coord_cartesian` to the output plot.
+If the annotation labels are too long and are cut off, the plot margins can be adjusted by using the `ggplot2::theme()` function and its `plot.margin` argument. Alternatively, the figure height can be increased, as the heatmap is set to use a fixed aspect ratio (`ggplot2::coord_fixed()`). This can be overwritten by adding `ggplot2::coord_cartesian()` to the output plot.
 
 # Dealing with missing values
 

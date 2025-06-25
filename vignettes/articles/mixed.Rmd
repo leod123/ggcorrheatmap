@@ -13,6 +13,8 @@ knitr::opts_chunk$set(
 library(ggcorrheatmap)
 ```
 
+# Basics
+
 If the matrix is symmetric it is possible to plot mixed layouts by giving two triangles (opposite each other) to the `layout` argument. Two modes must be provided, the default modes being `heatmap` for the first element and `text` for the second. The first element of `layout` gets the diagonal (if it is drawn).
 
 ```{r, fig.show='hold', out.width='50%'}
@@ -31,6 +33,8 @@ If `return_data` is `TRUE` there will be an extra column called `layout`, showin
 ```{r}
 head(ggcorrhm(mtcars, layout = c("tl", "br"), return_data = TRUE)$plot_data)
 ```
+
+# Parameter behaviour
 
 When the layout is mixed, a few arguments can take vectors or lists of length two. If a vector, each element is applied to the whole corresponding triangle in `layout`. If a list is provided, the elements can be whatever values that would be applicable for non-mixed layouts, i.e. a single value to apply to the whole triangle, or a vector with one value for each cell. 
 
@@ -62,7 +66,8 @@ ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("none", "hm"),
            # names are written instead of cell labels and are controlled differently
            rev(unlist(sapply(seq_along(colr), function(i) rep(colr[i], i - 1)))),
            1 # Anything as there are no labels
-         ))
+         ),
+         names_diag_param = list(colour = rev(colr)))
 ```
 
 As mentioned above, p-values can be added to only one half of the heatmap if desired.
@@ -80,7 +85,7 @@ ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("hm", "hm"),
          p_adjust = "bonferroni", cell_labels = TRUE)
 ```
 
-Using mixed layouts with mode "none" it is possible to "hack" annotation and dendrograms onto the empty sides of the triangular layouts.
+Using mixed layouts with mode "none" it is possible to "hack" annotations and dendrograms onto the empty sides of the triangular layouts.
 
 ```{r}
 annot <- data.frame(.names = colnames(mtcars), a = 1:11)

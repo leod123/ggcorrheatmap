@@ -83,7 +83,7 @@ If a column named \code{.names} (containing unique row identifiers) is present i
 \item{col_name}{String to use for the colour scale legend title.}
 
 \item{mode}{A string specifying plotting mode. Possible values are \code{heatmap}/\code{hm} for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
-\code{text} to write the cell values instead of cells (colour scaling with value), and \code{none} for blank cells.}
+\code{text} to write the cell values instead of filling cells (colour scaling with value), and \code{none} for blank cells.}
 
 \item{layout}{String specifying the layout of the output heatmap. Possible layouts include
 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
@@ -217,8 +217,9 @@ the \verb{annot_*_fill} arguments.}
 \value{
 The heatmap as a \code{ggplot} object.
 If \code{return_data} is TRUE the output is a list containing the plot (named 'plot'),
-the plotting data ('plot_data'), and the result of the clustering ('row_clustering' and/or 'col_clustering).
-If the layout is mixed, an extra column named 'layout' is included, showing which triangle each cell belongs to.
+the plotting data ('plot_data', with factor columns 'row' and 'col' and a column 'value' containing the cell values),
+and the result of the clustering ('row_clustering' and/or 'col_clustering).
+If the layout is mixed, an extra factor column named 'layout' is included in 'plot_data', showing which triangle each cell belongs to.
 }
 \description{
 Make a heatmap with ggplot2.
