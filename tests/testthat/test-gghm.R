@@ -35,6 +35,26 @@ test_that("snapshots", {
   vdiffr::expect_doppelganger("cell_shape", gghm(mtcars, mode = "21"))
   vdiffr::expect_doppelganger("text_mode", gghm(mtcars, mode = "text"))
   vdiffr::expect_doppelganger("mixed_mode", gghm(cor(mtcars), layout = c("tl", "br")))
+  vdiffr::expect_doppelganger("clustering_extended",
+                              gghm(scale(mtcars), cluster_rows = T, cluster_cols = T,
+                                   dend_height = 1,
+                                   dend_rows_extend = list(
+                                     set = list("by_labels_branches_col", value = rownames(mtcars)[1:5], TF_values = "red"),
+                                     set = list("by_labels_branches_lty", value = rownames(mtcars)[10:12], TF_values = 3),
+                                     set = list("by_labels_branches_lwd", value = rownames(mtcars)[21:25], TF_values = 1),
+                                     set = list("nodes_cex", 2),
+                                     set = list("nodes_col", "orange"),
+                                     set = list("leaves_pch", 21),
+                                     set = list("leaves_cex", 3),
+                                     set = list("leaves_col", "purple"),
+                                     raise.dendrogram = list(1)
+                                   ),
+                                   dend_cols_extend = list(
+                                     highlight_branches_col = NULL,
+                                     set = list("nodes_pch", c(15, 16, 17)),
+                                     set = list("nodes_cex", 2:4),
+                                     set = list("nodes_col", as.character(1:5))
+                                   )))
 })
 
 test_that("correct input types", {
