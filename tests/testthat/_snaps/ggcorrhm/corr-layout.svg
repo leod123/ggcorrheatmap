@@ -95,17 +95,17 @@
 <rect x='545.53' y='419.67' width='48.66' height='48.66' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FFF7F4;' />
 <rect x='545.53' y='468.33' width='48.66' height='48.66' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FFDAC9;' />
 <rect x='545.53' y='516.99' width='48.66' height='48.66' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #EE7942;' />
-<text x='569.86' y='545.12' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='21.48px' lengthAdjust='spacingAndGlyphs'>carb</text>
-<text x='521.20' y='496.46' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='22.10px' lengthAdjust='spacingAndGlyphs'>gear</text>
-<text x='472.54' y='447.80' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='15.34px' lengthAdjust='spacingAndGlyphs'>am</text>
-<text x='423.88' y='399.14' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='11.05px' lengthAdjust='spacingAndGlyphs'>vs</text>
-<text x='375.22' y='350.48' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='23.33px' lengthAdjust='spacingAndGlyphs'>qsec</text>
-<text x='326.56' y='301.82' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='11.04px' lengthAdjust='spacingAndGlyphs'>wt</text>
-<text x='277.90' y='253.16' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='19.02px' lengthAdjust='spacingAndGlyphs'>drat</text>
-<text x='229.24' y='204.50' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='12.28px' lengthAdjust='spacingAndGlyphs'>hp</text>
-<text x='180.58' y='155.84' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='20.26px' lengthAdjust='spacingAndGlyphs'>disp</text>
-<text x='131.92' y='107.18' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='13.50px' lengthAdjust='spacingAndGlyphs'>cyl</text>
 <text x='83.26' y='58.52' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='21.48px' lengthAdjust='spacingAndGlyphs'>mpg</text>
+<text x='131.92' y='107.18' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='13.50px' lengthAdjust='spacingAndGlyphs'>cyl</text>
+<text x='180.58' y='155.84' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='20.26px' lengthAdjust='spacingAndGlyphs'>disp</text>
+<text x='229.24' y='204.50' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='12.28px' lengthAdjust='spacingAndGlyphs'>hp</text>
+<text x='277.90' y='253.16' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='19.02px' lengthAdjust='spacingAndGlyphs'>drat</text>
+<text x='326.56' y='301.82' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='11.04px' lengthAdjust='spacingAndGlyphs'>wt</text>
+<text x='375.22' y='350.48' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='23.33px' lengthAdjust='spacingAndGlyphs'>qsec</text>
+<text x='423.88' y='399.14' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='11.05px' lengthAdjust='spacingAndGlyphs'>vs</text>
+<text x='472.54' y='447.80' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='15.34px' lengthAdjust='spacingAndGlyphs'>am</text>
+<text x='521.20' y='496.46' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='22.10px' lengthAdjust='spacingAndGlyphs'>gear</text>
+<text x='569.86' y='545.12' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='21.48px' lengthAdjust='spacingAndGlyphs'>carb</text>
 <rect x='610.02' y='241.68' width='58.66' height='112.69' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
 <text x='615.50' y='255.87' style='font-size: 11.00px; font-family: sans;' textLength='47.70px' lengthAdjust='spacingAndGlyphs'>Pearson r</text>
 <image width='17.28' height='86.40' x='615.50' y='262.49' preserveAspectRatio='none' xlink:href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAEsCAYAAAACUNnVAAAAq0lEQVQ4jaWRQRLDMAgDF57WX/XT/QI9ONMxQdT25BZGYiNhPu9XOGa4meGYk0bDwdM4VJ9HCcCyZU2hUhS54EVm2WNpngRqQVVh7GIrqDL3li5z77uT12tH5EdZHm8cBfo7YngEeMD8BVEEsmUWqvmiIITAEZSxIcxayKnGGFtxL15UXvujX0Hd6LZ7eo3So8WLzBsJ2qvlE6+g9cQtfuPd5t1TqESJ18rCF17d1oKu8q6eAAAAAElFTkSuQmCC'/>

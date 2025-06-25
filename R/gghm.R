@@ -215,6 +215,11 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     mode <- mode[1]
   }
 
+  # Evaluate annot_border_col, annot_border_lwd, annot_border_lty before border_col, border_lwd, border_lty may change
+  annot_border_col <- annot_border_col
+  annot_border_lwd <- annot_border_lwd
+  annot_border_lty <- annot_border_lty
+
   # Prepare parameters for mixed layouts
   if (length(layout) == 2) {
     # border_* and cell_label*  allow for triangle-specific customisation in mixed layouts
@@ -293,7 +298,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     x_long <- if (any(c("topleft", "tl", "bottomright", "br") %in% layout)) {
       dplyr::arrange(x_long, col, row)
     } else {
-      dplyr::arrange(x_long, col, desc(row))
+      dplyr::arrange(x_long, col, dplyr::desc(row))
     }
 
   } else if (length(layout) == 2) {
@@ -308,7 +313,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     x_long <- if (any(c("topleft", "tl", "bottomright", "br") %in% layout)) {
       dplyr::arrange(x_long, layout, col, row)
     } else {
-      dplyr::arrange(x_long, layout, col, desc(row))
+      dplyr::arrange(x_long, layout, col, dplyr::desc(row))
     }
   }
 

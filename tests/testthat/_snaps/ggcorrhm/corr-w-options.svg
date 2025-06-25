@@ -150,17 +150,17 @@
 <rect x='469.16' y='358.43' width='41.10' height='41.10' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #F99C71;' />
 <rect x='469.16' y='399.52' width='41.10' height='41.10' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FCA67F;' />
 <rect x='469.16' y='440.62' width='41.10' height='41.10' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #EE7942;' />
-<text x='489.71' y='464.97' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='11.05px' lengthAdjust='spacingAndGlyphs'>vs</text>
-<text x='448.61' y='423.87' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='21.48px' lengthAdjust='spacingAndGlyphs'>mpg</text>
-<text x='407.51' y='382.77' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='23.33px' lengthAdjust='spacingAndGlyphs'>qsec</text>
-<text x='366.42' y='341.67' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='22.10px' lengthAdjust='spacingAndGlyphs'>gear</text>
-<text x='325.32' y='300.58' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='15.34px' lengthAdjust='spacingAndGlyphs'>am</text>
-<text x='284.22' y='259.48' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='19.02px' lengthAdjust='spacingAndGlyphs'>drat</text>
-<text x='243.12' y='218.38' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='21.48px' lengthAdjust='spacingAndGlyphs'>carb</text>
-<text x='202.02' y='177.28' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='12.28px' lengthAdjust='spacingAndGlyphs'>hp</text>
-<text x='160.92' y='136.18' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='20.26px' lengthAdjust='spacingAndGlyphs'>disp</text>
-<text x='119.82' y='95.08' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='13.50px' lengthAdjust='spacingAndGlyphs'>cyl</text>
 <text x='78.72' y='53.98' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='11.04px' lengthAdjust='spacingAndGlyphs'>wt</text>
+<text x='119.82' y='95.08' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='13.50px' lengthAdjust='spacingAndGlyphs'>cyl</text>
+<text x='160.92' y='136.18' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='20.26px' lengthAdjust='spacingAndGlyphs'>disp</text>
+<text x='202.02' y='177.28' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='12.28px' lengthAdjust='spacingAndGlyphs'>hp</text>
+<text x='243.12' y='218.38' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='21.48px' lengthAdjust='spacingAndGlyphs'>carb</text>
+<text x='284.22' y='259.48' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='19.02px' lengthAdjust='spacingAndGlyphs'>drat</text>
+<text x='325.32' y='300.58' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='15.34px' lengthAdjust='spacingAndGlyphs'>am</text>
+<text x='366.42' y='341.67' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='22.10px' lengthAdjust='spacingAndGlyphs'>gear</text>
+<text x='407.51' y='382.77' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='23.33px' lengthAdjust='spacingAndGlyphs'>qsec</text>
+<text x='448.61' y='423.87' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='21.48px' lengthAdjust='spacingAndGlyphs'>mpg</text>
+<text x='489.71' y='464.97' text-anchor='middle' style='font-size: 11.04px; font-family: sans;' textLength='11.05px' lengthAdjust='spacingAndGlyphs'>vs</text>
 <rect x='518.48' y='399.52' width='20.55' height='41.10' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #440154;' />
 <rect x='518.48' y='70.73' width='20.55' height='41.10' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #46286D;' />
 <rect x='518.48' y='111.83' width='20.55' height='41.10' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #414487;' />
