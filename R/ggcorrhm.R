@@ -1,13 +1,13 @@
 #' Make a correlation heatmap with ggplot2.
 #'
-#' Wrapper function for `gghm` to make a correlation heatmap from input matrices. Uses a diverging colour scale centered around 0.
+#' Make a correlation heatmap from input matrices. Uses a diverging colour scale centered around 0.
 #'
 #' @inheritParams gghm
 #'
 #' @param x Matrix or data frame in wide format containing the columns to correlate against each other or against the columns in `y`.
 #' @param y Optional matrix or data frame in wide format containing columns to correlate with the columns in `x`.
-#' @param cor_method String specifying correlation method to use in the `cor` function. Default is 'pearson'.
-#' @param cor_use String specifying the `use` argument of `cor`, which defines how to deal with missing values. Default is 'everything'.
+#' @param cor_method String specifying correlation method to use in the `stats::cor()` function. Default is 'pearson'.
+#' @param cor_use String specifying the `use` argument of `stats::cor()`, which defines how to deal with missing values. Default is 'everything'.
 #' @param high Colour to use for the highest value of the colour scale.
 #' @param mid Colour to use for 0 in the colour scale.
 #' @param low Colour to use for the lowest value of the colour scale.
@@ -23,7 +23,7 @@
 #' 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
 #' A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
 #' If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
-#' `mode` needs a vector of length two (applied in the same order as layout). See details of `gghm` for more information.
+#' `mode` needs a vector of length two (applied in the same order as layout). See details of `gghm()` for more information.
 #' @param include_diag Logical indicating if the diagonal cells should be plotted (if the matrix is symmetric).
 #' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn). This does not affect how
 #' NAs are handled in the correlation computations, use the `cor_use` argument for NA handling in correlation.
@@ -34,26 +34,27 @@
 #' The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.
 #' @param cell_labels Logical specifying if the cells should be labelled with the correlation values.
 #' @param cell_label_p Logical indicating if, when `cell_labels` is `TRUE`, p-values should be written instead of correlation values.
-#' @param cell_label_col Colour to use for cell labels, passed to `ggplot2::geom_text`.
-#' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
+#' @param cell_label_col Colour to use for cell labels, passed to `ggplot2::geom_text()`.
+#' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text()`.
 #' @param annot_rows_params Named list with parameters for row annotations to overwrite the defaults set by the `annot_*` arguments, each name corresponding to the `*` part
-#' (see details of `gghm` for more information).
-#' @param dend_rows_params Named list for row dendrogram parameters. See details of `gghm` for more information.
-#' @param dend_cols_params Named list for column dendrogram parameters. See details of `gghm` for more information.
-#' @param dend_rows_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row dendrogram. See details of `gghm` for usage.
-#' @param dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the column dendrogram. See details of `gghm` for usage.
+#' (see details of `gghm()` for more information).
+#' @param dend_rows_params Named list for row dendrogram parameters. See details of `gghm()` for more information.
+#' @param dend_cols_params Named list for column dendrogram parameters. See details of `gghm()` for more information.
+#' @param dend_rows_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row dendrogram. See details of `gghm()` for usage.
+#' @param dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the column dendrogram. See details of `gghm()` for usage.
 #'
 #' @return The correlation heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),
-#' the correlations ('plot_data'), and the result of the clustering ('row_clustering' and 'col_clustering', if clustered).
-#' If p-values were calculated, two additional columns named 'p_val' and 'p_adj' are included, containing nominal and adjusted p-values.
-#' If the layout is mixed, an extra column named 'layout' is included, showing which triangle each cell belongs to.
+#' the correlations ('plot_data', with factor columns 'row' and 'col' and a column 'value' containing the cell values),
+#' and the result of the clustering ('row_clustering' and 'col_clustering', if clustered).
+#' If p-values were calculated, two additional columns named 'p_val' and 'p_adj' are included in 'plot_data', containing nominal and adjusted p-values.
+#' If the layout is mixed, an extra factor column named 'layout' is included, showing which triangle each cell belongs to.
 #'
 #' @export
 #'
 #' @details
 #'
-#' `ggcorrhm` makes it convenient to make correlation heatmaps, taking the input matrix or data frame to visualise the correlations between columns with the `gghm` function.
+#' `ggcorrhm()` makes it convenient to make correlation heatmaps, taking the input matrix or data frame to visualise the correlations between columns with the `gghm()` function.
 #' The input values can either be one matrix or data frame with columns to correlate with each other, or two
 #' matrices or data frames with columns to correlate between the matrices. No rownames are needed, but
 #' if two matrices are provided they should have the same number of rows and the rows should be ordered in a meaningful way

@@ -7,7 +7,7 @@
 #' @param col_scale A `ggplot2` scale object for colour scale (Applied to text and non-filled shapes). NULL (default) uses the `ggplot2` default.
 #' @param col_name String to use for the colour scale legend title.
 #' @param mode A string specifying plotting mode. Possible values are `heatmap`/`hm` for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
-#' `text` to write the cell values instead of cells (colour scaling with value), and `none` for blank cells.
+#' `text` to write the cell values instead of filling cells (colour scaling with value), and `none` for blank cells.
 #' @param layout String specifying the layout of the output heatmap. Possible layouts include
 #' 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
 #' A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
@@ -22,9 +22,9 @@
 #' Can be specified in an aesthetic-specific manner using a named vector like `c('fill' = TRUE, 'size' = FALSE)`.
 #' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `mode` is a number from 1 to 25 (R pch).
 #' @param cell_labels Logical specifying if the cells should be labelled with the values.
-#' @param cell_label_col Colour to use for cell labels, passed to `ggplot2::geom_text`.
-#' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text`.
-#' @param cell_label_digits Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to `round`. NULL for no rounding.
+#' @param cell_label_col Colour to use for cell labels, passed to `ggplot2::geom_text()`.
+#' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text()`.
+#' @param cell_label_digits Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to `base::round()`. NULL for no rounding.
 #' @param border_col Colour of cell borders. If `mode` is not a number, `border_col` can be set to NA to remove borders completely.
 #' @param border_lwd Size of cell borders. If `mode` is a number, `border_col` can be set to 0 to remove borders.
 #' @param border_lty Line type of cell borders. Not supported for numeric `mode`.
@@ -64,10 +64,10 @@
 #' @param annot_cols_label_side String specifying which side the column annotation labels should be on. Either "left" or "right".
 #' @param annot_rows_label_params Named list of parameters for row annotation labels. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
 #' @param annot_cols_label_params Named list of parameters for column annotation labels. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
-#' @param cluster_rows Logical indicating if rows should be clustered.
-#' @param cluster_cols Logical indicating if columns should be clustered.
-#' @param cluster_distance String with the distance metric to use for clustering, given to `dist`.
-#' @param cluster_method String with the clustering method to use, given to `hclust`.
+#' @param cluster_rows Logical indicating if rows should be clustered. Can also be a `hclust` object.
+#' @param cluster_cols Logical indicating if columns should be clustered. Can also be a `hclust` object.
+#' @param cluster_distance String with the distance metric to use for clustering, given to `stats::dist()`.
+#' @param cluster_method String with the clustering method to use, given to `stats::hclust()`.
 #' @param dend_rows Logical indicating if a dendrogram should be drawn for the rows.
 #' @param dend_cols Logical indicating if a dendrogram should be drawn for the columns.
 #' @param dend_rows_side Which side to draw the row dendrogram on ('left' or 'l' for left, otherwise right).
@@ -83,8 +83,9 @@
 #'
 #' @return The heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),
-#' the plotting data ('plot_data'), and the result of the clustering ('row_clustering' and/or 'col_clustering).
-#' If the layout is mixed, an extra column named 'layout' is included, showing which triangle each cell belongs to.
+#' the plotting data ('plot_data', with factor columns 'row' and 'col' and a column 'value' containing the cell values),
+#' and the result of the clustering ('row_clustering' and/or 'col_clustering).
+#' If the layout is mixed, an extra factor column named 'layout' is included in 'plot_data', showing which triangle each cell belongs to.
 #'
 #' @export
 #'
@@ -200,7 +201,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
   x_mat <- as.matrix(x)
 
   # Check layout and mode
-  check_layout(layout, mode)
+  layout_check <- check_layout(layout, mode)
 
   # Logical for full plot layout or not
   full_plt <- if (length(layout) == 1) {layout %in% c("full", "f", "whole", "w")} else {TRUE}
@@ -272,18 +273,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     lclust_cols <- T
   }
 
-  # Make long format data, ordering columns to fit layout
-  if (length(layout) == 1) {
-    x_long <- layout_hm(x_mat, layout = layout, na_remove = na_remove)
-
-  } else if (length(layout) == 2) {
-    # Mixed layout, generate one per half and mark by layout. The first one gets the diagonal
-    x_long <- dplyr::bind_rows(
-      dplyr::mutate(layout_hm(x_mat, layout = layout[1], na_remove = na_remove, include_diag = T), layout = layout[1]),
-      dplyr::mutate(layout_hm(x_mat, layout = layout[2], na_remove = na_remove, include_diag = F), layout = layout[2])
-    )
-  }
-
+  # Positions of different elements
   if (full_plt) {
     # Allow for specification of dendrogram positions only when the whole matrix is drawn
     dend_left <- dend_rows_side %in% c("left", "l")
@@ -293,6 +283,33 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
   } else {
     pos_left = dend_left = annot_left <- layout %in% c("topleft", "tl", "bottomleft", "bl")
     pos_down = dend_down = annot_down <- layout %in% c("bottomleft", "bl", "bottomright", "br")
+  }
+
+  # Make long format data, ordering columns to fit layout
+  if (length(layout) == 1) {
+    x_long <- layout_hm(x_mat, layout = layout, na_remove = na_remove)
+
+    # Reorder data to ensure it is in the drawing order
+    x_long <- if (any(c("topleft", "tl", "bottomright", "br") %in% layout)) {
+      dplyr::arrange(x_long, col, row)
+    } else {
+      dplyr::arrange(x_long, col, desc(row))
+    }
+
+  } else if (length(layout) == 2) {
+    # Mixed layout, generate one per half and mark by layout. The first one gets the diagonal
+    x_long <- dplyr::bind_rows(
+      dplyr::mutate(layout_hm(x_mat, layout = layout[1], na_remove = na_remove, include_diag = T), layout = layout[1]),
+      dplyr::mutate(layout_hm(x_mat, layout = layout[2], na_remove = na_remove, include_diag = F), layout = layout[2])
+    )
+    # Convert layout to a factor vector
+    x_long[["layout"]] <- factor(x_long[["layout"]], levels = layout)
+
+    x_long <- if (any(c("topleft", "tl", "bottomright", "br") %in% layout)) {
+      dplyr::arrange(x_long, layout, col, row)
+    } else {
+      dplyr::arrange(x_long, layout, col, desc(row))
+    }
   }
 
   # Set colour scale if none provided to change order of legends (if not set, the legend may end up after the annotation legens)

@@ -87,9 +87,9 @@ ggcorrhm(
 
 \item{y}{Optional matrix or data frame in wide format containing columns to correlate with the columns in \code{x}.}
 
-\item{cor_method}{String specifying correlation method to use in the \code{cor} function. Default is 'pearson'.}
+\item{cor_method}{String specifying correlation method to use in the \code{stats::cor()} function. Default is 'pearson'.}
 
-\item{cor_use}{String specifying the \code{use} argument of \code{cor}, which defines how to deal with missing values. Default is 'everything'.}
+\item{cor_use}{String specifying the \code{use} argument of \code{stats::cor()}, which defines how to deal with missing values. Default is 'everything'.}
 
 \item{high}{Colour to use for the highest value of the colour scale.}
 
@@ -119,7 +119,7 @@ Names must be unique, but one element can be left unnamed (by default 1 is unnam
 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
 A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
 If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
-\code{mode} needs a vector of length two (applied in the same order as layout). See details of \code{gghm} for more information.}
+\code{mode} needs a vector of length two (applied in the same order as layout). See details of \code{gghm()} for more information.}
 
 \item{include_diag}{Logical indicating if the diagonal cells should be plotted (if the matrix is symmetric).}
 
@@ -142,11 +142,11 @@ The default behaviour (NULL) is to use a continuous scale with the absolute valu
 
 \item{cell_label_p}{Logical indicating if, when \code{cell_labels} is \code{TRUE}, p-values should be written instead of correlation values.}
 
-\item{cell_label_col}{Colour to use for cell labels, passed to \code{ggplot2::geom_text}.}
+\item{cell_label_col}{Colour to use for cell labels, passed to \code{ggplot2::geom_text()}.}
 
-\item{cell_label_size}{Size of cell labels, used as the \code{size} argument in \code{ggplot2::geom_text}.}
+\item{cell_label_size}{Size of cell labels, used as the \code{size} argument in \code{ggplot2::geom_text()}.}
 
-\item{cell_label_digits}{Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to \code{round}. NULL for no rounding.}
+\item{cell_label_digits}{Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to \code{base::round()}. NULL for no rounding.}
 
 \item{border_col}{Colour of cell borders. If \code{mode} is not a number, \code{border_col} can be set to NA to remove borders completely.}
 
@@ -206,7 +206,7 @@ the \verb{annot_*_fill} arguments.}
 \item{annot_na_remove}{Logical indicating if NAs in the annotations should be removed (producing empty spaces).}
 
 \item{annot_rows_params}{Named list with parameters for row annotations to overwrite the defaults set by the \verb{annot_*} arguments, each name corresponding to the \code{*} part
-(see details of \code{gghm} for more information).}
+(see details of \code{gghm()} for more information).}
 
 \item{annot_cols_params}{Named list with parameters for column annotations, used like \code{annot_rows_params}.}
 
@@ -218,13 +218,13 @@ the \verb{annot_*_fill} arguments.}
 
 \item{annot_cols_label_params}{Named list of parameters for column annotation labels. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
 
-\item{cluster_rows}{Logical indicating if rows should be clustered.}
+\item{cluster_rows}{Logical indicating if rows should be clustered. Can also be a \code{hclust} object.}
 
-\item{cluster_cols}{Logical indicating if columns should be clustered.}
+\item{cluster_cols}{Logical indicating if columns should be clustered. Can also be a \code{hclust} object.}
 
-\item{cluster_distance}{String with the distance metric to use for clustering, given to \code{dist}.}
+\item{cluster_distance}{String with the distance metric to use for clustering, given to \code{stats::dist()}.}
 
-\item{cluster_method}{String with the clustering method to use, given to \code{hclust}.}
+\item{cluster_method}{String with the clustering method to use, given to \code{stats::hclust()}.}
 
 \item{dend_rows}{Logical indicating if a dendrogram should be drawn for the rows.}
 
@@ -242,13 +242,13 @@ the \verb{annot_*_fill} arguments.}
 
 \item{dend_lty}{Dendrogram line type, applied to both row and column dendrograms.}
 
-\item{dend_rows_params}{Named list for row dendrogram parameters. See details of \code{gghm} for more information.}
+\item{dend_rows_params}{Named list for row dendrogram parameters. See details of \code{gghm()} for more information.}
 
-\item{dend_cols_params}{Named list for column dendrogram parameters. See details of \code{gghm} for more information.}
+\item{dend_cols_params}{Named list for column dendrogram parameters. See details of \code{gghm()} for more information.}
 
-\item{dend_rows_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the row dendrogram. See details of \code{gghm} for usage.}
+\item{dend_rows_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the row dendrogram. See details of \code{gghm()} for usage.}
 
-\item{dend_cols_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the column dendrogram. See details of \code{gghm} for usage.}
+\item{dend_cols_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the column dendrogram. See details of \code{gghm()} for usage.}
 }
 \value{
 The correlation heatmap as a \code{ggplot} object.
@@ -258,10 +258,10 @@ If p-values were calculated, two additional columns named 'p_val' and 'p_adj' ar
 If the layout is mixed, an extra column named 'layout' is included, showing which triangle each cell belongs to.
 }
 \description{
-Wrapper function for \code{gghm} to make a correlation heatmap from input matrices. Uses a diverging colour scale centered around 0.
+Make a correlation heatmap from input matrices. Uses a diverging colour scale centered around 0.
 }
 \details{
-\code{ggcorrhm} makes it convenient to make correlation heatmaps, taking the input matrix or data frame to visualise the correlations between columns with the \code{gghm} function.
+\code{ggcorrhm()} makes it convenient to make correlation heatmaps, taking the input matrix or data frame to visualise the correlations between columns with the \code{gghm()} function.
 The input values can either be one matrix or data frame with columns to correlate with each other, or two
 matrices or data frames with columns to correlate between the matrices. No rownames are needed, but
 if two matrices are provided they should have the same number of rows and the rows should be ordered in a meaningful way

@@ -136,7 +136,9 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap", layout = "f",
 
   # Names on the diagonal
   if (names_diag) {
-    axis_lab <- data.frame(lab = levels(x_long$row))
+    # Order labels so they are from left to right
+    axis_lab <- data.frame(lab = factor(levels(x_long$col), levels = levels(x_long$col)))
+    axis_lab <- dplyr::arrange(axis_lab, lab)
 
     # Construct call using optional parameters
     text_call_params <- list(data = axis_lab, mapping = ggplot2::aes(x = lab, y = lab, label = lab))

@@ -106,11 +106,11 @@ Can be specified in an aesthetic-specific manner using a named vector like \code
 
 \item{cell_labels}{Logical specifying if the cells should be labelled with the values.}
 
-\item{cell_label_col}{Colour to use for cell labels, passed to \code{ggplot2::geom_text}.}
+\item{cell_label_col}{Colour to use for cell labels, passed to \code{ggplot2::geom_text()}.}
 
-\item{cell_label_size}{Size of cell labels, used as the \code{size} argument in \code{ggplot2::geom_text}.}
+\item{cell_label_size}{Size of cell labels, used as the \code{size} argument in \code{ggplot2::geom_text()}.}
 
-\item{cell_label_digits}{Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to \code{round}. NULL for no rounding.}
+\item{cell_label_digits}{Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to \code{base::round()}. NULL for no rounding.}
 
 \item{border_col}{Colour of cell borders. If \code{mode} is not a number, \code{border_col} can be set to NA to remove borders completely.}
 
@@ -182,13 +182,13 @@ the \verb{annot_*_fill} arguments.}
 
 \item{annot_cols_label_params}{Named list of parameters for column annotation labels. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
 
-\item{cluster_rows}{Logical indicating if rows should be clustered.}
+\item{cluster_rows}{Logical indicating if rows should be clustered. Can also be a \code{hclust} object.}
 
-\item{cluster_cols}{Logical indicating if columns should be clustered.}
+\item{cluster_cols}{Logical indicating if columns should be clustered. Can also be a \code{hclust} object.}
 
-\item{cluster_distance}{String with the distance metric to use for clustering, given to \code{dist}.}
+\item{cluster_distance}{String with the distance metric to use for clustering, given to \code{stats::dist()}.}
 
-\item{cluster_method}{String with the clustering method to use, given to \code{hclust}.}
+\item{cluster_method}{String with the clustering method to use, given to \code{stats::hclust()}.}
 
 \item{dend_rows}{Logical indicating if a dendrogram should be drawn for the rows.}
 
