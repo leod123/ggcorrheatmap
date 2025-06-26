@@ -329,6 +329,22 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
       ggplot2::scale_fill_continuous(guide = if (show_fill) ggplot2::guide_colourbar(order = 1) else "none")
     }
   }
+  # Do the same for colour scale
+  show_col <- if ("colour" %in% names(show_legend)) {
+    show_legend["colour"]
+  } else if ("color" %in% names(show_legend)) {
+    show_legend["color"]
+  } else {
+    show_legend
+  }
+  # Different depending on class of input data
+  if (is.null(col_scale)) {
+    col_scale <- if (is.character(x_long$value) | is.factor(x_long$value)) {
+      ggplot2::scale_colour_discrete(guide = if (show_col) ggplot2::guide_legend(order = 2) else "none")
+    } else {
+      ggplot2::scale_colour_continuous(guide = if (show_col) ggplot2::guide_colourbar(order = 2) else "none")
+    }
+  }
 
   # Annotation for rows and columns
   # Default annotation parameters
@@ -442,7 +458,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
   # Add row and column annotations
   if (is.data.frame(annot_rows_df)) {
     # Change legend order to be in order of annotations (after main values)
-    lgd_order <- seq_along(annot_rows_df)[-1]
+    lgd_order <- seq_along(annot_rows_df)[-1] + 1
     names(lgd_order) <- colnames(annot_rows_df)[-which(colnames(annot_rows_df) == ".names")]
 
     plt <- add_annotation(plt = plt, annot_dim = "rows", annot_df = annot_rows_df, annot_pos = annot_rows_pos,
@@ -454,8 +470,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
   }
 
   if (is.data.frame(annot_cols_df)) {
-    lgd_order <- if (is.data.frame(annot_rows_df)) {seq_along(annot_cols_df)[-1] + ncol(annot_rows_df) - 1}
-    else {seq_along(annot_cols_df)[-1]}
+    lgd_order <- if (is.data.frame(annot_rows_df)) {seq_along(annot_cols_df)[-1] + ncol(annot_rows_df)}
+    else {seq_along(annot_cols_df)[-1] + 1}
     names(lgd_order) <- colnames(annot_cols_df)[-which(colnames(annot_cols_df) == ".names")]
 
     plt <- add_annotation(plt = plt, annot_dim = "cols", annot_df = annot_cols_df, annot_pos = annot_cols_pos,
