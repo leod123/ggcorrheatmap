@@ -225,8 +225,7 @@ and the result of the clustering ('row_clustering' and/or 'col_clustering).
 If the layout is mixed, an extra factor column named 'layout' is included in 'plot_data', showing which triangle each cell belongs to.
 }
 \description{
-Dendrogram distance argument!?
-link to the dendextend vignette!
+Make a heatmap with ggplot2.
 }
 \details{
 When using mixed layouts (\code{layout} is length two), \code{mode} needs to be length two as well, specifying the mode to use in each triangle.

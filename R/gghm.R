@@ -318,9 +318,9 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     }
   }
 
-  # Set colour scale if none provided to change order of legends (if not set, the legend may end up after the annotation legens)
+  # Set colour scale if none provided to change order of legends (if not set, the legend may end up after the annotation legends)
   # Check if the fill legend is supposed to be drawn at all (otherwise it might draw the legend even if show_legend is c(fill = FALSE))
-  show_fill <- if ("fill" %in% names(show_legend)) show_legend["fill"] else show_legend
+  show_fill <- if ("fill" %in% names(show_legend)) show_legend["fill"] else TRUE
   # Different depending on class of input data
   if (is.null(fill_scale)) {
     fill_scale <- if (is.character(x_long$value) | is.factor(x_long$value)) {
@@ -335,7 +335,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
   } else if ("color" %in% names(show_legend)) {
     show_legend["color"]
   } else {
-    show_legend
+    TRUE
   }
   # Different depending on class of input data
   if (is.null(col_scale)) {
