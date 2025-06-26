@@ -34,9 +34,12 @@ ggcorrhm(mtcars)
 
 The colours of the heatmap can be adjusted by passing a `ggplot2::scale_fill_*` function call to the `fill_scale` argument.
 
-```{r}
+```{r, fig.alt='A heatmap of the whole mtcars data using the viridis colour scale.'}
 gghm(mtcars, fill_scale = scale_fill_viridis_c())
+```
 
+
+```{r, fig.alt='A heatmap of a 15 by 15 matrix filled randomly with "a", "b", and "c". The Brewer Pastel2 palette is used for filling cells and the cell border colours have been changed to "thistle1".'}
 # Heatmap with discrete values
 # Border colour and linewidth can be changed using the `border_col` and `border_lwd` arguments
 set.seed(123)
@@ -51,9 +54,17 @@ The `mode` argument takes a string and determines how the values will be plotted
 
 Aside from the text mode, cells can be labelled with their values by setting `cell_labels` to `TRUE`. Unlike the text in text mode, cell label colours do not scale with the cell values. If cell labels are added to text mode the labels will be drawn on top (obscuring the colours and making the legend useless).
 
-```{r}
+```{r, fig.alt='A heatmap of the first 15 rows of the mtcars data, where the cells have the values written inside instead of being filled. The colour of the text scales with the value.'}
 gghm(mtcars[1:15, ], mode = "text")
+```
+
+
+```{r, fig.alt='A heatmap of the first 15 rows of mtcars, where the cells have been substituted for stars (R pch 8). Both the size and colour scale with the value.'}
 gghm(mtcars[1:15, ], mode = 8)
+```
+
+
+```{r, fig.alt='A heatmap of the first 15 rows of mtcars. The cells are not filled, leaving only emptiness within the cell borders.'}
 gghm(mtcars[1:15, ], mode = "none")
 ```
 
@@ -61,7 +72,7 @@ gghm(mtcars[1:15, ], mode = "none")
 
 Cell borders are by default grey, but can be removed by setting `border_col` (border colour) or `border_lwd` (border linewidth) to NA or `border_lty` (border linetype) to 0 (if `mode` is non-numeric) or `border_lwd` to 0 (if `mode` is numeric).
 
-```{r}
+```{r, fig.alt='A heatmap of the "volcano" R dataset using the viridis colour scale for filling cells. The cell borders have been removed.'}
 # Use the volcano data
 # It contains many rows and columns making the axes hard to read.
 # Can either turn off labels with `names_x` and `names_y`, or use
@@ -73,7 +84,7 @@ gghm(volcano, fill_scale = scale_fill_viridis_c(), border_col = NA,
 
 `border_col`, `border_lwd`, and `border_lty` can take either values of length 1 or the same length as the input data. Using the `return_data` argument to get the plotting data makes it easier to implement conditional customisation of borders.
 
-```{r, fig.show='hold', out.width='50%'}
+```{r, fig.show='hold', out.width='50%', fig.alt='Two correlation heatmaps of the mtcars data. Both use the viridis mako scale for filling cells. In the first plot the cell borders are thick, orange and dashed. In the second one, all cells where the row is "hp" are red and thick, cells wherer the column is "vs" are yellow and thick, and the rest are grey and thin. All cell borders are dashed.'}
 # Single values as input
 gghm(cor(mtcars), fill_scale = scale_fill_viridis_b(option = "mako"),
      border_col = "orange", border_lwd = 1, border_lty = 2)
@@ -95,7 +106,7 @@ gghm(cor(mtcars), fill_scale = scale_fill_viridis_b(option = "mako"),
 
 NAs in the data can be removed or set to a specific colour using the `na_remove` argument or the `fill_scale`argument, respectively. Setting `na_remove` to `TRUE` removes NAs from the plot, but they can still interfere with clustering if a whole row or column is all NAs.
 
-```{r, fig.width=4, fig.height=5, fig.show='hold', out.width='33%'}
+```{r, fig.width=4, fig.height=5, fig.show='hold', out.width='33%', fig.alt='Three heatmaps of the mtcars data. 100 random cells have been changed to NA. In the first plot the NA cells are grey, in the second they are magenta. In the last plot, NA cells are removed, leaving holes with no cell borders where there are NAs.'}
 # Introduce NAs
 df_na <- as.matrix(mtcars)
 set.seed(123)
@@ -115,13 +126,13 @@ gghm(df_na, show_legend = FALSE, na_remove = TRUE) + labs(title = "NAs removed")
 
 Clustering can be applied to the rows and columns using the `cluster_rows` and `cluster_cols` arguments. See the [clustering](cluster.html) vignette for more on clustering.
 
-```{r clustering}
+```{r clustering, fig.alt='A heatmap of mtcars, where rows and columns have been reordered according to hierarchical clustering results. Dendrograms are drawn to the right of and below the heatmap.'}
 gghm(scale(mtcars), cluster_rows = TRUE, cluster_cols = TRUE)
 ```
 
 Row and column annotation is added by providing data frames to the `annot_rows_df` and `annot_cols_df` arguments. More details on annotation can be found in the [annotation](annotation.html) vignette.
 
-```{r annotation}
+```{r annotation, fig.alt='Heatmap of mtcars with a thin column added to the right containing row annotation.'}
 row_annot <- data.frame(.names = rownames(mtcars),
                         a = sample(letters[1:4], nrow(mtcars), TRUE))
 
@@ -130,7 +141,7 @@ gghm(mtcars, annot_rows_df = row_annot)
 
 Clustering and annotation can of course be added simultaneously.
 
-```{r}
+```{r, fig.alt='Heatmap of mtcars. The rows have been clustered and along the right side is an annotation column with a dendrogram on its right.'}
 gghm(scale(mtcars), cluster_rows = TRUE, annot_rows_df = row_annot)
 ```
 
@@ -140,7 +151,7 @@ The plotting data can be returned by setting the `return_data` argument to `TRUE
 
 As explained in the 'Cell borders' section, arguments where the values are passed on to `ggplot2::geom_*` functions can be vectors with one value per cell. The drawing order can get a bit confusing; for the full, top right and bottom left layouts the cells are drawn from the top left moving down each column; by contrast, for top left and bottom right layouts cells are drawn from the bottom left moving up each column (due to the y-axis levels being reversed). The rows are ordered in their drawing order in the data returned when `return_data` is `TRUE` so that can be used as a reference. However, in general, passing vectors to static aesthetics in `ggplot2` can become tricky and adding another geom to the output plot is more robust.
 
-```{r, fig.show='hold', out.width='50%', fig.width=4, fig.height=5}
+```{r, fig.show='hold', out.width='50%', fig.width=4, fig.height=5, fig.alt='Two heatmaps of z-scores of mtcars. The colours are changed to a divergent scale going from blue to red. The first plot has had its cells labelled randomly with 1s, 2s, and 3s. The second plot has asterisks in cells where the z-score is above 1 or below -1.'}
 plot_list <- gghm(scale(mtcars[, 1:10]), return_data = TRUE, border_col = NA,
                   fill_scale = scale_fill_gradient2(low = "deepskyblue", mid = "white", high = "salmon"))
 

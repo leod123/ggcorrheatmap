@@ -17,11 +17,11 @@ suppressPackageStartupMessages(library(dplyr))
 
 Correlation heatmaps can be made easily using the `ggcorrhm()` function. `ggcorrhm()` is a wrapper for (and shares most of its arguments with) `gghm()` and calculates the correlation matrix for the input passed to `gghm()`. If one matrix is provided the column-column correlations are plotted. If two matrices are provided, the correlations between the columns in the two matrices are plotted. Using the `cor_method` and `cor_use` different `method` and `use` arguments can be passed to `stats::cor`.
 
-```{r symmetric correlation heatmap}
+```{r symmetric correlation heatmap, fig.alt='A heatmap depicting the correlation matrix of the columns in the mtcars dataset. The colour scale goes from -1 to 1 with colours ranging from blue (skyblue2) to white to red (sienna2).'}
 ggcorrhm(mtcars)
 ```
 
-```{r asymmetric correlation heatmap, fig.height=3, fig.width=8}
+```{r asymmetric correlation heatmap, fig.height=3, fig.width=8, fig.alt='A heatmap showing the correlation between the columns in the iris data (on the rows) and the columns in mtcars (on the columns).'}
 ggcorrhm(iris[1:nrow(mtcars), -5], mtcars)
 ```
 
@@ -31,7 +31,7 @@ ggcorrhm(iris[1:nrow(mtcars), -5], mtcars)
 
 For symmetric matrices, the axis names are drawn on the diagonal. The `names_diag`, `names_x` and `names_y` arguments control where names should be drawn.
 
-```{r changing colour, out.width='50%', fig.show='hold'}
+```{r changing colour, out.width='50%', fig.show='hold', fig.alt='Two heatmaps of the mtcars correlation matrix. The colour scale of the first one is changed to consist of 6 bins and the colours go from magenta to yellow to green. The second one uses the default ggplot2 continuous scale (dark blue to light blue)'}
 ggcorrhm(mtcars, names_diag = FALSE, names_x = TRUE, names_y = TRUE,
          high = "green", low = "magenta", mid = "yellow", bins = 6)
 
@@ -42,7 +42,7 @@ ggcorrhm(mtcars) + scale_fill_continuous()
 
 For symmetric heatmaps, the `layout` argument can be used to get triangular layouts. The possible layouts are full matrix, top left, top right, bottom left, and bottom right.
 
-```{r heatmap layouts}
+```{r heatmap layouts, fig.alt='Two heatmap of the mtcars correlation matrix. The first plot shows only the top left triangle including the diagonal with names written on it (diagonal running bottom left to top right and row labels reversed compared to the previous heatmaps). The second figure has only the bottom right triangle, but without the diagonal (names are written where the diagonal would be).'}
 ggcorrhm(mtcars, layout = "topleft")
 # The diagonal is displayed by default but can be hidden using the `include_diag` argument
 # Layouts can be specified by the first letters e.g. br, tl, f (for full), w (whole, same as full)
@@ -53,7 +53,7 @@ ggcorrhm(mtcars, layout = "br", include_diag = FALSE)
 
 The looks of the names displayed in the diagonal of symmetric matrices can be adjusted with the `names_diag_params` argument, which takes a named list of parameters to pass to `ggplot2::geom_text()`. For names displayed on the x and y axes, use `ggplot2::theme()` on the generated plot object to change the appearance.
 
-```{r, fig.width=5, fig.height=4, fig.show='hold', out.width='50%'}
+```{r, fig.width=5, fig.height=4, fig.show='hold', out.width='50%', fig.alt='Two mtcars correlation heatmaps with the bottom left and bottom right triangles and no diagonals. In the first plot, the names on the diagonal are at a 45 degree angle and the text is magenta-coloured. The second plot has the names angled 45 degrees in the other direction apart from the names at the top and bottom which is angled at 90 and 0 degrees, respectively. The text colour is picked randomly from red, green, and blue.'}
 ggcorrhm(mtcars, layout = "bl", show_legend = FALSE, include_diag = FALSE,
          names_diag_param = list(
            angle = 45, vjust = 0.5, hjust = 0.5, colour = "magenta"
@@ -72,8 +72,8 @@ ggcorrhm(mtcars, layout = "br", include_diag = FALSE,
 
 The legend can be moved around by adding to the theme of the output plot using `ggplot2::theme()`. Use the `legend.position.inside` argument to move the legend to the plotting area to make use of the empty space of triangular layouts.
 
-```{r legend position, fig.width=5, fig.height=4, fig.show='hold', out.width='50%'}
-ggcorrhm(mtcars) + theme(legend.position = "top")
+```{r legend position, fig.width=5, fig.height=4, fig.show='hold', out.width='50%', fig.alt='Two mtcars correlation heatmaps. In the first one the legend has been moved above the heatmap and is horizontal. In the second the bottom right triangle is drawn and the legend is placed in the empty space where the top left triangle would be drawn.'}
+ggcorrhm(mtcars) + theme(legend.position = "top", legend.title = element_text(vjust = 0.8))
 ggcorrhm(mtcars, layout = "br") +
   theme(legend.position = "inside", legend.position.inside = c(0.2, 0.7))
 ```
@@ -82,7 +82,7 @@ ggcorrhm(mtcars, layout = "br") +
 
 Just like with `gghm()`, the heatmap can be clustered and annotated. Triangular layouts limit the positions of annotation and dendrograms to the non-empty sides of the heatmap.
 
-```{r clustering and annotation}
+```{r clustering and annotation, fig.alt='A top left triangle correlation heatmap of mtcars. The rows and columns have been clustered and a dendrogram is drawn above the heatmap. On the left side are two thinner columns containing continuous and categorical annotation.'}
 set.seed(123)
 # Make a correlation heatmap with a triangular layout, annotations and clustering
 row_annot <- data.frame(.names = colnames(mtcars),
@@ -96,7 +96,7 @@ ggcorrhm(mtcars, layout = "tl", cluster_rows = TRUE, cluster_cols = TRUE,
 
 The `cell_labels` argument labels cells with their values. The `cell_label_col`, `cell_label_size` and `cell_label_digits` arguments control the text colour, size and the number of displayed digits, respectively.
 
-```{r cell labels, fig.show='hold', out.width='50%'}
+```{r cell labels, fig.show='hold', out.width='50%', fig.alt='Two mtcars bottom right correlation heatmaps. Both have text in the cells showing the correlation values on top of the colours that scale with the values. The tet in the first one is black and has two digits. The text in the second one is white, has one digit and the size varies randomly.'}
 ggcorrhm(mtcars, layout = "br", cell_labels = TRUE)
 set.seed(123)
 ggcorrhm(mtcars, layout = "br", cell_labels = TRUE,
@@ -111,19 +111,20 @@ ggcorrhm(mtcars, layout = "br", cell_labels = TRUE,
 
 Correlation heatmaps are sometimes plotted with circles. Using the `mode` argument allows for custom cell shapes. The shape size is set to scale with the absolute value of the correlation. `size_scale` can be provided to overwrite this behaviour. Setting `mode` to 'text' writes the values in empty cells, with the text colour scaling with the value.
 
-```{r cell shape, fig.show='hold', out.width='50%'}
-# If numeric, the R pch symbols are used, meaning 21 produces circles.
-# Any character value results in normal heatmap cells
+```{r cell shape, fig.show='hold', out.width='50%', fig.alt='Two mtcars correlation heatmaps. The first one has circles instead of cells. The colour scales with the correlation and the size with the absolute value of the correlation. The second plot has squares (diamonds) and a major grid is added in the background.'}
+# If mode is a number, the R pch symbols are used, meaning 21 produces circles.
 ggcorrhm(mtcars, mode = 21) + labs(title = "mode = 21")
 # It is also possible to use shapes other than circles. Only 21-25 support filling.
 # Change the size range using the size_range argument
-ggcorrhm(mtcars, mode = 23, size_range = c(1, 15)) +
+ggcorrhm(mtcars, mode = 23, size_range = c(2, 7)) +
+  # Can add a grid in the background with ggplot2::theme()
+  theme(panel.grid.major = element_line()) +
   labs(title = "mode = 23")
 ```
 
 It's also possible to draw mixed layouts by providing two values to `layout` and `mode`. See the [mixed layouts](mixed.html) vignette for more details.
 
-```{r}
+```{r, fig.alt='mtcars heatmap where the top right triangle (and the diagonal) has filled cells and the bottom left triangle has cells containing text instead. The text shows the correlation values and the colour scales with the correlation like the cells in the other triangle.'}
 # Default modes for mixed layouts is 'heatmap' and 'text'
 ggcorrhm(mtcars, layout = c("tr", "bl"))
 ```
@@ -136,7 +137,7 @@ By default, cells are marked with asterisks if `p_values` is `TRUE`. The `p_thre
 
 If `cell_labels` is `TRUE` (so that correlation values are written in the cells), the symbols from `p_thresholds` are added at the end of the correlation values. It is also possible to write out the p-values instead of correlation values by setting both `cell_labels` and `cell_label_p` to `TRUE`.
 
-```{r}
+```{r, fig.alt="Three mtcars correlation heatmaps. The cells are coloured by correlation and contain text that depends on the p-values of the correlation coefficients. In the first one cells are marked with up to three asterisks. In the second plot cells have the correlation values written and up to three asterisks are added on after the correlation values. The third figure instead has a mix of cells with a plus symbol, an asterisk, and 'ns' written in them."}
 # P-value symbols added to the plot
 ggcorrhm(mtcars, p_values = TRUE, p_adjust = "bonferroni", cell_label_size = 6)
 # With correlation text
@@ -148,7 +149,7 @@ ggcorrhm(mtcars, p_values = TRUE, p_adjust = "bonferroni",
 
 By returning the data and using `ggplot2` functions it is possible to be more creative with the p-value marking than `ggcorrhm` allows out of the box.
 
-```{r}
+```{r, fig.alt='mtcars correlation heatmap showing the bottom right triangle. Some cells are marked with asterisks whose sizes scale with -log10 of the adjusted p-values. Those cells also have thick grey border. Other cells have thin, dotted borders.'}
 p <- ggcorrhm(mtcars, p_values = TRUE, p_thresholds = NULL,
               p_adjust = "bonferroni", return_data = TRUE,
               layout = "br", include_diag = FALSE)
@@ -165,7 +166,7 @@ ggcorrhm(mtcars, border_lty = p$plot_data$p_lty, border_lwd = p$plot_data$p_lwd,
   labs(size = "-log10(p_adj)")
 ```
 
-```{r}
+```{r, fig.alt='A top left correlation heatmap of mtcars. Some cells are marked with a large x (indicating that the adjusted p-value is above 0.05).'}
 p <- ggcorrhm(mtcars, p_values = TRUE, p_thresholds = NULL,
               p_adjust = "bonferroni", return_data = TRUE,
               layout = "tl", include_diag = FALSE)

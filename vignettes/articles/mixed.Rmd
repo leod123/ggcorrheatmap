@@ -17,14 +17,14 @@ library(ggcorrheatmap)
 
 If the matrix is symmetric it is possible to plot mixed layouts by giving two triangles (opposite each other) to the `layout` argument. Two modes must be provided, the default modes being `heatmap` for the first element and `text` for the second. The first element of `layout` gets the diagonal (if it is drawn).
 
-```{r, fig.show='hold', out.width='50%'}
+```{r, fig.show='hold', out.width='50%', fig.alt='Two mtcars correlation heatmaps. The first one is composed of a normal heatmap with filled cells for the top left triangle and cells with coloured text showing the correlation values in the bottom right triangle (the colour scaling with the correlation values). Names are written on the diagonal. The second heatmap has circles in the top left and diamonds in the bottom right, all filled with the same colours in the first heatmap and their sizes scaling with the absolute values of the correlations.'}
 ggcorrhm(mtcars, layout = c("tl", "br"))
 ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("21", "23"))
 ```
 
 Since mixed layouts consist of two triangular layout heatmaps, clustering can only be applied if both rows and columns are clustered (like for the simple triangular layouts).
 
-```{r}
+```{r, fig.alt='mtcars correlation heatmap with a normal heatmap in the top right and coloured text in the bottom left. Rows and columns have been clustered and dendrograms are shown on the right and below.'}
 ggcorrhm(mtcars, layout = c("tr", "bl"), cluster_rows = TRUE)
 ```
 
@@ -40,7 +40,7 @@ When the layout is mixed, a few arguments can take vectors or lists of length tw
 
 The arguments that work like this are `border_col`, `border_lwd`, `border_lty`, `cell_labels`, `cell_label_col`, `cell_label_size`, `cell_label_digits`, and (for `ggcorrhm`) `p_values` and `cell_label_p`.
 
-```{r}
+```{r, fig.alt='mtcars correlation heatmap with filled cells with thick, grey, dotted borders on the top right. The bottom left, including the diagonal with names, has cells with coloured text and thick coloured borders with a rainbow scale.'}
 colr <- c("#70369D", "#59369D", "#4A44AB", "#486ED8", "#5B9892", "#79C314", "#C6DB28", "#FBDD2B", "#FEB30A", "#F56B08", "#E81416")
 
 ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("none", "hm"),
@@ -72,27 +72,36 @@ ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("none", "hm"),
 
 As mentioned above, p-values can be added to only one half of the heatmap if desired.
 
-```{r}
+```{r, fig.alt='Two mtcars correlation heatmaps, filled cells on the top left and coloured text (showing correlation values) on the bottom right. The first plot has asterisks showing p-vaule thresholds in both triangles (added to the correlation values in the bottom right). The second plot only has asterisks in the bottom right triangle.'}
 ggcorrhm(mtcars, layout = c("tl", "br"), p_values = TRUE)
 ggcorrhm(mtcars, layout = c("tl", "br"), p_values = c(FALSE, TRUE))
 ```
 
 By using the `cell_label_p` argument, one triangle can be set to show correlation values and the other to show p-values.
 
-```{r}
+```{r, fig.alt='mtcars correlation heatmap with filled cells. All cells have black text as well. In the top right triangle, cells have the correlation values written. In the bottom left triangle, p-values are written instead with zero to three asterisks added depending on how low the p-values are.'}
 ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("hm", "hm"),
          p_values = c(FALSE, TRUE), cell_label_p = c(FALSE, TRUE),
          p_adjust = "bonferroni", cell_labels = TRUE)
 ```
 
+# Some extra plots
+
 Using mixed layouts with mode "none" it is possible to "hack" annotations and dendrograms onto the empty sides of the triangular layouts.
 
-```{r}
+```{r, fig.alt='A mtcars correlation heatmap showing only the top left triangle. On the right and below are row and column annotations, leaving a large triangular gap in the bottom right.'}
 annot <- data.frame(.names = colnames(mtcars), a = 1:11)
 ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "none"),
          annot_rows_df = annot, annot_cols_df = annot,
          cluster_rows = TRUE, cluster_cols = TRUE,
          # Hide cell borders only in the 'none' triangle
          border_lwd = c(0.5, 0))
+```
+
+Finally, the default full layout reverses the y axis levels so that the rows are in the same order as in the input and the diagonal runs from top left to bottom right. If the opposite layout is desired it can be made using a mixed layout of a top left and a bottom right triangle, like the plot below.
+
+```{r, fig.alt='Two mtcars correlation heatmaps, both showing the whole heatmap with names along the diagonal. The first one has the diagonal running from top left to bottom right, while the second one has the diagonal between the bottom left and top right (the row order is reversed).'}
+ggcorrhm(mtcars, layout = "f")
+ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "hm"))
 ```
 

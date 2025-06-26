@@ -15,7 +15,7 @@ library(ggcorrheatmap)
 
 Heatmap rows and columns are clustered if the `cluster_rows` and `cluster_cols` arguments are set to `TRUE`. Distance measure and clustering method can be specified with the `cluster_distance` and `cluster_method` arguments, passed on to the `stats::dist()` and `stats::hclust()` functions, respectively.
 
-```{r clustering}
+```{r clustering, fig.alt='A correlation heatmap of the columns in the mtcars data. The cells are filled with colours ranging from blue (-1) to white (0) to red (1). The rows and columns have been clustered and dendrograms are drawn to the right and below the heatmap.'}
 ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE)
 ```
 
@@ -25,7 +25,7 @@ The `cluster_rows` and `cluster_cols` arguments can also be `hclust` objects if 
 
 The positions of the dendrograms can be changed with the `dend_rows_side` (`left` or `right`) and `dend_cols_side` (`top` or `bottom`) arguments. For triangular layouts (for symmetric matrices) the dendrograms are placed on the non-empty sides of the heatmap.
 
-```{r, fig.show='hold', out.width='50%'}
+```{r, fig.show='hold', out.width='50%', fig.alt='Two mtcars correlation heatmaps. The first one has the dendrograms on the top and left. The second plot has only drawn the bottom left triangle of the matrix and there is a dendrogram on the left side.'}
 # The dendrogram sides can be adjusted with the 'dend_rows_side' and 'dend_cols_side' arguments
 ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
          dend_rows_side = "left", dend_cols_side = "top")
@@ -37,7 +37,7 @@ ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE, layout = "bl",
 
 If annotation and a dendrogram are on the same side, the dendrogram is moved to make place for the annotation.
 
-```{r, fig.height=5, fig.width=7}
+```{r, fig.height=5, fig.width=7, fig.alt='A correlation heatmap of mtcars with clustered rows and columns. The row dendrogram is on the left side, and on the right side of the plot is an annotation column with values ranging between 1 and 11 and colours from the viridis scale. At the bottom of the plot is an annotation row showing the same as the row annotation but using a different viridis scale. Below the annotation row is another dendrogram.'}
 annot <- data.frame(.names = colnames(mtcars), a = 1:11)
 ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
          annot_rows_df = annot, annot_cols_df = annot,
@@ -48,14 +48,14 @@ ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
 
 The `dend_col`, `dend_height`, `dend_lwd`, and `dend_lty` arguments change the colour, height (scaling), linewidth, and linetype of the dendrograms, respectively. 
 
-```{r}
+```{r, fig.alt='Correlation heatmap of mtcars with clustered rows and columns. The row and column dendrograms are longer and thicker than before, coloured cyan and dashed.'}
 ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
          dend_col = "cyan", dend_height = 2, dend_lwd = 1, dend_lty = 2)
 ```
 
 To apply these changes to only the row or only the column dendrograms, use the `dend_rows_params` and `dend_cols_params` arguments. These arguments take a named list containing one or more of `col`, `height`, `lwd`, and `lty`.
 
-```{r}
+```{r, fig.alt='mtcors correlation heatmap with clustered rows and columns. The row dendrogram is tall and cyan like the previous plot, but solid and not thicker than normal. The column dendrogram is the default height and colour (black) but thick and dashed.'}
 ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
          dend_rows_params = list(col = "cyan", height = 2),
          dend_cols_params = list(lwd = 1, lty = 2))
@@ -63,9 +63,9 @@ ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
 
 # More customisation using `dendextend`
 
-Finer customisation of dendrograms can be done with the `dend_rows_extend` and `dend_cols_extend` arguments. These use the `dendextend` package to change the dendrogram appearance. The input can be either a named list of lists, where each element is named after the `dendextend` function to use and contains a list of the arguments to pass, or a functional sequence (`fseq` object) that strings together the functions to use.
+Finer customisation of dendrograms can be done with the `dend_rows_extend` and `dend_cols_extend` arguments. These use the `dendextend` package to change the dendrogram appearance. The input can be either a named list of lists, where each element is named after the `dendextend` function to use and contains a list of the arguments to pass, or a functional sequence (`fseq` object) that strings together the functions to use. A few examples are shown below, see the dendextend vignette `vignette("dendextend", package = "dendextend")` for more details on how to use its functions.
 
-```{r}
+```{r, fig.alt='A clustered mtcars correlation heatmap again. The row dendrogram alternates between black, red, and green, as well as solid, dashed, and dotted. The column dendrogram starts thick and gets gradually thinner as it moves toward the heatmap. The colour comes from the viridis scale and shifts along the height of the dendrogram.'}
 # List method
 ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE, dend_height = 1,
          # Multiple elements can use the same function as lists don't require unique names
@@ -92,7 +92,7 @@ ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE, dend_height = 1,
 
 Using the `dend_*_extend` arguments also makes it possible to display the nodes of the dendrograms.
 
-```{r}
+```{r, fig.alt='mtcars correlation heatmap with clustered rows and columns. The row dendrogram is red in one half and black in the other. The black side has a thicker linewidth and two branches are dashed at the segments closest to the heatmap. All leaves are purple unfilled circles and the rest of the nodes are orange and filled circles. The column dendrogram is coloured with the viridis scale shifting gradually as it gets closer to the heatmap. Nodes are a mix of different shapes (squares, circles, triangles), colours (black, blue, red, green, cyan) and sizes.'}
 # Get clustered labels
 clust <- hclust(dist(cor(mtcars)))
 clust_lab <- clust$labels[clust$order]
