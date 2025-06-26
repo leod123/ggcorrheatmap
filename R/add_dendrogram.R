@@ -67,8 +67,10 @@ add_dendrogram <- function(plt, dendro, dend_col = "black", dend_lwd = 0.3, dend
 #' @param dend_dim Dimension the dendrogram will be plotted against (rows or columns).
 #' @param dend_down Logical indicating if a dendrogram will be plotted along the bottom or top.
 #' @param dend_left Logical indicating if a dendrogram will be plotted to the left or to the right.
+#' @param dend_dist Distance from heatmap (or annotation) to dendrogram measured in cell size.
 #' @param dend_height Scaling parameter of dendrogram height.
 #' @param full_plt Logical indicating if the whole heatmap is plotted or not.
+#' @param layout The heatmap layout (for reordering rows).
 #' @param x_long Data frame containing the values that will be plotted in the heatmap.
 #' @param annot_df Data frame containing annotations.
 #' @param annot_side Logical specifying which side the annotation will be drawn, analogous to 'dend_down' or 'dend_left'
@@ -79,7 +81,7 @@ add_dendrogram <- function(plt, dendro, dend_col = "black", dend_lwd = 0.3, dend
 #' @return Data frame with dendrogram segment and node parameters.
 #'
 prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
-                               dend_down, dend_left, dend_height, full_plt, layout, x_long,
+                               dend_down, dend_left, dend_dist, dend_height, full_plt, layout, x_long,
                                annot_df, annot_side, annot_pos, annot_size) {
   pch <- cex <- x <- y <- NULL
 
@@ -95,7 +97,7 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
   # Move dendrogram next to heatmap
   dend_seg <- move_dendrogram(dend_seg, x_long, dend_dim,
                               ifelse(dend_dim == "rows", dend_left, dend_down),
-                              annot_df, annot_side, annot_pos, annot_size)
+                              dend_dist, annot_df, annot_side, annot_pos, annot_size)
 
   # Rescale height of dendrogram
   if (dend_height != 1) {
@@ -114,7 +116,7 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
     # Move dendrogram next to heatmap
     dend_nod <- move_dendrogram(dend_nod, x_long, dend_dim,
                                 ifelse(dend_dim == "rows", dend_left, dend_down),
-                                annot_df, annot_side, annot_pos, annot_size)
+                                dend_dist, annot_df, annot_side, annot_pos, annot_size)
 
     # Rescale height of dendrogram
     if (dend_height != 1) {
@@ -180,6 +182,7 @@ cluster_dimension <- function(cluster_data, mat, cluster_distance, cluster_metho
 #' @param dend Dendrogram segments or nodes data frame (containing x, y, xend, yend).
 #' @param dim String, rows or cols to know which dimensions dendrogram should be on.
 #' @param full_plt Logical indicating if it's for the full layout.
+#' @param layout The heatmap layout to take mixed layout into account.
 #' @param dend_left Logical indicating if the dendrogram should be placed on the left (only relevant if row dend).
 #' @param dend_down Logical indicating if the dendrogram should be placed at the bottom (only relevant if col dend).
 #'
@@ -213,7 +216,7 @@ orient_dendrogram <- function(dend, dim = c("rows", "cols"), full_plt, layout, d
     }
   } else {
     if (dend_left & !dend_down) {
-      # top dend_left
+      # top left
       if (dim[1] == "rows") {
         dplyr::mutate(dend, nx = -y, nxend = -yend, ny = x, nyend = xend)
       } else if (dim[1] == "cols") {
@@ -234,7 +237,7 @@ orient_dendrogram <- function(dend, dim = c("rows", "cols"), full_plt, layout, d
         dplyr::mutate(dend, nx = x, nxend = xend, ny = -y, nyend = -yend)
       }
     } else if (dend_left & dend_down) {
-      # bottom dend_left
+      # bottom left
       if (dim[1] == "rows") {
         dplyr::mutate(dend, nx = -y, nxend = -yend, ny = -x, nyend = -xend)
       } else if (dim[1] == "cols") {
@@ -261,6 +264,7 @@ orient_dendrogram <- function(dend, dim = c("rows", "cols"), full_plt, layout, d
 #' @param x_long Long format data frame with the values
 #' @param dend_dim Character specifying whether the dendrogram is linked to rows or columns in the heatmap
 #' @param dend_side Logical specifying dendrogram position. TRUE is left of the heatmap if row dendrogram, bottom of heatmap if column dendrogram
+#' @param dend_dist Distance from heatmap (or annotation) to dendrogram in cell size.
 #' @param annot_df Data frame with annotations for checking that annotations exist as well as their size
 #' @param annot_side Logical specifying annotation position, analogous to `dend_side`
 #' @param annot_pos Numeric vector of annotation coordinates (x coordinates for row annotations, y for column annotations)
@@ -268,23 +272,24 @@ orient_dendrogram <- function(dend, dim = c("rows", "cols"), full_plt, layout, d
 #'
 #' @return Data frame with updated dendrogram coordinates
 #'
-move_dendrogram <- function(dend_seg, x_long, dend_dim = c("rows", "cols"), dend_side,
+move_dendrogram <- function(dend_seg, x_long, dend_dim = c("rows", "cols"), dend_side, dend_dist,
                             annot_df, annot_side, annot_pos, annot_size) {
 
   if (dend_dim[1] == "rows") {
-
     xmove <- ifelse(
       dend_side,
-      ifelse(    # Dendrograms on the left, annotation left of rows or not
+      # Dendrograms on the left. If there is no annotation start at 0.5 (center of leftmost cell is at 1, move half a cell left)
+      # If there is annotation, need to take annotation width into account (annot_size)
+      ifelse(    # Annotation left of plot or not
         is.data.frame(annot_df) & annot_side,
         min(annot_pos) - 0.5 * annot_size - max(c(dend_seg$x, dend_seg$xend)),
         0.5 - max(c(dend_seg$x, dend_seg$xend))
-      ),
-      ifelse(    # Dendrograms on the right, annotation right of rows or not
+      ) - dend_dist,
+      ifelse(    # Dendrograms on the right, annotation right of plot or not
         is.data.frame(annot_df) & !annot_side,
         max(annot_pos) + 0.5 * annot_size - min(c(dend_seg$x, dend_seg$xend)),
         length(unique(x_long$col)) + 0.5 - min(c(dend_seg$x, dend_seg$xend))
-      )
+      ) + dend_dist
     )
 
     ymove <- length(unique(x_long$row)) - max(c(dend_seg$y, dend_seg$yend))
@@ -300,12 +305,12 @@ move_dendrogram <- function(dend_seg, x_long, dend_dim = c("rows", "cols"), dend
         is.data.frame(annot_df) & annot_side,
         min(annot_pos) - 0.5 * annot_size - max(c(dend_seg$y, dend_seg$yend)),
         0.5 - max(c(dend_seg$y, dend_seg$yend))
-      ),
+      ) - dend_dist,
       ifelse(    # Dendrogram above heatmap, annotation or not
         is.data.frame(annot_df) & !annot_side,
         max(annot_pos) + 0.5 * annot_size - min(c(dend_seg$y, dend_seg$yend)),
         length(unique(x_long$row)) + 0.5 - min(c(dend_seg$y, dend_seg$yend))
-      )
+      ) + dend_dist
     )
   }
 

@@ -55,6 +55,16 @@ test_that("snapshots", {
                                      set = list("nodes_cex", 2:4),
                                      set = list("nodes_col", as.character(1:5))
                                    )))
+  vdiffr::expect_doppelganger("annotation_cluster_distances",
+                              gghm(scale(mtcars[1:10, ]),
+                                   annot_rows_df = data.frame(.names = rownames(mtcars)[1:10],
+                                                              a = 1:10, b = 10:1, c = 1:10),
+                                   annot_cols_df = data.frame(.names = colnames(mtcars),
+                                                              a = 1:11, b = 11:1, c = 1:11),
+                                   cluster_rows = T, cluster_cols = T,
+                                   annot_dist = 2, annot_size = 1, annot_gap = 1,
+                                   annot_cols_params = list(dist = .3, size = .5, gap = .1),
+                                   dend_dist = 1, dend_cols_params = list(dist = 0.1)))
 })
 
 test_that("correct input types", {
@@ -75,12 +85,18 @@ test_that("warnings for layouts and clustering", {
   expect_no_warning(gghm(cor(mtcars), cluster_rows = T))
   expect_no_warning(gghm(cor(mtcars), cluster_cols = T))
   expect_no_warning(gghm(cor(mtcars), cluster_rows = T, cluster_cols = T))
+  expect_no_warning(gghm(cor(mtcars), cluster_rows = T, cluster_cols = T,
+                         dend_rows_side = "left", dend_cols_side = "top"))
   expect_no_warning(gghm(cor(mtcars), layout = "tl", cluster_rows = T, cluster_cols = T))
   expect_no_warning(gghm(cor(mtcars), layout = "tr", cluster_rows = T, cluster_cols = T))
   expect_no_warning(gghm(cor(mtcars), layout = "bl", cluster_rows = T, cluster_cols = T))
   expect_no_warning(gghm(cor(mtcars), layout = "br", cluster_rows = T, cluster_cols = T))
   expect_no_warning(gghm(cor(mtcars), layout = c("tl", "br"), cluster_rows = T, cluster_cols = T))
   expect_no_warning(gghm(cor(mtcars), layout = c("tr", "bl"), cluster_rows = T, cluster_cols = T))
+  expect_no_warning(gghm(cor(mtcars), layout = c("tl", "br"), cluster_rows = T, cluster_cols = T,
+                         dend_rows_side = "left", dend_cols_side = "top"))
+  expect_no_warning(gghm(cor(mtcars), layout = c("tr", "bl"), cluster_rows = T, cluster_cols = T,
+                         dend_rows_side = "left", dend_cols_side = "top"))
 })
 
 test_that("annotation names must exist in the data", {

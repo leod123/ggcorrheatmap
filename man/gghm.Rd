@@ -61,6 +61,7 @@ gghm(
   dend_rows_side = "right",
   dend_cols_side = "bottom",
   dend_col = "black",
+  dend_dist = 0,
   dend_height = 0.3,
   dend_lwd = 0.3,
   dend_lty = 1,
@@ -154,7 +155,7 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 
 \item{annot_gap}{Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.}
 
-\item{annot_size}{Size (width for row annotation, height for column annotation) of annotation cells. Used for both row and column annotation.}
+\item{annot_size}{Size (width for row annotation, height for column annotation) of annotation cells compared to a heatmap cell. Used for both row and column annotation.}
 
 \item{annot_label}{Logical controlling if names of annotations should be shown in the drawing area.}
 
@@ -200,15 +201,17 @@ the \verb{annot_*_fill} arguments.}
 
 \item{dend_col}{Colour to use for dendrogram lines, applied to both row and column dendrograms.}
 
+\item{dend_dist}{Distance from heatmap (or annotation) to leaves of dendrogram, measured in heatmap cells (1 is the size of one cell).}
+
 \item{dend_height}{Number by which to scale dendrogram height, applied to both row and column dendrograms.}
 
 \item{dend_lwd}{Linewidth of dendrogram lines, applied to both row and column dendrograms.}
 
 \item{dend_lty}{Dendrogram line type, applied to both row and column dendrograms.}
 
-\item{dend_rows_params}{Named list for row dendrogram parameters. See details for more information.}
+\item{dend_rows_params}{Named list for row dendrogram parameters to overwrite common parameter values. See details for more information.}
 
-\item{dend_cols_params}{Named list for column dendrogram parameters. See details for more information.}
+\item{dend_cols_params}{Named list for column dendrogram parameters to overwrite common parameter values. See details for more information.}
 
 \item{dend_rows_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the row dendrogram. See details for usage.}
 
@@ -222,7 +225,8 @@ and the result of the clustering ('row_clustering' and/or 'col_clustering).
 If the layout is mixed, an extra factor column named 'layout' is included in 'plot_data', showing which triangle each cell belongs to.
 }
 \description{
-Make a heatmap with ggplot2.
+Dendrogram distance argument!?
+link to the dendextend vignette!
 }
 \details{
 When using mixed layouts (\code{layout} is length two), \code{mode} needs to be length two as well, specifying the mode to use in each triangle.
@@ -235,7 +239,7 @@ the different \verb{annot_*} arguments. The possible options are "legend" (logic
 Any unused options will use the defaults set by the \verb{annot_*} arguments.
 
 The dendrogram parameters arguments \code{dend_rows_params} and \code{dend_cols_params} should be named lists, analogous to the annotation parameter arguments. Possible options are
-"col" (line colour), "height" (height scaling), "lwd" (line width), and "lty" (line type).
+"col" (line colour), "dist" (distance from heatmap to dendrogram), "height" (height scaling), "lwd" (line width), and "lty" (line type).
 
 The \code{dend_rows_extend} and \code{dend_cols_extend} arguments make it possible to customise the dendrograms using the \code{dendextend} package.
 The argument should be a named list, each element named after the \code{dendextend} function to use (consecutive usage of the \code{set} function

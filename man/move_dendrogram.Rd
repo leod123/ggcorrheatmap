@@ -9,6 +9,7 @@ move_dendrogram(
   x_long,
   dend_dim = c("rows", "cols"),
   dend_side,
+  dend_dist,
   annot_df,
   annot_side,
   annot_pos,
@@ -23,6 +24,8 @@ move_dendrogram(
 \item{dend_dim}{Character specifying whether the dendrogram is linked to rows or columns in the heatmap}
 
 \item{dend_side}{Logical specifying dendrogram position. TRUE is left of the heatmap if row dendrogram, bottom of heatmap if column dendrogram}
+
+\item{dend_dist}{Distance from heatmap (or annotation) to dendrogram in cell size.}
 
 \item{annot_df}{Data frame with annotations for checking that annotations exist as well as their size}
 

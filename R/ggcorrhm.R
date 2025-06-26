@@ -116,7 +116,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      cluster_rows = FALSE, cluster_cols = FALSE,
                      cluster_distance = "euclidean", cluster_method = "complete",
                      dend_rows = TRUE, dend_cols = TRUE, dend_rows_side = "right", dend_cols_side = "bottom",
-                     dend_col = "black", dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
+                     dend_col = "black", dend_dist = 0, dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
                      dend_rows_params = NULL, dend_cols_params = NULL,
                      dend_rows_extend = NULL, dend_cols_extend = NULL) {
 
@@ -233,7 +233,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                   cluster_distance = cluster_distance, cluster_method = cluster_method,
                   dend_rows = dend_rows, dend_cols = dend_cols,
                   dend_rows_side = dend_rows_side, dend_cols_side = dend_cols_side,
-                  dend_col = dend_col, dend_height = dend_height, dend_lwd = dend_lwd, dend_lty = dend_lty,
+                  dend_col = dend_col, dend_dist = dend_dist, dend_height = dend_height, dend_lwd = dend_lwd, dend_lty = dend_lty,
                   dend_rows_params = dend_rows_params, dend_cols_params = dend_cols_params,
                   dend_rows_extend = dend_rows_extend, dend_cols_extend = dend_cols_extend)
 

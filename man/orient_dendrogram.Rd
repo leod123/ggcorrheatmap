@@ -20,6 +20,8 @@ orient_dendrogram(
 
 \item{full_plt}{Logical indicating if it's for the full layout.}
 
+\item{layout}{The heatmap layout to take mixed layout into account.}
+
 \item{dend_left}{Logical indicating if the dendrogram should be placed on the left (only relevant if row dend).}
 
 \item{dend_down}{Logical indicating if the dendrogram should be placed at the bottom (only relevant if col dend).}

@@ -49,7 +49,7 @@
 #' @param annot_legend Logical indicating if row and column annotations should have legends.
 #' @param annot_dist Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_gap Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.
-#' @param annot_size Size (width for row annotation, height for column annotation) of annotation cells. Used for both row and column annotation.
+#' @param annot_size Size (width for row annotation, height for column annotation) of annotation cells compared to a heatmap cell. Used for both row and column annotation.
 #' @param annot_label Logical controlling if names of annotations should be shown in the drawing area.
 #' @param annot_border_col Colour of cell borders in annotation. By default it is the same as `border_col` of the main heatmap if it is of length 1, otherwise uses default (grey).
 #' @param annot_border_lwd Line width of cell borders in annotation. By default it is the same as `border_lwd` of the main heatmap if it is of length 1, otherwise uses default (0.5).
@@ -73,11 +73,12 @@
 #' @param dend_rows_side Which side to draw the row dendrogram on ('left' or 'l' for left, otherwise right).
 #' @param dend_cols_side Which side to draw the column dendrogram on ('bottom', 'down', 'b', 'd' for bottom, otherwise top).
 #' @param dend_col Colour to use for dendrogram lines, applied to both row and column dendrograms.
+#' @param dend_dist Distance from heatmap (or annotation) to leaves of dendrogram, measured in heatmap cells (1 is the size of one cell).
 #' @param dend_height Number by which to scale dendrogram height, applied to both row and column dendrograms.
 #' @param dend_lwd Linewidth of dendrogram lines, applied to both row and column dendrograms.
 #' @param dend_lty Dendrogram line type, applied to both row and column dendrograms.
-#' @param dend_rows_params Named list for row dendrogram parameters. See details for more information.
-#' @param dend_cols_params Named list for column dendrogram parameters. See details for more information.
+#' @param dend_rows_params Named list for row dendrogram parameters to overwrite common parameter values. See details for more information.
+#' @param dend_cols_params Named list for column dendrogram parameters to overwrite common parameter values. See details for more information.
 #' @param dend_rows_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row dendrogram. See details for usage.
 #' @param dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the column dendrogram. See details for usage.
 #'
@@ -101,7 +102,7 @@
 #' Any unused options will use the defaults set by the `annot_*` arguments.
 #'
 #' The dendrogram parameters arguments `dend_rows_params` and `dend_cols_params` should be named lists, analogous to the annotation parameter arguments. Possible options are
-#' "col" (line colour), "height" (height scaling), "lwd" (line width), and "lty" (line type).
+#' "col" (line colour), "dist" (distance from heatmap to dendrogram), "height" (height scaling), "lwd" (line width), and "lty" (line type).
 #'
 #' The `dend_rows_extend` and `dend_cols_extend` arguments make it possible to customise the dendrograms using the `dendextend` package.
 #' The argument should be a named list, each element named after the `dendextend` function to use (consecutive usage of the `set` function
@@ -176,7 +177,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
                  cluster_rows = FALSE, cluster_cols = FALSE,
                  cluster_distance = "euclidean", cluster_method = "complete",
                  dend_rows = TRUE, dend_cols = TRUE, dend_rows_side = "right", dend_cols_side = "bottom",
-                 dend_col = "black", dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
+                 dend_col = "black", dend_dist = 0, dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
                  dend_rows_params = NULL, dend_cols_params = NULL,
                  dend_rows_extend = NULL, dend_cols_extend = NULL) {
 
@@ -366,13 +367,14 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
   }
 
   # Generate dendrograms, positions depend on annotation sizes
-  dend_defaults <- list(col = dend_col, height = dend_height, lwd = dend_lwd, lty = dend_lty)
+  dend_defaults <- list(dist = dend_dist, col = dend_col, height = dend_height, lwd = dend_lwd, lty = dend_lty)
   if (lclust_rows & dend_rows) {
     # Replace default parameters if any are provided
     dend_rows_params <- replace_default(dend_defaults, dend_rows_params)
 
     dendro_rows <- prepare_dendrogram(dendro_in = row_clustering$dendro, dend_dim = "rows",
                                       dend_down = dend_down, dend_left = dend_left,
+                                      dend_dist = dend_rows_params$dist,
                                       dend_height = dend_rows_params$height,
                                       full_plt = full_plt, layout = layout, x_long = x_long,
                                       annot_df = annot_rows_df, annot_side = annot_left,
@@ -386,6 +388,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
 
     dendro_cols <- prepare_dendrogram(dendro_in = col_clustering$dendro, dend_dim = "cols",
                                       dend_down = dend_down, dend_left = dend_left,
+                                      dend_dist = dend_cols_params$dist,
                                       dend_height = dend_cols_params$height,
                                       full_plt = full_plt, layout = layout, x_long = x_long,
                                       annot_df = annot_cols_df, annot_side = annot_down,

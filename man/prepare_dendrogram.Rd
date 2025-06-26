@@ -9,6 +9,7 @@ prepare_dendrogram(
   dend_dim = c("rows", "cols"),
   dend_down,
   dend_left,
+  dend_dist,
   dend_height,
   full_plt,
   layout,
@@ -29,9 +30,13 @@ prepare_dendrogram(
 
 \item{dend_left}{Logical indicating if a dendrogram will be plotted to the left or to the right.}
 
+\item{dend_dist}{Distance from heatmap (or annotation) to dendrogram measured in cell size.}
+
 \item{dend_height}{Scaling parameter of dendrogram height.}
 
 \item{full_plt}{Logical indicating if the whole heatmap is plotted or not.}
+
+\item{layout}{The heatmap layout (for reordering rows).}
 
 \item{x_long}{Data frame containing the values that will be plotted in the heatmap.}
 
