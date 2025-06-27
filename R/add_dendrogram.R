@@ -33,9 +33,8 @@ add_dendrogram <- function(plt, dendro, dend_col = "black", dend_lwd = 0.3, dend
                           else {seg$lwd},
                           linetype = if (all(is.na(seg$lty))) {dend_lty}
                           else {seg$lty},
-                          lineend = "square",
-                          show.legend = F) +
-    ggplot2::scale_colour_manual(values = seg_colr)
+                          lineend = "square") +
+    ggplot2::scale_colour_manual(values = seg_colr, guide = "none")
 
   # Draw nodes
   if (nrow(nod) > 0) {
@@ -49,9 +48,8 @@ add_dendrogram <- function(plt, dendro, dend_col = "black", dend_lwd = 0.3, dend
     plt <- plt +
       ggnewscale::new_scale_colour() +
       ggplot2::geom_point(ggplot2::aes(x = x, y = y, colour = col), nod,
-                          size = 1 * nod$cex, shape = nod$pch,
-                          show.legend = F) +
-      ggplot2::scale_colour_manual(values = nod_colr)
+                          size = 1 * nod$cex, shape = nod$pch) +
+      ggplot2::scale_colour_manual(values = nod_colr, guide = "none")
   }
 
   return(plt)

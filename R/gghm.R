@@ -320,6 +320,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
 
   # Set colour scale if none provided to change order of legends (if not set, the legend may end up after the annotation legends)
   # Check if the fill legend is supposed to be drawn at all (otherwise it might draw the legend even if show_legend is c(fill = FALSE))
+  # If not specified, draw
   show_fill <- if ("fill" %in% names(show_legend)) show_legend["fill"] else TRUE
   # Different depending on class of input data
   if (is.null(fill_scale)) {
@@ -414,7 +415,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
 
   # Build plot
   if (length(layout) == 1) {
-    plt <- make_heatmap(x_long = x_long, plt = NULL, mode = mode, layout = layout, include_diag = include_diag,
+    plt <- make_heatmap(x_long = x_long, plt = NULL, mode = mode, include_diag = include_diag,
                         invisible_diag = isSymmetric(x_mat) & !include_diag,
                         border_lwd = border_lwd, border_col = border_col, border_lty = border_lty,
                         names_diag = names_diag, names_x = names_x, names_y = names_y,
@@ -429,8 +430,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     lt <- layout
     # First half of the plot
     plt <- make_heatmap(x_long = dplyr::filter(x_long, layout == lt[1]), plt = NULL,
-                        mode = mode[1], layout = layout[1],
-                        include_diag = include_diag, invisible_diag = !include_diag,
+                        mode = mode[1], include_diag = include_diag, invisible_diag = !include_diag,
                         border_lwd = border_lwd[[1]], border_col = border_col[[1]], border_lty = border_lty[[1]],
                         names_diag = names_diag, names_x = names_x, names_y = names_y,
                         names_x_side = names_x_side, names_y_side = names_y_side,
@@ -441,8 +441,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
                         cell_label_size = cell_label_size[[1]], cell_label_digits = cell_label_digits[[1]])
     # Remaining half
     plt <- make_heatmap(x_long = dplyr::filter(x_long, layout == lt[2]), plt = plt,
-                        mode = mode[2], layout = layout[2],
-                        include_diag = F, invisible_diag = F,
+                        mode = mode[2], include_diag = F, invisible_diag = F,
                         border_lwd = border_lwd[[2]], border_col = border_col[[2]], border_lty = border_lty[[2]],
                         names_diag = F, names_x = names_x, names_y = names_y,
                         names_x_side = names_x_side, names_y_side = names_y_side, show_legend = show_legend,

@@ -8,7 +8,6 @@ make_heatmap(
   x_long,
   plt = NULL,
   mode = "heatmap",
-  layout = "f",
   include_diag = F,
   invisible_diag = F,
   border_lwd = 0.5,
@@ -38,8 +37,6 @@ make_heatmap(
 \item{plt}{A ggplot object to build onto. If NULL, makes a new plot.}
 
 \item{mode}{Plotting mode.}
-
-\item{layout}{Layout for plot component to add/make.}
 
 \item{include_diag}{Logical indicating if diagonal should be included.}
 

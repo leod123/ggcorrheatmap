@@ -5,7 +5,6 @@
 #' @param x_long Long format data.
 #' @param plt A ggplot object to build onto. If NULL, makes a new plot.
 #' @param mode Plotting mode.
-#' @param layout Layout for plot component to add/make.
 #' @param include_diag Logical indicating if diagonal should be included.
 #' @param invisible_diag Logical indicating if an invisible diagonal should be included.
 #' @param border_lwd Border linewidth.
@@ -30,7 +29,7 @@
 #'
 #' @returns ggplot object with heatmap component.
 #'
-make_heatmap <- function(x_long, plt = NULL, mode = "heatmap", layout = "f",
+make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                          include_diag = F, invisible_diag = F,
                          border_lwd = 0.5, border_col = "grey", border_lty = 1,
                          names_diag = T, names_x = F, names_y = F, names_diag_param = NULL,
