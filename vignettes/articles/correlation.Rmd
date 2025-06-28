@@ -9,10 +9,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, results='hide', message=FALSE, warning=FALSE}
 library(ggcorrheatmap)
 library(ggplot2)
-suppressPackageStartupMessages(library(dplyr))
+library(dplyr)
 ```
 
 Correlation heatmaps can be made easily using the `ggcorrhm()` function. `ggcorrhm()` is a wrapper for (and shares most of its arguments with) `gghm()` and calculates the correlation matrix for the input passed to `gghm()`. If one matrix is provided the column-column correlations are plotted. If two matrices are provided, the correlations between the columns in the two matrices are plotted. Using the `cor_method` and `cor_use` different `method` and `use` arguments can be passed to `stats::cor`.
@@ -177,3 +177,7 @@ ggcorrhm(mtcars, layout = "tl", include_diag = FALSE) +
              shape = 4, size = 8)
 ```
 
+
+# Other packages
+
+A benefit of making the plot with `ggplot2` is the possibility of modifying and arranging the plot using `ggplot2` and its many extensions. `ggcorrheatmap` is convenient for making simple correlation heatmaps, with options for extensive customisation of the appearance and layout, and built-in support for clustering (with dendrograms) and annotation. Another package for making correlation heatmaps with `ggplot2` is `ggcorrplot` which is faster and has more ways of visualising p-values. If having the plot made with `ggplot2` is not necessary, the `corrplot` package can make flexible correlation plots with many alternative visualisations.

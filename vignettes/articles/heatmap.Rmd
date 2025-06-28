@@ -11,10 +11,10 @@ knitr::opts_chunk$set(
 
 The `gghm` function can be used to make a heatmap from a matrix of data frame. Rows and columns are ordered the same way as in the input.
 
-```{r setup}
+```{r setup, results='hide', message=FALSE, warning=FALSE}
 library(ggcorrheatmap)
 library(ggplot2)
-suppressPackageStartupMessages(library(dplyr))
+library(dplyr)
 ```
 
 
@@ -169,3 +169,7 @@ plot_list$plot +
 ```
 
 There are many arguments, allowing for quite some flexibility in the heatmap layout. Most of the arguments are showcased in the vignettes, hopefully they can be of some help. They go more into making [correlation heatmaps](correlation.html), [clustering](clustering.html) and [annotation](annotation.html), and making [mixed layout heatmaps](mixed.html).
+
+# Other packages
+
+While `ggcorrheatmap` supports making general heatmaps, as a heatmap package it is relatively lacking in features. The `pheatmap` package and the `ComplexHeatmap` package can be used for making heatmaps with many more options for customisation (although not with `ggplot2`).

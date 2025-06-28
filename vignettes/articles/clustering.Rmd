@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, results='hide', message=FALSE, warning=FALSE}
 library(ggcorrheatmap)
 ```
 
@@ -46,7 +46,7 @@ ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
 
 # Changing how the dendrograms look
 
-The `dend_col`, `dend_height`, `dend_lwd`, and `dend_lty` arguments change the colour, height (scaling), linewidth, and linetype of the dendrograms, respectively. 
+The `dend_col`, `dend_dist`, `dend_height`, `dend_lwd`, and `dend_lty` arguments change the colour, distance to the heatmap, height (scaling), linewidth, and linetype of the dendrograms, respectively. 
 
 ```{r, fig.alt='Correlation heatmap of mtcars with clustered rows and columns. The row and column dendrograms are longer and thicker than before, coloured cyan and dashed.'}
 ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
@@ -55,10 +55,10 @@ ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
 
 To apply these changes to only the row or only the column dendrograms, use the `dend_rows_params` and `dend_cols_params` arguments. These arguments take a named list containing one or more of `col`, `height`, `lwd`, and `lty`.
 
-```{r, fig.alt='mtcors correlation heatmap with clustered rows and columns. The row dendrogram is tall and cyan like the previous plot, but solid and not thicker than normal. The column dendrogram is the default height and colour (black) but thick and dashed.'}
+```{r, fig.alt='mtcors correlation heatmap with clustered rows and columns. The row dendrogram is tall and cyan like the previous plot, but solid and not thicker than normal. The column dendrogram is the default height and colour (black) but thick and dashed. There is a gap the size of one heatmap cell between the column dendrogram and the heatmap.'}
 ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
          dend_rows_params = list(col = "cyan", height = 2),
-         dend_cols_params = list(lwd = 1, lty = 2))
+         dend_cols_params = list(lwd = 1, lty = 2, dist = 1))
 ```
 
 # More customisation using `dendextend`
