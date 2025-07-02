@@ -42,6 +42,7 @@ test_that("snapshots", {
                                      set = list("by_labels_branches_col", value = rownames(mtcars)[1:5], TF_values = "red"),
                                      set = list("by_labels_branches_lty", value = rownames(mtcars)[10:12], TF_values = 3),
                                      set = list("by_labels_branches_lwd", value = rownames(mtcars)[21:25], TF_values = 1),
+                                     set = list("nodes_pch", 19),
                                      set = list("nodes_cex", 2),
                                      set = list("nodes_col", "orange"),
                                      set = list("leaves_pch", 21),

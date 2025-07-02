@@ -108,7 +108,9 @@
 #' The argument should be a named list, each element named after the `dendextend` function to use (consecutive usage of the `set` function
 #' is supported due to duplicate list names being possible). Each element should contain any arguments given to the `dendextend` function,
 #' such as the `what` argument used in the `set` function. Alternatively, `dendextend` functions can be provided in a functional sequence ("fseq" object)
-#' by piping together functions using the `%>%` pipe. See examples and the clustering vignette for example usage.
+#' by piping together functions using the `%>%` pipe. Functions modifying the labels do not work as the dendrogram labels are not displayed (they are in the axis text).
+#' As dendextend::as.ggdend() is used for conversion of the dendrogram, anything not supported by as.ggdend() will not work (such as "nodes_bg" or "rect.dendrogram").
+#' See examples and the clustering vignette for example usage.
 #'
 #' @examples
 #' library(ggplot2)

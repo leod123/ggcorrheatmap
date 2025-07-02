@@ -40,8 +40,8 @@
 #' (see details of `gghm()` for more information).
 #' @param dend_rows_params Named list for row dendrogram parameters. See details of `gghm()` for more information.
 #' @param dend_cols_params Named list for column dendrogram parameters. See details of `gghm()` for more information.
-#' @param dend_rows_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row dendrogram. See details of `gghm()` for usage.
-#' @param dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the column dendrogram. See details of `gghm()` for usage.
+#' @param dend_rows_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row dendrogram. See details of `gghm()` and `ggcorrhm()` for usage.
+#' @param dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the column dendrogram. See details of `gghm()` and `ggcorrhm()` for usage.
 #'
 #' @return The correlation heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),
@@ -71,6 +71,11 @@
 #' arguments, or `ggplot2::scale_size()` for no special behaviour.
 #' When the absolute value transformation is used the legend for sizes loses its meaning (only displaying positive values)
 #' and is therefore set to not be shown in the `show_legend` argument.
+#'
+#' For symmetric correlation matrices, the dendrogram customisation arguments `dend_rows_extend` and `dend_cols_extend` work best with functions that only change the dendrogram
+#' cosmetically such as the colours, linetypes or node shapes. While it is possible to reorder (using e.g. 'rotate', 'ladderize') or prune (using e.g. 'prune'),
+#' anything that changes the structure of the dendrogram may end up looking strange for symmetric matrices if
+#' only applied to one dimension (e.g. the diagonal may not be on the diagonal, triangular layouts may not work).
 #'
 #' @examples
 #' # Basic usage

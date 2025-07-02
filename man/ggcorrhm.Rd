@@ -249,9 +249,9 @@ the \verb{annot_*_fill} arguments.}
 
 \item{dend_cols_params}{Named list for column dendrogram parameters. See details of \code{gghm()} for more information.}
 
-\item{dend_rows_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the row dendrogram. See details of \code{gghm()} for usage.}
+\item{dend_rows_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the row dendrogram. See details of \code{gghm()} and \code{ggcorrhm()} for usage.}
 
-\item{dend_cols_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the column dendrogram. See details of \code{gghm()} for usage.}
+\item{dend_cols_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the column dendrogram. See details of \code{gghm()} and \code{ggcorrhm()} for usage.}
 }
 \value{
 The correlation heatmap as a \code{ggplot} object.
@@ -282,6 +282,11 @@ This behaviour can be overwritten by setting \code{size_scale} to another \verb{
 arguments, or \code{ggplot2::scale_size()} for no special behaviour.
 When the absolute value transformation is used the legend for sizes loses its meaning (only displaying positive values)
 and is therefore set to not be shown in the \code{show_legend} argument.
+
+For symmetric correlation matrices, the dendrogram customisation arguments \code{dend_rows_extend} and \code{dend_cols_extend} work best with functions that only change the dendrogram
+cosmetically such as the colours, linetypes or node shapes. While it is possible to reorder (using e.g. 'rotate', 'ladderize') or prune (using e.g. 'prune'),
+anything that changes the structure of the dendrogram may end up looking strange for symmetric matrices if
+only applied to one dimension (e.g. the diagonal may not be on the diagonal, triangular layouts may not work).
 }
 \examples{
 # Basic usage

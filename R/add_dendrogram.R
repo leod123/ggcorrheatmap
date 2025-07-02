@@ -38,10 +38,6 @@ add_dendrogram <- function(plt, dendro, dend_col = "black", dend_lwd = 0.3, dend
 
   # Draw nodes
   if (nrow(nod) > 0) {
-    # Fill in NAs of pch (19), cex (1) and col (black) so that the nodes are drawn if any one of the parameters is specified
-    nod[["pch"]][is.na(nod[["pch"]])] <- 19
-    nod[["cex"]][is.na(nod[["cex"]])] <- 1
-    nod[["col"]][is.na(nod[["col"]])] <- "black"
     nod_colr <- dplyr::pull(dplyr::distinct(nod, col), col)
     names(nod_colr) <- nod_colr
 
@@ -87,7 +83,7 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
   # Segments
   dend_seg <- dendro_in$segments
   # Nodes
-  dend_nod  <- dplyr::filter(dendro_in$nodes, !is.na(pch) | !is.na(cex) | !is.na(col))
+  dend_nod  <- dendro_in$nodes
 
 
   dend_seg <- orient_dendrogram(dend_seg, dend_dim, full_plt, layout, dend_left, dend_down)
@@ -106,6 +102,7 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
 
   # If nodes have been adjusted in any way, repeat the procedure for nodes
   if (any(!is.na(unlist(dplyr::select(dend_nod, pch, cex, col))))) {
+
     # Add xend and yend columns to work with transformation functions
     dend_nod <- dplyr::mutate(dend_nod, xend = x, yend = y)
 
@@ -122,7 +119,16 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
                                    ifelse(dend_dim == "rows", dend_left, dend_down),
                                    dend_height)
     }
+
   }
+
+  # Get the same behaviour as in dendextend (nodes_pch must be specified for nodes to show up,
+  # but setting nodes_pch automatically sets col and cex to defaults)
+  # If this is done before 'move_dendrogram', the nodes can end up in the wrong positions as
+  # it tries to move the nodes so they start at the heatmap edge (bad if some nodes are NA and removed)
+  dend_nod <- dplyr::filter(dend_nod, !is.na(pch))
+  dend_nod[["cex"]][is.na(dend_nod[["cex"]])] <- 1
+  dend_nod[["col"]][is.na(dend_nod[["col"]])] <- "black"
 
   return(list("seg" = dend_seg, "nod" = dend_nod))
 }

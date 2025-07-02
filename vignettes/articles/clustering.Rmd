@@ -11,6 +11,8 @@ knitr::opts_chunk$set(
 
 ```{r setup, results='hide', message=FALSE, warning=FALSE}
 library(ggcorrheatmap)
+library(dplyr)
+library(dendextend)
 ```
 
 Heatmap rows and columns are clustered if the `cluster_rows` and `cluster_cols` arguments are set to `TRUE`. Distance measure and clustering method can be specified with the `cluster_distance` and `cluster_method` arguments, passed on to the `stats::dist()` and `stats::hclust()` functions, respectively.
@@ -98,32 +100,28 @@ clust <- hclust(dist(cor(mtcars)))
 clust_lab <- clust$labels[clust$order]
 
 ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE, dend_height = 1,
-         # Multiple elements can use the same function as lists don't require unique names
-         dend_rows_extend = list(
+         # Here using the fseq method
+         dend_rows_extend = . %>%
            # More on customising segments
            # Can specify branches to affect by labels using the 'by_labels_branches_*' options
-           set = list("by_labels_branches_col", value = clust_lab[1:5], TF_values = "red"),
-           set = list("by_labels_branches_lty", value = c("drat", "vs"), TF_values = 3),
-           set = list("by_labels_branches_lwd", value = clust_lab[6:11], TF_values = 1),
+           set("by_labels_branches_col", value = clust_lab[1:5], TF_values = "red") %>%
+           set("by_labels_branches_lty", value = c("drat", "vs"), TF_values = 3) %>%
+           set("by_labels_branches_lwd", value = clust_lab[6:11], TF_values = 1) %>%
            # Node and leaf options
-           # Specify nodes before leaves so the leaf options are not overwritten
-           # dendextend requires pch to be specified for any nodes to be drawn
-           # Here, setting colour or scaling for nodes also draws them even without pch specification
-           # set = list("nodes_pch", 19),
-           set = list("nodes_cex", 2),
-           set = list("nodes_col", "orange"),
-           set = list("leaves_pch", 21),
-           set = list("leaves_cex", 3),
-           set = list("leaves_col", "purple")
-         ),
-         # NULL or empty list if no arguments are to be passed
-         dend_cols_extend = list(
-           highlight_branches_col = NULL,
+           # Specify all nodes before leaves so the leaf options are not overwritten
+           # pch must be specified for a node to be drawn
+           set("nodes_pch", 19) %>%
+           set("nodes_cex", 2) %>%
+           set("nodes_col", "orange") %>%
+           set("leaves_pch", 21) %>%
+           set("leaves_cex", 3) %>%
+           set("leaves_col", "purple"),
+         dend_cols_extend = . %>%
+           highlight_branches_col() %>%
            # Node options
-           set = list("nodes_pch", c(15, 16, 17)),
-           set = list("nodes_cex", 2:4),
+           set("nodes_pch", c(15, 16, 17)) %>%
+           set("nodes_cex", 2:4) %>%
            # If passing numbers for the colours, make sure they are characters
-           set = list("nodes_col", as.character(1:5))
-         ))
+           set("nodes_col", as.character(1:5)))
 ```
 
