@@ -148,15 +148,21 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
 #'
 cluster_dimension <- function(cluster_data, mat, cluster_distance, cluster_method, dend_options = NULL) {
   # Make dendrograms
-  if (is.logical(cluster_data) | inherits(cluster_data, "hclust")) {
+  if (is.logical(cluster_data) | inherits(cluster_data, "hclust") | inherits(cluster_data, "dendrogram")) {
 
     clust <- if (is.logical(cluster_data)) {
       hclust(dist(mat, method = cluster_distance), method = cluster_method)
-    } else {
+    } else if (inherits(cluster_data, "hclust")) {
       cluster_data
+    } else if (inherits(cluster_data, "dendrogram")) {
+      as.hclust(cluster_data)
     }
 
-    dendro <- as.dendrogram(clust)
+    dendro <- if (is.logical(cluster_data) | inherits(cluster_data, "hclust")) {
+      as.dendrogram(clust)
+    } else if (inherits(cluster_data, "dendrogram")) {
+      cluster_data
+    }
 
     # Apply dendextend options if any are given
     if (is.list(dend_options)) {
@@ -171,9 +177,15 @@ cluster_dimension <- function(cluster_data, mat, cluster_distance, cluster_metho
     # Add the labels to the segment data frame to later compare final coordinates with plot coordinate system
     dendro$segments$lbl <- dendro$labels[match(dendro$segments$x, dendro$labels$x), "label"]
 
+    if (any(!dendro$labels$label %in% rownames(mat))) {
+      cli::cli_abort("The labels in the clustering don't match the labels in the data.",
+                     class = "cluster_labels_error")
+    }
+
     return(list("dendro" = dendro, "clust" = clust))
 
   } else {
+    cli::cli_warn("")
     return(NULL)
   }
 }

@@ -64,8 +64,8 @@
 #' @param annot_cols_label_side String specifying which side the column annotation labels should be on. Either "left" or "right".
 #' @param annot_rows_label_params Named list of parameters for row annotation labels. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
 #' @param annot_cols_label_params Named list of parameters for column annotation labels. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
-#' @param cluster_rows Logical indicating if rows should be clustered. Can also be a `hclust` object.
-#' @param cluster_cols Logical indicating if columns should be clustered. Can also be a `hclust` object.
+#' @param cluster_rows Logical indicating if rows should be clustered. Can also be a `hclust` or `dendrogram` object.
+#' @param cluster_cols Logical indicating if columns should be clustered. Can also be a `hclust` or `dendrogram` object.
 #' @param cluster_distance String with the distance metric to use for clustering, given to `stats::dist()`.
 #' @param cluster_method String with the clustering method to use, given to `stats::hclust()`.
 #' @param dend_rows Logical indicating if a dendrogram should be drawn for the rows.
@@ -203,14 +203,17 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
 
   x_mat <- as.matrix(x)
 
+  # Check if matrix becomes asymmetric after clustering to throw a warning
+  x_sym <- isSymmetric(x_mat)
+
   # Check layout and mode
   layout_check <- check_layout(layout, mode)
 
-  # Logical for full plot layout or not
+  # Logical for full plot layout or not (mixed layout treated as full and triangular)
   full_plt <- if (length(layout) == 1) {layout %in% c("full", "f", "whole", "w")} else {TRUE}
 
   # If the matrix is asymmetric, triangular layouts break! Throw a warning
-  if (!isSymmetric(x_mat) & (!full_plt | length(layout) == 2)) {
+  if (!x_sym & (!full_plt | length(layout) == 2)) {
     cli::cli_warn("Triangular layouts are not supported for asymmetric matrices, plotting the full matrix instead.",
                   class = "force_full_warn")
     full_plt <- T
@@ -218,51 +221,27 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     mode <- mode[1]
   }
 
-  # Evaluate annot_border_col, annot_border_lwd, annot_border_lty before border_col, border_lwd, border_lty may change
-  annot_border_col <- annot_border_col
-  annot_border_lwd <- annot_border_lwd
-  annot_border_lty <- annot_border_lty
-
-  # Prepare parameters for mixed layouts
-  if (length(layout) == 2) {
-    # border_* and cell_label*  allow for triangle-specific customisation in mixed layouts
-    border_col <- prepare_mixed_param(border_col, "border_col")
-    border_lwd <- prepare_mixed_param(border_lwd, "border_lwd")
-    border_lty <- prepare_mixed_param(border_lty, "border_lty")
-    cell_labels <- prepare_mixed_param(cell_labels, "cell_labels")
-    cell_label_col <- prepare_mixed_param(cell_label_col, "cell_label_col")
-    cell_label_size <- prepare_mixed_param(cell_label_size, "cell_label_size")
-    cell_label_digits <- prepare_mixed_param(cell_label_digits, "cell_label_digits")
-  }
-
   # Overwrite names_diag if the input is non-symmetric as it would cause
   # new ghost columns to be added to draw the names where row == col
   # This does not prevent diag names in initially symmetric matrices that become asymmetric as a result
   # of unequal clustering of rows and columns, the result will look a bit strange but no new columns are created
-  if (!isSymmetric(x_mat)) {
+  if (!x_sym) {
     names_diag <- F
   }
 
   # If clustering a symmetric matrix with a triangular layout, both rows and columns must be clustered. Automatically cluster both and throw a warning
-  if (isSymmetric(x_mat) & (!full_plt | length(layout) == 2)) {
+  if (x_sym & (!full_plt | length(layout) == 2)) {
 
     if (((!isFALSE(cluster_rows) & isFALSE(cluster_cols)) | (isFALSE(cluster_rows) & !isFALSE(cluster_cols)))) {
-      cli::cli_warn("Cannot cluster only one dimension for triangular layouts, clustering both rows and columns.",
+      cli::cli_warn("Cannot cluster only one dimension for triangular layouts, clustering both rows and columns instead.",
                     class = "force_clust_warn")
       if (isFALSE(cluster_rows)) {cluster_rows <- cluster_cols}
       else if (isFALSE(cluster_cols)) {cluster_cols <- cluster_rows}
     }
-
-    # If different clusterings are provided, warn that the output may look strange
-    if ((inherits(cluster_rows, "hclust") | inherits(cluster_cols, "hclust")) &
-        !identical(cluster_rows, cluster_cols)) {
-      cli::cli_warn("If the row and column clusterings are not identical the output may look strange with triangular layouts.",
-                    class = "unequal_clust_warn")
-    }
   }
 
   # Make dendrograms
-  # To allow for providing a hclust object when clustering, make a separate logical clustering variable
+  # To allow for providing a hclust or dendrogram object when clustering, make a separate logical clustering variable
   lclust_rows <- F
   if (!isFALSE(cluster_rows)) {
     row_clustering <- cluster_dimension(cluster_rows, x_mat, cluster_distance, cluster_method, dend_rows_extend)
@@ -279,6 +258,35 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     # Reorder matrix to fit clustering
     x_mat <- x_mat[, col_clustering$dendro$labels$label]
     lclust_cols <- T
+  }
+
+  # Throw a warning if clustering caused a symmetric input to become asymmetric. Plot the full matrix if not already the case
+  if (x_sym & !isSymmetric(x_mat)) {
+    cli::cli_warn(paste0("The clustering has ordered rows and columns differently and caused the matrix to become asymmetric.",
+                         ifelse(length(layout) == 2 | !full_plt, " Plotting the full matrix.", ""),
+                         " The diagonal may be scrambled due to the unequal row and column orders."),
+                  class = "unequal_clust_warn")
+    layout <- "f"
+    full_plt <- T
+    mode <- mode[1]
+  }
+
+  # Evaluate annot_border_col, annot_border_lwd, annot_border_lty so they get values based on border_col etc
+  # Otherwise they may be influenced by border_col etc becoming lists in the next step
+  annot_border_col <- annot_border_col
+  annot_border_lwd <- annot_border_lwd
+  annot_border_lty <- annot_border_lty
+
+  # Prepare parameters for mixed layouts
+  if (length(layout) == 2) {
+    # border_* and cell_label*  allow for triangle-specific customisation in mixed layouts
+    border_col <- prepare_mixed_param(border_col, "border_col")
+    border_lwd <- prepare_mixed_param(border_lwd, "border_lwd")
+    border_lty <- prepare_mixed_param(border_lty, "border_lty")
+    cell_labels <- prepare_mixed_param(cell_labels, "cell_labels")
+    cell_label_col <- prepare_mixed_param(cell_label_col, "cell_label_col")
+    cell_label_size <- prepare_mixed_param(cell_label_size, "cell_label_size")
+    cell_label_digits <- prepare_mixed_param(cell_label_digits, "cell_label_digits")
   }
 
   # Positions of different elements

@@ -21,7 +21,7 @@ Heatmap rows and columns are clustered if the `cluster_rows` and `cluster_cols` 
 ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE)
 ```
 
-The `cluster_rows` and `cluster_cols` arguments can also be `hclust` objects if more control is required.
+The `cluster_rows` and `cluster_cols` arguments can also be `hclust` or `dendrogram` objects if more control is required.
 
 # Dendrogram position
 
@@ -123,5 +123,45 @@ ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE, dend_height = 1,
            set("nodes_cex", 2:4) %>%
            # If passing numbers for the colours, make sure they are characters
            set("nodes_col", as.character(1:5)))
+```
+
+Leaves can be reordered using functions like `ladderize` or `rotate`, though it is not recommended if the matrix is symmetric as the diagonal may end up in strange places. Triangular layouts are not supported if the clustering caused the matrix to become asymmetric.
+
+```{r}
+gghm(scale(mtcars[1:5, ]), cluster_rows = TRUE)
+gghm(scale(mtcars[1:5, ]), cluster_rows = TRUE,
+     # dendextend::rotate() to flip the order of rows
+     dend_rows_extend = . %>% rotate(5:1))
+```
+
+```{r}
+# Only the rows are reordered, causing the matrix to become asymmetric
+# If the layout were triangular (or mixed), the warning would be slightly different
+# and the same plot as below would be produced (forced full layout).
+ggcorrhm(mtcars, cluster_rows = T, cluster_cols = T,
+         dend_rows_extend = list(ladderize = NULL))
+```
+
+Finally, since `cluster_rows` and `cluster_cols` can take `dendrogram` objects, it is possible to do the `dendextend` customisation externally. `dend_rows_extend` and `dend_cols_extend` are applied on top of that, meaning that the two approaches can be combined.
+
+```{r}
+# Cluster data before
+clust1 <- mtcars %>% cor() %>% dist() %>% hclust() %>% as.dendrogram()
+# Apply some dendextend functions
+clust2 <- clust1 %>% highlight_branches_col() %>%
+  set("nodes_pch", 20) %>% set("nodes_col", "green") %>% set("nodes_cex", 2) %>%
+  set("leaves_pch", 18) %>% set("leaves_col", "yellow") %>% set("leaves_cex", 3)
+
+ggcorrhm(mtcars, cluster_rows = clust1, cluster_cols = clust2,
+         # Increase height and linewidth for visibility
+         dend_height = .6, dend_lwd = 1,
+         # Apply some customisation to the row dendrogram too
+         dend_rows_extend = . %>% raise.dendrogram(3) %>%
+           # Rotating the row dendrogram of a symmetric matrix to be in the
+           # reverse order will give a diagonal that runs from the bottom left
+           # to the top right, but a warning will still be produced. Mixed layouts 
+           # allow for such diagonals without warnings
+           rotate(11:1))
+
 ```
 

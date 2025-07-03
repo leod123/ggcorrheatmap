@@ -78,13 +78,37 @@ test_that("warnings for layouts and clustering", {
   expect_error(gghm(cor(mtcars), layout = "nice"), class = "nonsup_layout_error")
   expect_warning(gghm(mtcars, layout = "br"), class = "force_full_warn")
   expect_warning(gghm(cor(mtcars), layout = "br", cluster_rows = T), class = "force_clust_warn")
-  expect_warning(gghm(cor(mtcars), layout = "bl",
-                      cluster_rows = hclust(dist(cor(mtcars))),
-                      cluster_cols = hclust(dist(cor(mtcars), method = "manhattan"), method = "ward.D2")),
-                class = "unequal_clust_warn")
-  # No warnings for any layout with clustering
-  expect_no_warning(gghm(cor(mtcars), cluster_rows = T))
-  expect_no_warning(gghm(cor(mtcars), cluster_cols = T))
+  expect_warning(gghm(cor(mtcars), layout = c("tl", "br"), cluster_rows = T), class = "force_clust_warn")
+  expect_warning(gghm(cor(mtcars), cluster_rows = T), class = "unequal_clust_warn")
+  expect_warning(gghm(cor(mtcars), cluster_cols = T), class = "unequal_clust_warn")
+  # Input is clustering or dendrogram object
+  # asymmetric matrix
+  cl1 <- hclust(dist(mtcars))    # rows
+  cl2 <- hclust(dist(t(mtcars))) # cols
+  cl3 <- as.dendrogram(cl1)
+  expect_no_error(gghm(mtcars, cluster_rows = cl1))
+  expect_no_error(gghm(mtcars, cluster_rows = cl1, cluster_cols = cl2))
+  expect_no_error(gghm(mtcars, cluster_rows = cl3, cluster_cols = cl2))
+  expect_no_error(gghm(mtcars, cluster_rows = cl3, cluster_cols = T))
+  expect_error(gghm(mtcars, cluster_rows = cl2), class = "cluster_labels_error")
+  expect_error(gghm(mtcars, cluster_cols = cl1), class = "cluster_labels_error")
+  expect_error(gghm(mtcars, cluster_cols = cl3), class = "cluster_labels_error")
+
+  # symmetric matrix
+  cl1 <- hclust(dist(cor(mtcars)))
+  cl2 <- as.dendrogram(cl1)
+  cl3 <- dendextend::rotate(cl2, 11:1)
+
+  expect_no_warning(gghm(cor(mtcars), cluster_rows = cl1, cluster_cols = cl2))
+  expect_warning(gghm(cor(mtcars), cluster_rows = cl1), class = "unequal_clust_warn")
+  expect_warning(gghm(cor(mtcars), cluster_rows = cl2), class = "unequal_clust_warn")
+  expect_warning(gghm(cor(mtcars), cluster_rows = cl3), class = "unequal_clust_warn")
+  expect_warning(gghm(cor(mtcars), cluster_rows = cl3, cluster_cols = cl2), class = "unequal_clust_warn")
+  expect_warning(gghm(cor(mtcars), cluster_rows = cl3, layout = "tl"), class = "force_clust_warn")
+  expect_warning(gghm(cor(mtcars), cluster_rows = cl3, layout = c("tl", "br")), class = "force_clust_warn")
+  expect_warning(gghm(cor(mtcars), cluster_rows = cl3, cluster_cols = cl1, layout = c("tl", "br")), class = "unequal_clust_warn")
+
+  # No warnings for different layouts with clustering
   expect_no_warning(gghm(cor(mtcars), cluster_rows = T, cluster_cols = T))
   expect_no_warning(gghm(cor(mtcars), cluster_rows = T, cluster_cols = T,
                          dend_rows_side = "left", dend_cols_side = "top"))
@@ -98,6 +122,10 @@ test_that("warnings for layouts and clustering", {
                          dend_rows_side = "left", dend_cols_side = "top"))
   expect_no_warning(gghm(cor(mtcars), layout = c("tr", "bl"), cluster_rows = T, cluster_cols = T,
                          dend_rows_side = "left", dend_cols_side = "top"))
+  # No warning even if non-identical clustering if the order is the same
+  expect_no_warning(gghm(cor(mtcars), layout = "bl",
+                         cluster_rows = hclust(dist(cor(mtcars))),
+                         cluster_cols = hclust(dist(cor(mtcars), method = "manhattan"), method = "ward.D2")))
 })
 
 test_that("annotation names must exist in the data", {

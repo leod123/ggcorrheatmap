@@ -183,9 +183,9 @@ the \verb{annot_*_fill} arguments.}
 
 \item{annot_cols_label_params}{Named list of parameters for column annotation labels. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
 
-\item{cluster_rows}{Logical indicating if rows should be clustered. Can also be a \code{hclust} object.}
+\item{cluster_rows}{Logical indicating if rows should be clustered. Can also be a \code{hclust} or \code{dendrogram} object.}
 
-\item{cluster_cols}{Logical indicating if columns should be clustered. Can also be a \code{hclust} object.}
+\item{cluster_cols}{Logical indicating if columns should be clustered. Can also be a \code{hclust} or \code{dendrogram} object.}
 
 \item{cluster_distance}{String with the distance metric to use for clustering, given to \code{stats::dist()}.}
 
