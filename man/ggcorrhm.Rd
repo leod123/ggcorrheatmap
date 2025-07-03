@@ -14,8 +14,10 @@ ggcorrhm(
   low = "skyblue2",
   limits = c(-1, 1),
   bins = NULL,
+  fill_scale = NULL,
   fill_name = NULL,
-  col_name = fill_name,
+  col_scale = NULL,
+  col_name = NULL,
   p_values = FALSE,
   p_adjust = "none",
   p_thresholds = c(`***` = 0.001, `**` = 0.01, `*` = 0.05, 1),
@@ -25,7 +27,7 @@ ggcorrhm(
   na_remove = FALSE,
   na_col = "grey",
   return_data = FALSE,
-  show_legend = c(fill = TRUE, colour = FALSE, size = FALSE),
+  show_legend = NULL,
   size_range = c(4, 10),
   size_scale = NULL,
   cell_labels = FALSE,
@@ -102,7 +104,13 @@ ggcorrhm(
 
 \item{bins}{Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.}
 
+\item{fill_scale}{Scale to use for filling cells. If NULL (default), a divergent scale is constructed from the \code{high}, \code{mid}, \code{low}, \code{limits} and \code{bins} arguments.
+All these arguments are ignored if a \verb{ggplot2::scale_fill_*} function is provided instead.}
+
 \item{fill_name}{String to use for the correlation fill scale. If NULL (default) the text will depend on the correlation method.}
+
+\item{col_scale}{Scale to use for colouring text in text mode. If NULL (default), a divergent scale is constructed from the \code{high}, \code{mid}, \code{low}, \code{limits} and \code{bins} arguments.
+All these arguments are ignored if a \verb{ggplot2::scale_colour_*} function is provided instead.}
 
 \item{col_name}{String to use for the correlation colour scale. If NULL (default) the text will depend on the correlation method.}
 
@@ -131,8 +139,9 @@ NAs are handled in the correlation computations, use the \code{cor_use} argument
 
 \item{return_data}{Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, clustering and p-values) should be returned.}
 
-\item{show_legend}{Logical vector indicating if main heatmap legends (fill, colour and size) should be shown. If length 1 it is applied to all legends.
-Can be specified in an aesthetic-specific manner using a named vector like \code{c('fill' = TRUE, 'size' = FALSE)}.}
+\item{show_legend}{Vector of logicals indicating which legends should be shown. Default behaviour (NULL) is to show fill or colour scales but not size scales.
+If the layout is mixed with one side using a fill scale and the other a colour scale, only the fill legend is shown. Overwrite this behaviour by providing a named
+logical vector where the names indicate which scales to show.}
 
 \item{size_range}{Numeric vector of length 2, specifying lower and upper ranges of shape sizes. Ignored if \code{size_scale} is not NULL.}
 
@@ -219,9 +228,9 @@ the \verb{annot_*_fill} arguments.}
 
 \item{annot_cols_label_params}{Named list of parameters for column annotation labels. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
 
-\item{cluster_rows}{Logical indicating if rows should be clustered. Can also be a \code{hclust} object.}
+\item{cluster_rows}{Logical indicating if rows should be clustered. Can also be a \code{hclust} or \code{dendrogram} object.}
 
-\item{cluster_cols}{Logical indicating if columns should be clustered. Can also be a \code{hclust} object.}
+\item{cluster_cols}{Logical indicating if columns should be clustered. Can also be a \code{hclust} or \code{dendrogram} object.}
 
 \item{cluster_distance}{String with the distance metric to use for clustering, given to \code{stats::dist()}.}
 
@@ -286,7 +295,8 @@ and is therefore set to not be shown in the \code{show_legend} argument.
 For symmetric correlation matrices, the dendrogram customisation arguments \code{dend_rows_extend} and \code{dend_cols_extend} work best with functions that only change the dendrogram
 cosmetically such as the colours, linetypes or node shapes. While it is possible to reorder (using e.g. 'rotate', 'ladderize') or prune (using e.g. 'prune'),
 anything that changes the structure of the dendrogram may end up looking strange for symmetric matrices if
-only applied to one dimension (e.g. the diagonal may not be on the diagonal, triangular layouts may not work).
+only applied to one dimension (e.g. the diagonal may not be on the diagonal, triangular or mixed layouts may not work).
+The same applies if the \code{cluster_rows} and \code{cluster_cols} arguments are \code{hclust} or \code{dendrogram} objects.
 }
 \examples{
 # Basic usage

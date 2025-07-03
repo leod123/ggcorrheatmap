@@ -13,7 +13,11 @@
 #' @param low Colour to use for the lowest value of the colour scale.
 #' @param limits Correlation limits to plot between.
 #' @param bins Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.
+#' @param fill_scale Scale to use for filling cells. If NULL (default), a divergent scale is constructed from the `high`, `mid`, `low`, `limits` and `bins` arguments.
+#' All these arguments are ignored if a `ggplot2::scale_fill_*` function is provided instead.
 #' @param fill_name String to use for the correlation fill scale. If NULL (default) the text will depend on the correlation method.
+#' @param col_scale Scale to use for colouring text in text mode. If NULL (default), a divergent scale is constructed from the `high`, `mid`, `low`, `limits` and `bins` arguments.
+#' All these arguments are ignored if a `ggplot2::scale_colour_*` function is provided instead.
 #' @param col_name String to use for the correlation colour scale. If NULL (default) the text will depend on the correlation method.
 #' @param p_values Logical indicating if p-values should be calculated. Use with `p_thresholds` to mark cells, and/or `return_data` to get the p-values in the output data.
 #' @param p_adjust String specifying the adjustment method to use for the p-values (default is "none").
@@ -29,6 +33,9 @@
 #' NAs are handled in the correlation computations, use the `cor_use` argument for NA handling in correlation.
 #' @param na_col Colour to use for cells with NA.
 #' @param return_data Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, clustering and p-values) should be returned.
+#' @param show_legend Vector of logicals indicating which legends should be shown. Default behaviour (NULL) is to show fill or colour scales but not size scales.
+#' If the layout is mixed with one side using a fill scale and the other a colour scale, only the fill legend is shown. Overwrite this behaviour by providing a named
+#' logical vector where the names indicate which scales to show.
 #' @param size_range Numeric vector of length 2, specifying lower and upper ranges of shape sizes. Ignored if `size_scale` is not NULL.
 #' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `mode` is a number from 1 to 25 (R pch).
 #' The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.
@@ -75,7 +82,8 @@
 #' For symmetric correlation matrices, the dendrogram customisation arguments `dend_rows_extend` and `dend_cols_extend` work best with functions that only change the dendrogram
 #' cosmetically such as the colours, linetypes or node shapes. While it is possible to reorder (using e.g. 'rotate', 'ladderize') or prune (using e.g. 'prune'),
 #' anything that changes the structure of the dendrogram may end up looking strange for symmetric matrices if
-#' only applied to one dimension (e.g. the diagonal may not be on the diagonal, triangular layouts may not work).
+#' only applied to one dimension (e.g. the diagonal may not be on the diagonal, triangular or mixed layouts may not work).
+#' The same applies if the `cluster_rows` and `cluster_cols` arguments are `hclust` or `dendrogram` objects.
 #'
 #' @examples
 #' # Basic usage
@@ -97,13 +105,12 @@
 #'                     annot2 = sample(letters[1:3], ncol(mtcars), TRUE))
 #' ggcorrhm(mtcars, layout = "tr", annot_cols_df = annot)
 ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything",
-                     high = "sienna2", mid = "white", low = "skyblue2",
-                     limits = c(-1, 1), bins = NULL, fill_name = NULL, col_name = fill_name,
+                     high = "sienna2", mid = "white", low = "skyblue2", limits = c(-1, 1), bins = NULL,
+                     fill_scale = NULL, fill_name = NULL, col_scale = NULL, col_name = NULL,
                      p_values = FALSE, p_adjust = "none", p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, 1),
                      mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
                      layout = "full", include_diag = TRUE, na_remove = FALSE, na_col = "grey", return_data = FALSE,
-                     show_legend = c("fill" = TRUE, "colour" = FALSE, "size" = FALSE),
-                     size_range = c(4, 10), size_scale = NULL,
+                     show_legend = NULL, size_range = c(4, 10), size_scale = NULL,
                      cell_labels = FALSE, cell_label_p = FALSE, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
                      border_col = "grey", border_lwd = 0.5, border_lty = 1,
                      names_diag = TRUE, names_diag_param = NULL,
@@ -173,6 +180,12 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                         "spearman" = "Spearman\nrho",
                         "kendall" = "Kendall\ntau")
   }
+  if (is.null(col_name)) {
+    col_name <- switch(cor_method,
+                       "pearson" = "Pearson r",
+                       "spearman" = "Spearman\nrho",
+                       "kendall" = "Kendall\ntau")
+  }
 
   # Don't display names on the diagonal if the plot is non-symmetric as it will cause
   # new ghost columns to be added to draw the names where row == col
@@ -181,6 +194,22 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
     # Also display x and y names by default, but remove if specified as FALSE (when specified as a named argument)
     names_x <- eval(replace_default(list("names_x" = T), as.list(sys.call()))$names_x)
     names_y <- eval(replace_default(list("names_y" = T), as.list(sys.call()))$names_y)
+  }
+
+  # Make the legend specification based on the layout and mode
+  if (is.null(show_legend)) {
+    # Show fill and colour, only one will show up in the end as only one scale is used
+    show_legend <- c(fill = T, colour = T, size = F)
+
+    if (length(layout) == 2) {
+      # If both fill and col scales will be applied, show only one of the legends
+      # This assumes that they use the same scale. If not the case and both legends are wanted
+      # the user has to manually make the other legend appear
+      if (any(c("hm", "heatmap", as.character(21:25)) %in% mode_og) &
+          any(c("text", as.character(1:20)) %in% mode_og)) {
+        show_legend <- c(fill = T, colour = F, size = F)
+      }
+    }
   }
 
   # Make the fill colour scale
@@ -192,21 +221,27 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   } else {
     TRUE
   }
-  fill_scale <- if (!is.null(bins)) {
-    ggplot2::scale_fill_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                               breaks = seq(limits[1], limits[2], length.out = bins),
-                               guide = if (show_fill) ggplot2::guide_colourbar(order = 1) else "none")
-  } else {
-    ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                                  guide = if (show_fill) ggplot2::guide_colourbar(order = 1) else "none")
-  }
-  col_scale <- if (!is.null(bins)) {
-    ggplot2::scale_colour_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
+
+  if (is.null(fill_scale)) {
+    fill_scale <- if (!is.null(bins)) {
+      ggplot2::scale_fill_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
                                  breaks = seq(limits[1], limits[2], length.out = bins),
-                                 guide = if (show_col) ggplot2::guide_colourbar(order = 2) else "none")
-  } else {
-    ggplot2::scale_colour_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                                    guide = if (show_col) ggplot2::guide_colourbar(order = 2) else "none")
+                                 guide = if (show_fill) ggplot2::guide_colourbar(order = 1) else "none")
+    } else {
+      ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
+                                    guide = if (show_fill) ggplot2::guide_colourbar(order = 1) else "none")
+    }
+  }
+
+  if (is.null(col_scale)) {
+    col_scale <- if (!is.null(bins)) {
+      ggplot2::scale_colour_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
+                                   breaks = seq(limits[1], limits[2], length.out = bins),
+                                   guide = if (show_col) ggplot2::guide_colourbar(order = 2) else "none")
+    } else {
+      ggplot2::scale_colour_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
+                                      guide = if (show_col) ggplot2::guide_colourbar(order = 2) else "none")
+    }
   }
 
   # Make size scale (controlling the size range and transforming to be absolute values)
@@ -265,7 +300,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                                        cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
                                        cell_label_p = cell_label_p, p_thresholds = p_thresholds,
                                        border_col = border_col,border_lwd = border_lwd, border_lty = border_lty,
-                                       show_legend = show_legend, col_scale = col_scale)
+                                       show_legend = show_legend, col_scale = col_scale, col_name = col_name)
       cor_plt[["plot"]] <- cor_plt_lab[["plot"]]
       cor_plt[["plot_data"]] <- cor_plt_lab[["plot_data"]]
     } else if (length(layout) == 2) {
@@ -279,7 +314,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                                   cell_label_col = cell_label_col[[1]], cell_label_size = cell_label_size[[1]],
                                   cell_label_digits = cell_label_digits[[1]], cell_label_p = cell_label_p[[1]],
                                   p_thresholds = p_thresholds, border_col = border_col[[1]], border_lwd = border_lwd[[1]],
-                                  border_lty = border_lty[[1]], show_legend = show_legend, col_scale = col_scale)
+                                  border_lty = border_lty[[1]], show_legend = show_legend, col_scale = col_scale, col_name = col_name)
 
       # Second half, use the returned plot
       p_plt2 <- add_pvalue_labels(cor_mat_dat = if (p_values[[2]]) {cor_mat_dat} else {NULL},
@@ -289,7 +324,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                                   cell_label_col = cell_label_col[[2]], cell_label_size = cell_label_size[[2]],
                                   cell_label_digits = cell_label_digits[[2]], cell_label_p = cell_label_p[[2]],
                                   p_thresholds = p_thresholds, border_col = border_col[[2]], border_lwd = border_lwd[[2]],
-                                  border_lty = border_lty[[2]], show_legend = show_legend, col_scale = col_scale)
+                                  border_lty = border_lty[[2]], show_legend = show_legend, col_scale = col_scale, col_name = col_name)
 
       # Since only the plotted part of the data is returned, bind them together
       cor_plt[["plot"]] <- p_plt2[["plot"]]
@@ -312,6 +347,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 #' @param mode The plotting mode.
 #' @param skip_diag If the diagonal should be skipped (to not draw on names).
 #' @param cell_labels Logical, if labels should be drawn.
+#' @param cell_label_p Logical indicating if cell labels should be p-values instead of correlation.
 #' @param cell_label_col Cell label colours.
 #' @param cell_label_size Cell label sizes.
 #' @param cell_label_digits Cell label digits.
@@ -320,12 +356,14 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 #' @param border_lwd Cell border line widths.
 #' @param border_lty Cell border line types.
 #' @param show_legend Vector indicating which legends should be shown.
+#' @param col_scale Scale object for colouring text.
+#' @param col_name Name for scale legend title.
 #'
 #' @returns Plot with labels added.
 #'
 add_pvalue_labels <- function(cor_mat_dat = NULL, cor_plt_dat, cor_plt_plt, mode, skip_diag = F,
                               cell_labels, cell_label_p, cell_label_col, cell_label_size, cell_label_digits,
-                              p_thresholds, border_col, border_lwd, border_lty, show_legend, col_scale) {
+                              p_thresholds, border_col, border_lwd, border_lty, show_legend, col_scale, col_name) {
 
   if (cell_label_p & is.null(cor_mat_dat)) {
     cli::cli_warn("{.var cell_label_p} is {.val TRUE} but {.var p_values} is {.val FALSE}.
@@ -361,7 +399,7 @@ add_pvalue_labels <- function(cor_mat_dat = NULL, cor_plt_dat, cor_plt_plt, mode
   # Add text mode text
   if (mode == "text") {
     cor_plt_plt <- add_text_geom(dat = label_df, plt = cor_plt_plt, type = "text_mode",
-                                 show_legend = show_legend, skip_diag = skip_diag, col_scale = col_scale,
+                                 show_legend = show_legend, skip_diag = skip_diag, col_scale = col_scale, col_name = col_name,
                                  cell_label_col = cell_label_col, cell_label_size = cell_label_size,
                                  border_col = border_col, border_lwd = border_lwd, border_lty = border_lty)
   }
@@ -369,7 +407,7 @@ add_pvalue_labels <- function(cor_mat_dat = NULL, cor_plt_dat, cor_plt_plt, mode
   # Write the cell labels (don't overwrite if cell_labels is FALSE)
   if (cell_labels | (!is.null(cor_mat_dat) & is.numeric(p_thresholds) & mode != "text")) {
     cor_plt_plt <- add_text_geom(dat = label_df, plt = cor_plt_plt, type = "cell_label",
-                                 show_legend = show_legend, skip_diag = skip_diag, col_scale = col_scale,
+                                 show_legend = show_legend, skip_diag = skip_diag, col_scale = col_scale, col_name = col_name,
                                  cell_label_col = cell_label_col, cell_label_size = cell_label_size,
                                  border_col = border_col, border_lwd = border_lwd, border_lty = border_lty)
   }
@@ -391,11 +429,14 @@ add_pvalue_labels <- function(cor_mat_dat = NULL, cor_plt_dat, cor_plt_plt, mode
 #' @param border_col Cell border colours.
 #' @param border_lwd Cell border line widths.
 #' @param border_lty Cell border line types.
+#' @param col_scale Scale object to use for colouring text in text mode.
+#' @param col_name Name for colour scale legend title.
 #'
 #' @returns The plot with the text geom added.
 #'
 add_text_geom <- function(dat, plt, type = c("text_mode", "cell_label"), show_legend, skip_diag,
-                          cell_label_col, cell_label_size, border_col, border_lwd, border_lty, col_scale) {
+                          cell_label_col, cell_label_size, border_col, border_lwd, border_lty,
+                          col_scale = NULL, col_name) {
   label <- value <- NULL
 
   if (type == "text_mode") {
@@ -411,7 +452,7 @@ add_text_geom <- function(dat, plt, type = c("text_mode", "cell_label"), show_le
       ) +
       ggplot2::geom_tile(data = dat, linewidth = border_lwd, colour = border_col,
                          linetype = border_lty, alpha = 0) +
-      col_scale
+      col_scale + ggplot2::labs(colour = col_name)
   } else if (type == "cell_label") {
     # Cell labels
     plt <- plt +

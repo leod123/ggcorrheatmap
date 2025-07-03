@@ -15,7 +15,8 @@ add_text_geom(
   border_col,
   border_lwd,
   border_lty,
-  col_scale
+  col_scale = NULL,
+  col_name
 )
 }
 \arguments{
@@ -38,6 +39,10 @@ add_text_geom(
 \item{border_lwd}{Cell border line widths.}
 
 \item{border_lty}{Cell border line types.}
+
+\item{col_scale}{Scale object to use for colouring text in text mode.}
+
+\item{col_name}{Name for colour scale legend title.}
 }
 \value{
 The plot with the text geom added.

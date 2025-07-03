@@ -20,7 +20,8 @@ add_pvalue_labels(
   border_lwd,
   border_lty,
   show_legend,
-  col_scale
+  col_scale,
+  col_name
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ add_pvalue_labels(
 \item{skip_diag}{If the diagonal should be skipped (to not draw on names).}
 
 \item{cell_labels}{Logical, if labels should be drawn.}
+
+\item{cell_label_p}{Logical indicating if cell labels should be p-values instead of correlation.}
 
 \item{cell_label_col}{Cell label colours.}
 
@@ -51,6 +54,10 @@ add_pvalue_labels(
 \item{border_lty}{Cell border line types.}
 
 \item{show_legend}{Vector indicating which legends should be shown.}
+
+\item{col_scale}{Scale object for colouring text.}
+
+\item{col_name}{Name for scale legend title.}
 }
 \value{
 Plot with labels added.

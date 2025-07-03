@@ -106,7 +106,7 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                            linetype = border_lty, alpha = 0)
       }
     ) +
-    size_scale + col_scale + fill_scale +
+    fill_scale + col_scale + size_scale +
     ggplot2::labs(fill = fill_name, colour = col_name)
 
   # Only add scales and coordinate systems once to avoid messages
