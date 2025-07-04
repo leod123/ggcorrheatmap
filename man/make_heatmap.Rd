@@ -28,7 +28,9 @@ make_heatmap(
   cell_labels = F,
   cell_label_col = "black",
   cell_label_size = 3,
-  cell_label_digits = 2
+  cell_label_digits = 2,
+  cell_bg_col = "white",
+  cell_bg_alpha = 0
 )
 }
 \arguments{
@@ -79,6 +81,10 @@ make_heatmap(
 \item{cell_label_size}{Size of cell labels.}
 
 \item{cell_label_digits}{Number of digits for cell labels if numeric.}
+
+\item{cell_bg_col}{Cell background colour (fill).}
+
+\item{cell_bg_alpha}{Cell background alpha.}
 }
 \value{
 ggplot object with heatmap component.

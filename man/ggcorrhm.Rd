@@ -35,6 +35,8 @@ ggcorrhm(
   cell_label_col = "black",
   cell_label_size = 3,
   cell_label_digits = 2,
+  cell_bg_col = "white",
+  cell_bg_alpha = 0,
   border_col = "grey",
   border_lwd = 0.5,
   border_lty = 1,
@@ -158,6 +160,10 @@ containing values to write in the cells. If mode is \code{text}, the cell label 
 \item{cell_label_size}{Size of cell labels, used as the \code{size} argument in \code{ggplot2::geom_text()}.}
 
 \item{cell_label_digits}{Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to \code{base::round()}. NULL for no rounding.}
+
+\item{cell_bg_col}{Colour to use for cell backgrounds in modes 'text' and 'none'.}
+
+\item{cell_bg_alpha}{Alpha for cell colours in modes 'text' and 'none'.}
 
 \item{border_col}{Colour of cell borders. If \code{mode} is not a number, \code{border_col} can be set to NA to remove borders completely.}
 

@@ -26,6 +26,8 @@
 #' @param cell_label_col Colour of cell labels.
 #' @param cell_label_size Size of cell labels.
 #' @param cell_label_digits Number of digits for cell labels if numeric.
+#' @param cell_bg_col Cell background colour (fill).
+#' @param cell_bg_alpha Cell background alpha.
 #'
 #' @returns ggplot object with heatmap component.
 #'
@@ -35,7 +37,8 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                          names_diag = T, names_x = F, names_y = F, names_diag_param = NULL,
                          names_x_side = "top", names_y_side = "left", show_legend = T,
                          fill_scale = NULL, fill_name = "value", col_scale = NULL, col_name = fill_name,
-                         size_scale = NULL, cell_labels = F, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2) {
+                         size_scale = NULL, cell_labels = F, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
+                         cell_bg_col = "white", cell_bg_alpha = 0) {
   value <- .data <- label <- NULL
 
   # Base plot
@@ -65,6 +68,13 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
   }
 
   plt <- plt +
+    # Add empty cells as a grid for text and none modes
+    list(
+      if (mode %in% c("text", "none")) {
+        ggplot2::geom_tile(data = x_plot_dat, linewidth = border_lwd, colour = border_col,
+                           fill = cell_bg_col, linetype = border_lty, alpha = cell_bg_alpha)
+      }
+    ) +
     # Plot tiles or points depending on cell shape
     list(
       if (mode %in% c("heatmap", "hm")) {
@@ -97,13 +107,6 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
         )
       } else if (mode == "none") {
         # Draw nothing
-      }
-    ) +
-    # Add empty cells as a grid for text and none modes
-    list(
-      if (mode %in% c("text", "none")) {
-        ggplot2::geom_tile(data = x_plot_dat, linewidth = border_lwd, colour = border_col,
-                           linetype = border_lty, alpha = 0)
       }
     ) +
     fill_scale + col_scale + size_scale +

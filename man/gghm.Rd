@@ -24,6 +24,8 @@ gghm(
   border_col = "grey",
   border_lwd = 0.5,
   border_lty = 1,
+  cell_bg_col = "white",
+  cell_bg_alpha = 0,
   names_diag = FALSE,
   names_diag_param = NULL,
   names_x = TRUE,
@@ -119,6 +121,10 @@ containing values to write in the cells. If mode is \code{text}, the cell label 
 \item{border_lwd}{Size of cell borders. If \code{mode} is a number, \code{border_col} can be set to 0 to remove borders.}
 
 \item{border_lty}{Line type of cell borders. Not supported for numeric \code{mode}.}
+
+\item{cell_bg_col}{Colour to use for cell backgrounds in modes 'text' and 'none'.}
+
+\item{cell_bg_alpha}{Alpha for cell colours in modes 'text' and 'none'.}
 
 \item{names_diag}{Logical indicating if names should be written in the diagonal cells (for symmetric input).}
 

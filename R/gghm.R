@@ -29,6 +29,8 @@
 #' @param border_col Colour of cell borders. If `mode` is not a number, `border_col` can be set to NA to remove borders completely.
 #' @param border_lwd Size of cell borders. If `mode` is a number, `border_col` can be set to 0 to remove borders.
 #' @param border_lty Line type of cell borders. Not supported for numeric `mode`.
+#' @param cell_bg_col Colour to use for cell backgrounds in modes 'text' and 'none'.
+#' @param cell_bg_alpha Alpha for cell colours in modes 'text' and 'none'.
 #' @param names_diag Logical indicating if names should be written in the diagonal cells (for symmetric input).
 #' @param names_diag_param List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
 #' @param names_x Logical indicating if names should be written on the x axis. Labels can be customised using `ggplot2::theme()` on the output plot.
@@ -167,6 +169,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
                  show_legend = c("fill" = TRUE, "colour" = TRUE, "size" = TRUE), size_scale = NULL,
                  cell_labels = F, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
                  border_col = "grey", border_lwd = 0.5, border_lty = 1,
+                 cell_bg_col = "white", cell_bg_alpha = 0,
                  names_diag = FALSE, names_diag_param = NULL,
                  names_x = TRUE, names_x_side = "top", names_y = TRUE, names_y_side = "left",
                  annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
@@ -286,7 +289,9 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     border_col <- prepare_mixed_param(border_col, "border_col")
     border_lwd <- prepare_mixed_param(border_lwd, "border_lwd")
     border_lty <- prepare_mixed_param(border_lty, "border_lty")
+    cell_bg_col <- prepare_mixed_param(cell_bg_col, "cell_bg_col")
     cell_labels <- prepare_mixed_param(cell_labels, "cell_labels")
+    cell_bg_alpha <- prepare_mixed_param(cell_bg_alpha, "cell_bg_alpha")
     cell_label_col <- prepare_mixed_param(cell_label_col, "cell_label_col")
     cell_label_size <- prepare_mixed_param(cell_label_size, "cell_label_size")
     cell_label_digits <- prepare_mixed_param(cell_label_digits, "cell_label_digits")
@@ -437,7 +442,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
                         fill_scale = fill_scale, fill_name = fill_name,
                         col_scale = col_scale, col_name = col_name, size_scale = size_scale,
                         cell_labels = cell_labels, cell_label_col = cell_label_col,
-                        cell_label_size = cell_label_size, cell_label_digits = cell_label_digits)
+                        cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
+                        cell_bg_col = cell_bg_col, cell_bg_alpha = cell_bg_alpha)
   } else if (length(layout) == 2) {
     # Avoid name clash
     lt <- layout
@@ -451,7 +457,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
                         fill_scale = fill_scale, fill_name = fill_name,
                         col_scale = col_scale, col_name = col_name, size_scale = size_scale,
                         cell_labels = cell_labels[[1]], cell_label_col = cell_label_col[[1]],
-                        cell_label_size = cell_label_size[[1]], cell_label_digits = cell_label_digits[[1]])
+                        cell_label_size = cell_label_size[[1]], cell_label_digits = cell_label_digits[[1]],
+                        cell_bg_col = cell_bg_col[[1]], cell_bg_alpha = cell_bg_alpha[[1]])
     # Remaining half
     plt <- make_heatmap(x_long = dplyr::filter(x_long, layout == lt[2]), plt = plt,
                         mode = mode[2], include_diag = F, invisible_diag = F,
@@ -461,7 +468,8 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
                         names_diag_param = names_diag_param,
                         fill_scale = NULL, fill_name = fill_name, col_scale = NULL, col_name = col_name, size_scale = NULL,
                         cell_labels = cell_labels[[2]], cell_label_col = cell_label_col[[2]],
-                        cell_label_size = cell_label_size[[2]], cell_label_digits = cell_label_digits[[2]])
+                        cell_label_size = cell_label_size[[2]], cell_label_digits = cell_label_digits[[2]],
+                        cell_bg_col = cell_bg_col[[2]], cell_bg_alpha = cell_bg_alpha[[2]])
   }
 
   # Prepare default colour scales
