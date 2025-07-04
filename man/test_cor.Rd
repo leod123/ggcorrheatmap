@@ -7,7 +7,6 @@
 test_cor(
   x,
   y = NULL,
-  full_plt = T,
   method = "pearson",
   use = "everything",
   p_adj_method = "none"
@@ -17,8 +16,6 @@ test_cor(
 \item{x}{Matrix or data frame with columns to correlate.}
 
 \item{y}{Matrix or data frame, if provided will be correlated with x.}
-
-\item{full_plt}{Logical indicating if the final plot will have the full layout (triangular if FALSE).}
 
 \item{method}{Passed to \code{stats::cor}.}
 

@@ -38,3 +38,23 @@ shape_mat_long <- function(x, unique_pairs = F, na_remove = F) {
 
   return(mat_long)
 }
+
+
+#' Convert long formt matrix to wide.
+#'
+#' @keywords internal
+#'
+#' @param x Long format matrix as obtained from 'shape_mat_long' (contains columns named 'row', 'col', and 'value').
+#'
+#' @returns Wide format version of x.
+#'
+shape_mat_wide <- function(x) {
+  mat_wide <- reshape(x, idvar = "row", timevar = "col", direction = "wide")
+  rownames(mat_wide) <- mat_wide[["row"]]
+  mat_wide <- mat_wide[, -which(colnames(mat_wide) == "row")]
+  # Remove "value." from colnames
+  mat_wide <- dplyr::rename_with(mat_wide, function(nm) {substring(nm, 7)})
+  mat_wide <- as.matrix(mat_wide)
+
+  return(mat_wide)
+}

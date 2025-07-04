@@ -49,7 +49,8 @@ triangles.
 
 ``` r
 # With correlation values and p-values
-ggcorrhm(mtcars, layout = c("topright", "bottomleft"), p_values = c(FALSE, TRUE))
+ggcorrhm(mtcars, layout = c("topright", "bottomleft"),
+         cell_labels = c(FALSE, TRUE), p_values = c(FALSE, TRUE))
 ```
 
 <img src="man/figures/README-example2-1.png" width="70%" style="display: block; margin: auto;" />

@@ -39,7 +39,8 @@
 #' @param size_range Numeric vector of length 2, specifying lower and upper ranges of shape sizes. Ignored if `size_scale` is not NULL.
 #' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `mode` is a number from 1 to 25 (R pch).
 #' The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.
-#' @param cell_labels Logical specifying if the cells should be labelled with the correlation values.
+#' @param cell_labels Logical specifying if the cells should be labelled with the correlation values. Alternatively, a matrix or data frame with the same shape and dimnames as `x`
+#' containing values to write in the cells. If mode is `text`, the cell label colours will scale with the correlation values and `cell_label_col` is ignored.
 #' @param cell_label_p Logical indicating if, when `cell_labels` is `TRUE`, p-values should be written instead of correlation values.
 #' @param cell_label_col Colour to use for cell labels, passed to `ggplot2::geom_text()`.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text()`.
@@ -140,19 +141,14 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
     if (any(duplicated(names(p_thresholds)))) cli::cli_abort("Symbols (the names) of {.var p_thresholds} must be unique.", class = "p_thr_error")
   }
 
-  # Save input mode in case it is changed
-  mode_og <- mode
-  # If text mode, switch to none and add text later
-  if ("text" %in% mode) {
-    mode[mode == "text"] <- "none"
-  }
-
   cor_mat <- if (is.null(y)) {
     cor(x, method = cor_method, use = cor_use)
   } else {
     cor(x, y, method = cor_method, use = cor_use)
   }
 
+  # Placeholder for p-value data that may be replaced
+  cor_mat_dat <- NULL
   if (!any(unlist(p_values))) {
     if (is.null(y)) {
       cor_mat <- cor(x, method = cor_method, use = cor_use)
@@ -160,18 +156,25 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
       cor_mat <- cor(x, y, method = cor_method, use = cor_use)
     }
   } else {
-    cor_mat <- test_cor(x, y, full_plt = any(c("full", "f", "whole", "w") %in% layout),
-                        method = cor_method, use = cor_use, p_adj_method = p_adjust)
+    cor_mat <- test_cor(x, y, method = cor_method, use = cor_use, p_adj_method = p_adjust)
     # Keep the data for later plotting
     cor_mat_dat <- cor_mat
+
     # Get wide format correlation matrix
-    cor_mat <- reshape(dplyr::select(cor_mat, -"p_val", -"p_adj"), idvar = "row", timevar = "col", direction = "wide")
-    rownames(cor_mat) <- cor_mat[["row"]]
-    cor_mat <- cor_mat[, -which(colnames(cor_mat) == "row")]
-    # Remove "value." from colnames
-    cor_mat <- dplyr::rename_with(cor_mat, function(nm) {substring(nm, 7)})
-    cor_mat <- as.matrix(cor_mat)
+    cor_mat <- shape_mat_wide(dplyr::select(cor_mat, -"p_val", -"p_adj"))
   }
+
+  # Prepare parameters for two-length layouts (separate from what is done in gghm)
+  if (length(layout) == 2) {
+    p_values <- prepare_mixed_param(p_values, "p_values")
+    cell_labels <- prepare_mixed_param(cell_labels, "cell_labels")
+    cell_label_p <- prepare_mixed_param(cell_label_p, "cell_label_p")
+    cell_label_digits <- prepare_mixed_param(cell_label_digits, "cell_label_digits")
+  }
+
+  # Prepare cell labels
+  cell_labels <- prepare_cell_labels(cell_labels, p_values, cell_label_p, cell_label_digits,
+                                     p_thresholds, cor_mat_dat)
 
   # Name of fill legend
   if (is.null(fill_name)) {
@@ -205,8 +208,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
       # If both fill and col scales will be applied, show only one of the legends
       # This assumes that they use the same scale. If not the case and both legends are wanted
       # the user has to manually make the other legend appear
-      if (any(c("hm", "heatmap", as.character(21:25)) %in% mode_og) &
-          any(c("text", as.character(1:20)) %in% mode_og)) {
+      if (any(c("hm", "heatmap", as.character(21:25)) %in% mode) &
+          any(c("text", as.character(1:20)) %in% mode)) {
         show_legend <- c(fill = T, colour = F, size = F)
       }
     }
@@ -250,7 +253,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                                                  transform = scales::trans_new("abs", abs, abs))
   }
 
-  # Call with all arguments to get the tooltips when calling this wrapper function
+  # Call with all arguments to get the tooltips when calling ggcorrhm
   cor_plt <- gghm(cor_mat, fill_scale = fill_scale, fill_name = fill_name,
                   col_scale = col_scale, col_name = col_name, na_remove = na_remove,
                   mode = mode, layout = layout, include_diag = include_diag, return_data = T,
@@ -259,6 +262,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                   names_diag = names_diag, names_diag_param = names_diag_param,
                   names_x = names_x, names_x_side = names_x_side,
                   names_y = names_y, names_y_side = names_y_side,
+                  cell_labels = cell_labels, cell_label_col = cell_label_col,
+                  cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
                   annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
                   annot_rows_fill = annot_rows_fill, annot_cols_fill = annot_cols_fill,
                   annot_rows_side = annot_rows_side, annot_cols_side = annot_cols_side,
@@ -277,192 +282,110 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                   dend_rows_params = dend_rows_params, dend_cols_params = dend_cols_params,
                   dend_rows_extend = dend_rows_extend, dend_cols_extend = dend_cols_extend)
 
-  # Prepare parameters for two-length layouts (separate from what is done in gghm)
-  if (length(layout) == 2) {
-    border_col <- prepare_mixed_param(border_col, "border_col")
-    border_lwd <- prepare_mixed_param(border_lwd, "border_lwd")
-    border_lty <- prepare_mixed_param(border_lty, "border_lty")
-    cell_labels <- prepare_mixed_param(cell_labels, "cell_labels")
-    cell_label_col <- prepare_mixed_param(cell_label_col, "cell_label_col")
-    cell_label_size <- prepare_mixed_param(cell_label_size, "cell_label_size")
-    cell_label_digits <- prepare_mixed_param(cell_label_digits, "cell_label_digits")
-    p_values <- prepare_mixed_param(p_values, "p_values")
-    cell_label_p <- prepare_mixed_param(cell_label_p, "cell_label_p")
+  if (return_data & any(unlist(p_values))) {
+    # Add p-values to output data
+    cor_plt[["plot_data"]] <- dplyr::left_join(cor_plt[["plot_data"]],
+                                               dplyr::select(cor_mat_dat, "row", "col", "p_val", "p_adj"),
+                                               by = c("row", "col"))
   }
-
-  # Add p-values and cell labels
-  if ("text" %in% mode_og | any(unlist(p_values)) | any(unlist(cell_labels))) {
-    if (length(layout) == 1) {
-      cor_plt_lab <- add_pvalue_labels(cor_mat_dat = if (p_values) {cor_mat_dat} else {NULL},
-                                       cor_plt_dat = cor_plt[["plot_data"]], cor_plt_plt = cor_plt[["plot"]],
-                                       mode = mode_og, skip_diag = isSymmetric(cor_mat) & names_diag,
-                                       cell_labels = cell_labels, cell_label_col = cell_label_col,
-                                       cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
-                                       cell_label_p = cell_label_p, p_thresholds = p_thresholds,
-                                       border_col = border_col,border_lwd = border_lwd, border_lty = border_lty,
-                                       show_legend = show_legend, col_scale = col_scale, col_name = col_name)
-      cor_plt[["plot"]] <- cor_plt_lab[["plot"]]
-      cor_plt[["plot_data"]] <- cor_plt_lab[["plot_data"]]
-    } else if (length(layout) == 2) {
-      # Avoid name clash
-      lt <- layout
-      # First half
-      p_plt1 <- add_pvalue_labels(cor_mat_dat = if (p_values[[1]]) {cor_mat_dat} else {NULL},
-                                  cor_plt_dat = subset(cor_plt[["plot_data"]], layout == lt[[1]]),
-                                  cor_plt_plt = cor_plt[["plot"]], mode = mode_og[[1]],
-                                  skip_diag = isSymmetric(cor_mat) & names_diag, cell_labels = cell_labels[[1]],
-                                  cell_label_col = cell_label_col[[1]], cell_label_size = cell_label_size[[1]],
-                                  cell_label_digits = cell_label_digits[[1]], cell_label_p = cell_label_p[[1]],
-                                  p_thresholds = p_thresholds, border_col = border_col[[1]], border_lwd = border_lwd[[1]],
-                                  border_lty = border_lty[[1]], show_legend = show_legend, col_scale = col_scale, col_name = col_name)
-
-      # Second half, use the returned plot
-      p_plt2 <- add_pvalue_labels(cor_mat_dat = if (p_values[[2]]) {cor_mat_dat} else {NULL},
-                                  cor_plt_dat = subset(cor_plt[["plot_data"]], layout == lt[[2]]),
-                                  cor_plt_plt = p_plt1[["plot"]], mode = mode_og[[2]],
-                                  skip_diag = isSymmetric(cor_mat) & names_diag, cell_labels = cell_labels[[2]],
-                                  cell_label_col = cell_label_col[[2]], cell_label_size = cell_label_size[[2]],
-                                  cell_label_digits = cell_label_digits[[2]], cell_label_p = cell_label_p[[2]],
-                                  p_thresholds = p_thresholds, border_col = border_col[[2]], border_lwd = border_lwd[[2]],
-                                  border_lty = border_lty[[2]], show_legend = show_legend, col_scale = col_scale, col_name = col_name)
-
-      # Since only the plotted part of the data is returned, bind them together
-      cor_plt[["plot"]] <- p_plt2[["plot"]]
-      cor_plt[["plot_data"]] <- dplyr::bind_rows(p_plt1[["plot_data"]], p_plt2[["plot_data"]])
-    }
-  }
-
   cor_out <- if (return_data) {cor_plt} else {cor_plt[["plot"]]}
   return(cor_out)
 }
 
 
-#' Helper function to add p-value labels for ggcorrhm
-#'
-#' @keywords internal
-#'
-#' @param cor_mat_dat Correlation matrix data with p-values (leave as NULL if not computed).
-#' @param cor_plt_dat Plot data from gghm.
-#' @param cor_plt_plt Plot from gghm.
-#' @param mode The plotting mode.
-#' @param skip_diag If the diagonal should be skipped (to not draw on names).
-#' @param cell_labels Logical, if labels should be drawn.
-#' @param cell_label_p Logical indicating if cell labels should be p-values instead of correlation.
-#' @param cell_label_col Cell label colours.
-#' @param cell_label_size Cell label sizes.
-#' @param cell_label_digits Cell label digits.
-#' @param p_thresholds P-value thresholds.
-#' @param border_col Cell border colours.
-#' @param border_lwd Cell border line widths.
-#' @param border_lty Cell border line types.
-#' @param show_legend Vector indicating which legends should be shown.
-#' @param col_scale Scale object for colouring text.
-#' @param col_name Name for scale legend title.
-#'
-#' @returns Plot with labels added.
-#'
-add_pvalue_labels <- function(cor_mat_dat = NULL, cor_plt_dat, cor_plt_plt, mode, skip_diag = F,
-                              cell_labels, cell_label_p, cell_label_col, cell_label_size, cell_label_digits,
-                              p_thresholds, border_col, border_lwd, border_lty, show_legend, col_scale, col_name) {
+prepare_cell_labels <- function(cell_labels, p_values, cell_label_p, cell_label_digits,
+                                p_thresholds = NULL, cor_mat_dat = NULL) {
+  p_adj <- value <- NULL
 
-  if (cell_label_p & is.null(cor_mat_dat)) {
-    cli::cli_warn("{.var cell_label_p} is {.val TRUE} but {.var p_values} is {.val FALSE}.
-                  Writing correlation values as no p-values have been computed.",
-                  class = "cell_label_p_warn")
+  # If a matrix or data frame, put in a list
+  if (is.matrix(cell_labels) | is.data.frame(cell_labels)) {
+    cell_labels <- list(cell_labels)
   }
 
-  label_df <- cor_plt_dat
-  label_df[["label"]] <- round(label_df[["value"]], cell_label_digits)
+  # Make p symbols if p-values are computed
+  if (any(unlist(p_values))) {
+    p_sym <- if (is.numeric(p_thresholds)) {
+      # Make symbols for p-values
+      as.character(symnum(x = cor_mat_dat[["p_adj"]],
+                          # Add 0 to set the range of possible values
+                          cutpoints = c(0, p_thresholds),
+                          symbols = names(p_thresholds)))
+    } else {
+      # Nothing if no thresholds provided
+      ""
+    }
 
-  # Add p-values if computed
-  if (!is.null(cor_mat_dat)) {
-    lab_name <- ifelse(cell_label_p, "p_adj", "value")
+  }
 
-    cor_plt_dat <- dplyr::left_join(cor_plt_dat, cor_mat_dat, by = c("row", "col", "value"))
-    if (is.numeric(p_thresholds)) {
-      # Convert p-values to symbols
-      label_df <- cor_plt_dat
-      label_df[["p_sym"]] <- as.character(symnum(x = label_df[["p_adj"]],
-                                                 # Add 0 to set the range of possible values
-                                                 cutpoints = c(0, p_thresholds),
-                                                 symbols = names(p_thresholds)))
-      if (cell_labels | mode == "text") {
-        # Add symbols to labels if both p-values and labels
-        label_df[["label"]] <- paste0(round(label_df[[lab_name]], cell_label_digits), label_df[["p_sym"]])
+  # Otherwise, iterate over values and check contents
+  cell_labels <- mapply(function(lb, pv, lp, ld) {      # labels, pvalues, label p, label digits
+    # If matrix or data frame, make long format to replace correlation data
+    if (is.matrix(lb) | is.data.frame(lb)) {
+      lb_long <- shape_mat_long(lb)
+      if (is.null(cor_mat_dat)) {
+        cor_mat_dat <- lb_long
       } else {
-        # Just plot the symbols if no labels
-        label_df[["label"]] <- label_df[["p_sym"]]
+        cor_mat_dat <- dplyr::left_join(dplyr::select(cor_mat_dat, -"value"), lb_long,
+                                        by = c("row", "col"))
       }
     }
-  }
 
-  # Add text mode text
-  if (mode == "text") {
-    cor_plt_plt <- add_text_geom(dat = label_df, plt = cor_plt_plt, type = "text_mode",
-                                 show_legend = show_legend, skip_diag = skip_diag, col_scale = col_scale, col_name = col_name,
-                                 cell_label_col = cell_label_col, cell_label_size = cell_label_size,
-                                 border_col = border_col, border_lwd = border_lwd, border_lty = border_lty)
-  }
+    # If not FALSE (TRUE or matrix/df): use as is if p_values and cell_label_p are FALSE
+    # Otherwise, make matrix of values to display, taking p-values into consideration
+    if (!isFALSE(lb)) {
+      if (!pv & !lp) {
+        return(lb)
 
-  # Write the cell labels (don't overwrite if cell_labels is FALSE)
-  if (cell_labels | (!is.null(cor_mat_dat) & is.numeric(p_thresholds) & mode != "text")) {
-    cor_plt_plt <- add_text_geom(dat = label_df, plt = cor_plt_plt, type = "cell_label",
-                                 show_legend = show_legend, skip_diag = skip_diag, col_scale = col_scale, col_name = col_name,
-                                 cell_label_col = cell_label_col, cell_label_size = cell_label_size,
-                                 border_col = border_col, border_lwd = border_lwd, border_lty = border_lty)
-  }
+      } else if (!pv & lp) {
+        # P-values are not computed so there is nothing display
+        cli::cli_warn("{.var cell_label_p} is {.val TRUE} but {.var p_values} is {.val FALSE}.
+                      Writing correlation values as no p-values have been computed.",
+                      class = "cell_label_p_warn")
+        return(lb)
 
-  return(list(plot = cor_plt_plt, plot_data = cor_plt_dat))
+      } else {
+        # If p-values are computed, either add symbols to labels or swap labels for p-values
+
+        cell_labels_long <- if (!lp) {
+          cor_mat_dat
+        } else {
+          dplyr::mutate(cor_mat_dat, value = p_adj)
+        }
+
+        cell_labels_long[["value"]] <- if (is.numeric(cell_labels_long[["value"]]) & is.numeric(ld)) {
+          round(cell_labels_long[["value"]], ld)
+        } else {
+          cell_labels_long[["value"]]
+        }
+        cell_labels_long <- dplyr::mutate(cell_labels_long,
+                                          # Replace NAs with "" to not get "NA" written in the cells
+                                          value = dplyr::case_when(is.na(value) ~ "", T ~ as.character(value)),
+                                          value = paste0(value, p_sym))
+        cell_labels_wide <- shape_mat_wide(dplyr::select(cell_labels_long, row, col, value))
+
+        return(cell_labels_wide)
+      }
+
+    } else if (isFALSE(lb)) {
+      if (pv) {
+        # No cell labels, but p-values are computed
+        # Then display the p-value symbols
+        cell_labels_long <- cor_mat_dat
+        cell_labels_long[["value"]] <- p_sym
+        cell_labels_wide <- shape_mat_wide(dplyr::select(cell_labels_long, row, col, value))
+
+        return(cell_labels_wide)
+      } else {
+        # If just FALSE and no p-values, use as is
+        return(lb)
+      }
+    }
+
+  }, cell_labels, p_values, cell_label_p, cell_label_digits, SIMPLIFY = F)
+
+  # If only one element, unlist it
+  if (length(cell_labels) == 1) {cell_labels <- cell_labels[[1]]}
+
+  return(cell_labels)
 }
 
-#' Helper function for adding the text geom depending on mode/cell_labels
-#'
-#' @keywords internal
-#'
-#' @param dat Plotting data.
-#' @param plt Plot to add to.
-#' @param type String saying if it is 'text_mode' or 'cell_label' that is being drawn (changes scaling of colours).
-#' @param show_legend Legends to be shown.
-#' @param skip_diag If the diagonal should be skipped.
-#' @param cell_label_col Cell label colours.
-#' @param cell_label_size Cell label sizes.
-#' @param border_col Cell border colours.
-#' @param border_lwd Cell border line widths.
-#' @param border_lty Cell border line types.
-#' @param col_scale Scale object to use for colouring text in text mode.
-#' @param col_name Name for colour scale legend title.
-#'
-#' @returns The plot with the text geom added.
-#'
-add_text_geom <- function(dat, plt, type = c("text_mode", "cell_label"), show_legend, skip_diag,
-                          cell_label_col, cell_label_size, border_col, border_lwd, border_lty,
-                          col_scale = NULL, col_name) {
-  label <- value <- NULL
-
-  if (type == "text_mode") {
-    # Text, colour scaling with value and with tiles around
-    plt <- plt +
-      ggnewscale::new_scale_colour() +
-      ggplot2::geom_text(
-        ggplot2::aes(label = label, colour = value),
-        data = if (skip_diag) {
-          subset(dat, as.character(row) != as.character(col))
-        } else {dat}, size = cell_label_size,
-        show.legend = show_legend
-      ) +
-      ggplot2::geom_tile(data = dat, linewidth = border_lwd, colour = border_col,
-                         linetype = border_lty, alpha = 0) +
-      col_scale + ggplot2::labs(colour = col_name)
-  } else if (type == "cell_label") {
-    # Cell labels
-    plt <- plt +
-      ggplot2::geom_text(
-        ggplot2::aes(label = label),
-        data = if (skip_diag) {
-          subset(dat, as.character(row) != as.character(col))
-        } else {dat}, size = cell_label_size, colour = cell_label_col
-      )
-  }
-
-  return(plt)
-}

@@ -105,7 +105,8 @@ Can be specified in an aesthetic-specific manner using a named vector like \code
 
 \item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{mode} is a number from 1 to 25 (R pch).}
 
-\item{cell_labels}{Logical specifying if the cells should be labelled with the values.}
+\item{cell_labels}{Logical specifying if the cells should be labelled with the values. Alternatively, a matrix or data frame with the same shape and dimnames as \code{x}
+containing values to write in the cells. If mode is \code{text}, the cell label colours will scale with the cell values and \code{cell_label_col} is ignored.}
 
 \item{cell_label_col}{Colour to use for cell labels, passed to \code{ggplot2::geom_text()}.}
 
@@ -230,7 +231,9 @@ Make a heatmap with ggplot2.
 \details{
 When using mixed layouts (\code{layout} is length two), \code{mode} needs to be length two as well, specifying the mode to use in each triangle.
 The \verb{cell_label_*} and \verb{border_*} arguments can all be length one to apply to the whole heatmap, length two vectors to apply to each triangle,
-or lists of length two, each element containing one value (apply to whole triangle) or a value per cell (apply cell-wise in triangle). (\code{cell_labels} can also be a vector of length two).
+or lists of length two, each element containing one value (apply to whole triangle) or a value per cell (apply cell-wise in triangle).
+\code{cell_labels} can also be specified per triangle, either as a logical vector of length two, or a list of length two containing a mix of
+logicals and matrices/data frames.
 
 The annotation parameter arguments \code{annot_rows_params} and \code{annot_cols_params} should be named lists, where the possible options correspond to
 the different \verb{annot_*} arguments. The possible options are "legend" (logical, if legends should be drawn), "dist" (distance between heatmap and annotation), "gap" (distance between annotations),

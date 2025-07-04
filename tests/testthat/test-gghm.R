@@ -25,6 +25,13 @@ test_that("basic functionality works", {
                        cell_labels = T))
   expect_no_error(gghm(cor(mtcars), layout = c("tr", "bl"), mode = c("hm", "23"),
                        cluster_rows = T, cluster_cols = T))
+  # Cell labels input types
+  lbl1 <- lbl2 <- as.matrix(mtcars)
+  lbl1[] <- lbl2[] <- NA
+  lbl1[sample(1:length(lbl1), 100, F)] <- 10
+  lbl2[sample(1:length(lbl2), 100, F)] <- "a"
+  expect_no_error(gghm(mtcars, cell_labels = lbl1))
+  expect_no_error(gghm(mtcars, cell_labels = lbl2))
 })
 
 test_that("snapshots", {
@@ -66,6 +73,11 @@ test_that("snapshots", {
                                    annot_dist = 2, annot_size = 1, annot_gap = 1,
                                    annot_cols_params = list(dist = .3, size = .5, gap = .1),
                                    dend_dist = 1, dend_cols_params = list(dist = 0.1)))
+  lbl1 <- as.matrix(mtcars)
+  lbl1[] <- NA
+  set.seed(123)
+  lbl1[sample(1:length(lbl1), 100, F)] <- 10
+  vdiffr::expect_doppelganger("cell_labels_from_matrix", gghm(mtcars, cell_labels = lbl1))
 })
 
 test_that("correct input types", {

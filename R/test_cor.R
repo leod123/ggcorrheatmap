@@ -4,15 +4,13 @@
 #'
 #' @param x Matrix or data frame with columns to correlate.
 #' @param y Matrix or data frame, if provided will be correlated with x.
-#' @param full_plt Logical indicating if the final plot will have the full layout (triangular if FALSE).
 #' @param method Passed to `stats::cor`.
 #' @param use Passed to `stats::cor`.
 #' @param p_adj_method P-value adjustment method, passed to `stats::p.adjust`.
 #'
 #' @returns Data frame in long format with correlation values and nominal and adjusted p-values.
 #'
-test_cor <- function(x, y = NULL, full_plt = T,
-                     method = "pearson", use = "everything", p_adj_method = "none") {
+test_cor <- function(x, y = NULL, method = "pearson", use = "everything", p_adj_method = "none") {
   value <- rowcol <- p_val <- p_adj <- NULL
 
   if (is.null(y) | identical(x, y)) {

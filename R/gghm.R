@@ -21,7 +21,8 @@
 #' @param show_legend Logical vector indicating if main heatmap legends (fill, colour and size) should be shown. If length 1 it is applied to all legends.
 #' Can be specified in an aesthetic-specific manner using a named vector like `c('fill' = TRUE, 'size' = FALSE)`.
 #' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `mode` is a number from 1 to 25 (R pch).
-#' @param cell_labels Logical specifying if the cells should be labelled with the values.
+#' @param cell_labels Logical specifying if the cells should be labelled with the values. Alternatively, a matrix or data frame with the same shape and dimnames as `x`
+#' containing values to write in the cells. If mode is `text`, the cell label colours will scale with the cell values and `cell_label_col` is ignored.
 #' @param cell_label_col Colour to use for cell labels, passed to `ggplot2::geom_text()`.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text()`.
 #' @param cell_label_digits Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to `base::round()`. NULL for no rounding.
@@ -94,7 +95,9 @@
 #'
 #' When using mixed layouts (`layout` is length two), `mode` needs to be length two as well, specifying the mode to use in each triangle.
 #' The `cell_label_*` and `border_*` arguments can all be length one to apply to the whole heatmap, length two vectors to apply to each triangle,
-#' or lists of length two, each element containing one value (apply to whole triangle) or a value per cell (apply cell-wise in triangle). (`cell_labels` can also be a vector of length two).
+#' or lists of length two, each element containing one value (apply to whole triangle) or a value per cell (apply cell-wise in triangle).
+#' `cell_labels` can also be specified per triangle, either as a logical vector of length two, or a list of length two containing a mix of
+#' logicals and matrices/data frames.
 #'
 #' The annotation parameter arguments `annot_rows_params` and `annot_cols_params` should be named lists, where the possible options correspond to
 #' the different `annot_*` arguments. The possible options are "legend" (logical, if legends should be drawn), "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
@@ -440,7 +443,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     lt <- layout
     # First half of the plot
     plt <- make_heatmap(x_long = dplyr::filter(x_long, layout == lt[1]), plt = NULL,
-                        mode = mode[1], include_diag = include_diag, invisible_diag = !include_diag,
+                        mode = mode[1], include_diag = include_diag, invisible_diag = T,
                         border_lwd = border_lwd[[1]], border_col = border_col[[1]], border_lty = border_lty[[1]],
                         names_diag = names_diag, names_x = names_x, names_y = names_y,
                         names_x_side = names_x_side, names_y_side = names_y_side,
@@ -587,18 +590,21 @@ check_layout <- function(layout, mode) {
 #' @keywords internal
 #'
 #' @param param Parameter to prepare.
-#' @param param_name Parameter name (for error messages).
+#' @param param_name Parameter name (for error messages and handling special parameter).
 #'
 #' @returns If length one, it is returned duplicated in a list for use in each triangle. If longer than 1
 #' an error message is returned. In other cases, the input parameter is returned (length two input).
 #'
 prepare_mixed_param <- function(param, param_name) {
-  if (length(param) == 1) {
+  # Recycle if length one, or if cell_labels is a data frame or matrix for cell labels
+  if (length(param) == 1 | (param_name == "cell_labels" & (is.matrix(param) | is.data.frame(param)))) {
     param_out <- list(param, param)
+
   } else if (length(param) != 2) {
     cli::cli_abort(paste0("In a mixed layout, {.var {param_name}} must be either a vector of length one (used for all)
                           or two (used for each triangle), or a list of length two with a vector for each triangle."),
                    class = "param_len_error")
+
   } else {
     param_out <- param
   }

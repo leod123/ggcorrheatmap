@@ -148,7 +148,8 @@ logical vector where the names indicate which scales to show.}
 \item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{mode} is a number from 1 to 25 (R pch).
 The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.}
 
-\item{cell_labels}{Logical specifying if the cells should be labelled with the correlation values.}
+\item{cell_labels}{Logical specifying if the cells should be labelled with the correlation values. Alternatively, a matrix or data frame with the same shape and dimnames as \code{x}
+containing values to write in the cells. If mode is \code{text}, the cell label colours will scale with the correlation values and \code{cell_label_col} is ignored.}
 
 \item{cell_label_p}{Logical indicating if, when \code{cell_labels} is \code{TRUE}, p-values should be written instead of correlation values.}
 

@@ -9,7 +9,7 @@ prepare_mixed_param(param, param_name)
 \arguments{
 \item{param}{Parameter to prepare.}
 
-\item{param_name}{Parameter name (for error messages).}
+\item{param_name}{Parameter name (for error messages and handling special parameter).}
 }
 \value{
 If length one, it is returned duplicated in a list for use in each triangle. If longer than 1

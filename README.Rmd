@@ -51,7 +51,8 @@ Or a mixed layout that displays different things in the different triangles.
 
 ```{r example2, out.width='70%', fig.align='center'}
 # With correlation values and p-values
-ggcorrhm(mtcars, layout = c("topright", "bottomleft"), p_values = c(FALSE, TRUE))
+ggcorrhm(mtcars, layout = c("topright", "bottomleft"),
+         cell_labels = c(FALSE, TRUE), p_values = c(FALSE, TRUE))
 ```
 
 
