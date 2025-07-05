@@ -27,14 +27,16 @@ The `cluster_rows` and `cluster_cols` arguments can also be `hclust` or `dendrog
 
 The positions of the dendrograms can be changed with the `dend_rows_side` (`left` or `right`) and `dend_cols_side` (`top` or `bottom`) arguments. For triangular layouts (for symmetric matrices) the dendrograms are placed on the non-empty sides of the heatmap.
 
-```{r, fig.show='hold', out.width='50%', fig.alt='Two mtcars correlation heatmaps. The first one has the dendrograms on the top and left. The second plot has only drawn the bottom left triangle of the matrix and there is a dendrogram on the left side.'}
+```{r, fig.width=10, fig.height=5, fig.alt='Two mtcars correlation heatmaps. The first one has the dendrograms on the top and left. The second plot has only drawn the bottom left triangle of the matrix and there is a dendrogram on the bottom.'}
 # The dendrogram sides can be adjusted with the 'dend_rows_side' and 'dend_cols_side' arguments
-ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
-         dend_rows_side = "left", dend_cols_side = "top")
+plt1 <- ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
+                 dend_rows_side = "left", dend_cols_side = "top")
 
 # Dendrograms can be hidden by setting 'dend_rows' and/or 'dend_cols' to FALSE
-ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE, layout = "bl",
-         dend_rows_side = "right", dend_cols = FALSE)
+plt2 <- ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE, layout = "bl",
+                 dend_rows = FALSE, dend_cols_side = "top")
+
+plt1 + plt2
 ```
 
 If annotation and a dendrogram are on the same side, the dendrogram is moved to make place for the annotation.
@@ -55,7 +57,7 @@ ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
          dend_col = "cyan", dend_height = 2, dend_lwd = 1, dend_lty = 2)
 ```
 
-To apply these changes to only the row or only the column dendrograms, use the `dend_rows_params` and `dend_cols_params` arguments. These arguments take a named list containing one or more of `col`, `height`, `lwd`, and `lty`.
+To apply these changes to only the row or only the column dendrograms, use the `dend_rows_params` and `dend_cols_params` arguments. These arguments take a named list containing one or more of `col`, `dist`, `height`, `lwd`, and `lty`.
 
 ```{r, fig.alt='mtcors correlation heatmap with clustered rows and columns. The row dendrogram is tall and cyan like the previous plot, but solid and not thicker than normal. The column dendrogram is the default height and colour (black) but thick and dashed. There is a gap the size of one heatmap cell between the column dendrogram and the heatmap.'}
 ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
@@ -127,14 +129,17 @@ ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE, dend_height = 1,
 
 Leaves can be reordered using functions like `ladderize` or `rotate`, though it is not recommended if the matrix is symmetric as the diagonal may end up in strange places. Triangular layouts are not supported if the clustering caused the matrix to become asymmetric.
 
-```{r}
-gghm(scale(mtcars[1:5, ]), cluster_rows = TRUE)
-gghm(scale(mtcars[1:5, ]), cluster_rows = TRUE,
-     # dendextend::rotate() to flip the order of rows
-     dend_rows_extend = . %>% rotate(5:1))
+```{r, fig.alt='Two heatmaps of rows 11 to 15 of mtcars. Both have clustered rows, but the second plot has its rows in the opposite order compared to the first plot.'}
+# 
+plt1 <- gghm(scale(mtcars[11:15, ]), cluster_rows = TRUE, na_remove = T) # Remove NaNs introduced by scaling
+plt2 <- gghm(scale(mtcars[11:15, ]), cluster_rows = TRUE, na_remove = T,
+             # dendextend::rotate() to flip the order of rows
+             dend_rows_extend = . %>% rotate(5:1))
+
+plt1 / plt2
 ```
 
-```{r}
+```{r, fig.alt='Correlation heatmap of mtcars. Both the rows and columns are clustered, but the dendrograms have ordered the data differently causing the cells that would normally lie on the diagonal to be spread away from the diagonal. Those cells are still labelled with the column names.'}
 # Only the rows are reordered, causing the matrix to become asymmetric
 # If the layout were triangular (or mixed), the warning would be slightly different
 # and the same plot as below would be produced (forced full layout).
@@ -144,7 +149,7 @@ ggcorrhm(mtcars, cluster_rows = T, cluster_cols = T,
 
 Finally, since `cluster_rows` and `cluster_cols` can take `dendrogram` objects, it is possible to do the `dendextend` customisation externally. `dend_rows_extend` and `dend_cols_extend` are applied on top of that, meaning that the two approaches can be combined.
 
-```{r}
+```{r, fig.alt='A mtcars correlation heatmap with clustered rows and columns. The diagonal runs from bottom left to top right. The dendrograms have thick lines, and the lowest split in the row dendrogram has been raised. The column dendrogram colours shift from dark green to yellow the closer to the heatmap it gets and the nodes are green circles while the leaves are yellow diamonds.'}
 # Cluster data before
 clust1 <- mtcars %>% cor() %>% dist() %>% hclust() %>% as.dendrogram()
 # Apply some dendextend functions

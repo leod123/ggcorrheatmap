@@ -13,6 +13,8 @@ knitr::opts_chunk$set(
 library(ggcorrheatmap)
 library(dplyr)
 library(ggplot2)
+library(patchwork)
+library(cowplot) # For legends section
 ```
 
 Row and column annotation is added by passing data frames to the `annot_rows_df` and `annot_cols_df` arguments. There must be either row names or a column named `.names` containing the names of the rows/columns that are to be annotated. The remaining columns are used for annotation.
@@ -59,21 +61,23 @@ ggcorrhm(mtcars[, 1:8], annot_cols_df = col_annot,
 
 The `annot_rows_side` and `annot_cols_side` arguments control which side the annotation should be placed on (`left` or `right` for row annotations, `top` or `bottom` for column annotation). A triangular layout (for symmetric matrices) limits the positions to the non-empty sides.
 
-```{r, fig.height=6, fig.width=6, fig.show='hold', out.width='50%', fig.alt='Two mtcars correlation heatmaps. The first one has row and column annotation to the left of and above the heatmap. The second one is a bottom right triangular heatmap and the row and column annotations are to the right and below.'}
+```{r, fig.height=6, fig.width=12, fig.show='hold', out.width='50%', fig.alt='Two mtcars correlation heatmaps. The first one has row and column annotation to the left of and above the heatmap. The second one is a bottom right triangular heatmap and the row and column annotations are to the right and below.'}
 set.seed(123)
 annot <- data.frame(.names = colnames(mtcars), annot1 = rnorm(ncol(mtcars)))
 
-gghm(cor(mtcars), annot_rows_df = annot, annot_cols_df = annot,
-     annot_rows_side = "left", annot_cols_side = "top",
-     annot_cols_label_side = "right") +
+plt1 <- gghm(cor(mtcars), annot_rows_df = annot, annot_cols_df = annot,
+             annot_rows_side = "left", annot_cols_side = "top",
+             annot_cols_label_side = "right") +
   # Adjust legend position and margins
   theme(legend.position = "left",
         plot.margin = margin(10, 50, 30, 10))
-gghm(cor(mtcars), annot_rows_df = annot, annot_cols_df = annot,
-     annot_rows_side = "left", annot_cols_side = "top",
-     layout = "br", include_diag = TRUE, names_diag = TRUE,
-     names_x = FALSE, names_y = FALSE) +
+plt2 <- gghm(cor(mtcars), annot_rows_df = annot, annot_cols_df = annot,
+             annot_rows_side = "left", annot_cols_side = "top",
+             layout = "br", include_diag = TRUE, names_diag = TRUE,
+             names_x = FALSE, names_y = FALSE) +
   theme(plot.margin = margin(20, 10, 10, 50))
+
+plt1 + plt2
 ```
 
 The sizes and gaps between annotations and the heatmap can be adjusted.
@@ -137,7 +141,7 @@ If the annotation labels are too long and are cut off, the plot margins can be a
 
 If there are NAs in the annotation they are by default coloured grey. The colour can be changed similarly to NAs in the heatmap by specifying a colour for the `na.value` argument in a `ggplot2` scale when supplied using the `annot_rows_fill` and `annot_cols_fill` arguments. The `na_remove` argument can be set to `TRUE` to not display the cells at all (affects the heatmap too). If the annotation data frame does not contain all the names of the axis, those rows/columns will be left empty. 
 
-```{r, fig.show='hold', out.width='50%', fig.alt='Two mtcars correlation heatmaps with two row and two column annotations. In the first plot, there are holes in the annotations showing that there are NAs. In the second plot, the row annotation NAs have cells coloured green (first annotation) and grey (second annotation). The column annotation still has holes.'}
+```{r, fig.width=10, fig.height=5, fig.alt='Two mtcars correlation heatmaps with two row and two column annotations. In the first plot, there are holes in the annotations showing that there are NAs. In the second plot, the row annotation NAs have cells coloured green (first annotation) and grey (second annotation). The column annotation still has holes.'}
 set.seed(123)
 # Row annotation with NAs
 row_annot <- data.frame(.names = colnames(mtcars),
@@ -152,10 +156,12 @@ col_annot <- data.frame(.names = sample(colnames(mtcars), 7),
                         c = rnorm(7),
                         d = runif(7))
 
-ggcorrhm(mtcars, annot_rows_df = row_annot, annot_cols_df = col_annot,
-         na_remove = TRUE)
-ggcorrhm(mtcars, annot_rows_df = row_annot, annot_cols_df = col_annot,
-         na_remove = FALSE, annot_rows_fill = row_fill)
+plt1 <- ggcorrhm(mtcars, annot_rows_df = row_annot, annot_cols_df = col_annot,
+                 na_remove = TRUE)
+plt2 <- ggcorrhm(mtcars, annot_rows_df = row_annot, annot_cols_df = col_annot,
+                 na_remove = FALSE, annot_rows_fill = row_fill)
+
+plt1 + plt2
 ```
 
 # Dealing with legends
@@ -189,13 +195,7 @@ ggcorrhm(mtcars,
   theme(legend.position = "bottom", legend.title = element_text(vjust = 0.8))
 ```
 
-As can be seen in some plots in previous sections, the legends may be cut off if there are many annotations. Fitting the legends can be tricky and may require increasing the figure size or playing around with legend positions and directions. Alternatively a packages like `cowplot` and `patchwork` can be used to stitch together a legendless version of the plot, which also makes it possible to arrange the legends in grids. This is also another option of changing order legends.
-
-```{r, results='hide', message=FALSE, warning=FALSE}
-library(cowplot)
-library(patchwork)
-```
-
+As can be seen in some plots in previous sections, the legends may be cut off if there are many annotations. Fitting the legends can be tricky and may require increasing the figure size or playing around with legend positions and directions. Alternatively a packages like `cowplot` and `patchwork` can be used to stitch together a legendless version of the plot, which also makes it possible to arrange the legends in grids. This also makes it possible to control legend order in a different way from supplying scales.
 
 ```{r, fig.alt='mtcars correlation heatmap with clustered rows and columns, as well as two row annotations and one column annotation. Four legends can be seen to the right, but they do not all fit and the first and last one cannot be seen fully.'}
 # Plot with legends

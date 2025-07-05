@@ -11,16 +11,37 @@ knitr::opts_chunk$set(
 
 ```{r setup, results='hide', message=FALSE, warning=FALSE}
 library(ggcorrheatmap)
+library(patchwork)
 ```
 
 # Basics
 
 If the matrix is symmetric it is possible to plot mixed layouts by giving two triangles (opposite each other) to the `layout` argument. Two modes must be provided, the default modes being `heatmap` for the first element and `text` for the second. The first element of `layout` gets the diagonal (if it is drawn).
 
-```{r, fig.show='hold', out.width='50%', fig.alt='Two mtcars correlation heatmaps. The first one is composed of a normal heatmap with filled cells for the top left triangle and cells with coloured text showing the correlation values in the bottom right triangle (the colour scaling with the correlation values). Names are written on the diagonal. The second heatmap has circles in the top left and diamonds in the bottom right, all filled with the same colours in the first heatmap and their sizes scaling with the absolute values of the correlations.'}
-ggcorrhm(mtcars, layout = c("tl", "br"))
-ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("21", "23"))
+```{r, fig.width=10, fig.height=5, fig.alt='Two mtcars correlation heatmaps. The first one is composed of a normal heatmap with filled cells for the top left triangle and cells with coloured text showing the correlation values in the bottom right triangle (the colour scaling with the correlation values). Names are written on the diagonal. The second heatmap has circles in the top left and diamonds in the bottom right, all filled with the same colours in the first heatmap and their sizes scaling with the absolute values of the correlations.'}
+plt1 <- ggcorrhm(mtcars, layout = c("tl", "br"))
+plt2 <- ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("21", "23"))
+
+plt1 + plt2
 ```
+
+To add a grid for shape modes use `ggplot2::theme` and the `panel.grid*` arguments. If any part of the heatmap uses the 'text' or 'none' modes, the grid will be visible through the cells. The `cell_bg_col` and `cell_bg_alpha` arguments control the cell background colour and alpha parameter. By default, the cell colour is set to white and the alpha to 0.
+
+```{r, fig.width=10, fig.height=5, fig.alt='Two mtcars correlation heatmaps with circles in the top left and cells with correlation labels (colour scaling with correlation value) in the bottom right. There is a major grid added to the plot, so that lines intersect at the middle points of each cell. In the first plot the grid is visible through the cells in the bottom right, making it hard to read the text. In the second plot the grid is not visible through cells.'}
+# Grid + default cell background
+plt1 <- ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("21", "text")) +
+  labs(title = "cell_bg_alpha = 0") +
+  # Add grid, make darker for demonstration
+  theme(panel.grid.major = element_line(colour = "grey"))
+
+plt2 <- ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("21", "text"),
+                 cell_bg_alpha = 1) +
+  labs(title = "cell_bg_alpha = 1") +
+  theme(panel.grid.major = element_line(colour = "grey"))
+
+plt1 + plt2
+```
+
 
 Since mixed layouts consist of two triangular layout heatmaps, clustering can only be applied if both rows and columns are clustered (like for the simple triangular layouts).
 
@@ -38,7 +59,7 @@ head(ggcorrhm(mtcars, layout = c("tl", "br"), return_data = TRUE)$plot_data)
 
 When the layout is mixed, a few arguments can take vectors or lists of length two. If a vector, each element is applied to the whole corresponding triangle in `layout`. If a list is provided, the elements can be whatever values that would be applicable for non-mixed layouts, i.e. a single value to apply to the whole triangle, or a vector with one value for each cell. 
 
-The arguments that work like this are `border_col`, `border_lwd`, `border_lty`, `cell_labels`, `cell_label_col`, `cell_label_size`, `cell_label_digits`, and (for `ggcorrhm`) `p_values` and `cell_label_p`.
+The arguments that work like this are `border_col`, `border_lwd`, `border_lty`, `cell_labels`, `cell_label_col`, `cell_label_size`, `cell_label_digits`, `cell_bg_col`, `cell_bg_alpha`, and (for `ggcorrhm`) `p_values` and `cell_label_p`.
 
 ```{r, fig.alt='mtcars correlation heatmap with filled cells with thick, grey, dotted borders on the top right. The bottom left, including the diagonal with names, has cells with coloured text and thick coloured borders with a rainbow scale.'}
 colr <- c("#70369D", "#59369D", "#4A44AB", "#486ED8", "#5B9892", "#79C314", "#C6DB28", "#FBDD2B", "#FEB30A", "#F56B08", "#E81416")
@@ -57,7 +78,7 @@ ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("none", "hm"),
            # First triangle, provide all values, moving down each column from the left
            rev(unlist(sapply(seq_along(colr), function(i) rep(colr[i], i)))),
            # Second triangle, recycle one value
-           "grey"
+           "white"
          ),
          # Also draw cell labels on the first triangle and set the same colours as the cells
          cell_labels = c(TRUE, FALSE),
@@ -70,24 +91,20 @@ ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("none", "hm"),
          names_diag_param = list(colour = rev(colr)))
 ```
 
-As mentioned above, p-values can be added to only one half of the heatmap if desired.
+As mentioned above, p-values can be added to only one half of the heatmap if desired. P-values in correlation matrices and mixed layouts are explored more in the [correlation matrix article](correlation.html#p-values).
 
-```{r, fig.alt='Two mtcars correlation heatmaps, filled cells on the top left and coloured text (showing correlation values) on the bottom right. The first plot has asterisks showing p-vaule thresholds in both triangles (added to the correlation values in the bottom right). The second plot only has asterisks in the bottom right triangle.'}
-ggcorrhm(mtcars, layout = c("tl", "br"), p_values = TRUE)
-ggcorrhm(mtcars, layout = c("tl", "br"), p_values = c(FALSE, TRUE))
-```
+```{r, fig.width=10, fig.height=5, fig.alt='Two mtcars correlation heatmaps, filled cells on the top left and coloured text (showing correlation values) on the bottom right. The first plot has asterisks showing p-vaule thresholds in both triangles (added to the correlation values in the bottom right). The second plot retains the labels in the bottom right triangle but not the top left.'}
+plt1 <- ggcorrhm(mtcars, layout = c("tl", "br"), p_values = TRUE,
+                 cell_label_size = c(4, 2))
+plt2 <- ggcorrhm(mtcars, layout = c("tl", "br"), p_values = c(FALSE, TRUE),
+                 cell_label_size = 2)
 
-By using the `cell_label_p` argument, one triangle can be set to show correlation values and the other to show p-values.
-
-```{r, fig.alt='mtcars correlation heatmap with filled cells. All cells have black text as well. In the top right triangle, cells have the correlation values written. In the bottom left triangle, p-values are written instead with zero to three asterisks added depending on how low the p-values are.'}
-ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("hm", "hm"),
-         p_values = c(FALSE, TRUE), cell_label_p = c(FALSE, TRUE),
-         p_adjust = "bonferroni", cell_labels = TRUE)
+plt1 + plt2
 ```
 
 # Some extra plots
 
-Using mixed layouts with mode "none" it is possible to "hack" annotations and dendrograms onto the empty sides of the triangular layouts.
+Using mixed layouts with mode "none" it is possible to "hack" annotations and dendrograms onto the empty sides of triangular layouts.
 
 ```{r, fig.alt='A mtcars correlation heatmap showing only the top left triangle. On the right and below are row and column annotations, leaving a large triangular gap in the bottom right.'}
 annot <- data.frame(.names = colnames(mtcars), a = 1:11)
@@ -100,8 +117,10 @@ ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "none"),
 
 Finally, the default full layout reverses the y axis levels so that the rows are in the same order as in the input and the diagonal runs from top left to bottom right. If the opposite layout is desired it can be made using a mixed layout of a top left and a bottom right triangle, like the plot below.
 
-```{r, fig.alt='Two mtcars correlation heatmaps, both showing the whole heatmap with names along the diagonal. The first one has the diagonal running from top left to bottom right, while the second one has the diagonal between the bottom left and top right (the row order is reversed).'}
-ggcorrhm(mtcars, layout = "f")
-ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "hm"))
+```{r, fig.width=10, fig.height=5, fig.alt='Two mtcars correlation heatmaps, both showing the whole heatmap with names along the diagonal. The first one has the diagonal running from top left to bottom right, while the second one has the diagonal between the bottom left and top right (the row order is reversed).'}
+plt1 <- ggcorrhm(mtcars, layout = "f")
+plt2 <- ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "hm"))
+
+plt1 + plt2
 ```
 
