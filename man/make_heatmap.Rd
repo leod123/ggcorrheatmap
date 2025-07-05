@@ -8,7 +8,7 @@ make_heatmap(
   x_long,
   plt = NULL,
   mode = "heatmap",
-  include_diag = F,
+  include_diag = T,
   invisible_diag = F,
   border_lwd = 0.5,
   border_col = "grey",

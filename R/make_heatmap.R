@@ -32,7 +32,7 @@
 #' @returns ggplot object with heatmap component.
 #'
 make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
-                         include_diag = F, invisible_diag = F,
+                         include_diag = T, invisible_diag = F,
                          border_lwd = 0.5, border_col = "grey", border_lty = 1,
                          names_diag = T, names_x = F, names_y = F, names_diag_param = NULL,
                          names_x_side = "top", names_y_side = "left", show_legend = T,

@@ -174,8 +174,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   }
 
   # Prepare cell labels
-  cell_labels <- prepare_cell_labels(cell_labels, p_values, cell_label_p, cell_label_digits,
-                                     p_thresholds, cor_mat_dat)
+  cell_labels <- prepare_cell_labels(mode, cell_labels, p_values, cell_label_p,
+                                     cell_label_digits, p_thresholds, cor_mat_dat)
 
   # Name of fill legend
   if (is.null(fill_name)) {
@@ -295,7 +295,21 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 }
 
 
-prepare_cell_labels <- function(cell_labels, p_values, cell_label_p, cell_label_digits,
+#' Prepare cell labels in ggcorrhm to pass to gghm
+#'
+#' @keywords internal
+#'
+#' @param mode Plotting mode.
+#' @param cell_labels Cell labels (TRUE, FALSE, matrix, data frame).
+#' @param p_values Logical indicating if p-values should be computed.
+#' @param cell_label_p Logical indicating if cell labels should be swapped for p-values.
+#' @param cell_label_digits Number of digits to display for cell labels.
+#' @param p_thresholds P-value thresholds.
+#' @param cor_mat_dat Correlation long format data from correlation tests.
+#'
+#' @returns Object to use as cell_labels in gghm (containing a logical, a matrix/data frame, or a list of length 2 with those things).
+#'
+prepare_cell_labels <- function(mode, cell_labels, p_values, cell_label_p, cell_label_digits,
                                 p_thresholds = NULL, cor_mat_dat = NULL) {
   p_adj <- value <- NULL
 
@@ -320,7 +334,7 @@ prepare_cell_labels <- function(cell_labels, p_values, cell_label_p, cell_label_
   }
 
   # Otherwise, iterate over values and check contents
-  cell_labels <- mapply(function(lb, pv, lp, ld) {      # labels, pvalues, label p, label digits
+  cell_labels <- mapply(function(md, lb, pv, lp, ld) {      # mode, labels, pvalues, label p, label digits
     # If matrix or data frame, make long format to replace correlation data
     if (is.matrix(lb) | is.data.frame(lb)) {
       lb_long <- shape_mat_long(lb)
@@ -332,9 +346,10 @@ prepare_cell_labels <- function(cell_labels, p_values, cell_label_p, cell_label_
       }
     }
 
-    # If not FALSE (TRUE or matrix/df): use as is if p_values and cell_label_p are FALSE
+    # If cell_labels is not FALSE (TRUE or matrix/df) or using 'text' mode:
+    # use as is if p_values and cell_label_p are FALSE
     # Otherwise, make matrix of values to display, taking p-values into consideration
-    if (!isFALSE(lb)) {
+    if (!isFALSE(lb) | md == "text") {
       if (!pv & !lp) {
         return(lb)
 
@@ -383,7 +398,7 @@ prepare_cell_labels <- function(cell_labels, p_values, cell_label_p, cell_label_
       }
     }
 
-  }, cell_labels, p_values, cell_label_p, cell_label_digits, SIMPLIFY = F)
+  }, mode, cell_labels, p_values, cell_label_p, cell_label_digits, SIMPLIFY = F)
 
   # If only one element, unlist it
   if (length(cell_labels) == 1) {cell_labels <- cell_labels[[1]]}
