@@ -60,7 +60,7 @@ ggcorrhm(
   annot_border_col = if (length(border_col) == 1) border_col else "grey",
   annot_border_lwd = if (length(border_lwd) == 1) border_lwd else 0.5,
   annot_border_lty = if (length(border_lty) == 1) border_lty else 1,
-  annot_na_col = "grey",
+  annot_na_col = na_col,
   annot_na_remove = na_remove,
   annot_rows_params = NULL,
   annot_cols_params = NULL,

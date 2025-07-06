@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-The `gghm` function can be used to make a heatmap from a matrix of data frame. Rows and columns are ordered the same way as in the input.
+The `gghm()` function can be used to make a heatmap from a matrix of data frame. Rows and columns are ordered the same way as in the input.
 
 ```{r setup, results='hide', message=FALSE, warning=FALSE}
 library(ggcorrheatmap)
@@ -23,9 +23,9 @@ library(patchwork) # For pasting together plots
 gghm(mtcars)
 ```
 
-The `ggcorrhm` function uses `gghm` to build a correlation heatmap. The correlations between the columns in the input are computed and plotted.
+The `ggcorrhm()` function uses `gghm()` to build a correlation heatmap. The correlations between the columns in the input are computed and plotted.
 
-If the matrix being plotted is symmetric (as such a correlation matrix is), the axis labels are drawn on the diagonal. This behaviour can be changed using the `names_diag`, `names_x` and `names_y` arguments. A symmetric heatmap can also be plotted using triangular and mixed triangular layouts, explained more in the [correlation matrix](correlation.html) and [mixed layouts](mixed.html) vignettes.
+If the matrix being plotted is symmetric, the axis labels are drawn on the diagonal. This behaviour can be changed using the `names_diag`, `names_x` and `names_y` arguments. A symmetric heatmap can also be plotted using triangular and mixed triangular layouts, explained more in the [correlation matrix](correlation.html) and [mixed layouts](mixed.html) articles.
 
 ```{r correlation heatmap, fig.alt='A symmetric heatmap showing the Pearson correlation between columns in the mtcars data. Colours range from blue (low) to red (high). The names of the variables are displayed on the diagonal.'}
 ggcorrhm(mtcars)
@@ -49,23 +49,31 @@ gghm(replicate(15, sample(letters[1:3], 15, TRUE)),
      border_col = "thistle1", border_lwd = 1)
 ```
 
+For `gghm()` fill, colour and size scales are shown by default. A named logical vector, where the names are the aesthetics like 'fill' and 'size', can be passed to the `show_legend` argument to hide specific legends. Just `FALSE` hides all legends (besides annotation legends). `ggcorrhm()` tries to hide some legends by default.
+
 # Plotting modes
 
-The `mode` argument takes a string and determines how the values will be plotted. 'heatmap' or 'hm' gives the default heatmap, 'text' results in the values being written out (the colour scaling with the cell value, specified by the `col_scale` argument), and any number from 1 to 25 changes the cells to the corresponding shapes (pch). There is also a 'none' mode which draws empty tiles.
+The `mode` argument takes a string and determines how the values will be plotted. 'heatmap' or 'hm' gives the default heatmap, 'text' results in the values being written out, and any number from 1 to 25 changes the cells to the corresponding shapes (pch). There is also a 'none' mode which draws empty tiles.
 
-By default, fill, colour and size scales are shown. A named logical vector, where the names are the aesthetics like 'fill' and 'size', can be passed to the `show_legend` argument to hide specific legends. Just `FALSE` hides all legends (besides annotation legends).
-
-Aside from the text mode, cells can be labelled with their values by setting `cell_labels` to `TRUE`. Unlike the text in text mode, cell label colours do not scale with the cell values. If cell labels are added to text mode the labels will be drawn on top (obscuring the colours and making the legend useless).
+In 'text' mode the text colour scales with the values in the cells. Instead of `fill_scale`, use the `col_scale` argument to set the scale.
 
 ```{r, fig.alt='A heatmap of the first 15 rows of the mtcars data, where the cells have the values written inside instead of being filled. The colour of the text scales with the value.'}
-gghm(mtcars[1:15, ], mode = "text")
+gghm(mtcars[1:15, ], mode = "text",
+     col_scale = scale_colour_viridis_c())
 ```
 
+In shape modes, 1-20 use colour scales and 21-25 use fill scales. The sizes scale with the cell values and the scale can be customised by passing `ggplot2::scale_size_*` functions to the `size_scale` argument.
+
+For fillable shapes the border colour and linewidth can be changed using the `border_col` and `border_lwd` arguments.
 
 ```{r, fig.alt='A heatmap of the first 15 rows of mtcars, where the cells have been substituted for stars (R pch 8). Both the size and colour scale with the value.'}
-gghm(mtcars[1:15, ], mode = 8)
+gghm(mtcars[1:15, ], mode = 22,
+     border_col = "yellow", border_lwd = 1,
+     # Shapes 21-25 use fill scales
+     fill_scale = scale_fill_viridis_c(),
+     # The range argument sets the range of sizes to plot
+     size_scale = scale_size_continuous(range = c(1, 7)))
 ```
-
 
 ```{r, fig.alt='A heatmap of the first 15 rows of mtcars. The cells are not filled, leaving only emptiness within the cell borders.'}
 gghm(mtcars[1:15, ], mode = "none")
@@ -87,7 +95,7 @@ gghm(volcano, fill_scale = scale_fill_viridis_c(), border_col = NA,
 
 `border_col`, `border_lwd`, and `border_lty` can take either values of length 1 or the same length as the input data. Using the `return_data` argument to get the plotting data makes it easier to implement conditional customisation of borders.
 
-```{r, fig.height=8, figh.width=16, fig.alt='Two correlation heatmaps of the mtcars data. Both use the viridis mako scale for filling cells. In the first plot the cell borders are thick, orange and dashed. In the second one, all cells where the row is "hp" are red and thick, cells wherer the column is "vs" are yellow and thick, and the rest are grey and thin. All cell borders are dashed.'}
+```{r, fig.height=5, figh.width=10, fig.alt='Two correlation heatmaps of the mtcars data. Both use the viridis mako scale for filling cells. In the first plot the cell borders are thick, orange and dashed. In the second one, all cells where the row is "hp" are red and thick, cells wherer the column is "vs" are yellow and thick, and the rest are grey and thin. All cell borders are dashed.'}
 # Single values as input
 plt1 <- gghm(cor(mtcars), fill_scale = scale_fill_viridis_b(option = "mako"),
              border_col = "orange", border_lwd = 1, border_lty = 2)
@@ -133,25 +141,28 @@ na_plt1 + na_plt2 + na_plt3 & theme(plot.title = element_text(hjust = 0.5))
 
 # Clustering and annotation
 
-Clustering can be applied to the rows and columns using the `cluster_rows` and `cluster_cols` arguments. See the [clustering](cluster.html) vignette for more on clustering.
+Clustering can be applied to the rows and columns using the `cluster_rows` and `cluster_cols` arguments. See the [clustering](cluster.html) article for more on clustering.
 
 ```{r clustering, fig.alt='A heatmap of mtcars, where rows and columns have been reordered according to hierarchical clustering results. Dendrograms are drawn to the right of and below the heatmap.'}
 gghm(scale(mtcars), cluster_rows = TRUE, cluster_cols = TRUE)
 ```
 
-Row and column annotation is added by providing data frames to the `annot_rows_df` and `annot_cols_df` arguments. More details on annotation can be found in the [annotation](annotation.html) vignette.
+Row and column annotation is added by providing data frames to the `annot_rows_df` and `annot_cols_df` arguments. More details on annotation can be found in the [annotation](annotation.html) article.
 
 ```{r annotation, fig.alt='Heatmap of mtcars with a thin column added to the right containing row annotation.'}
-row_annot <- data.frame(.names = rownames(mtcars),
-                        a = sample(letters[1:4], nrow(mtcars), TRUE))
+set.seed(123)
+# Make annotation data, use 15 rows for visibility
+row_annot <- data.frame(.names = rownames(mtcars)[1:15],
+                        a = sample(letters[1:4], 15, TRUE))
 
-gghm(mtcars, annot_rows_df = row_annot)
+gghm(mtcars[1:15, ], annot_rows_df = row_annot, annot_rows_label_side = "top")
 ```
 
 Clustering and annotation can of course be added simultaneously.
 
 ```{r, fig.alt='Heatmap of mtcars. The rows have been clustered and along the right side is an annotation column with a dendrogram on its right.'}
-gghm(scale(mtcars), cluster_rows = TRUE, annot_rows_df = row_annot)
+gghm(scale(mtcars)[1:15, ], cluster_rows = TRUE,
+     annot_rows_df = row_annot, annot_rows_label_side = "top")
 ```
 
 # Cell labels
@@ -179,7 +190,7 @@ plt1 + plt2 & theme(plot.title = element_text(size = 18))
 
 `cell_label_col`, `cell_label_size` and `cell_label_digits` control the colours, sizes and number of decimals (if numeric) of the labels. Keep in mind that data frames passed to `cell_labels` are converted to matrices, so if the data frame contains numbers and strings all numbers are converted to strings and the numbers will not be rounded. In that case the numbers can be rounded before being passed.
 
-As mentioned before, the 'text' mode makes cells with text that scales with cell values. If `cell_labels` is `TRUE` or a matrix/data frame the labels will be displayed instead, meaning that user-supplied cell labels can have use colour scale (also meaning that 'text' mode with `cell_labels` being `FALSE` is the same as 'text' mode with `cell_labels` as `TRUE`). 
+As mentioned before, the 'text' mode makes cells with text that scales with cell values. If `cell_labels` is `TRUE` or a matrix/data frame, the labels will be displayed instead, meaning that user-supplied cell labels can have use colour scale (also meaning that 'text' mode with `cell_labels` being `FALSE` is the same as 'text' mode with `cell_labels` as `TRUE`).
 
 ```{r, fig.width=10, fig.height=5}
 plt1 <- gghm(plot_data, cell_labels = TRUE, fill_scale = fill_scl,
@@ -221,7 +232,7 @@ plt2 <- plot_list$plot +
 plt1 + plt2
 ```
 
-There are many arguments, allowing for quite some flexibility in the heatmap layout. Most of the arguments are showcased in the vignettes, hopefully they can be of some help. They go more into making [correlation heatmaps](correlation.html), [clustering](clustering.html) and [annotation](annotation.html), and making [mixed layout heatmaps](mixed.html).
+There are many arguments, allowing for quite some flexibility in the heatmap layout. Most of the arguments are showcased in the articles, hopefully they can be of some help. They go more into making [correlation heatmaps](correlation.html), [clustering](clustering.html) and [annotation](annotation.html), and making [mixed layout heatmaps](mixed.html).
 
 # Other packages
 

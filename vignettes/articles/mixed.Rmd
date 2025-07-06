@@ -11,12 +11,13 @@ knitr::opts_chunk$set(
 
 ```{r setup, results='hide', message=FALSE, warning=FALSE}
 library(ggcorrheatmap)
+library(ggplot2)
 library(patchwork)
 ```
 
 # Basics
 
-If the matrix is symmetric it is possible to plot mixed layouts by giving two triangles (opposite each other) to the `layout` argument. Two modes must be provided, the default modes being `heatmap` for the first element and `text` for the second. The first element of `layout` gets the diagonal (if it is drawn).
+If the matrix being plotted is symmetric it is possible to plot mixed layouts by giving two triangles (opposite each other) to the `layout` argument. Two modes must be provided, the default modes being `heatmap` for the first triangle and `text` for the second. The first triangle of `layout` gets the diagonal (if `include_diag` is `TRUE`).
 
 ```{r, fig.width=10, fig.height=5, fig.alt='Two mtcars correlation heatmaps. The first one is composed of a normal heatmap with filled cells for the top left triangle and cells with coloured text showing the correlation values in the bottom right triangle (the colour scaling with the correlation values). Names are written on the diagonal. The second heatmap has circles in the top left and diamonds in the bottom right, all filled with the same colours in the first heatmap and their sizes scaling with the absolute values of the correlations.'}
 plt1 <- ggcorrhm(mtcars, layout = c("tl", "br"))
@@ -25,7 +26,7 @@ plt2 <- ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("21", "23"))
 plt1 + plt2
 ```
 
-To add a grid for shape modes use `ggplot2::theme` and the `panel.grid*` arguments. If any part of the heatmap uses the 'text' or 'none' modes, the grid will be visible through the cells. The `cell_bg_col` and `cell_bg_alpha` arguments control the cell background colour and alpha parameter. By default, the cell colour is set to white and the alpha to 0.
+To add a grid for shape modes use `ggplot2::theme` and the `panel.grid*` arguments. If any part of the heatmap uses the 'text' or 'none' modes, the grid will be visible through the cells. The `cell_bg_col` and `cell_bg_alpha` arguments control the cell background colour and alpha parameter. By default, the cell colour is set to white and alpha to 0.
 
 ```{r, fig.width=10, fig.height=5, fig.alt='Two mtcars correlation heatmaps with circles in the top left and cells with correlation labels (colour scaling with correlation value) in the bottom right. There is a major grid added to the plot, so that lines intersect at the middle points of each cell. In the first plot the grid is visible through the cells in the bottom right, making it hard to read the text. In the second plot the grid is not visible through cells.'}
 # Grid + default cell background
