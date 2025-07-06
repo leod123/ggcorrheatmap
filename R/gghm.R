@@ -2,10 +2,12 @@
 #'
 #' @param x Matrix or data frame in wide format to make a heatmap of. If rownames are present they are used for the y axis labels, otherwise the row number is used.
 #' If a column named `.names` (containing unique row identifiers) is present it will be used as rownames.
-#' @param fill_scale A `ggplot2` scale object for the cell fill colour scale. NULL (default) uses the `ggplot2` default.
-#' @param fill_name String to use for the fill scale legend title.
-#' @param col_scale A `ggplot2` scale object for colour scale (Applied to text and non-filled shapes). NULL (default) uses the `ggplot2` default.
-#' @param col_name String to use for the colour scale legend title.
+#' @param fill_scale A `ggplot2` scale object for the cell fill colour scale. NULL (default) uses the `ggplot2` default. In mixed layouts, can also be a list
+#' of length two containing the two scales to use.
+#' @param fill_name String to use for the fill scale legend title. Can be two values in mixed layouts for dual scales.
+#' @param col_scale A `ggplot2` scale object for colour scale (Applied to text and non-filled shapes). NULL (default) uses the `ggplot2` default. In mixed layouts, can also be a list
+#' of length two containing the two scales to use.
+#' @param col_name String to use for the colour scale legend title. Can be two values in mixed layouts for dual scales.
 #' @param mode A string specifying plotting mode. Possible values are `heatmap`/`hm` for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
 #' `text` to write the cell values instead of filling cells (colour scaling with value), and `none` for blank cells.
 #' @param layout String specifying the layout of the output heatmap. Possible layouts include
@@ -20,7 +22,9 @@
 #' @param return_data Logical indicating if the data used for plotting and clustering results should be returned.
 #' @param show_legend Logical vector indicating if main heatmap legends (fill, colour and size) should be shown. If length 1 it is applied to all legends.
 #' Can be specified in an aesthetic-specific manner using a named vector like `c('fill' = TRUE, 'size' = FALSE)`.
-#' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `mode` is a number from 1 to 25 (R pch).
+#' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `mode` is a number from 1 to 25 (R pch). In mixed layouts, can also be a list
+#' of length two containing the two scales to use.
+#' @param size_name String to use for the size scale legend title. Can be two values in mixed layouts for dual scales.
 #' @param cell_labels Logical specifying if the cells should be labelled with the values. Alternatively, a matrix or data frame with the same shape and dimnames as `x`
 #' containing values to write in the cells. If mode is `text`, the cell label colours will scale with the cell values and `cell_label_col` is ignored.
 #' @param cell_label_col Colour to use for cell labels, passed to `ggplot2::geom_text()`.
@@ -101,6 +105,9 @@
 #' `cell_labels` can also be specified per triangle, either as a logical vector of length two, or a list of length two containing a mix of
 #' logicals and matrices/data frames.
 #'
+#' It is also possible to provide two scales for filling or colouring if the two triangles are coloured by the same aesthetic.
+#' In this case the `fill_scale` or `col_scale` arguments must be lists of length two containing the scales to use (also works for `size_scale`).
+#'
 #' The annotation parameter arguments `annot_rows_params` and `annot_cols_params` should be named lists, where the possible options correspond to
 #' the different `annot_*` arguments. The possible options are "legend" (logical, if legends should be drawn), "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
 #' "size" (cell size), "label" (logical, if the annotation names should be displayed), "border_col" (colour of border) and "border_lwd" (border line width).
@@ -166,7 +173,8 @@
 gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, col_name = fill_name,
                  mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
                  layout = "full", include_diag = TRUE, na_remove = FALSE, return_data = FALSE,
-                 show_legend = c("fill" = TRUE, "colour" = TRUE, "size" = TRUE), size_scale = NULL,
+                 show_legend = c("fill" = TRUE, "colour" = TRUE, "size" = TRUE),
+                 size_scale = NULL, size_name = "value",
                  cell_labels = F, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
                  border_col = "grey", border_lwd = 0.5, border_lty = 1,
                  cell_bg_col = "white", cell_bg_alpha = 0,
@@ -339,6 +347,9 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
   # Set colour scale if none provided to change order of legends (if not set, the legend may end up after the annotation legends)
   # Check if the fill legend is supposed to be drawn at all (otherwise it might draw the legend even if show_legend is c(fill = FALSE))
   # If not specified, draw
+  if (is.null(fill_name)) fill_name <- "value"
+  if (is.null(col_name)) col_name <- "value"
+  if (is.null(size_name)) size_name <- "value"
   show_fill <- if ("fill" %in% names(show_legend)) show_legend["fill"] else TRUE
   # Different depending on class of input data
   if (is.null(fill_scale)) {
@@ -363,6 +374,16 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
     } else {
       ggplot2::scale_colour_continuous(guide = if (show_col) ggplot2::guide_colourbar(order = 2) else "none")
     }
+  }
+
+  # Prepare scales for mixed layouts
+  if (length(layout) == 2) {
+    col_name <- prepare_mixed_param(col_name, "col_name")
+    col_scale <- prepare_mixed_param(col_scale, "col_scale")
+    fill_name <- prepare_mixed_param(fill_name, "fill_name")
+    fill_scale <- prepare_mixed_param(fill_scale, "fill_scale")
+    size_name <- prepare_mixed_param(size_name, "size_name")
+    size_scale <- prepare_mixed_param(size_scale, "size_scale")
   }
 
   # Annotation for rows and columns
@@ -440,7 +461,7 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
                         names_x_side = names_x_side, names_y_side = names_y_side,
                         names_diag_param = names_diag_param, show_legend = show_legend,
                         fill_scale = fill_scale, fill_name = fill_name,
-                        col_scale = col_scale, col_name = col_name, size_scale = size_scale,
+                        col_scale = col_scale, col_name = col_name, size_scale = size_scale, size_name = size_name,
                         cell_labels = cell_labels, cell_label_col = cell_label_col,
                         cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
                         cell_bg_col = cell_bg_col, cell_bg_alpha = cell_bg_alpha)
@@ -454,19 +475,27 @@ gghm <- function(x, fill_scale = NULL, fill_name = "value", col_scale = NULL, co
                         names_diag = names_diag, names_x = names_x, names_y = names_y,
                         names_x_side = names_x_side, names_y_side = names_y_side,
                         names_diag_param = names_diag_param, show_legend = show_legend,
-                        fill_scale = fill_scale, fill_name = fill_name,
-                        col_scale = col_scale, col_name = col_name, size_scale = size_scale,
+                        fill_scale = fill_scale[[1]], fill_name = fill_name[[1]],
+                        col_scale = col_scale[[1]], col_name = col_name[[1]],
+                        size_scale = size_scale[[1]], size_name = size_name[[1]],
                         cell_labels = cell_labels[[1]], cell_label_col = cell_label_col[[1]],
                         cell_label_size = cell_label_size[[1]], cell_label_digits = cell_label_digits[[1]],
                         cell_bg_col = cell_bg_col[[1]], cell_bg_alpha = cell_bg_alpha[[1]])
     # Remaining half
+    # Add new scales if multiple are provided
+    if (!is.null(fill_scale[[2]])) {plt <- plt + ggnewscale::new_scale_fill()}
+    if (!is.null(col_scale[[2]])) {plt <- plt + ggnewscale::new_scale_colour()}
+    if (!is.null(size_scale[[2]])) {plt <- plt + ggnewscale::new_scale(new_aes = "size")}
+
     plt <- make_heatmap(x_long = dplyr::filter(x_long, layout == lt[2]), plt = plt,
                         mode = mode[2], include_diag = F, invisible_diag = F,
                         border_lwd = border_lwd[[2]], border_col = border_col[[2]], border_lty = border_lty[[2]],
                         names_diag = F, names_x = names_x, names_y = names_y,
                         names_x_side = names_x_side, names_y_side = names_y_side, show_legend = show_legend,
                         names_diag_param = names_diag_param,
-                        fill_scale = NULL, fill_name = fill_name, col_scale = NULL, col_name = col_name, size_scale = NULL,
+                        fill_scale = fill_scale[[2]], fill_name = fill_name[[2]],
+                        col_scale = col_scale[[2]], col_name = col_name[[2]],
+                        size_scale = size_scale[[2]], size_name = size_name[[2]],
                         cell_labels = cell_labels[[2]], cell_label_col = cell_label_col[[2]],
                         cell_label_size = cell_label_size[[2]], cell_label_digits = cell_label_digits[[2]],
                         cell_bg_col = cell_bg_col[[2]], cell_bg_alpha = cell_bg_alpha[[2]])
@@ -604,13 +633,21 @@ check_layout <- function(layout, mode) {
 #' an error message is returned. In other cases, the input parameter is returned (length two input).
 #'
 prepare_mixed_param <- function(param, param_name) {
-  # Recycle if length one, or if cell_labels is a data frame or matrix for cell labels
-  if (length(param) == 1 | (param_name == "cell_labels" & (is.matrix(param) | is.data.frame(param)))) {
+
+  if (inherits(param, c("Scale", "ggproto", "gg"))) {
+    # If a scale object, put it in a list but don't repeat it
+    param_out <- list(param, NULL)
+
+  } else if (grepl("_scale$", param_name) & is.null(param)) {
+    param_out <- NULL
+
+  } else if (length(param) == 1 | (param_name == "cell_labels" & (is.matrix(param) | is.data.frame(param)))) {
+    # Recycle if length one, or if cell_labels is a data frame or matrix for cell labels
     param_out <- list(param, param)
 
   } else if (length(param) != 2) {
-    cli::cli_abort(paste0("In a mixed layout, {.var {param_name}} must be either a vector of length one (used for all)
-                          or two (used for each triangle), or a list of length two with a vector for each triangle."),
+    cli::cli_abort(paste0("In a mixed layout, {.var {param_name}} must be either one (used for all) or two (used for each triangle) values,
+                          or a list of length two with a vector for each triangle. See the details of 'gghm' for more on usage."),
                    class = "param_len_error")
 
   } else {

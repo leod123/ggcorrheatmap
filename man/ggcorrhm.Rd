@@ -30,6 +30,7 @@ ggcorrhm(
   show_legend = NULL,
   size_range = c(4, 10),
   size_scale = NULL,
+  size_name = NULL,
   cell_labels = FALSE,
   cell_label_p = FALSE,
   cell_label_col = "black",
@@ -107,14 +108,16 @@ ggcorrhm(
 \item{bins}{Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.}
 
 \item{fill_scale}{Scale to use for filling cells. If NULL (default), a divergent scale is constructed from the \code{high}, \code{mid}, \code{low}, \code{limits} and \code{bins} arguments.
-All these arguments are ignored if a \verb{ggplot2::scale_fill_*} function is provided instead.}
+All these arguments are ignored if a \verb{ggplot2::scale_fill_*} function is provided instead. In mixed layouts, can also be a list
+of length two containing the two scales to use.}
 
-\item{fill_name}{String to use for the correlation fill scale. If NULL (default) the text will depend on the correlation method.}
+\item{fill_name}{String to use for the correlation fill scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.}
 
 \item{col_scale}{Scale to use for colouring text in text mode. If NULL (default), a divergent scale is constructed from the \code{high}, \code{mid}, \code{low}, \code{limits} and \code{bins} arguments.
-All these arguments are ignored if a \verb{ggplot2::scale_colour_*} function is provided instead.}
+All these arguments are ignored if a \verb{ggplot2::scale_colour_*} function is provided instead. In mixed layouts, can also be a list
+of length two containing the two scales to use.}
 
-\item{col_name}{String to use for the correlation colour scale. If NULL (default) the text will depend on the correlation method.}
+\item{col_name}{String to use for the correlation colour scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.}
 
 \item{p_values}{Logical indicating if p-values should be calculated. Use with \code{p_thresholds} to mark cells, and/or \code{return_data} to get the p-values in the output data.}
 
@@ -149,6 +152,8 @@ logical vector where the names indicate which scales to show.}
 
 \item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{mode} is a number from 1 to 25 (R pch).
 The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.}
+
+\item{size_name}{String to use for the size scale legend title. Can be two values in mixed layouts for dual scales.}
 
 \item{cell_labels}{Logical specifying if the cells should be labelled with the correlation values. Alternatively, a matrix or data frame with the same shape and dimnames as \code{x}
 containing values to write in the cells. If mode is \code{text}, the cell label colours will scale with the correlation values and \code{cell_label_col} is ignored.}

@@ -14,11 +14,13 @@
 #' @param limits Correlation limits to plot between.
 #' @param bins Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.
 #' @param fill_scale Scale to use for filling cells. If NULL (default), a divergent scale is constructed from the `high`, `mid`, `low`, `limits` and `bins` arguments.
-#' All these arguments are ignored if a `ggplot2::scale_fill_*` function is provided instead.
-#' @param fill_name String to use for the correlation fill scale. If NULL (default) the text will depend on the correlation method.
+#' All these arguments are ignored if a `ggplot2::scale_fill_*` function is provided instead. In mixed layouts, can also be a list
+#' of length two containing the two scales to use.
+#' @param fill_name String to use for the correlation fill scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.
 #' @param col_scale Scale to use for colouring text in text mode. If NULL (default), a divergent scale is constructed from the `high`, `mid`, `low`, `limits` and `bins` arguments.
-#' All these arguments are ignored if a `ggplot2::scale_colour_*` function is provided instead.
-#' @param col_name String to use for the correlation colour scale. If NULL (default) the text will depend on the correlation method.
+#' All these arguments are ignored if a `ggplot2::scale_colour_*` function is provided instead. In mixed layouts, can also be a list
+#' of length two containing the two scales to use.
+#' @param col_name String to use for the correlation colour scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.
 #' @param p_values Logical indicating if p-values should be calculated. Use with `p_thresholds` to mark cells, and/or `return_data` to get the p-values in the output data.
 #' @param p_adjust String specifying the adjustment method to use for the p-values (default is "none").
 #' @param p_thresholds Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
@@ -111,7 +113,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      p_values = FALSE, p_adjust = "none", p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, 1),
                      mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
                      layout = "full", include_diag = TRUE, na_remove = FALSE, na_col = "grey", return_data = FALSE,
-                     show_legend = NULL, size_range = c(4, 10), size_scale = NULL,
+                     show_legend = NULL, size_range = c(4, 10), size_scale = NULL, size_name = NULL,
                      cell_labels = FALSE, cell_label_p = FALSE, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
                      cell_bg_col = "white", cell_bg_alpha = 0,
                      border_col = "grey", border_lwd = 0.5, border_lty = 1,
@@ -178,17 +180,18 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                                      cell_label_digits, p_thresholds, cor_mat_dat)
 
   # Name of fill legend
-  if (is.null(fill_name)) {
-    fill_name <- switch(cor_method,
+  scale_names <- switch(cor_method,
                         "pearson" = "Pearson r",
                         "spearman" = "Spearman\nrho",
                         "kendall" = "Kendall\ntau")
+  if (is.null(fill_name)) {
+    fill_name <- scale_names
   }
   if (is.null(col_name)) {
-    col_name <- switch(cor_method,
-                       "pearson" = "Pearson r",
-                       "spearman" = "Spearman\nrho",
-                       "kendall" = "Kendall\ntau")
+    col_name <- scale_names
+  }
+  if (is.null(size_name)) {
+    size_name <- scale_names
   }
 
   # Don't display names on the diagonal if the plot is non-symmetric as it will cause
@@ -226,39 +229,20 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
     TRUE
   }
 
-  if (is.null(fill_scale)) {
-    fill_scale <- if (!is.null(bins)) {
-      ggplot2::scale_fill_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                                 breaks = seq(limits[1], limits[2], length.out = bins),
-                                 guide = if (show_fill) ggplot2::guide_colourbar(order = 1) else "none")
-    } else {
-      ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                                    guide = if (show_fill) ggplot2::guide_colourbar(order = 1) else "none")
-    }
-  }
-
-  if (is.null(col_scale)) {
-    col_scale <- if (!is.null(bins)) {
-      ggplot2::scale_colour_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                                   breaks = seq(limits[1], limits[2], length.out = bins),
-                                   guide = if (show_col) ggplot2::guide_colourbar(order = 2) else "none")
-    } else {
-      ggplot2::scale_colour_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                                      guide = if (show_col) ggplot2::guide_colourbar(order = 2) else "none")
-    }
-  }
-
+  fill_scale <- prepare_scales(fill_scale, type = "fill", bins = bins, limits = limits,
+                               high = high, mid = mid, low = low, na_col = na_col, show_leg = show_fill)
+  col_scale <- prepare_scales(col_scale, type = "col", bins = bins, limits = limits,
+                              high = high, mid = mid, low = low, na_col = na_col, show_leg = show_col)
   # Make size scale (controlling the size range and transforming to be absolute values)
   if (any(1:25 %in% mode) & is.null(size_scale)) {
-    size_scale <- ggplot2::scale_size_continuous(range = size_range,
-                                                 transform = scales::trans_new("abs", abs, abs))
+    size_scale <- prepare_scales(size_scale, type = "size", size_range = size_range)
   }
 
   # Call with all arguments to get the tooltips when calling ggcorrhm
   cor_plt <- gghm(cor_mat, fill_scale = fill_scale, fill_name = fill_name,
                   col_scale = col_scale, col_name = col_name, na_remove = na_remove,
                   mode = mode, layout = layout, include_diag = include_diag, return_data = T,
-                  show_legend = show_legend, size_scale = size_scale,
+                  show_legend = show_legend, size_scale = size_scale, size_name = size_name,
                   border_col = border_col, border_lwd = border_lwd, border_lty = border_lty,
                   names_diag = names_diag, names_diag_param = names_diag_param,
                   names_x = names_x, names_x_side = names_x_side,
@@ -292,6 +276,93 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   }
   cor_out <- if (return_data) {cor_plt} else {cor_plt[["plot"]]}
   return(cor_out)
+}
+
+
+#' Prepare scales for mixed scales in ggcorrhm
+#'
+#' @keywords internal
+#'
+#' @param scale_in Scale object from user.
+#' @param type Type of scale (fill, col, size).
+#' @param bins Number of bins if binned scale.
+#' @param limits Scale limits.
+#' @param size_range Size range
+#' @param high Colour at higher end of scale.
+#' @param mid Colour at midpoint.
+#' @param low Colour at lowest point of scale.
+#' @param na_col Colour of NAs.
+#' @param show_leg If the legend should be shown.
+#'
+#' @returns Scale object or list of scale objects.
+#'
+prepare_scales <- function(scale_in, type, bins = NULL, limits = c(-1, 1), size_range = NULL,
+                           high = NULL, mid = NULL, low = NULL, na_col = "grey", show_leg) {
+  if (inherits(scale_in, c("Scale", "ggproto", "gg"))) {
+    # If a scale, return it
+    return(scale_in)
+
+  } else if (is.list(scale_in)) {
+    # If a list, iterate over and check if it needs to be filled in
+    scale_out <- mapply(function(x, i) { # scales, iteration
+      if (inherits(x, c("Scale", "ggproto", "gg"))) {
+        # If a scale, return it
+        return(x)
+
+      } else {
+        if (type == "fill") {
+          if (!is.null(bins)) {
+            ggplot2::scale_fill_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
+                                       breaks = seq(limits[1], limits[2], length.out = bins),
+                                       guide = if (show_leg) ggplot2::guide_colourbar(order = i) else "none")
+          } else {
+            ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
+                                          guide = if (show_leg) ggplot2::guide_colourbar(order = i) else "none")
+          }
+        } else if (type == "col") {
+          if (!is.null(bins)) {
+            ggplot2::scale_colour_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
+                                         breaks = seq(limits[1], limits[2], length.out = bins),
+                                         guide = if (show_leg) ggplot2::guide_colourbar(order = i + 1) else "none")
+          } else {
+            ggplot2::scale_colour_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
+                                            guide = if (show_leg) ggplot2::guide_colourbar(order = i + 1) else "none")
+          }
+        } else if (type == "size") {
+          ggplot2::scale_size_continuous(range = size_range,
+                                         # Add transform for absolute value
+                                         transform = scales::trans_new("abs", abs, abs))
+        }
+      }
+    }, scale_in, 1:length(scale_in), SIMPLIFY = F)
+
+  } else {
+    scale_out <- if (type == "fill") {
+      if (!is.null(bins)) {
+        ggplot2::scale_fill_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
+                                   breaks = seq(limits[1], limits[2], length.out = bins),
+                                   guide = if (show_leg) ggplot2::guide_colourbar(order = 1) else "none")
+      } else {
+        ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
+                                      guide = if (show_leg) ggplot2::guide_colourbar(order = 1) else "none")
+      }
+    } else if (type == "col") {
+      if (!is.null(bins)) {
+        ggplot2::scale_colour_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
+                                     breaks = seq(limits[1], limits[2], length.out = bins),
+                                     guide = if (show_leg) ggplot2::guide_colourbar(order = 2) else "none")
+      } else {
+        ggplot2::scale_colour_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
+                                        guide = if (show_leg) ggplot2::guide_colourbar(order = 2) else "none")
+      }
+    } else if (type == "size") {
+      ggplot2::scale_size_continuous(range = size_range,
+                                     # Add transform for absolute value
+                                     transform = scales::trans_new("abs", abs, abs))
+    }
+  }
+
+  return(scale_out)
 }
 
 

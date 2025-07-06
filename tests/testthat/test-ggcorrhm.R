@@ -37,4 +37,19 @@ test_that("snapshots are ok", {
   vdiffr::expect_doppelganger("mixed_w_p_w_labels", ggcorrhm(mtcars, layout = c("tr", "bl"), p_values = c(FALSE, TRUE),
                                                              cell_labels = TRUE, cell_label_p = c(FALSE, TRUE),
                                                              p_adjust = "bonferroni"))
+  vdiffr::expect_doppelganger("mixed_scales", ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "hm"),
+                                                       fill_scale = list(
+                                                         ggplot2::scale_fill_viridis_c(option = "G"),
+                                                         ggplot2::scale_fill_gradient(high = "pink", low = "white")
+                                                       ), fill_name = c("viridis", "gradient")))
+  vdiffr::expect_doppelganger("mixed_scales2", ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("hm", "hm"),
+                                                        fill_scale = list(
+                                                          NULL,
+                                                          ggplot2::scale_fill_gradient(high = "pink", low = "white")
+                                                        ), fill_name = c("default", "gradient")))
+  vdiffr::expect_doppelganger("mixed_scales3", ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("19", "17"),
+                                                        col_scale = list(
+                                                          ggplot2::scale_colour_viridis_c(option = "D"),
+                                                          ggplot2::scale_colour_gradient(high = "pink", low = "white")
+                                                        ), col_name = c("default", "gradient")))
 })

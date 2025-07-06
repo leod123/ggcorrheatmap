@@ -17,6 +17,7 @@ gghm(
   return_data = FALSE,
   show_legend = c(fill = TRUE, colour = TRUE, size = TRUE),
   size_scale = NULL,
+  size_name = "value",
   cell_labels = F,
   cell_label_col = "black",
   cell_label_size = 3,
@@ -77,13 +78,15 @@ gghm(
 \item{x}{Matrix or data frame in wide format to make a heatmap of. If rownames are present they are used for the y axis labels, otherwise the row number is used.
 If a column named \code{.names} (containing unique row identifiers) is present it will be used as rownames.}
 
-\item{fill_scale}{A \code{ggplot2} scale object for the cell fill colour scale. NULL (default) uses the \code{ggplot2} default.}
+\item{fill_scale}{A \code{ggplot2} scale object for the cell fill colour scale. NULL (default) uses the \code{ggplot2} default. In mixed layouts, can also be a list
+of length two containing the two scales to use.}
 
-\item{fill_name}{String to use for the fill scale legend title.}
+\item{fill_name}{String to use for the fill scale legend title. Can be two values in mixed layouts for dual scales.}
 
-\item{col_scale}{A \code{ggplot2} scale object for colour scale (Applied to text and non-filled shapes). NULL (default) uses the \code{ggplot2} default.}
+\item{col_scale}{A \code{ggplot2} scale object for colour scale (Applied to text and non-filled shapes). NULL (default) uses the \code{ggplot2} default. In mixed layouts, can also be a list
+of length two containing the two scales to use.}
 
-\item{col_name}{String to use for the colour scale legend title.}
+\item{col_name}{String to use for the colour scale legend title. Can be two values in mixed layouts for dual scales.}
 
 \item{mode}{A string specifying plotting mode. Possible values are \code{heatmap}/\code{hm} for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
 \code{text} to write the cell values instead of filling cells (colour scaling with value), and \code{none} for blank cells.}
@@ -105,7 +108,10 @@ If NAs are kept, the fill colour can be set in the \code{ggplot2} scale.}
 \item{show_legend}{Logical vector indicating if main heatmap legends (fill, colour and size) should be shown. If length 1 it is applied to all legends.
 Can be specified in an aesthetic-specific manner using a named vector like \code{c('fill' = TRUE, 'size' = FALSE)}.}
 
-\item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{mode} is a number from 1 to 25 (R pch).}
+\item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{mode} is a number from 1 to 25 (R pch). In mixed layouts, can also be a list
+of length two containing the two scales to use.}
+
+\item{size_name}{String to use for the size scale legend title. Can be two values in mixed layouts for dual scales.}
 
 \item{cell_labels}{Logical specifying if the cells should be labelled with the values. Alternatively, a matrix or data frame with the same shape and dimnames as \code{x}
 containing values to write in the cells. If mode is \code{text}, the cell label colours will scale with the cell values and \code{cell_label_col} is ignored.}
@@ -240,6 +246,9 @@ The \verb{cell_label_*} and \verb{border_*} arguments can all be length one to a
 or lists of length two, each element containing one value (apply to whole triangle) or a value per cell (apply cell-wise in triangle).
 \code{cell_labels} can also be specified per triangle, either as a logical vector of length two, or a list of length two containing a mix of
 logicals and matrices/data frames.
+
+It is also possible to provide two scales for filling or colouring if the two triangles are coloured by the same aesthetic.
+In this case the \code{fill_scale} or \code{col_scale} arguments must be lists of length two containing the scales to use (also works for \code{size_scale}).
 
 The annotation parameter arguments \code{annot_rows_params} and \code{annot_cols_params} should be named lists, where the possible options correspond to
 the different \verb{annot_*} arguments. The possible options are "legend" (logical, if legends should be drawn), "dist" (distance between heatmap and annotation), "gap" (distance between annotations),

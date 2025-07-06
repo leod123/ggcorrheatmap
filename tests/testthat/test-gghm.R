@@ -32,6 +32,22 @@ test_that("basic functionality works", {
   lbl2[sample(1:length(lbl2), 100, F)] <- "a"
   expect_no_error(gghm(mtcars, cell_labels = lbl1))
   expect_no_error(gghm(mtcars, cell_labels = lbl2))
+  # Mixed layout with multiple scales
+  expect_no_error(gghm(cor(mtcars), layout = c("tr", "bl"), mode = c("hm", "hm"),
+                       fill_scale = list(
+                         ggplot2::scale_fill_gradient(high = "pink", low = "white"),
+                         ggplot2::scale_fill_viridis_c()
+                       )))
+  expect_no_error(gghm(cor(mtcars), layout = c("tl", "br"), mode = c("19", "19"),
+                       col_scale = list(
+                         ggplot2::scale_colour_gradient(high = "pink", low = "white"),
+                         ggplot2::scale_colour_viridis_c()
+                       ),
+                       size_scale = list(
+                         ggplot2::scale_size_continuous(range = c(1, 3)),
+                         ggplot2::scale_size_continuous(range = c(5, 8))
+                       ),
+                       cluster_rows = T, cluster_cols = T))
 })
 
 test_that("snapshots", {
@@ -78,6 +94,21 @@ test_that("snapshots", {
   set.seed(123)
   lbl1[sample(1:length(lbl1), 100, F)] <- 10
   vdiffr::expect_doppelganger("cell_labels_from_matrix", gghm(mtcars, cell_labels = lbl1))
+  vdiffr::expect_doppelganger("mixed_scales1", gghm(cor(mtcars), layout = c("tr", "bl"), mode = c("hm", "hm"),
+                                                    fill_scale = list(
+                                                      ggplot2::scale_fill_gradient(high = "pink", low = "white"),
+                                                      ggplot2::scale_fill_viridis_c()
+                                                    )))
+  vdiffr::expect_doppelganger("mixed_scales2", gghm(cor(mtcars), layout = c("tl", "br"), mode = c("19", "19"),
+                                                    col_scale = list(
+                                                      ggplot2::scale_colour_gradient(high = "pink", low = "white"),
+                                                      ggplot2::scale_colour_viridis_c()
+                                                    ),
+                                                    size_scale = list(
+                                                      ggplot2::scale_size_continuous(range = c(1, 3)),
+                                                      ggplot2::scale_size_continuous(range = c(5, 8))
+                                                    ),
+                                                    cluster_rows = T, cluster_cols = T))
 })
 
 test_that("correct input types", {

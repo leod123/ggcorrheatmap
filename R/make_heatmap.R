@@ -36,9 +36,9 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                          border_lwd = 0.5, border_col = "grey", border_lty = 1,
                          names_diag = T, names_x = F, names_y = F, names_diag_param = NULL,
                          names_x_side = "top", names_y_side = "left", show_legend = T,
-                         fill_scale = NULL, fill_name = "value", col_scale = NULL, col_name = fill_name,
-                         size_scale = NULL, cell_labels = F, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
-                         cell_bg_col = "white", cell_bg_alpha = 0) {
+                         fill_scale = NULL, fill_name = "value", col_scale = NULL, col_name = "value",
+                         size_scale = NULL, size_name = "value", cell_labels = F, cell_label_col = "black",
+                         cell_label_size = 3, cell_label_digits = 2, cell_bg_col = "white", cell_bg_alpha = 0) {
   value <- .data <- label <- NULL
 
   # Base plot
@@ -110,7 +110,7 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
       }
     ) +
     fill_scale + col_scale + size_scale +
-    ggplot2::labs(fill = fill_name, colour = col_name)
+    ggplot2::labs(fill = fill_name, colour = col_name, size = size_name)
 
   # Only add scales and coordinate systems once to avoid messages
   if (!plt_provided) {
