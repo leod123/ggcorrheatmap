@@ -28,12 +28,30 @@ ggcorrhm(iris[1:nrow(mtcars), -5], mtcars)
 
 # Changing the colours
 
-`ggcorrhm()` sets the fill scale to use `ggplot2::scale_fill_gradient2()` with limits set to [-1, 1]. Unique to `ggcorrhm()` are the arguments `high`, `mid`, `low`, `limits`, and `bins` to control the legend colours. `bins` creates a binned scale (using `ggplot2::scale_fill_steps2()` instead). If complete control is needed, the `fill_scale` and `col_scale` arguments can be used to overwrite the gradient scale.
+`ggcorrhm()` sets the fill scale to use `ggplot2::scale_fill_gradient2()` with limits set to [-1, 1]. Unique to `ggcorrhm()` are the arguments `high`, `mid`, `low`, `limits`, and `bins` to control the legend colours. `bins` creates a binned scale (using `ggplot2::scale_fill_steps2()` instead). 
 
 ```{r changing colour, fig.alt='A heatmap of the mtcars correlation matrix. The colour scale is changed to consist of 6 bins and the colours go from magenta to yellow to green.'}
 ggcorrhm(mtcars, high = "green", low = "magenta", mid = "yellow", bins = 6)
 
 ```
+
+If complete control is needed, the `fill_scale` and `col_scale` arguments can be used to overwrite the default scale.
+
+```{r, fig.width=10, fig.height=5, fig.alt='Two correlation heatmaps of mtcars. The first one uses the Brewer "RdYlGn" palette on a continuous scale, while the second one uses the Brewer "PuOr" scale with the data put into discrete bins.'}
+plt1 <- ggcorrhm(mtcars, fill_scale =
+                   # scale_fill_distiller is convenient for using the
+                   # Brewer palettes for continuous data
+                   scale_fill_distiller(palette = "RdYlGn", limits = c(-1, 1)))
+
+plt2 <- ggcorrhm(mtcars, fill_scale =
+                   # scale_fill_fermenter can make binned Brewer palettes
+                   # for continuous data
+                   scale_fill_fermenter(palette = "PuOr", limits = c(-1, 1),
+                                        breaks = seq(-1, 1, length.out = 6)))
+
+plt1 + plt2
+```
+
 
 # Changing the layout
 

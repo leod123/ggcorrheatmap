@@ -646,9 +646,15 @@ prepare_mixed_param <- function(param, param_name) {
     param_out <- list(param, param)
 
   } else if (length(param) != 2) {
-    cli::cli_abort(paste0("In a mixed layout, {.var {param_name}} must be either one (used for all) or two (used for each triangle) values,
-                          or a list of length two with a vector for each triangle. See the details of 'gghm' for more on usage."),
-                   class = "param_len_error")
+    msg <- if (grepl("_scale$", param_name)) {
+      "In a mixed layout, {.var {param_name}} must be either one scale (used for all),
+       or a list with up to two scales (NULL results in default). See the details of 'gghm' for more on usage."
+    } else {
+      "In a mixed layout, {.var {param_name}} must be either one (used for all) or two (used for each triangle) values,
+                          or a list of length two with a vector for each triangle. See the details of 'gghm' for more on usage."
+    }
+
+    cli::cli_abort(msg, class = "param_len_error")
 
   } else {
     param_out <- param

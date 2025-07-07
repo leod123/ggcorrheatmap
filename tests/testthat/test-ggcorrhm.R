@@ -10,6 +10,47 @@ test_that("it runs without error", {
   expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "18")))
 })
 
+test_that("user-supplied scales", {
+  # Change default scale using high, mid, low, etc
+  expect_no_error(ggcorrhm(mtcars, high = "pink", mid = "white", low = "lightblue",
+                           limits = c(-.7, .7), bins = 6))
+  # Give a scale object
+  expect_no_error(ggcorrhm(mtcars, fill_scale = ggplot2::scale_fill_distiller(palette = "RdBu")))
+  expect_no_error(ggcorrhm(mtcars, mode = "19",
+                           col_scale = ggplot2::scale_colour_distiller(palette = "RdBu")))
+  # One scale for two triangles
+  expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "hm"),
+                           fill_scale = ggplot2::scale_fill_distiller(palette = "RdBu")))
+  # Two scales
+  expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("21", "23"),
+                           fill_scale = list(
+                             ggplot2::scale_fill_distiller(palette = "RdBu"),
+                             ggplot2::scale_fill_continuous()
+                           ),
+                           size_scale = list(
+                             ggplot2::scale_size_continuous(range = c(1, 6)),
+                             ggplot2::scale_size_continuous(range = 4, 8)
+                           )))
+  expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("21", "23"),
+                           fill_scale = list(
+                             ggplot2::scale_fill_distiller(palette = "RdBu"),
+                             NULL
+                           ), high = "magenta", mid = "yellow", low = "green", bins = 6,
+                           limits = c(-.5, .5)))
+  # Also for colour scales
+  expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("text", "text"),
+                           col_scale = ggplot2::scale_colour_distiller(palette = "RdBu")))
+  expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("19", "17"),
+                           col_scale = list(
+                             ggplot2::scale_colour_distiller(palette = "RdBu"),
+                             NULL
+                           ),
+                           size_scale = list(
+                             NULL,
+                             ggplot2::scale_size_continuous()
+                           ), bins = 4))
+})
+
 test_that("p-value errors work", {
   expect_error(ggcorrhm(mtcars, p_values = T, p_thresholds = c("a" = -1, "b" = 0.5, "c" = 1)),
                class = "p_thr_error")
@@ -34,6 +75,9 @@ test_that("snapshots are ok", {
   vdiffr::expect_doppelganger("p_values", ggcorrhm(mtcars, p_values = T, p_adjust = "fdr"))
   vdiffr::expect_doppelganger("mixed_layout", ggcorrhm(mtcars, layout = c("tl", "br")))
   vdiffr::expect_doppelganger("mixed_w_p", ggcorrhm(mtcars, layout = c("tr", "bl"), p_values = c(T, F)))
+  lbl <- cor(mtcars)
+  lbl[] <- 1:121
+  vdiffr::expect_doppelganger("cell_labels", ggcorrhm(mtcars, cell_labels = lbl))
   vdiffr::expect_doppelganger("mixed_w_p_w_labels", ggcorrhm(mtcars, layout = c("tr", "bl"), p_values = c(FALSE, TRUE),
                                                              cell_labels = TRUE, cell_label_p = c(FALSE, TRUE),
                                                              p_adjust = "bonferroni"))

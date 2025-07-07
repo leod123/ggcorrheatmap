@@ -61,7 +61,7 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
 
   # Use different input data depending on desired layout
   # If include_diag is FALSE, skip where row == col, otherwise use the whole data
-  x_plot_dat <- if (!include_diag) {
+  x_long <- if (!include_diag) {
     subset(x_long, as.character(row) != as.character(col))
   } else {
     x_long
@@ -71,7 +71,7 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
     # Add empty cells as a grid for text and none modes
     list(
       if (mode %in% c("text", "none")) {
-        ggplot2::geom_tile(data = x_plot_dat, linewidth = border_lwd, colour = border_col,
+        ggplot2::geom_tile(data = x_long, linewidth = border_lwd, colour = border_col,
                            fill = cell_bg_col, linetype = border_lty, alpha = cell_bg_alpha)
       }
     ) +
@@ -79,17 +79,17 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
     list(
       if (mode %in% c("heatmap", "hm")) {
         ggplot2::geom_tile(ggplot2::aes(fill = value),
-                           data = x_plot_dat,
+                           data = x_long,
                            linewidth = border_lwd, colour = border_col, linetype = border_lty,
                            show.legend = show_legend)
       } else if (shape_mode_fill) {
         ggplot2::geom_point(ggplot2::aes(fill = value, size = value),
-                            data = x_plot_dat,
+                            data = x_long,
                             stroke = border_lwd, colour = border_col, shape = as.numeric(mode),
                             show.legend = show_legend)
       } else if (shape_mode_col) {
         ggplot2::geom_point(ggplot2::aes(colour = value, size = value),
-                            data = x_plot_dat,
+                            data = x_long,
                             stroke = border_lwd, shape = as.numeric(mode),
                             show.legend = show_legend)
       } else if (mode == "text" & isFALSE(cell_labels)) {
@@ -100,8 +100,8 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
           } else {value}, colour = value),
           # For text, skip diagonals if names are written there
           data = if (names_diag) {
-            subset(x_plot_dat, as.character(row) != as.character(col))
-          } else {x_plot_dat},
+            subset(x_long, as.character(row) != as.character(col))
+          } else {x_long},
           size = cell_label_size,
           show.legend = show_legend
         )

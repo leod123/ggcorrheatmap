@@ -103,6 +103,59 @@ plt2 <- ggcorrhm(mtcars, layout = c("tl", "br"), p_values = c(FALSE, TRUE),
 plt1 + plt2
 ```
 
+# Mixed scales
+
+In mixed layouts the two triangles can use different scales for colours and sizes. Naturally, when one triangle uses a fill scale and the other a colour scale, using the `fill_scale` and `col_scale` arguments results in the two triangles using different scales.
+
+```{r, fig.alt='mtcars correlation heatmap with normal cells in the top right and coloured text in the bottom left triangle. The cells in the top right triangle use the viridis "mako" scale while the text in the bottom left use the viridis "magma" scale. Each scale has a legend on the right (with the same name: "Pearson r").'}
+ggcorrhm(mtcars, layout = c("tr", "bl"),
+         fill_scale = scale_fill_viridis_c(option = "G"),
+         col_scale = scale_colour_viridis_c(option = "A"),
+         # Mixed layout with fill and colour scales hides one legend by default
+         # Make both show up with show_legend
+         show_legend = c(fill = TRUE, colour = TRUE))
+```
+
+When the two triangles use the same kind of scale (fill, colour), `fill_scale` and `col_scale` can take a list with two scales.
+
+```{r, fig.alt='mtcars correlation heatmap with cells in the top left and circles in the bottom right. The cells use the Brewer "RdYlGn" palette (going from green (low) to yellow to red (high)), while the circles use a custom scale with light blue for low values, white for middle values and pink for high values. The two legends on the right are named "Bottom right" (blue-pink) and "Top left" (RdYlGn).'}
+# Two fill scales
+ggcorrhm(mtcars, layout = c("br", "tl"), mode = c("21", "hm"),
+         fill_scale = list(
+           scale_fill_gradient2(high = "pink", mid = "white", low = "lightblue",
+                                limits = c(-1, 1)),
+           scale_fill_distiller(palette = "RdYlGn", limits = c(-1, 1))
+         ),
+         # Fill name can also take two values
+         fill_name = c("Bottom right", "Top left"))
+```
+
+Use the `guide` argument in the `ggplot2` scale functions to set the order or hide legends.
+
+```{r, fig.alt='mtcars correlation heatmap with circles in the top right and text labels in empty cells in the bottom left. The circles use a scale going from white at low values to brown at high values while the text in the cells uses the Brewer "Spectral" palette. The legends are named "First legend" (brown) and "Second legend" (Spectral).'}
+# Two colour scales
+ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("19", "text"),
+         col_scale = list(
+           scale_colour_gradient(high = "lightsalmon4", low = "white", limits = c(-1, 1),
+                                 # Can use the guide argument to change order of legends (or hide them)
+                                 guide = guide_colourbar(order = 1)),
+           scale_colour_distiller(palette = "Spectral", limits = c(-1, 1))
+         ), cell_label_size = 4,
+         col_name = c("First legend", "Second legend"))
+```
+
+If one of the scales is `NULL`, the default scale is used instead (and can be customised with the `high`, `mid`, `low` etc arguments).
+
+```{r, fig.alt='mtcars correlation heatmap. The cells in the top left triangle use a divergent colour scale going from blue to white to red, while the bottom right cells use a binned scale with the Brewer "PrGn" palette, going from green to white to purple.'}
+# NULL uses the default that changes with high, mid, low etc
+ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "hm"),
+         fill_scale = list(
+           NULL,
+           scale_fill_distiller(palette = "PRGn", limits = c(-1, 1))
+         ), bins = 6)
+```
+
+
 # Some extra plots
 
 Using mixed layouts with mode "none" it is possible to "hack" annotations and dendrograms onto the empty sides of triangular layouts.
