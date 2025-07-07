@@ -64,9 +64,10 @@ remove_triangle <- function(x, tri_remove = "upper", na_remove = F) {
     x_remove[upper.tri(x_remove, diag = T)] <- NA
   }
   x_remove <- shape_mat_long(x_remove, na_remove = T)
-  rows_remove <- paste0(x_remove$row, x_remove$col)
+  # Get rows to remove, using a very uncommon separator to not accidentally remove too many
+  rows_remove <- paste0(x_remove$row, "_;%?!_", x_remove$col)
 
-  x_out <- x_out[which(!paste0(x_out$row, x_out$col) %in% rows_remove), ]
+  x_out <- x_out[which(!paste0(x_out$row, "_;%?!_", x_out$col) %in% rows_remove), ]
   rownames(x_out) <- NULL
   return(x_out)
 }
