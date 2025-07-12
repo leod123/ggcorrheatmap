@@ -13,10 +13,8 @@
 #' @param names_diag Logical indicating if names should be displayed on the diagonal.
 #' @param names_x Logical indicating if names should be displayed on the x axis.
 #' @param names_y Logical indicating if names should be displayed on the y axis.
-#' @param names_diag_param Parameters for diagonal names.
 #' @param names_x_side X axis side.
 #' @param names_y_side Y axis side.
-#' @param show_legend Logical indicating which, if any, legends should be drawn.
 #' @param fill_scale Scale for fill aesthetic.
 #' @param fill_name Name for fill aesthetic.
 #' @param col_scale Scale for colour aesthetic.
@@ -34,10 +32,10 @@
 make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                          include_diag = T, invisible_diag = F,
                          border_lwd = 0.5, border_col = "grey", border_lty = 1,
-                         names_diag = T, names_x = F, names_y = F, names_diag_param = NULL,
-                         names_x_side = "top", names_y_side = "left", show_legend = T,
-                         fill_scale = NULL, fill_name = "value", col_scale = NULL, col_name = "value",
-                         size_scale = NULL, size_name = "value", cell_labels = F, cell_label_col = "black",
+                         names_diag = T, names_x = F, names_y = F,
+                         names_x_side = "top", names_y_side = "left",
+                         colr_scale = NULL, size_scale = NULL,
+                         cell_labels = F, cell_label_col = "black",
                          cell_label_size = 3, cell_label_digits = 2, cell_bg_col = "white", cell_bg_alpha = 0) {
   value <- .data <- label <- NULL
 
@@ -80,18 +78,15 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
       if (mode %in% c("heatmap", "hm")) {
         ggplot2::geom_tile(ggplot2::aes(fill = value),
                            data = x_long,
-                           linewidth = border_lwd, colour = border_col, linetype = border_lty,
-                           show.legend = show_legend)
+                           linewidth = border_lwd, colour = border_col, linetype = border_lty)
       } else if (shape_mode_fill) {
         ggplot2::geom_point(ggplot2::aes(fill = value, size = value),
                             data = x_long,
-                            stroke = border_lwd, colour = border_col, shape = as.numeric(mode),
-                            show.legend = show_legend)
+                            stroke = border_lwd, colour = border_col, shape = as.numeric(mode))
       } else if (shape_mode_col) {
         ggplot2::geom_point(ggplot2::aes(colour = value, size = value),
                             data = x_long,
-                            stroke = border_lwd, shape = as.numeric(mode),
-                            show.legend = show_legend)
+                            stroke = border_lwd, shape = as.numeric(mode))
       } else if (mode == "text" & isFALSE(cell_labels)) {
         ggplot2::geom_text(
           # Round values if value are numeric and cell_label_digits is numeric
@@ -102,15 +97,13 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
           data = if (names_diag) {
             subset(x_long, as.character(row) != as.character(col))
           } else {x_long},
-          size = cell_label_size,
-          show.legend = show_legend
+          size = cell_label_size
         )
       } else if (mode == "none") {
         # Draw nothing
       }
     ) +
-    fill_scale + col_scale + size_scale +
-    ggplot2::labs(fill = fill_name, colour = col_name, size = size_name)
+    colr_scale + size_scale
 
   # Only add scales and coordinate systems once to avoid messages
   if (!plt_provided) {
@@ -134,22 +127,6 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
     } else {
       plt <- plt + ggplot2::theme(axis.text.x = ggplot2::element_blank())
     }
-  }
-
-  # Names on the diagonal
-  if (names_diag) {
-    # Order labels so they are from left to right
-    axis_lab <- data.frame(label = factor(levels(x_long$col), levels = levels(x_long$col)))
-    axis_lab <- dplyr::arrange(axis_lab, label)
-
-    # Construct call using optional parameters
-    text_call_params <- list(data = axis_lab, mapping = ggplot2::aes(x = label, y = label, label = label))
-    if (is.list(names_diag_param)) {
-      text_call_params <- append(text_call_params, names_diag_param)
-    }
-
-    plt <- plt +
-      do.call(ggplot2::geom_text, text_call_params)
   }
 
   # Cell labels
@@ -203,12 +180,42 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                              mapping = ggplot2::aes(x = col, y = row, colour = value,
                                                     label = if (is.numeric(label) & is.numeric(cell_label_digits)) {
                                                       round(label, cell_label_digits)
-                                                    } else {label}),
-                             show.legend = show_legend)
+                                                    } else {label}))
         }
       )
 
   }
+
+  return(plt)
+}
+
+
+#' Add diagonal names to heatmap.
+#'
+#' @keywords internal
+#'
+#' @param plt Plot object to add names to.
+#' @param x_long Long format plotting data.
+#' @param names_diag_param Parameters for diagonal names.
+#'
+#' @returns Plot with labels added.
+#'
+add_diag_names <- function(plt, x_long, names_diag_param = NULL) {
+  label <- NULL
+
+  # Names on the diagonal
+  # Order labels so they are from left to right
+  axis_lab <- data.frame(label = factor(levels(x_long$col), levels = levels(x_long$col)))
+  axis_lab <- dplyr::arrange(axis_lab, label)
+
+  # Construct call using optional parameters
+  text_call_params <- list(data = axis_lab, mapping = ggplot2::aes(x = label, y = label, label = label))
+  if (is.list(names_diag_param)) {
+    text_call_params <- append(text_call_params, names_diag_param)
+  }
+
+  plt <- plt +
+    do.call(ggplot2::geom_text, text_call_params)
 
   return(plt)
 }

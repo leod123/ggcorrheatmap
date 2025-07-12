@@ -39,14 +39,6 @@ add_annotation <- function(plt, annot_dim = c("rows", "cols"), annot_df, annot_p
     names(legend_order) <- annot_names
   }
 
-  # Annotation colours
-  # If provided colour scales are not in a list, generate a placeholder list to use default colours
-  if (!is.list(col_scale)) {
-    col_scale <- list()
-  }
-  # Check that it contains the names of the annotations, otherwise fill in with missing names
-  col_scale[annot_names[!annot_names %in% names(col_scale)]] <- lapply(seq_along(annot_names[!annot_names %in% names(col_scale)]), function(x) NULL)
-
   plt_out <- plt +
     lapply(annot_names, \(nm) {
       list(
@@ -64,28 +56,7 @@ add_annotation <- function(plt, annot_dim = c("rows", "cols"), annot_df, annot_p
                            height = ifelse(annot_dim[1] == "rows", 1, annot_size),
                            linewidth = annot_border_lwd, colour = annot_border_col, linetype = annot_border_lty),
 
-        # Getting colour scales for filling cells
-        if (is.character(col_scale[[nm]])) {
-          # Use either as discrete or continuous scale
-          if (is.character(annot_df[[nm]]) | is.factor(annot_df[[nm]])) {
-            ggplot2::scale_fill_brewer(palette = col_scale[[nm]], na.value = na_col, guide = if (draw_legend) ggplot2::guide_legend(order = legend_order[nm]) else "none")
-          } else {
-            ggplot2::scale_fill_viridis_c(option = col_scale[[nm]], na.value = na_col, guide = if (draw_legend) ggplot2::guide_colourbar(order = legend_order[nm]) else "none")
-          }
-
-        } else if ("Scale" %in% class(col_scale[[nm]])) {
-          # Use provided scale. Legend drawing order is then left to the user
-          col_scale[[nm]]
-
-        } else {
-          # If no colour scale is provided at all
-          # Should never have to use this condition thanks to prepare_annot_col
-          if (is.character(annot_df[[nm]]) | is.factor(annot_df[[nm]])) {
-            ggplot2::scale_fill_brewer(palette = "Pastel1", na.value = na_col, guide = if (draw_legend) ggplot2::guide_legend(order = legend_order[nm]) else "none")
-          } else {
-            ggplot2::scale_fill_viridis_c(na.value = na_col, guide = if (draw_legend) ggplot2::guide_colourbar(order = legend_order[nm]) else "none")
-          }
-        },
+        col_scale[[nm]],
 
         if (draw_label) {
           # Add labels using annotation_custom to add a text grob without disturbing the plot area limits
@@ -177,94 +148,3 @@ get_annotation_pos <- function(annot_side = T, annot_names, annot_size, annot_di
   return(positions)
 }
 
-
-#' Prepare default colour scales for annotation.
-#'
-#' Prepares a brewer palette or viridis option for all annotations that don't have any colour scale
-#' specified by the user. There are eight options each for brewer (categorical) and viridis (continuous) and they are selected
-#' sequentially, going back to the beginning if there are more than eight annotations of each kind.
-#'
-#' @keywords internal
-#'
-#' @param annot_rows_df Data frame with annotation for rows.
-#' @param annot_cols_df Data frame with annotation for columns.
-#' @param annot_rows_col List with colour scales for rows.
-#' @param annot_cols_col List with colour scales for columns.
-#'
-#' @returns List of length two containing lists of row annotation and column annotation.
-#'
-prepare_annot_col <- function(annot_rows_df = NULL, annot_cols_df = NULL,
-                              annot_rows_col = NULL, annot_cols_col = NULL) {
-
-  # Go through row and then column annotations and assign a scale if not provided
-  cat_num <- 1
-  cont_num <- 1
-
-  lst_in <- list(list(annot_rows_df, annot_rows_col), list(annot_cols_df, annot_cols_col))
-  lst_out <- vector("list", 2)
-  for (i in seq_along(lst_in)) {
-    # Get annotation names to compare if corresponding names are provided in colour scales list
-    annot_nm <- colnames(lst_in[[i]][[1]])[-which(colnames(lst_in[[i]][[1]]) == ".names")]
-
-    scl_nm <- names(lst_in[[i]][[2]])
-
-    # If no list provided, make one
-    if (!is.list(lst_in[[i]][[2]])) {
-      lst_in[[i]][[2]] <- vector("list", length(annot_nm))
-    }
-
-    # Go through names and if no colour scale is provided, assign one
-    # Increment counters depending on type to provide new colour scales (up to 8 per type, then start from beginning)
-    for (j in annot_nm) {
-      if (!j %in% scl_nm & is.numeric(lst_in[[i]][[1]][[j]])) {
-        lst_in[[i]][[2]][[j]] <- get_colour_scale(cont_num, "numeric")
-        cont_num <- increment1to8(cont_num)
-
-      } else if (!j %in% scl_nm & (is.character(lst_in[[i]][[1]][[j]]) | is.factor(lst_in[[i]][[1]][[j]]))) {
-        lst_in[[i]][[2]][[j]] <- get_colour_scale(cat_num, "character")
-        cat_num <- increment1to8(cat_num)
-      }
-    }
-
-    lst_out[[i]] <- lst_in[[i]][[2]]
-  }
-
-  return(lst_out)
-}
-
-
-#' Increment between 1 and 8.
-#'
-#' @keywords internal
-#'
-#' @param x Integer to increment.
-#'
-#' @returns Integer. x + 1 if x is between 1 and 7, 1 otherwise.
-#'
-increment1to8 <- function(x) {
-  # Increment between 1 and 8
-  if (x >= 8 | x < 1) return(1L)
-  else return(x + 1L)
-}
-
-
-#' Colour scale dispenser.
-#'
-#' @keywords internal
-#'
-#' @param num Integer between 1 and 8.
-#' @param type String specifying class.
-#'
-#' @returns String with brewer or viridis scale.
-#'
-get_colour_scale <- function(num, type) {
-
-  # Pick out scales from a predetermined list and order
-  if (type %in% c("character", "factor")) {
-    scl_out <- c("Pastel1", "Pastel2", "Set1", "Set2", "Set3", "Paired", "Dark2", "Accent")[num]
-  } else if (type %in% c("numeric", "double", "integer")) {
-    scl_out <- c("D", "A", "G", "C", "E", "B", "F", "H")[num]
-  }
-
-  return(scl_out)
-}

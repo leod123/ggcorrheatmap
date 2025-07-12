@@ -14,41 +14,42 @@ test_that("user-supplied scales", {
   # Change default scale using high, mid, low, etc
   expect_no_error(ggcorrhm(mtcars, high = "pink", mid = "white", low = "lightblue",
                            limits = c(-.7, .7), bins = 6))
+  # Use a Brewer or Viridis scale
+  expect_no_error(ggcorrhm(mtcars, colr_scale = "G"))
+  expect_no_error(ggcorrhm(mtcars, high = "pink", mid = "white", low = "lightblue",
+                           colr_scale = "RdBu"))
   # Give a scale object
-  expect_no_error(ggcorrhm(mtcars, fill_scale = ggplot2::scale_fill_distiller(palette = "RdBu")))
+  expect_no_error(ggcorrhm(mtcars, colr_scale = ggplot2::scale_fill_distiller(palette = "RdBu")))
   expect_no_error(ggcorrhm(mtcars, mode = "19",
-                           col_scale = ggplot2::scale_colour_distiller(palette = "RdBu")))
+                           colr_scale = "RdYlGn"))
   # One scale for two triangles
   expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "hm"),
-                           fill_scale = ggplot2::scale_fill_distiller(palette = "RdBu")))
+                           colr_scale = "Purples"))
   # Two scales
   expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("21", "23"),
-                           fill_scale = list(
+                           colr_scale = list(
+                             "RdBu",
+                             "Blues"
+                           ),
+                           size_scale = list(
+                             ggplot2::scale_size_continuous(range = c(1, 6)),
+                             ggplot2::scale_size_continuous(range = c(4, 8))
+                           )))
+  expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("21", "23"),
+                           colr_scale = list(
                              ggplot2::scale_fill_distiller(palette = "RdBu"),
                              ggplot2::scale_fill_continuous()
                            ),
                            size_scale = list(
                              ggplot2::scale_size_continuous(range = c(1, 6)),
-                             ggplot2::scale_size_continuous(range = 4, 8)
+                             ggplot2::scale_size_continuous(range = c(4, 8))
                            )))
-  expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("21", "23"),
-                           fill_scale = list(
-                             ggplot2::scale_fill_distiller(palette = "RdBu"),
+  expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("19", "23"),
+                           colr_scale = list(
+                             ggplot2::scale_colour_distiller(palette = "RdBu"),
                              NULL
                            ), high = "magenta", mid = "yellow", low = "green", bins = 6,
                            limits = c(-.5, .5)))
-  # Also for colour scales
-  expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("text", "text"),
-                           col_scale = ggplot2::scale_colour_distiller(palette = "RdBu")))
-  expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("19", "17"),
-                           col_scale = list(
-                             ggplot2::scale_colour_distiller(palette = "RdBu"),
-                             NULL
-                           ),
-                           size_scale = list(
-                             NULL,
-                             ggplot2::scale_size_continuous()
-                           ), bins = 4))
 })
 
 test_that("p-value errors work", {
@@ -82,18 +83,22 @@ test_that("snapshots are ok", {
                                                              cell_labels = TRUE, cell_label_p = c(FALSE, TRUE),
                                                              p_adjust = "bonferroni"))
   vdiffr::expect_doppelganger("mixed_scales", ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "hm"),
-                                                       fill_scale = list(
-                                                         ggplot2::scale_fill_viridis_c(option = "G"),
-                                                         ggplot2::scale_fill_gradient(high = "pink", low = "white")
-                                                       ), fill_name = c("viridis", "gradient")))
+                                                       colr_scale = list(
+                                                         "G",
+                                                         "RdPu"
+                                                       ), colr_name = c("viridis", "gradient")))
   vdiffr::expect_doppelganger("mixed_scales2", ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("hm", "hm"),
-                                                        fill_scale = list(
+                                                        colr_scale = list(
                                                           NULL,
                                                           ggplot2::scale_fill_gradient(high = "pink", low = "white")
-                                                        ), fill_name = c("default", "gradient")))
+                                                        ),
+                                                        # Second name is ignored since it's a scale in colr_scale
+                                                        colr_name = c("default", "gradient")))
   vdiffr::expect_doppelganger("mixed_scales3", ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("19", "17"),
-                                                        col_scale = list(
+                                                        colr_scale = list(
                                                           ggplot2::scale_colour_viridis_c(option = "D"),
                                                           ggplot2::scale_colour_gradient(high = "pink", low = "white")
-                                                        ), col_name = c("default", "gradient")))
+                                                        ),
+                                                        # Both names are ignored
+                                                        colr_name = c("default", "gradient")))
 })

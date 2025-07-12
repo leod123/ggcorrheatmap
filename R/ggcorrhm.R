@@ -11,16 +11,13 @@
 #' @param high Colour to use for the highest value of the colour scale.
 #' @param mid Colour to use for 0 in the colour scale.
 #' @param low Colour to use for the lowest value of the colour scale.
-#' @param limits Correlation limits to plot between.
+#' @param midpoint Value for the middle point of the colour scale.
+#' @param limits Correlation limits to plot between. Values outside of the limits are treated as NAs.
 #' @param bins Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.
-#' @param fill_scale Scale to use for filling cells. If NULL (default), a divergent scale is constructed from the `high`, `mid`, `low`, `limits` and `bins` arguments.
-#' All these arguments are ignored if a `ggplot2::scale_fill_*` function is provided instead. In mixed layouts, can also be a list
-#' of length two containing the two scales to use.
-#' @param fill_name String to use for the correlation fill scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.
-#' @param col_scale Scale to use for colouring text in text mode. If NULL (default), a divergent scale is constructed from the `high`, `mid`, `low`, `limits` and `bins` arguments.
-#' All these arguments are ignored if a `ggplot2::scale_colour_*` function is provided instead. In mixed layouts, can also be a list
-#' of length two containing the two scales to use.
-#' @param col_name String to use for the correlation colour scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.
+#' @param colr_scale Scale to use for cell colours. If NULL (default), a divergent scale is constructed from the `high`, `mid`, `low`, `midpoint`, `limits`, and `bins` arguments.
+#' These arguments are ignored if a `ggplot2::scale_*` function is provided instead. If a string, the corresponding Brewer or Viridis scale is used.
+#' In mixed layouts, can also be a list of length two containing the two scales to use.
+#' @param colr_name String to use for the correlation scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.
 #' @param p_values Logical indicating if p-values should be calculated. Use with `p_thresholds` to mark cells, and/or `return_data` to get the p-values in the output data.
 #' @param p_adjust String specifying the adjustment method to use for the p-values (default is "none").
 #' @param p_thresholds Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
@@ -35,9 +32,8 @@
 #' NAs are handled in the correlation computations, use the `cor_use` argument for NA handling in correlation.
 #' @param na_col Colour to use for cells with NA.
 #' @param return_data Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, clustering and p-values) should be returned.
-#' @param show_legend Vector of logicals indicating which legends should be shown. Default behaviour (NULL) is to show fill or colour scales but not size scales.
-#' If the layout is mixed with one side using a fill scale and the other a colour scale, only the fill legend is shown. Overwrite this behaviour by providing a named
-#' logical vector where the names indicate which scales to show.
+#' @param legend_order Integer vector specifying the order of legends (first value is for the first legend, second for the second, etc). The default (NULL) shows all but size legends.
+#' NAs hide the corresponding legends, a single NA hides all. Ignored for `ggplot2` scale objects in `colr_scale` and `size_scale`.
 #' @param size_range Numeric vector of length 2, specifying lower and upper ranges of shape sizes. Ignored if `size_scale` is not NULL.
 #' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `mode` is a number from 1 to 25 (R pch).
 #' The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.
@@ -72,7 +68,7 @@
 #'
 #' Row and column names are displayed in the diagonal by default if the correlation matrix is symmetric (only `x` is provided or `x` and `y` are identical).
 #'
-#' The colour scale is set to be a diverging gradient around 0, with options to change the low, mid, and high colours and the limits.
+#' The colour scale is set to be a diverging gradient around 0, with options to change the low, mid, and high colours, the midpoint, and the limits.
 #' The `bins` argument converts the scale to a discrete scale divided into `bins` equally distributed bins.
 #'
 #' The size scale, used when a numeric cell shape is specified, is set to vary the shape size between 4 and 10 (can be changed with the `size_range` argument)
@@ -80,7 +76,7 @@
 #' This behaviour can be overwritten by setting `size_scale` to another `ggplot2::scale_size_*` function with the desired
 #' arguments, or `ggplot2::scale_size()` for no special behaviour.
 #' When the absolute value transformation is used the legend for sizes loses its meaning (only displaying positive values)
-#' and is therefore set to not be shown in the `show_legend` argument.
+#' and is therefore set to not be shown if `legend_order` is NULL.
 #'
 #' For symmetric correlation matrices, the dendrogram customisation arguments `dend_rows_extend` and `dend_cols_extend` work best with functions that only change the dendrogram
 #' cosmetically such as the colours, linetypes or node shapes. While it is possible to reorder (using e.g. 'rotate', 'ladderize') or prune (using e.g. 'prune'),
@@ -108,12 +104,13 @@
 #'                     annot2 = sample(letters[1:3], ncol(mtcars), TRUE))
 #' ggcorrhm(mtcars, layout = "tr", annot_cols_df = annot)
 ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything",
-                     high = "sienna2", mid = "white", low = "skyblue2", limits = c(-1, 1), bins = NULL,
-                     fill_scale = NULL, fill_name = NULL, col_scale = NULL, col_name = NULL,
+                     high = "sienna2", mid = "white", low = "skyblue2", midpoint = 0, limits = c(-1, 1), bins = NULL,
+                     layout = "full", mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
+                     include_diag = TRUE, na_remove = FALSE, na_col = "grey", return_data = FALSE,
+                     colr_scale = NULL, colr_name = NULL,
+                     size_range = c(4, 10), size_scale = NULL, size_name = NULL,
+                     legend_order = NULL,
                      p_values = FALSE, p_adjust = "none", p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, 1),
-                     mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
-                     layout = "full", include_diag = TRUE, na_remove = FALSE, na_col = "grey", return_data = FALSE,
-                     show_legend = NULL, size_range = c(4, 10), size_scale = NULL, size_name = NULL,
                      cell_labels = FALSE, cell_label_p = FALSE, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
                      cell_bg_col = "white", cell_bg_alpha = 0,
                      border_col = "grey", border_lwd = 0.5, border_lty = 1,
@@ -184,11 +181,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                         "pearson" = "Pearson r",
                         "spearman" = "Spearman\nrho",
                         "kendall" = "Kendall\ntau")
-  if (is.null(fill_name)) {
-    fill_name <- scale_names
-  }
-  if (is.null(col_name)) {
-    col_name <- scale_names
+  if (is.null(colr_name)) {
+    colr_name <- scale_names
   }
   if (is.null(size_name)) {
     size_name <- scale_names
@@ -203,46 +197,62 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
     names_y <- eval(replace_default(list("names_y" = T), as.list(sys.call()))$names_y)
   }
 
-  # Make the legend specification based on the layout and mode
-  if (is.null(show_legend)) {
-    # Show fill and colour, only one will show up in the end as only one scale is used
-    show_legend <- c(fill = T, colour = T, size = F)
+  # Get scales and their orders
+  scale_order <- make_legend_order(mode = mode,
+                                   colr_scale = colr_scale,
+                                   size_scale = size_scale, annot_rows_df = annot_rows_df,
+                                   annot_cols_df = annot_cols_df, legend_order = legend_order)
 
+  # Prepare scales for mixed layouts
+  if (length(layout) == 2) {
+    colr_name <- prepare_mixed_param(colr_name, "colr_name")
+    colr_scale <- prepare_mixed_param(colr_scale, "colr_scale")
+    size_name <- prepare_mixed_param(size_name, "size_name")
+    size_scale <- prepare_mixed_param(size_scale, "size_scale")
+  }
+
+  # Hide some legends by default in the main plot
+  if (is.null(legend_order)) {
+
+    # Hide all size legends, default is transformed without a way to map back to values (abs)
+    if ("size" %in% scale_order[["main_scales"]][["scales"]]) {
+      scale_order[["main_scales"]][["order"]][which(scale_order[["main_scales"]][["scales"]] == "size")] <- NA
+    }
     if (length(layout) == 2) {
-      # If both fill and col scales will be applied, show only one of the legends
-      # This assumes that they use the same scale. If not the case and both legends are wanted
-      # the user has to manually make the other legend appear
-      if (any(c("hm", "heatmap", as.character(21:25)) %in% mode) &
-          any(c("text", as.character(1:20)) %in% mode)) {
-        show_legend <- c(fill = T, colour = F, size = F)
+      # Use two if statements as the next one needs layout to be length two
+      # If a mixed layout with different aesthetics is used and
+      if (all(c("col", "fill") %in% scale_order[["main_scales"]][["scales"]]) &
+          # the default or just one colour scale is used (not a scale object since it will be aesthetic-specific)
+          (all(sapply(colr_scale, is.null)) | is.character(colr_scale[[1]]))
+      ) {
+        # Hide one of the legends (col)
+        scale_order[["main_scales"]][["order"]][which(scale_order[["main_scales"]][["scales"]] == "col")] <- NA
       }
     }
   }
 
-  # Make the fill colour scale
-  show_fill <- if ("fill" %in% names(show_legend)) show_legend["fill"] else TRUE
-  show_col <- if ("colour" %in% names(show_legend)) {
-    show_legend["colour"]
-  } else if ("color" %in% names(show_legend)) {
-    show_legend["color"]
-  } else {
-    TRUE
-  }
+  # Generate the necessary scales
+  main_scales <- prepare_scales(scale_order = scale_order, context = "ggcorrhm", val_type = "continuous",
+                                colr_scale = colr_scale, colr_name = colr_name,
+                                size_scale = size_scale, size_name = size_name,
+                                bins = bins, limits = limits,
+                                high = high, mid = mid, low = low, midpoint = midpoint,
+                                size_range = size_range, na_col = na_col)
+  # Annotation scales
+  annot_scales <- prepare_scales_annot(scale_order = scale_order,
+                                       annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
+                                       annot_rows_col = annot_rows_fill, annot_cols_col = annot_cols_fill)
 
-  fill_scale <- prepare_scales(fill_scale, type = "fill", bins = bins, limits = limits,
-                               high = high, mid = mid, low = low, na_col = na_col, show_leg = show_fill)
-  col_scale <- prepare_scales(col_scale, type = "col", bins = bins, limits = limits,
-                              high = high, mid = mid, low = low, na_col = na_col, show_leg = show_col)
-  # Make size scale (controlling the size range and transforming to be absolute values)
-  if (any(1:25 %in% mode) & is.null(size_scale)) {
-    size_scale <- prepare_scales(size_scale, type = "size", size_range = size_range)
-  }
+  # Generate the scale lists to pass to gghm
+  colr_scale <- extract_scales(main_scales, scale_order, c("fill", "col"), layout)
+  size_scale <- extract_scales(main_scales, scale_order, "size", layout)
 
   # Call with all arguments to get the tooltips when calling ggcorrhm
-  cor_plt <- gghm(cor_mat, fill_scale = fill_scale, fill_name = fill_name,
-                  col_scale = col_scale, col_name = col_name, na_remove = na_remove,
+  cor_plt <- gghm(cor_mat,
+                  na_remove = na_remove,
                   mode = mode, layout = layout, include_diag = include_diag, return_data = T,
-                  show_legend = show_legend, size_scale = size_scale, size_name = size_name,
+                  colr_scale = colr_scale, colr_name = colr_name,
+                  size_scale = size_scale, size_name = size_name,
                   border_col = border_col, border_lwd = border_lwd, border_lty = border_lty,
                   names_diag = names_diag, names_diag_param = names_diag_param,
                   names_x = names_x, names_x_side = names_x_side,
@@ -251,7 +261,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                   cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
                   cell_bg_col = cell_bg_col, cell_bg_alpha = cell_bg_alpha,
                   annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
-                  annot_rows_fill = annot_rows_fill, annot_cols_fill = annot_cols_fill,
+                  annot_rows_fill = annot_scales[["rows"]], annot_cols_fill = annot_scales[["cols"]],
                   annot_rows_side = annot_rows_side, annot_cols_side = annot_cols_side,
                   annot_legend = annot_legend, annot_dist = annot_dist, annot_gap = annot_gap,
                   annot_size = annot_size, annot_label = annot_label,
@@ -276,93 +286,6 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   }
   cor_out <- if (return_data) {cor_plt} else {cor_plt[["plot"]]}
   return(cor_out)
-}
-
-
-#' Prepare scales for mixed scales in ggcorrhm
-#'
-#' @keywords internal
-#'
-#' @param scale_in Scale object from user.
-#' @param type Type of scale (fill, col, size).
-#' @param bins Number of bins if binned scale.
-#' @param limits Scale limits.
-#' @param size_range Size range
-#' @param high Colour at higher end of scale.
-#' @param mid Colour at midpoint.
-#' @param low Colour at lowest point of scale.
-#' @param na_col Colour of NAs.
-#' @param show_leg If the legend should be shown.
-#'
-#' @returns Scale object or list of scale objects.
-#'
-prepare_scales <- function(scale_in, type, bins = NULL, limits = c(-1, 1), size_range = NULL,
-                           high = NULL, mid = NULL, low = NULL, na_col = "grey", show_leg) {
-  if (inherits(scale_in, c("Scale", "ggproto", "gg"))) {
-    # If a scale, return it
-    return(scale_in)
-
-  } else if (is.list(scale_in)) {
-    # If a list, iterate over and check if it needs to be filled in
-    scale_out <- mapply(function(x, i) { # scales, iteration
-      if (inherits(x, c("Scale", "ggproto", "gg"))) {
-        # If a scale, return it
-        return(x)
-
-      } else {
-        if (type == "fill") {
-          if (!is.null(bins)) {
-            ggplot2::scale_fill_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                                       breaks = seq(limits[1], limits[2], length.out = bins),
-                                       guide = if (show_leg) ggplot2::guide_colourbar(order = i) else "none")
-          } else {
-            ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                                          guide = if (show_leg) ggplot2::guide_colourbar(order = i) else "none")
-          }
-        } else if (type == "col") {
-          if (!is.null(bins)) {
-            ggplot2::scale_colour_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                                         breaks = seq(limits[1], limits[2], length.out = bins),
-                                         guide = if (show_leg) ggplot2::guide_colourbar(order = i + 1) else "none")
-          } else {
-            ggplot2::scale_colour_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                                            guide = if (show_leg) ggplot2::guide_colourbar(order = i + 1) else "none")
-          }
-        } else if (type == "size") {
-          ggplot2::scale_size_continuous(range = size_range,
-                                         # Add transform for absolute value
-                                         transform = scales::trans_new("abs", abs, abs))
-        }
-      }
-    }, scale_in, 1:length(scale_in), SIMPLIFY = F)
-
-  } else {
-    scale_out <- if (type == "fill") {
-      if (!is.null(bins)) {
-        ggplot2::scale_fill_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                                   breaks = seq(limits[1], limits[2], length.out = bins),
-                                   guide = if (show_leg) ggplot2::guide_colourbar(order = 1) else "none")
-      } else {
-        ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                                      guide = if (show_leg) ggplot2::guide_colourbar(order = 1) else "none")
-      }
-    } else if (type == "col") {
-      if (!is.null(bins)) {
-        ggplot2::scale_colour_steps2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                                     breaks = seq(limits[1], limits[2], length.out = bins),
-                                     guide = if (show_leg) ggplot2::guide_colourbar(order = 2) else "none")
-      } else {
-        ggplot2::scale_colour_gradient2(limits = limits, high = high, mid = mid, low = low, na.value = na_col,
-                                        guide = if (show_leg) ggplot2::guide_colourbar(order = 2) else "none")
-      }
-    } else if (type == "size") {
-      ggplot2::scale_size_continuous(range = size_range,
-                                     # Add transform for absolute value
-                                     transform = scales::trans_new("abs", abs, abs))
-    }
-  }
-
-  return(scale_out)
 }
 
 

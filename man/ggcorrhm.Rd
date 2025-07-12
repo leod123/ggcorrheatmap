@@ -12,25 +12,24 @@ ggcorrhm(
   high = "sienna2",
   mid = "white",
   low = "skyblue2",
+  midpoint = 0,
   limits = c(-1, 1),
   bins = NULL,
-  fill_scale = NULL,
-  fill_name = NULL,
-  col_scale = NULL,
-  col_name = NULL,
-  p_values = FALSE,
-  p_adjust = "none",
-  p_thresholds = c(`***` = 0.001, `**` = 0.01, `*` = 0.05, 1),
-  mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
   layout = "full",
+  mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
   include_diag = TRUE,
   na_remove = FALSE,
   na_col = "grey",
   return_data = FALSE,
-  show_legend = NULL,
+  colr_scale = NULL,
+  colr_name = NULL,
   size_range = c(4, 10),
   size_scale = NULL,
   size_name = NULL,
+  legend_order = NULL,
+  p_values = FALSE,
+  p_adjust = "none",
+  p_thresholds = c(`***` = 0.001, `**` = 0.01, `*` = 0.05, 1),
   cell_labels = FALSE,
   cell_label_p = FALSE,
   cell_label_col = "black",
@@ -103,37 +102,20 @@ ggcorrhm(
 
 \item{low}{Colour to use for the lowest value of the colour scale.}
 
-\item{limits}{Correlation limits to plot between.}
+\item{midpoint}{Value for the middle point of the colour scale.}
+
+\item{limits}{Correlation limits to plot between. Values outside of the limits are treated as NAs.}
 
 \item{bins}{Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.}
-
-\item{fill_scale}{Scale to use for filling cells. If NULL (default), a divergent scale is constructed from the \code{high}, \code{mid}, \code{low}, \code{limits} and \code{bins} arguments.
-All these arguments are ignored if a \verb{ggplot2::scale_fill_*} function is provided instead. In mixed layouts, can also be a list
-of length two containing the two scales to use.}
-
-\item{fill_name}{String to use for the correlation fill scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.}
-
-\item{col_scale}{Scale to use for colouring text in text mode. If NULL (default), a divergent scale is constructed from the \code{high}, \code{mid}, \code{low}, \code{limits} and \code{bins} arguments.
-All these arguments are ignored if a \verb{ggplot2::scale_colour_*} function is provided instead. In mixed layouts, can also be a list
-of length two containing the two scales to use.}
-
-\item{col_name}{String to use for the correlation colour scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.}
-
-\item{p_values}{Logical indicating if p-values should be calculated. Use with \code{p_thresholds} to mark cells, and/or \code{return_data} to get the p-values in the output data.}
-
-\item{p_adjust}{String specifying the adjustment method to use for the p-values (default is "none").}
-
-\item{p_thresholds}{Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
-Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).}
-
-\item{mode}{A string specifying plotting mode. Possible values are \code{heatmap}/\code{hm} for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
-\code{text} to write the cell values instead of filling cells (colour scaling with value), and \code{none} for blank cells.}
 
 \item{layout}{String specifying the layout of the output heatmap. Possible layouts include
 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
 A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
 If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
 \code{mode} needs a vector of length two (applied in the same order as layout). See details of \code{gghm()} for more information.}
+
+\item{mode}{A string specifying plotting mode. Possible values are \code{heatmap}/\code{hm} for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
+\code{text} to write the cell values instead of filling cells (colour scaling with value), and \code{none} for blank cells.}
 
 \item{include_diag}{Logical indicating if the diagonal cells should be plotted (if the matrix is symmetric).}
 
@@ -144,9 +126,11 @@ NAs are handled in the correlation computations, use the \code{cor_use} argument
 
 \item{return_data}{Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, clustering and p-values) should be returned.}
 
-\item{show_legend}{Vector of logicals indicating which legends should be shown. Default behaviour (NULL) is to show fill or colour scales but not size scales.
-If the layout is mixed with one side using a fill scale and the other a colour scale, only the fill legend is shown. Overwrite this behaviour by providing a named
-logical vector where the names indicate which scales to show.}
+\item{colr_scale}{Scale to use for cell colours. If NULL (default), a divergent scale is constructed from the \code{high}, \code{mid}, \code{low}, \code{midpoint}, \code{limits}, and \code{bins} arguments.
+These arguments are ignored if a \verb{ggplot2::scale_*} function is provided instead. If a string, the corresponding Brewer or Viridis scale is used.
+In mixed layouts, can also be a list of length two containing the two scales to use.}
+
+\item{colr_name}{String to use for the correlation scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.}
 
 \item{size_range}{Numeric vector of length 2, specifying lower and upper ranges of shape sizes. Ignored if \code{size_scale} is not NULL.}
 
@@ -154,6 +138,16 @@ logical vector where the names indicate which scales to show.}
 The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.}
 
 \item{size_name}{String to use for the size scale legend title. Can be two values in mixed layouts for dual scales.}
+
+\item{legend_order}{Integer vector specifying the order of legends (first value is for the first legend, second for the second, etc). The default (NULL) shows all but size legends.
+NAs hide the corresponding legends, a single NA hides all. Ignored for \code{ggplot2} scale objects in \code{colr_scale} and \code{size_scale}.}
+
+\item{p_values}{Logical indicating if p-values should be calculated. Use with \code{p_thresholds} to mark cells, and/or \code{return_data} to get the p-values in the output data.}
+
+\item{p_adjust}{String specifying the adjustment method to use for the p-values (default is "none").}
+
+\item{p_thresholds}{Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
+Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).}
 
 \item{cell_labels}{Logical specifying if the cells should be labelled with the correlation values. Alternatively, a matrix or data frame with the same shape and dimnames as \code{x}
 containing values to write in the cells. If mode is \code{text}, the cell label colours will scale with the correlation values and \code{cell_label_col} is ignored.}
@@ -196,7 +190,7 @@ colour scale while factor or character columns use discrete scales.}
 \item{annot_cols_df}{Same usage as \code{annot_rows_df} but for column annotation.}
 
 \item{annot_rows_fill}{Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
-Elements can be strings or ggplot2 "Scale" class objects. If a string, it is used as the brewer palette (categorical variables) or viridis option (continuous variables).
+Elements can be strings or ggplot2 "Scale" class objects. If a string, it is used as the brewer palette or viridis option.
 If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
 specify order using the \code{guide} argument in the \code{ggplot2} scale function.}
 
@@ -294,7 +288,7 @@ if two matrices are provided they should have the same number of rows and the ro
 
 Row and column names are displayed in the diagonal by default if the correlation matrix is symmetric (only \code{x} is provided or \code{x} and \code{y} are identical).
 
-The colour scale is set to be a diverging gradient around 0, with options to change the low, mid, and high colours and the limits.
+The colour scale is set to be a diverging gradient around 0, with options to change the low, mid, and high colours, the midpoint, and the limits.
 The \code{bins} argument converts the scale to a discrete scale divided into \code{bins} equally distributed bins.
 
 The size scale, used when a numeric cell shape is specified, is set to vary the shape size between 4 and 10 (can be changed with the \code{size_range} argument)
@@ -302,7 +296,7 @@ and to transform the values to absolute values (so that both positive and negati
 This behaviour can be overwritten by setting \code{size_scale} to another \verb{ggplot2::scale_size_*} function with the desired
 arguments, or \code{ggplot2::scale_size()} for no special behaviour.
 When the absolute value transformation is used the legend for sizes loses its meaning (only displaying positive values)
-and is therefore set to not be shown in the \code{show_legend} argument.
+and is therefore set to not be shown if \code{legend_order} is NULL.
 
 For symmetric correlation matrices, the dendrogram customisation arguments \code{dend_rows_extend} and \code{dend_cols_extend} work best with functions that only change the dendrogram
 cosmetically such as the colours, linetypes or node shapes. While it is possible to reorder (using e.g. 'rotate', 'ladderize') or prune (using e.g. 'prune'),

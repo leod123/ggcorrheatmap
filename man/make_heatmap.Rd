@@ -16,16 +16,10 @@ make_heatmap(
   names_diag = T,
   names_x = F,
   names_y = F,
-  names_diag_param = NULL,
   names_x_side = "top",
   names_y_side = "left",
-  show_legend = T,
-  fill_scale = NULL,
-  fill_name = "value",
-  col_scale = NULL,
-  col_name = "value",
+  colr_scale = NULL,
   size_scale = NULL,
-  size_name = "value",
   cell_labels = F,
   cell_label_col = "black",
   cell_label_size = 3,
@@ -57,21 +51,9 @@ make_heatmap(
 
 \item{names_y}{Logical indicating if names should be displayed on the y axis.}
 
-\item{names_diag_param}{Parameters for diagonal names.}
-
 \item{names_x_side}{X axis side.}
 
 \item{names_y_side}{Y axis side.}
-
-\item{show_legend}{Logical indicating which, if any, legends should be drawn.}
-
-\item{fill_scale}{Scale for fill aesthetic.}
-
-\item{fill_name}{Name for fill aesthetic.}
-
-\item{col_scale}{Scale for colour aesthetic.}
-
-\item{col_name}{Name for colour aesthetic.}
 
 \item{size_scale}{Scale for size aesthetic.}
 
@@ -86,6 +68,14 @@ make_heatmap(
 \item{cell_bg_col}{Cell background colour (fill).}
 
 \item{cell_bg_alpha}{Cell background alpha.}
+
+\item{fill_scale}{Scale for fill aesthetic.}
+
+\item{fill_name}{Name for fill aesthetic.}
+
+\item{col_scale}{Scale for colour aesthetic.}
+
+\item{col_name}{Name for colour aesthetic.}
 }
 \value{
 ggplot object with heatmap component.

@@ -6,18 +6,22 @@
 \usage{
 gghm(
   x,
-  fill_scale = NULL,
-  fill_name = "value",
-  col_scale = NULL,
-  col_name = fill_name,
-  mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
   layout = "full",
-  include_diag = TRUE,
-  na_remove = FALSE,
-  return_data = FALSE,
-  show_legend = c(fill = TRUE, colour = TRUE, size = TRUE),
+  mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
+  colr_scale = NULL,
+  colr_name = "value",
   size_scale = NULL,
   size_name = "value",
+  legend_order = NULL,
+  include_diag = TRUE,
+  names_diag = FALSE,
+  names_diag_param = NULL,
+  names_x = TRUE,
+  names_x_side = "top",
+  names_y = TRUE,
+  names_y_side = "left",
+  na_remove = FALSE,
+  return_data = FALSE,
   cell_labels = F,
   cell_label_col = "black",
   cell_label_size = 3,
@@ -27,12 +31,6 @@ gghm(
   border_lty = 1,
   cell_bg_col = "white",
   cell_bg_alpha = 0,
-  names_diag = FALSE,
-  names_diag_param = NULL,
-  names_x = TRUE,
-  names_x_side = "top",
-  names_y = TRUE,
-  names_y_side = "left",
   annot_rows_df = NULL,
   annot_cols_df = NULL,
   annot_rows_fill = NULL,
@@ -78,40 +76,47 @@ gghm(
 \item{x}{Matrix or data frame in wide format to make a heatmap of. If rownames are present they are used for the y axis labels, otherwise the row number is used.
 If a column named \code{.names} (containing unique row identifiers) is present it will be used as rownames.}
 
-\item{fill_scale}{A \code{ggplot2} scale object for the cell fill colour scale. NULL (default) uses the \code{ggplot2} default. In mixed layouts, can also be a list
-of length two containing the two scales to use.}
-
-\item{fill_name}{String to use for the fill scale legend title. Can be two values in mixed layouts for dual scales.}
-
-\item{col_scale}{A \code{ggplot2} scale object for colour scale (Applied to text and non-filled shapes). NULL (default) uses the \code{ggplot2} default. In mixed layouts, can also be a list
-of length two containing the two scales to use.}
-
-\item{col_name}{String to use for the colour scale legend title. Can be two values in mixed layouts for dual scales.}
-
-\item{mode}{A string specifying plotting mode. Possible values are \code{heatmap}/\code{hm} for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
-\code{text} to write the cell values instead of filling cells (colour scaling with value), and \code{none} for blank cells.}
-
 \item{layout}{String specifying the layout of the output heatmap. Possible layouts include
 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
 A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
 If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
 \code{mode} needs a vector of length two (applied in the same order as layout). See details for more information.}
 
-\item{include_diag}{Logical indicating if the diagonal cells (of a symmetric matrix) should be plotted.
-Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.}
+\item{mode}{A string specifying plotting mode. Possible values are \code{heatmap}/\code{hm} for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
+\code{text} to write the cell values instead of filling cells (colour scaling with value), and \code{none} for blank cells.}
 
-\item{na_remove}{Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
-If NAs are kept, the fill colour can be set in the \code{ggplot2} scale.}
+\item{colr_scale}{Colour scale to use for cells. If NULL, the default ggplot2 scale is used. If a string, the corresponding Brewer or Viridis scales is used.
+Can also be a ggplot2 scale object.}
 
-\item{return_data}{Logical indicating if the data used for plotting and clustering results should be returned.}
-
-\item{show_legend}{Logical vector indicating if main heatmap legends (fill, colour and size) should be shown. If length 1 it is applied to all legends.
-Can be specified in an aesthetic-specific manner using a named vector like \code{c('fill' = TRUE, 'size' = FALSE)}.}
+\item{colr_name}{String to use for the colour scale legend title. Can be two values in mixed layouts for dual scales.}
 
 \item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{mode} is a number from 1 to 25 (R pch). In mixed layouts, can also be a list
 of length two containing the two scales to use.}
 
 \item{size_name}{String to use for the size scale legend title. Can be two values in mixed layouts for dual scales.}
+
+\item{legend_order}{Integer vector specifying the order of legends (first value is for the first legend, second for the second, etc). The default (NULL) shows all legends.
+NAs hide the corresponding legends, a single NA hides all. Ignored for \code{ggplot2} scale objects in \code{colr_scale} and \code{size_scale}.}
+
+\item{include_diag}{Logical indicating if the diagonal cells (of a symmetric matrix) should be plotted.
+Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.}
+
+\item{names_diag}{Logical indicating if names should be written in the diagonal cells (for symmetric input).}
+
+\item{names_diag_param}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
+
+\item{names_x}{Logical indicating if names should be written on the x axis. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
+
+\item{names_x_side}{String specifying position of the x axis names ("top" or "bottom").}
+
+\item{names_y}{Logical indicating if names should be written on the y axis.}
+
+\item{names_y_side}{String specifying position of the y axis names ("left" or "right").}
+
+\item{na_remove}{Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
+If NAs are kept, the fill colour can be set in the \code{ggplot2} scale.}
+
+\item{return_data}{Logical indicating if the data used for plotting and clustering results should be returned.}
 
 \item{cell_labels}{Logical specifying if the cells should be labelled with the values. Alternatively, a matrix or data frame with the same shape and dimnames as \code{x}
 containing values to write in the cells. If mode is \code{text}, the cell label colours will scale with the cell values and \code{cell_label_col} is ignored.}
@@ -132,18 +137,6 @@ containing values to write in the cells. If mode is \code{text}, the cell label 
 
 \item{cell_bg_alpha}{Alpha for cell colours in modes 'text' and 'none'.}
 
-\item{names_diag}{Logical indicating if names should be written in the diagonal cells (for symmetric input).}
-
-\item{names_diag_param}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
-
-\item{names_x}{Logical indicating if names should be written on the x axis. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
-
-\item{names_x_side}{String specifying position of the x axis names ("top" or "bottom").}
-
-\item{names_y}{Logical indicating if names should be written on the y axis.}
-
-\item{names_y_side}{String specifying position of the y axis names ("left" or "right").}
-
 \item{annot_rows_df}{Data frame for row annotations. The names of the columns in the data must be included,
 either as row names or in a column named \code{.names}. Each other column specifies an annotation where the column name
 will be used as the annotation name (in the legend and next to the annotation). Numeric columns will use a continuous
@@ -152,7 +145,7 @@ colour scale while factor or character columns use discrete scales.}
 \item{annot_cols_df}{Same usage as \code{annot_rows_df} but for column annotation.}
 
 \item{annot_rows_fill}{Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
-Elements can be strings or ggplot2 "Scale" class objects. If a string, it is used as the brewer palette (categorical variables) or viridis option (continuous variables).
+Elements can be strings or ggplot2 "Scale" class objects. If a string, it is used as the brewer palette or viridis option.
 If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
 specify order using the \code{guide} argument in the \code{ggplot2} scale function.}
 
@@ -264,7 +257,7 @@ is supported due to duplicate list names being possible). Each element should co
 such as the \code{what} argument used in the \code{set} function. Alternatively, \code{dendextend} functions can be provided in a functional sequence ("fseq" object)
 by piping together functions using the \verb{\%>\%} pipe. Functions modifying the labels do not work as the dendrogram labels are not displayed (they are in the axis text).
 As dendextend::as.ggdend() is used for conversion of the dendrogram, anything not supported by as.ggdend() will not work (such as "nodes_bg" or "rect.dendrogram").
-See examples and the clustering vignette for example usage.
+See examples and the clustering article for example usage.
 }
 \examples{
 library(ggplot2)
@@ -280,7 +273,8 @@ gghm(cor(mtcars), layout = "tl")
 
 # Mixed layouts
 gghm(cor(mtcars), layout = c("tr", "bl"),
-  show_legend = c(fill = TRUE, colour = FALSE))
+     # Hide one of the legends
+     legend_order = c(1, NA))
 
 # With clustering
 gghm(scale(hm_in), cluster_rows = TRUE, cluster_cols = TRUE)
@@ -300,12 +294,6 @@ annot_rows <- data.frame(.names = rownames(hm_in),
 # Specify colour scale for one of the annotations (viridis mako)
 annot_fill <- list(annot1 = "G")
 
-gghm(scale(hm_in),
-     # Change colours of heatmap
-     fill_scale = ggplot2::scale_fill_gradient(low = "beige", high = "sienna2"),
-     annot_rows_df = annot_rows, annot_rows_fill = annot_fill) +
-     # Use ggplot2::theme to adjust margins to fit the annotation labels
-     theme(plot.margin = margin(20, 10, 60, 20))
 
 # Using the dend_*_extend arguments
 gghm(scale(hm_in), cluster_rows = TRUE, dend_rows_extend =

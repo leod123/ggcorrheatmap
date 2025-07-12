@@ -20,7 +20,7 @@ test_that("basic functionality works", {
                        return_data = T))
   # More things to cover
   expect_no_error(gghm(cor(mtcars), cluster_rows = T, cluster_cols = T, layout = "br",
-                       mode = "21", show_legend = c("fill" = T, "size" = F),
+                       mode = "21", legend_order = c(1, NA),
                        names_diag_param = list(angle = -45),
                        cell_labels = T))
   expect_no_error(gghm(cor(mtcars), layout = c("tr", "bl"), mode = c("hm", "23"),
@@ -34,12 +34,15 @@ test_that("basic functionality works", {
   expect_no_error(gghm(mtcars, cell_labels = lbl2))
   # Mixed layout with multiple scales
   expect_no_error(gghm(cor(mtcars), layout = c("tr", "bl"), mode = c("hm", "hm"),
-                       fill_scale = list(
-                         ggplot2::scale_fill_gradient(high = "pink", low = "white"),
-                         ggplot2::scale_fill_viridis_c()
-                       )))
+                       colr_scale = list(
+                         ggplot2::scale_fill_gradient(high = "pink", low = "white",
+                                                      guide = ggplot2::guide_colourbar(order = 1)),
+                         "D"
+                       ), annot_rows_df = data.frame(.names = colnames(mtcars),
+                                                     a = 1:11, b = 11:1),
+                       legend_order = c(NA, 4, 1, 3)))
   expect_no_error(gghm(cor(mtcars), layout = c("tl", "br"), mode = c("19", "19"),
-                       col_scale = list(
+                       colr_scale = list(
                          ggplot2::scale_colour_gradient(high = "pink", low = "white"),
                          ggplot2::scale_colour_viridis_c()
                        ),
@@ -95,12 +98,12 @@ test_that("snapshots", {
   lbl1[sample(1:length(lbl1), 100, F)] <- 10
   vdiffr::expect_doppelganger("cell_labels_from_matrix", gghm(mtcars, cell_labels = lbl1))
   vdiffr::expect_doppelganger("mixed_scales1", gghm(cor(mtcars), layout = c("tr", "bl"), mode = c("hm", "hm"),
-                                                    fill_scale = list(
+                                                    colr_scale = list(
                                                       ggplot2::scale_fill_gradient(high = "pink", low = "white"),
-                                                      ggplot2::scale_fill_viridis_c()
+                                                      "D"
                                                     )))
   vdiffr::expect_doppelganger("mixed_scales2", gghm(cor(mtcars), layout = c("tl", "br"), mode = c("19", "19"),
-                                                    col_scale = list(
+                                                    colr_scale = list(
                                                       ggplot2::scale_colour_gradient(high = "pink", low = "white"),
                                                       ggplot2::scale_colour_viridis_c()
                                                     ),

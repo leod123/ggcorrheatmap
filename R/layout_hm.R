@@ -10,12 +10,11 @@
 #' @returns Long format data for plotting.
 #'
 layout_hm <- function(x, layout = "f", na_remove = F, include_diag = T) {
-  x <- as.matrix(x)
 
-  if (isSymmetric(x) & layout %in% c("bottomleft", "bl", "topleft", "tl")) {
+  if (isSymmetric(as.matrix(x)) & layout %in% c("bottomleft", "bl", "topleft", "tl")) {
     x_long <- remove_triangle(x, tri_remove = "upper", na_remove = na_remove)
 
-  } else if (isSymmetric(x) & layout %in% c("topright", "tr", "bottomright", "br")) {
+  } else if (isSymmetric(as.matrix(x)) & layout %in% c("topright", "tr", "bottomright", "br")) {
     x_long <- remove_triangle(x, tri_remove = "lower", na_remove = na_remove)
 
   } else {
@@ -54,7 +53,7 @@ remove_triangle <- function(x, tri_remove = "upper", na_remove = F) {
   x_out <- shape_mat_long(x, na_remove = na_remove)
 
   # Make a matrix to get the rows that should be removed
-  x_remove <- x
+  x_remove <- as.matrix(x)
   # Fill with ones (to remove any potential NAs or NaNs), add NAs
   x_remove[] <- 1
   # Keep rows to remove in the original input
