@@ -30,7 +30,6 @@
 #' @param include_diag Logical indicating if the diagonal cells should be plotted (if the matrix is symmetric).
 #' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn). This does not affect how
 #' NAs are handled in the correlation computations, use the `cor_use` argument for NA handling in correlation.
-#' @param na_col Colour to use for cells with NA.
 #' @param return_data Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, clustering and p-values) should be returned.
 #' @param legend_order Integer vector specifying the order of legends (first value is for the first legend, second for the second, etc). The default (NULL) shows all but size legends.
 #' NAs hide the corresponding legends, a single NA hides all. Ignored for `ggplot2` scale objects in `colr_scale` and `size_scale`.
@@ -106,7 +105,7 @@
 ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything",
                      high = "sienna2", mid = "white", low = "skyblue2", midpoint = 0, limits = c(-1, 1), bins = NULL,
                      layout = "full", mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
-                     include_diag = TRUE, na_remove = FALSE, na_col = "grey", return_data = FALSE,
+                     include_diag = TRUE, na_col = "grey50", na_remove = FALSE, return_data = FALSE,
                      colr_scale = NULL, colr_name = NULL,
                      size_range = c(4, 10), size_scale = NULL, size_name = NULL,
                      legend_order = NULL,
@@ -118,7 +117,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      names_x = FALSE, names_x_side = "top", names_y = FALSE, names_y_side = "left",
                      annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
                      annot_rows_side = "right", annot_cols_side = "bottom",
-                     annot_legend = TRUE, annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = TRUE,
+                     annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = TRUE,
                      annot_border_col = if (length(border_col) == 1) border_col else "grey",
                      annot_border_lwd = if (length(border_lwd) == 1) border_lwd else 0.5,
                      annot_border_lty = if (length(border_lty) == 1) border_lty else 1,
@@ -162,6 +161,14 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 
     # Get wide format correlation matrix
     cor_mat <- shape_mat_wide(dplyr::select(cor_mat, -"p_val", -"p_adj"))
+  }
+
+  # Check annotation data frames (must be done before making scales)
+  if (!is.null(annot_rows_df)) {
+    annot_rows_df <- check_annot_df(annot_rows_df, rownames(cor_mat), "annot_rows_df")
+  }
+  if (!is.null(annot_cols_df)) {
+    annot_cols_df <- check_annot_df(annot_cols_df, colnames(cor_mat), "annot_cols_df")
   }
 
   # Prepare parameters for two-length layouts (separate from what is done in gghm)
@@ -223,7 +230,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
       # If a mixed layout with different aesthetics is used and
       if (all(c("col", "fill") %in% scale_order[["main_scales"]][["scales"]]) &
           # the default or just one colour scale is used (not a scale object since it will be aesthetic-specific)
-          (all(sapply(colr_scale, is.null)) | is.character(colr_scale[[1]]))
+          (all(sapply(colr_scale, is.null)) |
+           (identical(colr_scale[[1]], colr_scale[[2]]) & is.character(colr_scale[[1]])))
       ) {
         # Hide one of the legends (col)
         scale_order[["main_scales"]][["order"]][which(scale_order[["main_scales"]][["scales"]] == "col")] <- NA
@@ -239,7 +247,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                                 high = high, mid = mid, low = low, midpoint = midpoint,
                                 size_range = size_range, na_col = na_col)
   # Annotation scales
-  annot_scales <- prepare_scales_annot(scale_order = scale_order,
+  annot_scales <- prepare_scales_annot(scale_order = scale_order, na_col = annot_na_col,
                                        annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
                                        annot_rows_col = annot_rows_fill, annot_cols_col = annot_cols_fill)
 
@@ -263,7 +271,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                   annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
                   annot_rows_fill = annot_scales[["rows"]], annot_cols_fill = annot_scales[["cols"]],
                   annot_rows_side = annot_rows_side, annot_cols_side = annot_cols_side,
-                  annot_legend = annot_legend, annot_dist = annot_dist, annot_gap = annot_gap,
+                  annot_dist = annot_dist, annot_gap = annot_gap,
                   annot_size = annot_size, annot_label = annot_label,
                   annot_border_col = annot_border_col, annot_border_lwd = annot_border_lwd, annot_border_lty = annot_border_lty,
                   annot_na_col = annot_na_col, annot_na_remove = annot_na_remove,

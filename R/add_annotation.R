@@ -15,7 +15,6 @@
 #' @param annot_border_lty Linetype of border lines of annotation cells.
 #' @param draw_legend Logical indicating if a legend should be drawn.
 #' @param draw_label Logical indicating if the annotation names should be drawn.
-#' @param na_col Colour of NA cells if not removed.
 #' @param na_remove Logical indicating if NA values should be removed.
 #' @param col_scale Named list of fill scales to use, named after the columns in the annotation data frame.
 #' Each element should either be a `scale_fill_*` object or a string specifying a brewer palette or viridis option.
@@ -27,8 +26,7 @@
 #'
 add_annotation <- function(plt, annot_dim = c("rows", "cols"), annot_df, annot_pos, annot_size,
                            annot_border_lwd = 0.5, annot_border_col = "grey", annot_border_lty = 1,
-                           draw_legend = T, draw_label = T,
-                           na_col = "grey", na_remove = F,
+                           draw_legend = T, draw_label = T, na_remove = F,
                            col_scale = NULL, legend_order = NULL, label_side, label_params = NULL) {
   .names <- .data <- NULL
 
@@ -92,11 +90,7 @@ add_annotation <- function(plt, annot_dim = c("rows", "cols"), annot_df, annot_p
 #'
 prepare_annotation <- function(annot_df, annot_defaults, annot_params, lannot_side,
                                annot_label_params, annot_label_side, data_size) {
-  # Move names to column if in row names
-  if (!".names" %in% colnames(annot_df)) {
-    annot_df[[".names"]] <- rownames(annot_df)
-    rownames(annot_df) <- NULL
-  }
+
   annot_names <- colnames(annot_df)[-which(colnames(annot_df) == ".names")]
 
   # Replace defaults with any provided options
@@ -148,3 +142,35 @@ get_annotation_pos <- function(annot_side = T, annot_names, annot_size, annot_di
   return(positions)
 }
 
+
+#' Check names of annotation
+#'
+#' @keywords internal
+#'
+#' @param annot_df Annotation data frame (annot_rows_df, annot_cols_df).
+#' @param names_in Names that exist in the data (rownames, colnames).
+#'
+#' @returns Annotation data frame (rownames moved to column named '.names' if necessary).
+#'
+check_annot_df <- function(annot_df, names_in, context) {
+
+  # Check that it's a data frame
+  if (!is.data.frame(annot_df)) {
+    cli::cli_abort("{.var {context}} must be a {.cls data.frame}, not a {.cls {class(annot_df)}}.")
+  }
+
+  # Move names to column if in row names
+  if (!".names" %in% colnames(annot_df)) {
+    annot_df[[".names"]] <- rownames(annot_df)
+    rownames(annot_df) <- NULL
+  }
+
+  # Check that annotation contains the correct names
+  if (any(!annot_df[[".names"]] %in% names_in)) {
+    bad_names <- setdiff(annot_df[[".names"]], names_in)
+    cli::cli_abort("Some names in the row annotation don't exist in the data: {.val {bad_names}}",
+                   class = "annot_names_error")
+  }
+
+  return(annot_df)
+}

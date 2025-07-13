@@ -19,6 +19,7 @@
 #' NAs hide the corresponding legends, a single NA hides all. Ignored for `ggplot2` scale objects in `colr_scale` and `size_scale`.
 #' @param include_diag Logical indicating if the diagonal cells (of a symmetric matrix) should be plotted.
 #' Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.
+#' @param na_col Colour to use for cells with NA (both main heatmap and annotation).
 #' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
 #' If NAs are kept, the fill colour can be set in the `ggplot2` scale.
 #' @param return_data Logical indicating if the data used for plotting and clustering results should be returned.
@@ -50,7 +51,6 @@
 #' @param annot_cols_fill Named list used for column annotation colour scales, used like `annot_rows_fill`.
 #' @param annot_rows_side String specifying which side row annotation should be drawn ('left' or 'l' for left, otherwise right).
 #' @param annot_cols_side String specifying which side column annotation should be drawn ('bottom', 'down', 'b', 'd' for bottom, otherwise top).
-#' @param annot_legend Logical indicating if row and column annotations should have legends.
 #' @param annot_dist Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_gap Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_size Size (width for row annotation, height for column annotation) of annotation cells compared to a heatmap cell. Used for both row and column annotation.
@@ -106,7 +106,7 @@
 #' In this case the `fill_scale` or `col_scale` arguments must be lists of length two containing the scales to use (also works for `size_scale`).
 #'
 #' The annotation parameter arguments `annot_rows_params` and `annot_cols_params` should be named lists, where the possible options correspond to
-#' the different `annot_*` arguments. The possible options are "legend" (logical, if legends should be drawn), "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
+#' the different `annot_*` arguments. The possible options are "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
 #' "size" (cell size), "label" (logical, if the annotation names should be displayed), "border_col" (colour of border) and "border_lwd" (border line width).
 #' Any unused options will use the defaults set by the `annot_*` arguments.
 #'
@@ -176,17 +176,17 @@ gghm <- function(x,
                  legend_order = NULL,
                  include_diag = TRUE, names_diag = FALSE, names_diag_param = NULL,
                  names_x = TRUE, names_x_side = "top", names_y = TRUE, names_y_side = "left",
-                 na_remove = FALSE, return_data = FALSE,
+                 na_col = "grey50", na_remove = FALSE, return_data = FALSE,
                  cell_labels = F, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
                  border_col = "grey", border_lwd = 0.5, border_lty = 1,
                  cell_bg_col = "white", cell_bg_alpha = 0,
                  annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
                  annot_rows_side = "right", annot_cols_side = "bottom",
-                 annot_legend = TRUE, annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = TRUE,
+                 annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = TRUE,
                  annot_border_col = if (length(border_col) == 1) border_col else "grey",
                  annot_border_lwd = if (length(border_lwd) == 1) border_lwd else 0.5,
                  annot_border_lty = if (length(border_lty) == 1) border_lty else 1,
-                 annot_na_col = "grey", annot_na_remove = na_remove,
+                 annot_na_col = na_col, annot_na_remove = na_remove,
                  annot_rows_params = NULL, annot_cols_params = NULL,
                  annot_rows_label_side = "bottom", annot_cols_label_side = "left",
                  annot_rows_label_params = NULL, annot_cols_label_params = NULL,
@@ -220,6 +220,14 @@ gghm <- function(x,
 
   # Check layout and mode
   layout_check <- check_layout(layout, mode)
+
+  # Check annotation data frames
+  if (!is.null(annot_rows_df)) {
+    annot_rows_df <- check_annot_df(annot_rows_df, rownames(x), "annot_rows_df")
+  }
+  if (!is.null(annot_cols_df)) {
+    annot_cols_df <- check_annot_df(annot_cols_df, colnames(x), "annot_cols_df")
+  }
 
   # Logical for full plot layout or not (mixed layout treated as full and triangular)
   full_plt <- if (length(layout) == 1) {layout %in% c("full", "f", "whole", "w")} else {TRUE}
@@ -363,9 +371,10 @@ gghm <- function(x,
     main_scales <- prepare_scales(scale_order = scale_order, context = "gghm",
                                   val_type = ifelse(is.character(x_long[["value"]]) | is.factor(x_long[["value"]]), "discrete", "continuous"),
                                   colr_scale = colr_scale, colr_name = colr_name,
-                                  size_scale = size_scale, size_name = size_name)
+                                  size_scale = size_scale, size_name = size_name,
+                                  na_col = na_col)
     # Annotation scales
-    annot_scales <- prepare_scales_annot(scale_order = scale_order,
+    annot_scales <- prepare_scales_annot(scale_order = scale_order, na_col = annot_na_col,
                                          annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
                                          annot_rows_col = annot_rows_fill, annot_cols_col = annot_cols_fill)
 
@@ -378,7 +387,7 @@ gghm <- function(x,
 
   # Annotation for rows and columns
   # Default annotation parameters
-  annot_default <- list(legend = annot_legend, dist = annot_dist, gap = annot_gap, size = annot_size,
+  annot_default <- list(dist = annot_dist, gap = annot_gap, size = annot_size,
                         label = annot_label, border_col = annot_border_col, border_lwd = annot_border_lwd,
                         border_lty = annot_border_lty, na_col = annot_na_col)
   if (is.data.frame(annot_rows_df)) {
@@ -388,13 +397,6 @@ gghm <- function(x,
                                           annot_label_side = annot_rows_label_side, data_size = ncol(x))
     annot_rows_df <- annot_rows_prep[[1]]; annot_rows_params <- annot_rows_prep[[2]];
     annot_rows_pos <- annot_rows_prep[[3]]; annot_rows_label_params <- annot_rows_prep[[4]]
-
-    # Check that names in annotation exist in the plotting data
-    if (any(!annot_rows_df[[".names"]] %in% x_long[["row"]])) {
-      bad_names <- setdiff(annot_rows_df[[".names"]], x_long[["row"]])
-      cli::cli_abort("Some names in the row annotation don't exist in the data: {.val {bad_names}}",
-                     class = "annot_names_error")
-    }
   }
 
   if (is.data.frame(annot_cols_df)) {
@@ -404,12 +406,6 @@ gghm <- function(x,
                                           annot_label_side = annot_cols_label_side, data_size = nrow(x))
     annot_cols_df <- annot_cols_prep[[1]]; annot_cols_params <- annot_cols_prep[[2]];
     annot_cols_pos <- annot_cols_prep[[3]]; annot_cols_label_params <- annot_cols_prep[[4]]
-
-    if (any(!annot_cols_df[[".names"]] %in% x_long[["col"]])) {
-      bad_names <- setdiff(annot_cols_df[[".names"]], x_long[["col"]])
-      cli::cli_abort("Some names in the column annotation don't exist in the data: {.val {bad_names}}",
-                     class = "annot_names_error")
-    }
   }
 
   # Generate dendrograms, positions depend on annotation sizes
@@ -501,7 +497,7 @@ gghm <- function(x,
                           annot_size = annot_rows_params$size, annot_border_lwd = annot_rows_params$border_lwd,
                           annot_border_col = annot_rows_params$border_col, annot_border_lty = annot_rows_params$border_lty,
                           draw_legend = annot_rows_params$legend, draw_label = annot_rows_params$label,
-                          na_col = annot_na_col, na_remove = annot_na_remove, col_scale = annot_scales[["rows"]],
+                          na_remove = annot_na_remove, col_scale = annot_scales[["rows"]],
                           legend_order = lgd_order, label_side = annot_rows_label_side, label_params = annot_rows_label_params)
   }
 
@@ -514,7 +510,7 @@ gghm <- function(x,
                           annot_size = annot_cols_params$size, annot_border_lwd = annot_cols_params$border_lwd,
                           annot_border_col = annot_cols_params$border_col, annot_border_lty = annot_cols_params$border_lty,
                           draw_legend = annot_cols_params$legend, draw_label = annot_cols_params$label,
-                          na_col = annot_na_col, na_remove = annot_na_remove, col_scale = annot_scales[["cols"]],
+                          na_remove = annot_na_remove, col_scale = annot_scales[["cols"]],
                           legend_order = lgd_order, label_side = annot_cols_label_side, label_params = annot_cols_label_params)
   }
 

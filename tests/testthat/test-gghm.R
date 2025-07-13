@@ -119,7 +119,7 @@ test_that("correct input types", {
   expect_error(gghm(1), class = "input_class_error")
 })
 
-test_that("warnings for layouts and clustering", {
+test_that("warnings and errors", {
   expect_error(gghm(cor(mtcars), mode = "nothing"), class = "nonsup_mode_error")
   expect_error(gghm(cor(mtcars), layout = "nice"), class = "nonsup_layout_error")
   expect_warning(gghm(mtcars, layout = "br"), class = "force_full_warn")
@@ -172,6 +172,10 @@ test_that("warnings for layouts and clustering", {
   expect_no_warning(gghm(cor(mtcars), layout = "bl",
                          cluster_rows = hclust(dist(cor(mtcars))),
                          cluster_cols = hclust(dist(cor(mtcars), method = "manhattan"), method = "ward.D2")))
+  # Warning for invalid colour scale when character input
+  expect_warning(gghm(mtcars, colr_scale = "ABC"), class = "invalid_colr_option_warn")
+  expect_warning(gghm(mtcars, annot_cols_df = data.frame(.names = colnames(mtcars), a = 1:11, b = 11:1),
+                      annot_cols_fill = list(a = "A", b = "ASDF")), class = "invalid_colr_option_warn")
 })
 
 test_that("annotation names must exist in the data", {

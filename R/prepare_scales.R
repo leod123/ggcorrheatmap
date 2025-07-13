@@ -167,13 +167,14 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
     } else if (is.character(input_scale) & scl != "size") {
       # If a character, check that it's a valid brewer or viridis scale and if so use that
       scl_temp <- switch(context,
-                         "gghm" = get_colour_scale(input_scale, val_type = val_type[1], aes_type = scl, leg_order = legend_order, title = scale_title),
+                         "gghm" = get_colour_scale(input_scale, val_type = val_type[1], aes_type = scl,
+                                                   leg_order = legend_order, title = scale_title, na_col = na_col),
                          "ggcorrhm" = get_colour_scale(input_scale, val_type = "continuous", aes_type = scl, title = scale_title,
-                                                       limits = limits, bins = bins, leg_order = legend_order))
+                                                       limits = limits, bins = bins, leg_order = legend_order, na_col = na_col))
       if (is.null(scl_temp)) {
         # If it didn't work, use default
         main_scales_out[[i]] <- switch(context,
-                                       "gghm" = default_scale(val_type[1], scl, legend_order, scale_title),
+                                       "gghm" = default_scale(val_type[1], scl, legend_order, scale_title, na_col),
                                        "ggcorrhm" = default_scale_corr(scl, bins, limits, size_range, high, mid, low, midpoint, na_col, legend_order, scale_title))
       } else {
         main_scales_out[[i]] <- scl_temp
@@ -182,7 +183,7 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
     } else {
       # Otherwise make the default scale
       main_scales_out[[i]] <- switch(context,
-                                     "gghm" = default_scale(val_type[1], scl, legend_order, scale_title),
+                                     "gghm" = default_scale(val_type[1], scl, legend_order, scale_title, na_col),
                                      "ggcorrhm" = default_scale_corr(scl, bins, limits, size_range, high, mid, low, midpoint, na_col, legend_order, scale_title))
 
     }
@@ -209,14 +210,15 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
 #'
 #' @returns ggplot2 scale using Brewer or Viridis.
 #'
-get_colour_scale <- function(name, val_type, aes_type, limits = NULL, bins = NULL, leg_order = 1, title = ggplot2::waiver()) {
+get_colour_scale <- function(name, val_type, aes_type, limits = NULL, bins = NULL,
+                             leg_order = 1, title = ggplot2::waiver(), na_col = "grey50") {
   # Get scale depending on type and name
   # Possible scale names (Brewer palettes, Viridis options)
   brw_pal <- c("BrBG", "PiYG", "PRGn", "PuOr", "RdBu", "RdGy", "RdYlBu", "RdYlGn",
                "Spectral", "Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1", "Set2", "Set3",
                "Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu", "PuBuGn",
                "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd")
-  vir_opt <- LETTERS[1:8]
+  vir_opt <- c(LETTERS[1:8], c("viridis", "magma", "plasma", "inferno", "cividis", "mako", "rocket", "turbo"))
 
   if (!name %in% c(brw_pal, vir_opt)) {
     cli::cli_warn("{.val {name}} is not a valid Brewer or Viridis option. Using default scale instead.",
@@ -246,10 +248,11 @@ get_colour_scale <- function(name, val_type, aes_type, limits = NULL, bins = NUL
           ggplot2::guide_colourbar(order = leg_order)
         }
       }
-    }
+    },
+    na_col
   )
   names(scl_inputs) <- c(ifelse(name %in% brw_pal, "palette", "option"),
-                         "limits", "name", "guide")
+                         "limits", "name", "guide", "na.value")
 
   # Make an option for binned continuous scales and add input argument for scale
   if (is.numeric(bins) & val_type == "continuous") {
@@ -353,7 +356,7 @@ default_scale_corr <- function(aes_type, bins = NULL, limits = c(-1, 1), size_ra
 #'
 #' @returns ggplot2 scale for non-correlation heatmaps.
 #'
-default_scale <- function(val_type, aes_type, leg_order = 1, title = ggplot2::waiver()) {
+default_scale <- function(val_type, aes_type, leg_order = 1, title = ggplot2::waiver(), na_col = "grey50") {
 
   # Use the default ggplot2 scale but set the order
   scale_fun <- switch(
@@ -382,6 +385,9 @@ default_scale <- function(val_type, aes_type, leg_order = 1, title = ggplot2::wa
       else if (val_type == "discrete") {ggplot2::guide_legend(order = leg_order)}
     }
   )
+  if (aes_type != "size") {
+    scale_args[["na.value"]] <- na_col
+  }
 
   scale_out <- do.call(scale_fun, scale_args)
 
@@ -433,7 +439,7 @@ extract_scales <- function(main_scales, scale_order, aes_type, layout) {
 #' @returns List of length two containing lists of row annotation and column annotation.
 #'
 prepare_scales_annot <- function(scale_order, annot_rows_df = NULL, annot_cols_df = NULL,
-                                 annot_rows_col = NULL, annot_cols_col = NULL) {
+                                 annot_rows_col = NULL, annot_cols_col = NULL, na_col = "grey50") {
 
   # Go through row and then column annotations and assign a scale if not provided
   disc_num <- 1
@@ -461,6 +467,9 @@ prepare_scales_annot <- function(scale_order, annot_rows_df = NULL, annot_cols_d
       lst_in[[i]][[2]] <- lst_in_new
     }
 
+    # Skip ahead if no annotations
+    if (is.null(annot_nm)) {next()}
+
     # Go through names and if no colour scale is provided, assign one
     # Increment counters depending on type to provide new colour scales (up to 8 per type, then start from beginning)
     for (j in annot_nm) {
@@ -477,7 +486,7 @@ prepare_scales_annot <- function(scale_order, annot_rows_df = NULL, annot_cols_d
 
       if (is.character(lst_in[[i]][[2]][[j]])) {
         # Input is a string, get the corresponding brewer or viridis scale
-        lst_in[[i]][[2]][[j]] <- get_colour_scale(lst_in[[i]][[2]][[j]], type, "fill", leg_order = lg_ord)
+        lst_in[[i]][[2]][[j]] <- get_colour_scale(lst_in[[i]][[2]][[j]], type, "fill", leg_order = lg_ord, na_col = na_col)
 
         # If NULL is returned, get a default
         if (is.null(lst_in[[i]][[2]][[j]])) {
@@ -491,7 +500,7 @@ prepare_scales_annot <- function(scale_order, annot_rows_df = NULL, annot_cols_d
 
           }
 
-          lst_in[[i]][[2]][[j]] <- get_colour_scale(scl_name, type, "fill", leg_order = lg_ord)
+          lst_in[[i]][[2]][[j]] <- get_colour_scale(scl_name, type, "fill", leg_order = lg_ord, na_col = na_col)
         }
       } else if (inherits(lst_in[[i]][[2]][[j]], c("Scale", "ggproto", "gg"))) {
         # Keep scale if provided
@@ -509,7 +518,7 @@ prepare_scales_annot <- function(scale_order, annot_rows_df = NULL, annot_cols_d
 
         }
 
-        lst_in[[i]][[2]][[j]] <- get_colour_scale(scl_name, type, "fill", leg_order = lg_ord)
+        lst_in[[i]][[2]][[j]] <- get_colour_scale(scl_name, type, "fill", leg_order = lg_ord, na_col = na_col)
       }
     }
 

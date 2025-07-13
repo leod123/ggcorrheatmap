@@ -9,7 +9,8 @@ prepare_scales_annot(
   annot_rows_df = NULL,
   annot_cols_df = NULL,
   annot_rows_col = NULL,
-  annot_cols_col = NULL
+  annot_cols_col = NULL,
+  na_col = "grey50"
 )
 }
 \arguments{

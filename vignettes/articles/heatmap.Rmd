@@ -33,10 +33,11 @@ ggcorrhm(mtcars)
 
 # Specifying colours
 
-The colours of the heatmap can be adjusted by passing a `ggplot2::scale_fill_*` function call to the `fill_scale` argument.
+The colours of the heatmap can be adjusted by passing a string specifying a Brewer or Viridis scale or a `ggplot2::scale_fill_*` function call to the `colr_scale` argument.
 
 ```{r, fig.alt='A heatmap of the whole mtcars data using the viridis colour scale.'}
-gghm(mtcars, fill_scale = scale_fill_viridis_c())
+# Use the Viridis D (can also be "viridis") option
+gghm(mtcars, colr_scale = "D")
 ```
 
 
@@ -45,11 +46,11 @@ gghm(mtcars, fill_scale = scale_fill_viridis_c())
 # Border colour and linewidth can be changed using the `border_col` and `border_lwd` arguments
 set.seed(123)
 gghm(replicate(15, sample(letters[1:3], 15, TRUE)),
-     fill_scale = scale_fill_brewer(palette = "Pastel2"),
-     border_col = "thistle1", border_lwd = 1)
+     colr_scale = "Pastel2", border_col = "thistle1",
+     border_lwd = 1)
 ```
 
-For `gghm()` fill, colour and size scales are shown by default. A named logical vector, where the names are the aesthetics like 'fill' and 'size', can be passed to the `show_legend` argument to hide specific legends. Just `FALSE` hides all legends (besides annotation legends). `ggcorrhm()` tries to hide some legends by default.
+For `gghm()` fill, colour and size legends are shown by default. The legend order can be changed using the `legend_order` argument. `ggcorrhm()` tries to hide some legends by default. Legends and scales are covered more in the [legends article](legends.html).
 
 # Plotting modes
 
@@ -59,7 +60,8 @@ In 'text' mode the text colour scales with the values in the cells. Instead of `
 
 ```{r, fig.alt='A heatmap of the first 15 rows of the mtcars data, where the cells have the values written inside instead of being filled. The colour of the text scales with the value.'}
 gghm(mtcars[1:15, ], mode = "text",
-     col_scale = scale_colour_viridis_c())
+     # Viridis "A" ("magma")
+     colr_scale = "A")
 ```
 
 In shape modes, 1-20 use colour scales and 21-25 use fill scales. The sizes scale with the cell values and the scale can be customised by passing `ggplot2::scale_size_*` functions to the `size_scale` argument.
@@ -68,9 +70,8 @@ For fillable shapes the border colour and linewidth can be changed using the `bo
 
 ```{r, fig.alt='A heatmap of the first 15 rows of mtcars, where the cells have been substituted for stars (R pch 8). Both the size and colour scale with the value.'}
 gghm(mtcars[1:15, ], mode = 22,
-     border_col = "yellow", border_lwd = 1,
-     # Shapes 21-25 use fill scales
-     fill_scale = scale_fill_viridis_c(),
+     border_col = "lightblue", border_lwd = 1,
+     colr_scale = "G",
      # The range argument sets the range of sizes to plot
      size_scale = scale_size_continuous(range = c(1, 7)))
 ```
@@ -89,7 +90,8 @@ Cell borders are by default grey, but can be removed by setting `border_col` (bo
 # Can either turn off labels with `names_x` and `names_y`, or use
 # ggplot2::scale_x/y_discrete to change the labels
 # (keep in mind that the y label order is reversed in the default layout and that overwriting the scale can change the label positions)
-gghm(volcano, fill_scale = scale_fill_viridis_c(), border_col = NA,
+gghm(volcano, colr_scale = "H",
+     border_col = NA, border_lwd = 0,
      names_x = FALSE, names_y = FALSE)
 ```
 
@@ -97,7 +99,7 @@ gghm(volcano, fill_scale = scale_fill_viridis_c(), border_col = NA,
 
 ```{r, fig.height=5, figh.width=10, fig.alt='Two correlation heatmaps of the mtcars data. Both use the viridis mako scale for filling cells. In the first plot the cell borders are thick, orange and dashed. In the second one, all cells where the row is "hp" are red and thick, cells wherer the column is "vs" are yellow and thick, and the rest are grey and thin. All cell borders are dashed.'}
 # Single values as input
-plt1 <- gghm(cor(mtcars), fill_scale = scale_fill_viridis_b(option = "mako"),
+plt1 <- gghm(cor(mtcars), colr_scale = "G",
              border_col = "orange", border_lwd = 1, border_lty = 2)
 
 # Two-step approach:
@@ -109,8 +111,10 @@ plt_dat <- mutate(plt_dat,
                   colr = case_when(row == "hp" ~ "red", col == "vs" ~ "yellow", TRUE ~ "grey"),
                   lwd = case_when(row == "hp" | col == "vs" ~ 1.5, TRUE ~ 0.5),
                   lty = case_when(value > 0.5 ~ 1, TRUE ~ 2))
-plt2 <- gghm(cor(mtcars), fill_scale = scale_fill_viridis_b(option = "mako"),
-             border_col = plt_dat$colr, border_lwd = plt_dat$lwd, border_lty = plt_dat$lty)
+plt2 <- gghm(cor(mtcars), colr_scale = "G",
+             border_col = plt_dat$colr,
+             border_lwd = plt_dat$lwd,
+             border_lty = plt_dat$lty)
 
 # Make one figure with both plots using the patchwork package
 plt1 + plt2
@@ -118,7 +122,7 @@ plt1 + plt2
 
 # Handling NAs
 
-NAs in the data can be removed or set to a specific colour using the `na_remove` argument or the `fill_scale`argument, respectively. Setting `na_remove` to `TRUE` removes NAs from the plot, but they can still interfere with clustering if a whole row or column is all NAs.
+NAs in the data can be removed using the `na_remove` argument or set to a specific colour using the `na_col` and `colr_scale` arguments. Setting `na_remove` to `TRUE` removes NAs from the plot, but they can still interfere with clustering if a whole row or column is all NAs.
 
 ```{r, fig.width=6.5, fig.height=5, fig.alt='Three heatmaps of the mtcars data. 100 random cells have been changed to NA. In the first plot the NA cells are grey, in the second they are white In the last plot, NA cells are removed, leaving holes with no cell borders where there are NAs.'}
 # Introduce NAs
@@ -127,13 +131,13 @@ set.seed(123)
 df_na[sample(length(df_na), 100)] <- NA
 
 # With NAs and the default colour
-na_plt1 <- gghm(df_na, show_legend = FALSE) + labs(title = "NAs default")
+na_plt1 <- gghm(df_na, legend_order = NA) + labs(title = "NAs default")
 # Colour NAs using scale function
-na_plt2 <- gghm(df_na, show_legend = FALSE, names_y = FALSE,
-                fill_scale = scale_fill_continuous(na.value = "white")) +
+na_plt2 <- gghm(df_na, legend_order = NA, names_y = FALSE,
+                na_col = "white") +
   labs(title = "Change NA colour")
 # Remove NAs, removes the border as well
-na_plt3 <- gghm(df_na, show_legend = FALSE, names_y = FALSE, na_remove = TRUE) +
+na_plt3 <- gghm(df_na, legend_order = NA, names_y = FALSE, na_remove = TRUE) +
   labs(title = "NAs removed")
 
 na_plt1 + na_plt2 + na_plt3 & theme(plot.title = element_text(hjust = 0.5))
@@ -169,10 +173,10 @@ gghm(scale(mtcars)[1:15, ], cluster_rows = TRUE,
 
 Cell labels can be displayed by using the `cell_labels` argument which takes either a logical or a matrix or data frame. If logical, the cell values are displayed. If a matrix/data frame, those values are used instead. The matrix should contain the same row and column names as the input, any rows or columns with different names or cells with NAs will be silently dropped.
 
-```{r, fig.width=10, fig.height=5}
+```{r, fig.width=10, fig.height=5, fig.alt='Two 5x5 heatmaps with cells coloured by their values, going from 2 (white) to 10 (pink). The first heatmap has the numbers written in black text in each cell, while the second one has cells with one letter each, gonig from a to y starting in the top left and moving down each column.'}
 set.seed(123)
-# Make 5x5 matrix to plot with values between 10 and 20
-plot_data <- as.matrix(replicate(5, runif(5, 10, 20)))
+# Make 5x5 matrix to plot with values between 1 and 10
+plot_data <- as.matrix(replicate(5, sample(1:10, 5, TRUE)))
 
 # Make label data with letters
 label_mat <- plot_data
@@ -180,9 +184,9 @@ label_mat[] <- letters[1:25]
 # Use a lighter scale for visibility
 fill_scl <- scale_fill_gradient(high = "pink", low = "white")
 
-plt1 <- gghm(plot_data, fill_scale = fill_scl, cell_labels = TRUE, cell_label_size = 5) +
+plt1 <- gghm(plot_data, colr_scale = fill_scl, cell_labels = TRUE, cell_label_size = 5) +
   labs(title = "Using cell values")
-plt2 <- gghm(plot_data, fill_scale = fill_scl, cell_labels = label_mat, cell_label_size = 5) +
+plt2 <- gghm(plot_data, colr_scale = fill_scl, cell_labels = label_mat, cell_label_size = 5) +
   labs(title = "Using external values")
 
 plt1 + plt2 & theme(plot.title = element_text(size = 18))
@@ -192,15 +196,15 @@ plt1 + plt2 & theme(plot.title = element_text(size = 18))
 
 As mentioned before, the 'text' mode makes cells with text that scales with cell values. If `cell_labels` is `TRUE` or a matrix/data frame, the labels will be displayed instead, meaning that user-supplied cell labels can have use colour scale (also meaning that 'text' mode with `cell_labels` being `FALSE` is the same as 'text' mode with `cell_labels` as `TRUE`).
 
-```{r, fig.width=10, fig.height=5}
-plt1 <- gghm(plot_data, cell_labels = TRUE, fill_scale = fill_scl,
+```{r, fig.width=10, fig.height=5, fig.alt='Two 5x5 heatmaps. The first one has coloured cells and a colour scale ranging from 2 (white) to 10 (pink). The values are written in the cells as blue numbers. The second heatmap has white cells, each with one letter written in pink (starting from a in the top right and going down each column, ending in y.'}
+plt1 <- gghm(plot_data, cell_labels = TRUE, colr_scale = fill_scl,
              cell_label_size = 5, cell_label_col = "#63B8FF", cell_label_digits = 4) +
   labs(title = "size, colours, decimals")
 
 # Text requires colour instead of fill scale
 col_scl <- scale_colour_gradient(high = "pink", low = "white")
 plt2 <- gghm(plot_data, cell_labels = label_mat, mode = "text",
-             col_scale = col_scl, cell_label_size = 8) +
+             colr_scale = col_scl, cell_label_size = 8) +
   labs(title = "'text' mode")
 
 plt1 + plt2 & theme(plot.title = element_text(size = 18))
@@ -215,7 +219,7 @@ As explained in the 'Cell borders' section, arguments where the values are passe
 
 ```{r, fig.width=7, fig.height=5, fig.alt='Two heatmaps of z-scores of mtcars. The colours are changed to a divergent scale going from blue to red. The first plot has had its cells labelled with numbers ranging from 1 to 5 based the cell value (1 is low, 5 is high). The second plot has asterisks in cells where the z-score is above 1 or below -1.'}
 plot_list <- gghm(scale(mtcars), return_data = TRUE, border_col = NA,
-                  fill_scale = scale_fill_gradient2(low = "deepskyblue", mid = "white", high = "salmon"))
+                  colr_scale = scale_fill_gradient2(low = "deepskyblue", mid = "white", high = "salmon"))
 
 # Add own labels based on value (also possible by supplying a matrix to cell_labels)
 plot_list$plot_data$lab <- ntile(plot_list$plot_data$value, 5)
@@ -232,7 +236,7 @@ plt2 <- plot_list$plot +
 plt1 + plt2
 ```
 
-There are many arguments, allowing for quite some flexibility in the heatmap layout. Most of the arguments are showcased in the articles, hopefully they can be of some help. They go more into making [correlation heatmaps](correlation.html), [clustering](clustering.html) and [annotation](annotation.html), and making [mixed layout heatmaps](mixed.html).
+There are many arguments, allowing for quite some flexibility in the heatmap layout. Most of the arguments are showcased in the articles, hopefully they can be of some help. They go more into making [correlation heatmaps](correlation.html), [clustering](clustering.html) and [annotation](annotation.html), making [mixed layout heatmaps](mixed.html), and ways to deal with [legends](legends.html).
 
 # Other packages
 

@@ -36,7 +36,8 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                          names_x_side = "top", names_y_side = "left",
                          colr_scale = NULL, size_scale = NULL,
                          cell_labels = F, cell_label_col = "black",
-                         cell_label_size = 3, cell_label_digits = 2, cell_bg_col = "white", cell_bg_alpha = 0) {
+                         cell_label_size = 3, cell_label_digits = 2,
+                         cell_bg_col = "white", cell_bg_alpha = 0) {
   value <- .data <- label <- NULL
 
   # Base plot

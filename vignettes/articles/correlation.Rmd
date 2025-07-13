@@ -35,19 +35,13 @@ ggcorrhm(mtcars, high = "green", low = "magenta", mid = "yellow", bins = 6)
 
 ```
 
-If complete control is needed, the `fill_scale` and `col_scale` arguments can be used to overwrite the default scale.
+If complete control is needed, the `colr_scale` argument can be used to overwrite the default scale. This can be a string specifying a Brewer or Viridis scale, or a `ggplot2` scale project.
 
 ```{r, fig.width=10, fig.height=5, fig.alt='Two correlation heatmaps of mtcars. The first one uses the Brewer "RdYlGn" palette on a continuous scale, while the second one uses the Brewer "PuOr" scale with the data put into discrete bins.'}
-plt1 <- ggcorrhm(mtcars, fill_scale =
-                   # scale_fill_distiller is convenient for using the
-                   # Brewer palettes for continuous data
-                   scale_fill_distiller(palette = "RdYlGn", limits = c(-1, 1)))
+plt1 <- ggcorrhm(mtcars, colr_scale = "RdYlGn")
 
-plt2 <- ggcorrhm(mtcars, fill_scale =
-                   # scale_fill_fermenter can make binned Brewer palettes
-                   # for continuous data
-                   scale_fill_fermenter(palette = "PuOr", limits = c(-1, 1),
-                                        breaks = seq(-1, 1, length.out = 6)))
+# Arguments like bins and limits still work with brewer and viridis scales
+plt2 <- ggcorrhm(mtcars, colr_scale = "PuOr", bins = 5)
 
 plt1 + plt2
 ```
@@ -73,7 +67,7 @@ For symmetric matrices, the axis names are drawn on the diagonal. The `names_dia
 The looks of the names displayed on the diagonal of a symmetric matrix can be adjusted with the `names_diag_params` argument, which takes a named list of parameters to pass to `ggplot2::geom_text()`. For names displayed on the x and y axes, use `ggplot2::theme()` on the generated plot object to change the appearance.
 
 ```{r, fig.width=10, fig.height=5, fig.alt='Two mtcars correlation heatmaps with the bottom left and bottom right triangles and no diagonals. In the first plot, the names on the diagonal are at a 45 degree angle and the text is magenta-coloured. The second plot has the names angled 45 degrees in the other direction apart from the names at the top and bottom which are angled at 90 and 0 degrees, respectively. The text colour is picked randomly from red, green, and blue.'}
-plt1 <- ggcorrhm(mtcars, layout = "bl", show_legend = FALSE, include_diag = FALSE,
+plt1 <- ggcorrhm(mtcars, layout = "bl", legend_order = NA, include_diag = FALSE,
                  names_diag_param = list(
                    angle = 45, vjust = 0.5, hjust = 0.5, colour = "magenta"
                  ))
@@ -94,9 +88,12 @@ plt1 + plt2
 The legend can be moved around by adding to the theme of the output plot using `ggplot2::theme()`. Use the `legend.position.inside` argument to move the legend to the plotting area to make use of the empty space of triangular layouts.
 
 ```{r legend position, fig.width=10, fig.height=5, fig.alt='Two mtcars correlation heatmaps. In the first one the legend has been moved above the heatmap and is horizontal. In the second the bottom right triangle is drawn and the legend is placed in the empty space where the top left triangle would be drawn.'}
-plt1 <- ggcorrhm(mtcars) + theme(legend.position = "top", legend.title = element_text(vjust = 0.8))
+plt1 <- ggcorrhm(mtcars) +
+  theme(legend.position = "top",
+        legend.title = element_text(vjust = 0.8))
 plt2 <- ggcorrhm(mtcars, layout = "br") +
-  theme(legend.position = "inside", legend.position.inside = c(0.3, 0.75))
+  theme(legend.position = "inside",
+        legend.position.inside = c(0.3, 0.75))
 
 plt1 + plt2
 ```
@@ -111,8 +108,11 @@ set.seed(123)
 row_annot <- data.frame(.names = colnames(mtcars),
                         annot1 = sample(letters[1:3], ncol(mtcars), TRUE),
                         annot2 = rnorm(ncol(mtcars)))
-ggcorrhm(mtcars, layout = "tl", cluster_rows = TRUE, cluster_cols = TRUE,
-         dend_rows = FALSE, annot_rows_df = row_annot, annot_rows_label_side = "top")
+ggcorrhm(mtcars, layout = "tl",
+         cluster_rows = TRUE, cluster_cols = TRUE,
+         dend_rows = FALSE,
+         annot_rows_df = row_annot,
+         annot_rows_label_side = "top")
 ```
 
 # Cell text
@@ -126,10 +126,11 @@ lab_mat <- matrix(1:121, nrow = 11, ncol = 11, byrow = TRUE,
 
 plt_list <- lapply(c("tl", "tr", "bl", "br"), function(lt) {
   # Play a bit with the legend for the last plot
-  show_legend <- if (lt == "br") c(fill = TRUE, colour = FALSE) else FALSE
-  ggcorrhm(mtcars, layout = lt, show_legend = show_legend,
+  legend_order <- if (lt == "br") 1 else NA
+  ggcorrhm(mtcars, layout = lt, legend_order = legend_order,
            cell_labels = lab_mat, names_diag = FALSE) +
-    theme(legend.position = "inside", legend.position.inside = c(0.025, 1.075))
+    theme(legend.position = "inside",
+          legend.position.inside = c(0.025, 1.075))
 })
 
 wrap_plots(plt_list)
@@ -138,7 +139,7 @@ wrap_plots(plt_list)
 
 # Cell shape
 
-Correlation heatmaps are sometimes plotted with circles. Passing a value from 1 to 25 to the `mode` argument allows for different cell shapes. Shapes 21-25 support filling and use fill scales (the `fill_scale` argument). 1-20 are not filled and use colour scales (the `col_scale` argument). The shape size is set to vary between the values in the `size_range` argument (not found in `gghm()`), scaling with the absolute value of the correlation. `size_scale` can be provided to overwrite this behaviour. The size legend is hidden by default when using `ggcorrhm()` as it would only show the absolute values of the correlations (but the legend can be shown with the `show_legend` argument if necessary).
+Correlation heatmaps are sometimes plotted with circles. Passing a value from 1 to 25 to the `mode` argument allows for different cell shapes. Shapes 21-25 support filling and use fill scales while 1-20 are not filled and use colour scales (relevant if a scale object is passed). The shape size is set to vary between the values in the `size_range` argument (not found in `gghm()`), scaling with the absolute value of the correlation. `size_scale` can be provided to overwrite this behaviour. The size legend is hidden by default when using `ggcorrhm()` as it would only show the absolute values of the correlations (but the legend can be shown with the `legend_order` argument if necessary).
 
 Setting `mode` to 'text' writes the values in empty cells, with the text colour scaling with the correlation values.
 

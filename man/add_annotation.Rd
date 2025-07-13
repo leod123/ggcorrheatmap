@@ -15,7 +15,6 @@ add_annotation(
   annot_border_lty = 1,
   draw_legend = T,
   draw_label = T,
-  na_col = "grey",
   na_remove = F,
   col_scale = NULL,
   legend_order = NULL,
@@ -46,8 +45,6 @@ Positions are given by the middle coordinate of the annotation cells.}
 \item{draw_legend}{Logical indicating if a legend should be drawn.}
 
 \item{draw_label}{Logical indicating if the annotation names should be drawn.}
-
-\item{na_col}{Colour of NA cells if not removed.}
 
 \item{na_remove}{Logical indicating if NA values should be removed.}
 

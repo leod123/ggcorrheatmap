@@ -20,6 +20,7 @@ gghm(
   names_x_side = "top",
   names_y = TRUE,
   names_y_side = "left",
+  na_col = "grey50",
   na_remove = FALSE,
   return_data = FALSE,
   cell_labels = F,
@@ -37,7 +38,6 @@ gghm(
   annot_cols_fill = NULL,
   annot_rows_side = "right",
   annot_cols_side = "bottom",
-  annot_legend = TRUE,
   annot_dist = 0.2,
   annot_gap = 0,
   annot_size = 0.5,
@@ -45,7 +45,7 @@ gghm(
   annot_border_col = if (length(border_col) == 1) border_col else "grey",
   annot_border_lwd = if (length(border_lwd) == 1) border_lwd else 0.5,
   annot_border_lty = if (length(border_lty) == 1) border_lty else 1,
-  annot_na_col = "grey",
+  annot_na_col = na_col,
   annot_na_remove = na_remove,
   annot_rows_params = NULL,
   annot_cols_params = NULL,
@@ -113,6 +113,8 @@ Mostly only useful for getting a cleaner look with symmetric correlation matrice
 
 \item{names_y_side}{String specifying position of the y axis names ("left" or "right").}
 
+\item{na_col}{Colour to use for cells with NA (both main heatmap and annotation).}
+
 \item{na_remove}{Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
 If NAs are kept, the fill colour can be set in the \code{ggplot2} scale.}
 
@@ -154,8 +156,6 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 \item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' or 'l' for left, otherwise right).}
 
 \item{annot_cols_side}{String specifying which side column annotation should be drawn ('bottom', 'down', 'b', 'd' for bottom, otherwise top).}
-
-\item{annot_legend}{Logical indicating if row and column annotations should have legends.}
 
 \item{annot_dist}{Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.}
 
@@ -244,7 +244,7 @@ It is also possible to provide two scales for filling or colouring if the two tr
 In this case the \code{fill_scale} or \code{col_scale} arguments must be lists of length two containing the scales to use (also works for \code{size_scale}).
 
 The annotation parameter arguments \code{annot_rows_params} and \code{annot_cols_params} should be named lists, where the possible options correspond to
-the different \verb{annot_*} arguments. The possible options are "legend" (logical, if legends should be drawn), "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
+the different \verb{annot_*} arguments. The possible options are "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
 "size" (cell size), "label" (logical, if the annotation names should be displayed), "border_col" (colour of border) and "border_lwd" (border line width).
 Any unused options will use the defaults set by the \verb{annot_*} arguments.
 

@@ -11,7 +11,8 @@ get_colour_scale(
   limits = NULL,
   bins = NULL,
   leg_order = 1,
-  title = ggplot2::waiver()
+  title = ggplot2::waiver(),
+  na_col = "grey50"
 )
 }
 \arguments{

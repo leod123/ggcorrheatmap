@@ -18,8 +18,8 @@ ggcorrhm(
   layout = "full",
   mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
   include_diag = TRUE,
+  na_col = "grey50",
   na_remove = FALSE,
-  na_col = "grey",
   return_data = FALSE,
   colr_scale = NULL,
   colr_name = NULL,
@@ -52,7 +52,6 @@ ggcorrhm(
   annot_cols_fill = NULL,
   annot_rows_side = "right",
   annot_cols_side = "bottom",
-  annot_legend = TRUE,
   annot_dist = 0.2,
   annot_gap = 0,
   annot_size = 0.5,
@@ -119,10 +118,10 @@ If layout is of length two with two opposing triangles, a mixed layout will be u
 
 \item{include_diag}{Logical indicating if the diagonal cells should be plotted (if the matrix is symmetric).}
 
+\item{na_col}{Colour to use for cells with NA (both main heatmap and annotation).}
+
 \item{na_remove}{Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn). This does not affect how
 NAs are handled in the correlation computations, use the \code{cor_use} argument for NA handling in correlation.}
-
-\item{na_col}{Colour to use for cells with NA.}
 
 \item{return_data}{Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, clustering and p-values) should be returned.}
 
@@ -199,8 +198,6 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 \item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' or 'l' for left, otherwise right).}
 
 \item{annot_cols_side}{String specifying which side column annotation should be drawn ('bottom', 'down', 'b', 'd' for bottom, otherwise top).}
-
-\item{annot_legend}{Logical indicating if row and column annotations should have legends.}
 
 \item{annot_dist}{Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.}
 

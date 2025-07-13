@@ -14,14 +14,16 @@ test_that("user-supplied scales", {
   # Change default scale using high, mid, low, etc
   expect_no_error(ggcorrhm(mtcars, high = "pink", mid = "white", low = "lightblue",
                            limits = c(-.7, .7), bins = 6))
+  # Also for colour scales
+  expect_no_error(ggcorrhm(mtcars, high = "pink", mid = "white", low = "lightblue",
+                           limits = c(-.7, .7), bins = 6, mode = "text"))
   # Use a Brewer or Viridis scale
   expect_no_error(ggcorrhm(mtcars, colr_scale = "G"))
+  expect_no_error(ggcorrhm(mtcars, mode = "19", colr_scale = "RdYlGn", bins = 5))
   expect_no_error(ggcorrhm(mtcars, high = "pink", mid = "white", low = "lightblue",
                            colr_scale = "RdBu"))
   # Give a scale object
   expect_no_error(ggcorrhm(mtcars, colr_scale = ggplot2::scale_fill_distiller(palette = "RdBu")))
-  expect_no_error(ggcorrhm(mtcars, mode = "19",
-                           colr_scale = "RdYlGn"))
   # One scale for two triangles
   expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "hm"),
                            colr_scale = "Purples"))

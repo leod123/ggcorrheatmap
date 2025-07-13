@@ -4,7 +4,13 @@
 \alias{default_scale}
 \title{Get default scale for non-correlation heatmaps.}
 \usage{
-default_scale(val_type, aes_type, leg_order = 1, title = ggplot2::waiver())
+default_scale(
+  val_type,
+  aes_type,
+  leg_order = 1,
+  title = ggplot2::waiver(),
+  na_col = "grey50"
+)
 }
 \arguments{
 \item{val_type}{Value type ('continuous' or 'discrete').}
