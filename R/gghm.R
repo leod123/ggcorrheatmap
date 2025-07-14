@@ -102,8 +102,9 @@
 #' `cell_labels` can also be specified per triangle, either as a logical vector of length two, or a list of length two containing a mix of
 #' logicals and matrices/data frames.
 #'
-#' It is also possible to provide two scales for filling or colouring if the two triangles are coloured by the same aesthetic.
-#' In this case the `fill_scale` or `col_scale` arguments must be lists of length two containing the scales to use (also works for `size_scale`).
+#' It is also possible to provide two scales for filling or colouring the triangles differently.
+#' In this case the `colr_scale` must be one character value (scale used for both triangles) or NULL or a list of length two
+# containing the scales to use (character or scale object, or NULL for default). `size_scale` works in the same way (but takes no character values).
 #'
 #' The annotation parameter arguments `annot_rows_params` and `annot_cols_params` should be named lists, where the possible options correspond to
 #' the different `annot_*` arguments. The possible options are "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
@@ -635,9 +636,12 @@ prepare_mixed_param <- function(param, param_name) {
     param_out <- list(param, param)
 
   } else if (length(param) != 2) {
-    msg <- if (grepl("_scale$", param_name)) {
-      "In a mixed layout, {.var {param_name}} must be either one scale (used for all),
-       or a list with up to two scales (NULL results in default). See the details of 'gghm' for more on usage."
+    msg <- if (param_name == "colr_scale") {
+      "In a mixed layout, {.var {param_name}} must be either one character specifying a scale (used for all),
+       or a list with up to two scales (character, scale object or NULL). See the details of 'gghm' for more on usage."
+    } else if (param_name == "size_scale") {
+      "In a mixed layout, {.var {param_name}} must be either NULL (use default),
+       or a list with up to two scales (scale object or NULL). See the details of 'gghm' for more on usage."
     } else {
       "In a mixed layout, {.var {param_name}} must be either one (used for all) or two (used for each triangle) values,
                           or a list of length two with a vector for each triangle. See the details of 'gghm' for more on usage."
