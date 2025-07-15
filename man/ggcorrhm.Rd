@@ -9,6 +9,7 @@ ggcorrhm(
   y = NULL,
   cor_method = "pearson",
   cor_use = "everything",
+  cor_in = FALSE,
   high = "sienna2",
   mid = "white",
   low = "skyblue2",
@@ -95,6 +96,8 @@ ggcorrhm(
 
 \item{cor_use}{String specifying the \code{use} argument of \code{stats::cor()}, which defines how to deal with missing values. Default is 'everything'.}
 
+\item{cor_in}{Logical indicating if the input data contains correlation values and any correlation computations (including p-values) should be skipped. Default is FALSE.}
+
 \item{high}{Colour to use for the highest value of the colour scale.}
 
 \item{mid}{Colour to use for 0 in the colour scale.}
@@ -103,9 +106,10 @@ ggcorrhm(
 
 \item{midpoint}{Value for the middle point of the colour scale.}
 
-\item{limits}{Correlation limits to plot between. Values outside of the limits are treated as NAs.}
+\item{limits}{Length two numeric vector for the limits of the colour scale. NULL uses the default.}
 
-\item{bins}{Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.}
+\item{bins}{Number of bins to divide the scale into (if continuous values). A 'double' class value uses 'nice.breaks' to put the breaks at nice numbers which may not result
+in the specified number of bins. If an integer the number of bins will be prioritised.}
 
 \item{layout}{String specifying the layout of the output heatmap. Possible layouts include
 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).

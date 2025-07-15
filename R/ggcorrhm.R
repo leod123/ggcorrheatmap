@@ -8,12 +8,11 @@
 #' @param y Optional matrix or data frame in wide format containing columns to correlate with the columns in `x`.
 #' @param cor_method String specifying correlation method to use in the `stats::cor()` function. Default is 'pearson'.
 #' @param cor_use String specifying the `use` argument of `stats::cor()`, which defines how to deal with missing values. Default is 'everything'.
+#' @param cor_in Logical indicating if the input data contains correlation values and any correlation computations (including p-values) should be skipped. Default is FALSE.
 #' @param high Colour to use for the highest value of the colour scale.
 #' @param mid Colour to use for 0 in the colour scale.
 #' @param low Colour to use for the lowest value of the colour scale.
 #' @param midpoint Value for the middle point of the colour scale.
-#' @param limits Correlation limits to plot between. Values outside of the limits are treated as NAs.
-#' @param bins Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.
 #' @param colr_scale Scale to use for cell colours. If NULL (default), a divergent scale is constructed from the `high`, `mid`, `low`, `midpoint`, `limits`, and `bins` arguments.
 #' These arguments are ignored if a `ggplot2::scale_*` function is provided instead. If a string, the corresponding Brewer or Viridis scale is used.
 #' In mixed layouts, can also be a list of length two containing the two scales to use.
@@ -102,7 +101,7 @@
 #'                     annot1 = rnorm(ncol(mtcars)),
 #'                     annot2 = sample(letters[1:3], ncol(mtcars), TRUE))
 #' ggcorrhm(mtcars, layout = "tr", annot_cols_df = annot)
-ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything",
+ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything", cor_in = FALSE,
                      high = "sienna2", mid = "white", low = "skyblue2", midpoint = 0, limits = c(-1, 1), bins = NULL,
                      layout = "full", mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
                      include_diag = TRUE, na_col = "grey50", na_remove = FALSE, return_data = FALSE,
@@ -140,27 +139,36 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
     if (any(duplicated(names(p_thresholds)))) cli::cli_abort("Symbols (the names) of {.var p_thresholds} must be unique.", class = "p_thr_error")
   }
 
-  cor_mat <- if (is.null(y)) {
-    cor(x, method = cor_method, use = cor_use)
-  } else {
-    cor(x, y, method = cor_method, use = cor_use)
-  }
+  # Skip correlation (and p-value) computation if cor_in is TRUE
+  if (isTRUE(cor_in)) {
+    cor_mat <- x
+    cor_mat_dat <- NULL
+    p_values <- F
+    cell_label_p <- F
 
-  # Placeholder for p-value data that may be replaced
-  cor_mat_dat <- NULL
-  if (!any(unlist(p_values))) {
-    if (is.null(y)) {
-      cor_mat <- cor(x, method = cor_method, use = cor_use)
+  } else {
+    cor_mat <- if (is.null(y)) {
+      cor(x, method = cor_method, use = cor_use)
     } else {
-      cor_mat <- cor(x, y, method = cor_method, use = cor_use)
+      cor(x, y, method = cor_method, use = cor_use)
     }
-  } else {
-    cor_mat <- test_cor(x, y, method = cor_method, use = cor_use, p_adj_method = p_adjust)
-    # Keep the data for later plotting
-    cor_mat_dat <- cor_mat
 
-    # Get wide format correlation matrix
-    cor_mat <- shape_mat_wide(dplyr::select(cor_mat, -"p_val", -"p_adj"))
+    # Placeholder for p-value data that may be replaced
+    cor_mat_dat <- NULL
+    if (!any(unlist(p_values))) {
+      if (is.null(y)) {
+        cor_mat <- cor(x, method = cor_method, use = cor_use)
+      } else {
+        cor_mat <- cor(x, y, method = cor_method, use = cor_use)
+      }
+    } else {
+      cor_mat <- test_cor(x, y, method = cor_method, use = cor_use, p_adj_method = p_adjust)
+      # Keep the data for later plotting
+      cor_mat_dat <- cor_mat
+
+      # Get wide format correlation matrix
+      cor_mat <- shape_mat_wide(dplyr::select(cor_mat, -"p_val", -"p_adj"))
+    }
   }
 
   # Check annotation data frames (must be done before making scales)
