@@ -152,7 +152,7 @@ ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "hm"),
            NULL,
            # Give a scale object to not be affected by the default scale arguments
            scale_fill_distiller(palette = "PRGn", limits = c(-1, 1))
-         ), bins = 5, high = "pink", mid = "beige", low = "lightblue")
+         ), bins = 5L, high = "pink", mid = "beige", low = "lightblue")
 ```
 
 
