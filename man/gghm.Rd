@@ -10,6 +10,8 @@ gghm(
   mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
   colr_scale = NULL,
   colr_name = "value",
+  limits = NULL,
+  bins = NULL,
   size_scale = NULL,
   size_name = "value",
   legend_order = NULL,
@@ -89,6 +91,11 @@ If layout is of length two with two opposing triangles, a mixed layout will be u
 Can also be a ggplot2 scale object.}
 
 \item{colr_name}{String to use for the colour scale legend title. Can be two values in mixed layouts for dual scales.}
+
+\item{limits}{Length two numeric vector for the limits of the colour scale. NULL uses the default.}
+
+\item{bins}{Number of bins to divide the scale into (if continuous values). A 'double' class value uses 'nice.breaks' to put the breaks at nice numbers which may not result
+in the specified number of bins. If an integer the number of bins will be prioritised.}
 
 \item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{mode} is a number from 1 to 25 (R pch). In mixed layouts, can also be a list
 of length two containing the two scales to use.}
@@ -240,8 +247,8 @@ or lists of length two, each element containing one value (apply to whole triang
 \code{cell_labels} can also be specified per triangle, either as a logical vector of length two, or a list of length two containing a mix of
 logicals and matrices/data frames.
 
-It is also possible to provide two scales for filling or colouring if the two triangles are coloured by the same aesthetic.
-In this case the \code{fill_scale} or \code{col_scale} arguments must be lists of length two containing the scales to use (also works for \code{size_scale}).
+It is also possible to provide two scales for filling or colouring the triangles differently.
+In this case the \code{colr_scale} must be one character value (scale used for both triangles) or NULL or a list of length two
 
 The annotation parameter arguments \code{annot_rows_params} and \code{annot_cols_params} should be named lists, where the possible options correspond to
 the different \verb{annot_*} arguments. The possible options are "dist" (distance between heatmap and annotation), "gap" (distance between annotations),

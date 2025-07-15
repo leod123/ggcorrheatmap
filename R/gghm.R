@@ -12,6 +12,9 @@
 #' @param colr_scale Colour scale to use for cells. If NULL, the default ggplot2 scale is used. If a string, the corresponding Brewer or Viridis scales is used.
 #' Can also be a ggplot2 scale object.
 #' @param colr_name String to use for the colour scale legend title. Can be two values in mixed layouts for dual scales.
+#' @param limits Numeric vector of length two for the limits of the colour scale. NULL uses the default.
+#' @param bins Number of bins to divide the scale into (if continuous values). A 'double' class value uses 'nice.breaks' to put the breaks at nice numbers which may not result
+#' in the specified number of bins. If an integer the number of bins will be prioritised.
 #' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `mode` is a number from 1 to 25 (R pch). In mixed layouts, can also be a list
 #' of length two containing the two scales to use.
 #' @param size_name String to use for the size scale legend title. Can be two values in mixed layouts for dual scales.
@@ -172,7 +175,7 @@
 gghm <- function(x,
                  layout = "full",
                  mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
-                 colr_scale = NULL, colr_name = "value",
+                 colr_scale = NULL, colr_name = "value", limits = NULL, bins = NULL,
                  size_scale = NULL, size_name = "value",
                  legend_order = NULL,
                  include_diag = TRUE, names_diag = FALSE, names_diag_param = NULL,
@@ -265,7 +268,7 @@ gghm <- function(x,
   # To allow for providing a hclust or dendrogram object when clustering, make a separate logical clustering variable
   lclust_rows <- F
   if (!isFALSE(cluster_rows)) {
-    row_clustering <- cluster_dimension(cluster_rows, x, cluster_distance, cluster_method, dend_rows_extend)
+    row_clustering <- cluster_data(cluster_rows, x, cluster_distance, cluster_method, dend_rows_extend)
 
     # Reorder matrix to fit clustering
     x <- x[row_clustering$dendro$labels$label, ]
@@ -274,7 +277,7 @@ gghm <- function(x,
 
   lclust_cols <- F
   if (!isFALSE(cluster_cols)) {
-    col_clustering <- cluster_dimension(cluster_cols, t(x), cluster_distance, cluster_method, dend_cols_extend)
+    col_clustering <- cluster_data(cluster_cols, t(x), cluster_distance, cluster_method, dend_cols_extend)
 
     # Reorder matrix to fit clustering
     x <- x[, col_clustering$dendro$labels$label]
@@ -373,7 +376,7 @@ gghm <- function(x,
                                   val_type = ifelse(is.character(x_long[["value"]]) | is.factor(x_long[["value"]]), "discrete", "continuous"),
                                   colr_scale = colr_scale, colr_name = colr_name,
                                   size_scale = size_scale, size_name = size_name,
-                                  na_col = na_col)
+                                  na_col = na_col, limits = limits, bins = bins)
     # Annotation scales
     annot_scales <- prepare_scales_annot(scale_order = scale_order, na_col = annot_na_col,
                                          annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,

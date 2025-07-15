@@ -166,15 +166,13 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
 
     } else if (is.character(input_scale) & scl != "size") {
       # If a character, check that it's a valid brewer or viridis scale and if so use that
-      scl_temp <- switch(context,
-                         "gghm" = get_colour_scale(input_scale, val_type = val_type[1], aes_type = scl,
-                                                   leg_order = legend_order, title = scale_title, na_col = na_col),
-                         "ggcorrhm" = get_colour_scale(input_scale, val_type = "continuous", aes_type = scl, title = scale_title,
-                                                       limits = limits, bins = bins, leg_order = legend_order, na_col = na_col))
+      scl_temp <- get_colour_scale(input_scale, val_type = val_type[1], aes_type = scl, title = scale_title,
+                                   limits = limits, bins = bins, leg_order = legend_order, na_col = na_col)
+
       if (is.null(scl_temp)) {
         # If it didn't work, use default
         main_scales_out[[i]] <- switch(context,
-                                       "gghm" = default_scale(val_type[1], scl, legend_order, scale_title, na_col),
+                                       "gghm" = default_scale(val_type[1], scl, legend_order, scale_title, na_col, bins, limits),
                                        "ggcorrhm" = default_scale_corr(scl, bins, limits, size_range, high, mid, low, midpoint, na_col, legend_order, scale_title))
       } else {
         main_scales_out[[i]] <- scl_temp
@@ -183,7 +181,7 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
     } else {
       # Otherwise make the default scale
       main_scales_out[[i]] <- switch(context,
-                                     "gghm" = default_scale(val_type[1], scl, legend_order, scale_title, na_col),
+                                     "gghm" = default_scale(val_type[1], scl, legend_order, scale_title, na_col, bins, limits),
                                      "ggcorrhm" = default_scale_corr(scl, bins, limits, size_range, high, mid, low, midpoint, na_col, legend_order, scale_title))
 
     }
@@ -257,7 +255,7 @@ get_colour_scale <- function(name, val_type, aes_type, limits = NULL, bins = NUL
   # Make an option for binned continuous scales and add input argument for scale
   if (is.numeric(bins) & val_type == "continuous") {
     aes_type <- paste0(aes_type, "_bin")
-    scl_inputs[["breaks"]] <- seq(limits[1], limits[2], length.out = bins + 1)
+    scl_inputs <- append(scl_inputs, list(n.breaks = bins - 1, nice.breaks = ifelse(is.integer(bins), F, T)))
   }
 
   scl_fun <- if (name %in% brw_pal) {
@@ -314,32 +312,30 @@ get_colour_scale <- function(name, val_type, aes_type, limits = NULL, bins = NUL
 default_scale_corr <- function(aes_type, bins = NULL, limits = c(-1, 1), size_range = NULL,
                                high = "sienna2", mid = "white", low = "skyblue2", midpoint = 0,
                                na_col = "grey50", leg_order = 1, title = ggplot2::waiver()) {
-  scale_out <- if (aes_type == "fill") {
-    if (!is.null(bins)) {
-      ggplot2::scale_fill_steps2(limits = limits, high = high, mid = mid, low = low, midpoint = midpoint,
-                                 na.value = na_col, name = title, breaks = seq(limits[1], limits[2], length.out = bins + 1),
-                                 guide = if (is.na(leg_order)) "none" else ggplot2::guide_colourbar(order = leg_order))
+
+  if (aes_type == "size") {
+    guide_arg <- if (is.na(leg_order)) {"none"} else {ggplot2::guide_legend(order = leg_order)}
+    scale_args <- list(range = size_range, transform = scales::trans_new("abs", abs, abs),
+                       guide = guide_arg, name = title)
+    scale_fun <- ggplot2::scale_size_continuous
+
+  } else {
+    guide_arg <- if (is.na(leg_order)) {"none"} else {ggplot2::guide_colourbar(order = leg_order)}
+    scale_args <- list(limits = limits, high = high, mid = mid, low = low, midpoint = midpoint,
+                       na.value = na_col, name = title, guide = guide_arg)
+    if (is.numeric(bins)) {
+      scale_args <- append(scale_args, list(n.breaks = bins - 1, nice.breaks = ifelse(is.integer(bins), F, T)))
+      scale_fun <- switch(aes_type,
+                          "fill" = ggplot2::scale_fill_steps2,
+                          "col" = ggplot2::scale_colour_steps2)
     } else {
-      ggplot2::scale_fill_gradient2(limits = limits, high = high, mid = mid, low = low, midpoint = midpoint,
-                                    na.value = na_col, name = title,
-                                    guide = if (is.na(leg_order)) "none" else ggplot2::guide_colourbar(order = leg_order))
+      scale_fun <- switch(aes_type,
+                          "fill" = ggplot2::scale_fill_gradient2,
+                          "col" = ggplot2::scale_colour_gradient2)
     }
-  } else if (aes_type == "col") {
-    if (!is.null(bins)) {
-      ggplot2::scale_colour_steps2(limits = limits, high = high, mid = mid, low = low, midpoint = midpoint,
-                                   na.value = na_col, name = title, breaks = seq(limits[1], limits[2], length.out = bins + 1),
-                                   guide = if (is.na(leg_order)) "none" else ggplot2::guide_colourbar(order = leg_order))
-    } else {
-      ggplot2::scale_colour_gradient2(limits = limits, high = high, mid = mid, low = low, midpoint = midpoint,
-                                      na.value = na_col, name = title,
-                                      guide = if (is.na(leg_order)) "none" else ggplot2::guide_colourbar(order = leg_order))
-    }
-  } else if (aes_type == "size") {
-    ggplot2::scale_size_continuous(range = size_range, name = title,
-                                   # Add transform for absolute value
-                                   transform = scales::trans_new("abs", abs, abs),
-                                   guide = if (is.na(leg_order)) "none" else ggplot2::guide_legend(order = leg_order))
   }
+
+  scale_out <- do.call(scale_fun, scale_args)
 
   return(scale_out)
 }
@@ -356,7 +352,12 @@ default_scale_corr <- function(aes_type, bins = NULL, limits = c(-1, 1), size_ra
 #'
 #' @returns ggplot2 scale for non-correlation heatmaps.
 #'
-default_scale <- function(val_type, aes_type, leg_order = 1, title = ggplot2::waiver(), na_col = "grey50") {
+default_scale <- function(val_type, aes_type, leg_order = 1, title = ggplot2::waiver(),
+                          na_col = "grey50", bins = NULL, limits = NULL) {
+
+  if (is.numeric(bins) & aes_type != "size" & val_type == "continuous") {
+    aes_type <- paste0(aes_type, "_bins")
+  }
 
   # Use the default ggplot2 scale but set the order
   scale_fun <- switch(
@@ -365,7 +366,9 @@ default_scale <- function(val_type, aes_type, leg_order = 1, title = ggplot2::wa
       aes_type,
       "fill" = ggplot2::scale_fill_continuous,
       "col" = ggplot2::scale_colour_continuous,
-      "size" = ggplot2::scale_size_continuous
+      "size" = ggplot2::scale_size_continuous,
+      "fill_bins" = ggplot2::scale_fill_binned,
+      "col_bins" = ggplot2::scale_colour_binned
     ),
     "discrete" = switch(
       aes_type,
@@ -386,7 +389,18 @@ default_scale <- function(val_type, aes_type, leg_order = 1, title = ggplot2::wa
     }
   )
   if (aes_type != "size") {
+    # Add NA colour if not a size scale
     scale_args[["na.value"]] <- na_col
+
+    if (val_type == "continuous") {
+      # Add limits if not discrete
+      scale_args[["limits"]] <- limits
+
+      if (grepl("_bins", aes_type)) {
+        # Finally add bins if binned
+        scale_args <- append(scale_args, list(n.breaks = bins - 1, nice.breaks = ifelse(is.integer(bins), F, T)))
+      }
+    }
   }
 
   scale_out <- do.call(scale_fun, scale_args)
