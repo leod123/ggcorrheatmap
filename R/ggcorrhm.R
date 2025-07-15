@@ -205,7 +205,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 
   # Don't display names on the diagonal if the plot is non-symmetric as it will cause
   # new ghost columns to be added to draw the names where row == col
-  if (!isSymmetric(cor_mat)) {
+  if (!isSymmetric(as.matrix(cor_mat))) {
     names_diag <- F
     # Also display x and y names by default, but remove if specified as FALSE (when specified as a named argument)
     names_x <- eval(replace_default(list("names_x" = T), as.list(sys.call()))$names_x)

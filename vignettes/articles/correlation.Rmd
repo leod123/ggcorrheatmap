@@ -28,10 +28,10 @@ ggcorrhm(iris[1:nrow(mtcars), -5], mtcars)
 
 # Changing the colours
 
-`ggcorrhm()` sets the fill scale to use `ggplot2::scale_fill_gradient2()` with limits set to [-1, 1]. Unique to `ggcorrhm()` are the arguments `high`, `mid`, `low`, `limits`, and `bins` to control the legend colours. `bins` creates a binned scale (using `ggplot2::scale_fill_steps2()` instead). 
+`ggcorrhm()` sets the fill scale to use `ggplot2::scale_fill_gradient2()` with limits set to [-1, 1]. Unique to `ggcorrhm()` are the arguments `high`, `mid` and `low` to control the legend colours. Like with `gghm()`, the `bins` and `limits` arguments create a binned scale and change the limits, respectively.
 
-```{r changing colour, fig.alt='A heatmap of the mtcars correlation matrix. The colour scale is changed to consist of 6 bins and the colours go from magenta to yellow to green.'}
-ggcorrhm(mtcars, high = "green", low = "magenta", mid = "yellow", bins = 6)
+```{r changing colour, fig.alt='A heatmap of the mtcars correlation matrix. The colour scale is changed to consist of 4 bins and the colours go from magenta to green.'}
+ggcorrhm(mtcars, high = "green", low = "magenta", mid = "yellow", bins = 4L)
 
 ```
 
@@ -41,7 +41,7 @@ If complete control is needed, the `colr_scale` argument can be used to overwrit
 plt1 <- ggcorrhm(mtcars, colr_scale = "RdYlGn")
 
 # Arguments like bins and limits still work with brewer and viridis scales
-plt2 <- ggcorrhm(mtcars, colr_scale = "PuOr", bins = 5)
+plt2 <- ggcorrhm(mtcars, colr_scale = "PuOr", bins = 5L)
 
 plt1 + plt2
 ```

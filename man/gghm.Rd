@@ -92,7 +92,7 @@ Can also be a ggplot2 scale object.}
 
 \item{colr_name}{String to use for the colour scale legend title. Can be two values in mixed layouts for dual scales.}
 
-\item{limits}{Length two numeric vector for the limits of the colour scale. NULL uses the default.}
+\item{limits}{Numeric vector of length two for the limits of the colour scale. NULL uses the default.}
 
 \item{bins}{Number of bins to divide the scale into (if continuous values). A 'double' class value uses 'nice.breaks' to put the breaks at nice numbers which may not result
 in the specified number of bins. If an integer the number of bins will be prioritised.}

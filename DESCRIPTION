@@ -27,5 +27,4 @@ Config/testthat/edition: 3
 Config/Needs/website:
     rmarkdown,
     cowplot,
-    patchwork,
-    tibble
+    patchwork
