@@ -61,6 +61,12 @@ test_that("snapshots", {
   vdiffr::expect_doppelganger("cell_shape", gghm(mtcars, mode = "21"))
   vdiffr::expect_doppelganger("text_mode", gghm(mtcars, mode = "text"))
   vdiffr::expect_doppelganger("mixed_mode", gghm(cor(mtcars), layout = c("tl", "br")))
+  vdiffr::expect_doppelganger("annotation labels", gghm(cor(mtcars),
+                                                        annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11, b = 11:1),
+                                                        annot_rows_label_side = "top",
+                                                        annot_rows_label_params = list(gp = grid::gpar(col = "red"),
+                                                                                       vjust = 0, rot = 45)) +
+                                ggplot2::theme(axis.text.x.top = ggplot2::element_text(angle = 45, vjust = 0)))
   vdiffr::expect_doppelganger("clustering_extended",
                               gghm(scale(mtcars), cluster_rows = T, cluster_cols = T,
                                    dend_height = 1,
@@ -123,6 +129,7 @@ test_that("warnings and errors", {
   expect_error(gghm(cor(mtcars), mode = "nothing"), class = "nonsup_mode_error")
   expect_error(gghm(cor(mtcars), layout = "nice"), class = "nonsup_layout_error")
   expect_warning(gghm(mtcars, layout = "br"), class = "force_full_warn")
+  expect_error(gghm(mtcars, cluster_rows = "a"), class = "clust_class_error")
   expect_warning(gghm(cor(mtcars), layout = "br", cluster_rows = T), class = "force_clust_warn")
   expect_warning(gghm(cor(mtcars), layout = c("tl", "br"), cluster_rows = T), class = "force_clust_warn")
   expect_warning(gghm(cor(mtcars), cluster_rows = T), class = "unequal_clust_warn")

@@ -172,7 +172,7 @@
 <rect x='518.48' y='276.23' width='20.55' height='41.10' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #7AD151;' />
 <rect x='518.48' y='317.33' width='20.55' height='41.10' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #C0DD40;' />
 <rect x='518.48' y='194.03' width='20.55' height='41.10' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FDE725;' />
-<text transform='translate(532.89,489.94) rotate(-90)' text-anchor='end' style='font-size: 12.00px; font-family: sans;' textLength='6.67px' lengthAdjust='spacingAndGlyphs'>a</text>
+<text transform='translate(531.85,489.94) rotate(-90)' text-anchor='end' style='font-size: 9.00px; font-family: sans;' textLength='5.01px' lengthAdjust='spacingAndGlyphs'>a</text>
 <rect x='428.06' y='489.94' width='41.10' height='20.55' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #000004;' />
 <rect x='99.27' y='489.94' width='41.10' height='20.55' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #220F3A;' />
 <rect x='140.37' y='489.94' width='41.10' height='20.55' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #3B0F70;' />
@@ -184,7 +184,7 @@
 <rect x='304.77' y='489.94' width='41.10' height='20.55' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FE9F6D;' />
 <rect x='345.87' y='489.94' width='41.10' height='20.55' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FFCE95;' />
 <rect x='222.57' y='489.94' width='41.10' height='20.55' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FCFDBF;' />
-<text x='49.95' y='504.35' text-anchor='end' style='font-size: 12.00px; font-family: sans;' textLength='6.67px' lengthAdjust='spacingAndGlyphs'>b</text>
+<text x='49.95' y='503.31' text-anchor='end' style='font-size: 9.00px; font-family: sans;' textLength='5.01px' lengthAdjust='spacingAndGlyphs'>b</text>
 <line x1='599.06' y1='242.83' x2='599.06' y2='137.52' style='stroke-width: 0.64; stroke-linecap: square;' />
 <line x1='599.06' y1='137.52' x2='560.35' y2='137.52' style='stroke-width: 0.64; stroke-linecap: square;' />
 <line x1='560.35' y1='137.52' x2='560.35' y2='81.01' style='stroke-width: 0.64; stroke-linecap: square;' />

@@ -138,56 +138,92 @@ prepare_dendrogram <- function(dendro_in, dend_dim = c("rows", "cols"),
 #'
 #' @keywords internal
 #'
-#' @param cluster_data Either a logical indicating if data should be clustered, or a `hclust` object.
+#' @param cluster_input Either a logical indicating if data should be clustered, or a `hclust` or `dendrogram` object.
 #' @param mat Matrix to cluster.
 #' @param cluster_distance Distance metric for clustering.
 #' @param cluster_method Clustering method for `hclust`.
 #' @param dend_options List or functional sequence specifying `dendextend` functions to use.
 #'
-#' @returns List containing the dendrogram and clustering objects (or NULL if no clustering).
+#' @returns List containing the dendrogram and clustering objects.
 #'
-cluster_dimension <- function(cluster_data, mat, cluster_distance, cluster_method, dend_options = NULL) {
-  # Make dendrograms
-  if (is.logical(cluster_data) | inherits(cluster_data, "hclust") | inherits(cluster_data, "dendrogram")) {
+cluster_data <- function(cluster_input, mat, cluster_distance, cluster_method, dend_options = NULL) {
+  UseMethod("cluster_data")
+}
 
-    clust <- if (is.logical(cluster_data)) {
-      hclust(dist(mat, method = cluster_distance), method = cluster_method)
-    } else if (inherits(cluster_data, "hclust")) {
-      cluster_data
-    } else if (inherits(cluster_data, "dendrogram")) {
-      as.hclust(cluster_data)
-    }
+#' @export
+cluster_data.default <- function(cluster_input, mat, cluster_distance, cluster_method, dend_options = NULL) {
+  # Error if incompatible class
+  cli::cli_abort("{.var cluster_rows} and {.var cluster_cols} must be {.cls logical}, {.cls hclust},
+                   or {.cls dendrogram} objects.",
+                 class = "clust_class_error")
 
-    dendro <- if (is.logical(cluster_data) | inherits(cluster_data, "hclust")) {
-      as.dendrogram(clust)
-    } else if (inherits(cluster_data, "dendrogram")) {
-      cluster_data
-    }
+  return(NULL)
+}
 
-    # Apply dendextend options if any are given
-    if (is.list(dend_options)) {
-      dendro <- apply_dendextend(dendro, dend_options)
-    } else if (inherits(dend_options, "fseq")) {
-      dendro <- dend_options(dendro)
-    }
+#' @export
+cluster_data.logical <- function(cluster_input, mat, cluster_distance, cluster_method, dend_options = NULL) {
+  # If TRUE, cluster the data
+  if (cluster_input) {
+    clust <- hclust(dist(mat, method = cluster_distance), method = cluster_method)
+    dendro <- as.dendrogram(clust)
 
-    dendro <- dendextend::as.ggdend(dendro)
-    dendro$labels$label <- as.character(dendro$labels$label)
-
-    # Add the labels to the segment data frame to later compare final coordinates with plot coordinate system
-    dendro$segments$lbl <- dendro$labels[match(dendro$segments$x, dendro$labels$x), "label"]
-
-    if (any(!dendro$labels$label %in% rownames(mat))) {
-      cli::cli_abort("The labels in the clustering don't match the labels in the data.",
-                     class = "cluster_labels_error")
-    }
+    dendro <- process_dendrogram(mat, dendro, dend_options)
 
     return(list("dendro" = dendro, "clust" = clust))
-
-  } else {
-    cli::cli_warn("")
-    return(NULL)
   }
+}
+
+#' @export
+cluster_data.hclust <- function(cluster_input, mat, cluster_distance, cluster_method, dend_options = NULL) {
+  # If hclust object use as is and make a dendrogram from it
+  clust <- cluster_input
+  dendro <- as.dendrogram(clust)
+
+  dendro <- process_dendrogram(mat, dendro, dend_options)
+
+  return(list("dendro" = dendro, "clust" = clust))
+}
+
+#' @export
+cluster_data.dendrogram <- function(cluster_input, mat, cluster_distance, cluster_method, dend_options = NULL) {
+  # If a dendrogram use as is, but also get a hclust object out of it
+  clust <- as.hclust(cluster_input)
+  dendro <- cluster_input
+
+  dendro <- process_dendrogram(mat, dendro, dend_options)
+
+  return(list("dendro" = dendro, "clust" = clust))
+}
+
+
+#' Process dendrogram with customisation options
+#'
+#' @keywords internal
+#'
+#' @param mat Data that was used for clustering.
+#' @param dendro Dendrogram object.
+#' @param dend_options Dendrogram extension options (list or fseq or NULL).
+#'
+#' @returns Processed dendrogram object.
+#'
+process_dendrogram <- function(mat, dendro, dend_options) {
+  # Apply dendextend options if any are given
+  if (!is.null(dend_options)) {
+    dendro <- apply_dendextend(dend_options, dendro)
+  }
+
+  dendro <- dendextend::as.ggdend(dendro)
+  dendro$labels$label <- as.character(dendro$labels$label)
+
+  # Add the labels to the segment data frame to later compare final coordinates with plot coordinate system
+  dendro$segments$lbl <- dendro$labels[match(dendro$segments$x, dendro$labels$x), "label"]
+
+  if (any(!dendro$labels$label %in% rownames(mat))) {
+    cli::cli_abort("The labels in the clustering don't match the labels in the data.",
+                   class = "cluster_labels_error")
+  }
+
+  return(dendro)
 }
 
 
@@ -417,7 +453,20 @@ check_dendrogram_pos <- function(dat, dend_dim = c("row", "col"), dendro) {
 #'
 #' @returns A dendrogram object modified with dendextend functions.
 #'
-apply_dendextend <- function(dendro, dend_list) {
+apply_dendextend <- function(dend_list, dendro) {
+  UseMethod("apply_dendextend")
+}
+
+#' @export
+apply_dendextend.default <- function(dend_list, dendro) {
+  # If not a list or functional sequence, return without modification
+  cli::cli_warn("{.var dend_rows_extend} and {.var dend_cols_extend} must be either {.cls list}
+                or {.cls fseq} objects if not NULL.")
+  return(dendro)
+}
+
+#' @export
+apply_dendextend.list <- function(dend_list, dendro) {
   # Go through options list and update the dendrogram successively with do.call
   # Use append() to make named list of input arguments
   for (i in seq_along(dend_list)) {
@@ -429,3 +478,10 @@ apply_dendextend <- function(dendro, dend_list) {
   return(dendro)
 }
 
+#' @export
+apply_dendextend.fseq <- function(dend_list, dendro) {
+  # Apply the functional sequence and return the dendrogram
+  dendro <- dend_list(dendro)
+
+  return(dendro)
+}

@@ -9,6 +9,11 @@
 #' @returns A named list where overlapping elements with overlapping names are replaced.
 #'
 replace_default <- function(default_param, new_param, add_new = F) {
+  UseMethod("replace_default")
+}
+
+#' @export
+replace_default.list <- function(default_param, new_param, add_new = F) {
 
   # Ignore unnamed elements
   new_param <- new_param[names(new_param) != ""]
@@ -24,6 +29,22 @@ replace_default <- function(default_param, new_param, add_new = F) {
     new_names <- setdiff(names(new_param), names(default_param))
     default_param[new_names] <- new_param[new_names]
   }
+
+  return(default_param)
+}
+
+#' @export
+replace_default.gpar <- function(default_param, new_param, add_new = F) {
+  # Special treatment for gpar objects as their indexing works differently
+  # Convert to lists
+  new_param <- lapply(new_param, function(x) x)
+  default_param <- lapply(default_param, function(x) x)
+
+  # Pass the lists to replace_default
+  default_param <- replace_default(default_param, new_param, add_new = T)
+
+  # Convert back to gpar class
+  default_param <- do.call(grid::gpar, default_param)
 
   return(default_param)
 }

@@ -4,12 +4,12 @@
 \alias{apply_dendextend}
 \title{Successively apply dendextend functions to a dendrogram.}
 \usage{
-apply_dendextend(dendro, dend_list)
+apply_dendextend(dend_list, dendro)
 }
 \arguments{
-\item{dendro}{Dendrogram object obtained from \code{stats::as.dendrogram}.}
-
 \item{dend_list}{List specifying dendextend functions to apply. For usage see the details of \code{gghm}.}
+
+\item{dendro}{Dendrogram object obtained from \code{stats::as.dendrogram}.}
 }
 \value{
 A dendrogram object modified with dendextend functions.

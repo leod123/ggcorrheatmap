@@ -105,6 +105,10 @@ prepare_annotation <- function(annot_df, annot_defaults, annot_params, lannot_si
                                             "left" =, "right" = 0),
                                just = switch(annot_label_side, "bottom" = "right", "top" = "left",
                                              "left" = "right", "right" = "left"))
+  # Also defaults for the gp parameter
+  annot_gp_defaults <- grid::gpar(fontsize = 9)
+  annot_gp_params <- replace_default(annot_gp_defaults, annot_label_params[["gp"]], add_new = T)
+  annot_label_params[["gp"]] <- annot_gp_params
   # Replace defaults and allow for new parameters to be added
   annot_label_params <- replace_default(annot_label_defaults, annot_label_params, add_new = T)
 

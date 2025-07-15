@@ -149,7 +149,7 @@
 <rect x='430.37' y='338.28' width='26.57' height='26.57' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #74CC58;' />
 <rect x='430.37' y='364.85' width='26.57' height='26.57' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #B9DC42;' />
 <rect x='430.37' y='311.72' width='26.57' height='26.57' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FDE725;' />
-<text transform='translate(447.79,396.73) rotate(-90)' text-anchor='end' style='font-size: 12.00px; font-family: sans;' textLength='6.67px' lengthAdjust='spacingAndGlyphs'>a</text>
+<text transform='translate(446.75,396.73) rotate(-90)' text-anchor='end' style='font-size: 9.00px; font-family: sans;' textLength='5.01px' lengthAdjust='spacingAndGlyphs'>a</text>
 <rect x='483.51' y='205.44' width='26.57' height='26.57' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FCFDBF;' />
 <rect x='483.51' y='232.01' width='26.57' height='26.57' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FFC991;' />
 <rect x='483.51' y='178.88' width='26.57' height='26.57' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FB966D;' />
@@ -160,7 +160,7 @@
 <rect x='483.51' y='338.28' width='26.57' height='26.57' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #451172;' />
 <rect x='483.51' y='364.85' width='26.57' height='26.57' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #250F3F;' />
 <rect x='483.51' y='311.72' width='26.57' height='26.57' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #000004;' />
-<text transform='translate(500.92,396.73) rotate(-90)' text-anchor='end' style='font-size: 12.00px; font-family: sans;' textLength='6.67px' lengthAdjust='spacingAndGlyphs'>b</text>
+<text transform='translate(499.89,396.73) rotate(-90)' text-anchor='end' style='font-size: 9.00px; font-family: sans;' textLength='5.01px' lengthAdjust='spacingAndGlyphs'>b</text>
 <rect x='536.65' y='205.44' width='26.57' height='26.57' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #0B0405;' />
 <rect x='536.65' y='232.01' width='26.57' height='26.57' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #251B31;' />
 <rect x='536.65' y='178.88' width='26.57' height='26.57' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #39305C;' />
@@ -171,7 +171,7 @@
 <rect x='536.65' y='338.28' width='26.57' height='26.57' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #5CC8AC;' />
 <rect x='536.65' y='364.85' width='26.57' height='26.57' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #9DE0C5;' />
 <rect x='536.65' y='311.72' width='26.57' height='26.57' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #DEF5E5;' />
-<text transform='translate(554.06,396.73) rotate(-90)' text-anchor='end' style='font-size: 12.00px; font-family: sans;' textLength='6.00px' lengthAdjust='spacingAndGlyphs'>c</text>
+<text transform='translate(553.03,396.73) rotate(-90)' text-anchor='end' style='font-size: 9.00px; font-family: sans;' textLength='4.50px' lengthAdjust='spacingAndGlyphs'>c</text>
 <rect x='297.53' y='399.39' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #0D0887;' />
 <rect x='164.69' y='399.39' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #450597;' />
 <rect x='191.26' y='399.39' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #6A00A8;' />
@@ -183,7 +183,7 @@
 <rect x='270.96' y='399.39' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FCA636;' />
 <rect x='350.67' y='399.39' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8D02F;' />
 <rect x='84.99' y='399.39' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #F0F921;' />
-<text x='79.67' y='410.16' text-anchor='end' style='font-size: 12.00px; font-family: sans;' textLength='6.67px' lengthAdjust='spacingAndGlyphs'>a</text>
+<text x='79.67' y='409.13' text-anchor='end' style='font-size: 9.00px; font-family: sans;' textLength='5.01px' lengthAdjust='spacingAndGlyphs'>a</text>
 <rect x='297.53' y='415.33' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FFEA46;' />
 <rect x='164.69' y='415.33' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #E5D25A;' />
 <rect x='191.26' y='415.33' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #CBBA69;' />
@@ -195,7 +195,7 @@
 <rect x='270.96' y='415.33' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #31446B;' />
 <rect x='350.67' y='415.33' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #1C315C;' />
 <rect x='84.99' y='415.33' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #00204D;' />
-<text x='79.67' y='426.10' text-anchor='end' style='font-size: 12.00px; font-family: sans;' textLength='6.67px' lengthAdjust='spacingAndGlyphs'>b</text>
+<text x='79.67' y='425.07' text-anchor='end' style='font-size: 9.00px; font-family: sans;' textLength='5.01px' lengthAdjust='spacingAndGlyphs'>b</text>
 <rect x='297.53' y='431.27' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #000004;' />
 <rect x='164.69' y='431.27' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #250E36;' />
 <rect x='191.26' y='431.27' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #420A68;' />
@@ -207,7 +207,7 @@
 <rect x='270.96' y='431.27' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FCA50A;' />
 <rect x='350.67' y='431.27' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FFD262;' />
 <rect x='84.99' y='431.27' width='26.57' height='13.28' style='stroke-width: 1.07; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FCFFA4;' />
-<text x='79.67' y='442.04' text-anchor='end' style='font-size: 12.00px; font-family: sans;' textLength='6.00px' lengthAdjust='spacingAndGlyphs'>c</text>
+<text x='79.67' y='441.01' text-anchor='end' style='font-size: 9.00px; font-family: sans;' textLength='4.50px' lengthAdjust='spacingAndGlyphs'>c</text>
 <line x1='652.71' y1='207.93' x2='652.71' y2='152.31' style='stroke-width: 0.64; stroke-linecap: square;' />
 <line x1='652.71' y1='152.31' x2='610.49' y2='152.31' style='stroke-width: 0.64; stroke-linecap: square;' />
 <line x1='610.49' y1='152.31' x2='610.49' y2='139.02' style='stroke-width: 0.64; stroke-linecap: square;' />
