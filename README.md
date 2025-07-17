@@ -60,7 +60,6 @@ It is also possible to make a normal heatmap, for a more flexible
 output.
 
 ``` r
-library(ggplot2)
 gghm(scale(mtcars), cluster_rows = TRUE, cluster_cols = TRUE)
 ```
 

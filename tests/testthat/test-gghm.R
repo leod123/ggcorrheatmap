@@ -21,7 +21,7 @@ test_that("basic functionality works", {
   # More things to cover
   expect_no_error(gghm(cor(mtcars), cluster_rows = T, cluster_cols = T, layout = "br",
                        mode = "21", legend_order = c(1, NA),
-                       names_diag_param = list(angle = -45),
+                       names_diag_params = list(angle = -45),
                        cell_labels = T))
   expect_no_error(gghm(cor(mtcars), layout = c("tr", "bl"), mode = c("hm", "23"),
                        cluster_rows = T, cluster_cols = T))
@@ -130,10 +130,19 @@ test_that("warnings and errors", {
   expect_error(gghm(cor(mtcars), layout = "nice"), class = "nonsup_layout_error")
   expect_warning(gghm(mtcars, layout = "br"), class = "force_full_warn")
   expect_error(gghm(mtcars, cluster_rows = "a"), class = "clust_class_error")
+  expect_warning(gghm(mtcars, colr_scale = 1), class = "scale_class_warn")
+  expect_warning(gghm(mtcars, mode = "21", size_scale = "a"), class = "scale_class_warn")
   expect_warning(gghm(cor(mtcars), layout = "br", cluster_rows = T), class = "force_clust_warn")
   expect_warning(gghm(cor(mtcars), layout = c("tl", "br"), cluster_rows = T), class = "force_clust_warn")
   expect_warning(gghm(cor(mtcars), cluster_rows = T), class = "unequal_clust_warn")
   expect_warning(gghm(cor(mtcars), cluster_cols = T), class = "unequal_clust_warn")
+  expect_warning(gghm(mtcars, cluster_rows = T, dend_rows_extend = "A"), class = "extend_class_warn")
+  expect_warning(gghm(mtcars, legend_order = "A"), class = "lgd_order_class_warn")
+  expect_warning(gghm(mtcars, cell_labels = NULL), class = "cell_labels_class_warn")
+  expect_warning(gghm(mtcars, cell_labels = iris), class = "cell_labels_rowcol_warn")
+  # Diagonal names parameters
+  expect_warning(gghm(cor(mtcars), names_diag = T, names_diag_params = "a"),
+                 class = "diag_names_arg_warn")
   # Input is clustering or dendrogram object
   # asymmetric matrix
   cl1 <- hclust(dist(mtcars))    # rows
@@ -183,6 +192,12 @@ test_that("warnings and errors", {
   expect_warning(gghm(mtcars, colr_scale = "ABC"), class = "invalid_colr_option_warn")
   expect_warning(gghm(mtcars, annot_cols_df = data.frame(.names = colnames(mtcars), a = 1:11, b = 11:1),
                       annot_cols_fill = list(a = "A", b = "ASDF")), class = "invalid_colr_option_warn")
+  # Invalid annotation colour scale option
+  expect_warning(gghm(mtcars, annot_cols_df = data.frame(
+    .names = c(colnames(mtcars)),
+    a = 1:11, b = 11:1, c = sample(letters[1:3], 11, T)
+  ), annot_cols_fill = list(a = "A", b = "A_rev", c = 3)),
+  class = "annot_fill_class_warn")
 })
 
 test_that("annotation names must exist in the data", {
@@ -190,16 +205,21 @@ test_that("annotation names must exist in the data", {
                          data.frame(.names = rownames(mtcars),
                                     annot1 = rnorm(nrow(mtcars)),
                                     annot2 = sample(letters[1:3], nrow(mtcars), T))))
-  expect_error(gghm(mtcars, annot_rows_df =
-                      data.frame(.names = c(rownames(mtcars), "asdf", "qwer"),
-                                 annot1 = rnorm(nrow(mtcars) + 2),
-                                 annot2 = sample(letters[1:3], nrow(mtcars) + 2, T))),
-               class = "annot_names_error")
-  expect_error(gghm(mtcars, annot_cols_df =
-                      data.frame(.names = c(colnames(mtcars), "asdf", "qwer"),
-                                 annot1 = rnorm(ncol(mtcars) + 2),
-                                 annot2 = sample(letters[1:3], ncol(mtcars) + 2, T))),
-               class = "annot_names_error")
+  expect_warning(gghm(mtcars, annot_rows_df =
+                        data.frame(.names = c(rownames(mtcars), "asdf", "qwer"),
+                                   annot1 = rnorm(nrow(mtcars) + 2),
+                                   annot2 = sample(letters[1:3], nrow(mtcars) + 2, T))),
+                 class = "annot_names_warn")
+  expect_warning(gghm(mtcars, annot_cols_df =
+                        data.frame(.names = c(colnames(mtcars), "asdf", "qwer"),
+                                   annot1 = rnorm(ncol(mtcars) + 2),
+                                   annot2 = sample(letters[1:3], ncol(mtcars) + 2, T))),
+                 class = "annot_names_warn")
+  # Check for duplicated names
+  expect_error(gghm(mtcars, annot_cols_df = data.frame(
+    .names = c(colnames(mtcars), "mpg", "mpg", "hp", "carb"),
+    a = 1:15, b = 15:1, c = sample(letters[1:3], 15, T)
+  )), class = "dupl_annot_name_error")
 })
 
 test_that("mixed_layout_errors", {

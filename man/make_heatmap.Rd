@@ -10,7 +10,7 @@ make_heatmap(
   mode = "heatmap",
   include_diag = T,
   invisible_diag = F,
-  border_lwd = 0.5,
+  border_lwd = 0.1,
   border_col = "grey",
   border_lty = 1,
   names_diag = T,

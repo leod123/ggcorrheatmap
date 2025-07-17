@@ -460,8 +460,9 @@ apply_dendextend <- function(dend_list, dendro) {
 #' @export
 apply_dendextend.default <- function(dend_list, dendro) {
   # If not a list or functional sequence, return without modification
-  cli::cli_warn("{.var dend_rows_extend} and {.var dend_cols_extend} must be either {.cls list}
-                or {.cls fseq} objects if not NULL.")
+  cli::cli_warn("{.var dend_rows_extend} and {.var dend_cols_extend} must be a {.cls list}
+                or {.cls fseq} object if not NULL.",
+                class = "extend_class_warn")
   return(dendro)
 }
 

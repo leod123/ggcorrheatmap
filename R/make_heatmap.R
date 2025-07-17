@@ -31,7 +31,7 @@
 #'
 make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                          include_diag = T, invisible_diag = F,
-                         border_lwd = 0.5, border_col = "grey", border_lty = 1,
+                         border_lwd = 0.1, border_col = "grey", border_lty = 1,
                          names_diag = T, names_x = F, names_y = F,
                          names_x_side = "top", names_y_side = "left",
                          colr_scale = NULL, size_scale = NULL,
@@ -163,6 +163,11 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
     # Skip NA labels
     cell_data <- subset(cell_data, !is.na(label))
 
+    if (nrow(cell_data) < 1) {
+      cli::cli_warn("There are no cells in {.var cell_labels} that correspond to cells in the plotted data.",
+                    class = "cell_labels_rowcol_warn")
+    }
+
     # skip diagonal if already occupied
     if (!(include_diag & !names_diag)) {cell_data <- subset(cell_data, as.character(row) != as.character(col))}
 
@@ -185,6 +190,10 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
         }
       )
 
+  } else if (!isFALSE(cell_labels)) {
+    cli::cli_warn("{.var cell_labels} should be a {.cls logical} to write the cell values, or
+                  a {.cls matrix} or {.cls data.frame} that shares row/colnames with the plotted matrix.",
+                  class = "cell_labels_class_warn")
   }
 
   return(plt)
@@ -197,11 +206,11 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
 #'
 #' @param plt Plot object to add names to.
 #' @param x_long Long format plotting data.
-#' @param names_diag_param Parameters for diagonal names.
+#' @param names_diag_params Parameters for diagonal names.
 #'
 #' @returns Plot with labels added.
 #'
-add_diag_names <- function(plt, x_long, names_diag_param = NULL) {
+add_diag_names <- function(plt, x_long, names_diag_params = NULL) {
   label <- NULL
 
   # Names on the diagonal
@@ -211,8 +220,12 @@ add_diag_names <- function(plt, x_long, names_diag_param = NULL) {
 
   # Construct call using optional parameters
   text_call_params <- list(data = axis_lab, mapping = ggplot2::aes(x = label, y = label, label = label))
-  if (is.list(names_diag_param)) {
-    text_call_params <- append(text_call_params, names_diag_param)
+  if (is.list(names_diag_params)) {
+    text_call_params <- append(text_call_params, names_diag_params)
+  } else if (!is.null(names_diag_params)) {
+    cli::cli_warn("{.var names_diag_params} should be a list with static aesthetics to
+                  pass to {.var ggplot2::geom_text}.",
+                  class = "diag_names_arg_warn")
   }
 
   plt <- plt +

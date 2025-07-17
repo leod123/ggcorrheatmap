@@ -157,6 +157,7 @@ get_annotation_pos <- function(annot_side = T, annot_names, annot_size, annot_di
 #' @returns Annotation data frame (rownames moved to column named '.names' if necessary).
 #'
 check_annot_df <- function(annot_df, names_in, context) {
+  .names <- NULL
 
   # Check that it's a data frame
   if (!is.data.frame(annot_df)) {
@@ -170,10 +171,20 @@ check_annot_df <- function(annot_df, names_in, context) {
   }
 
   # Check that annotation contains the correct names
+  # If any names don't exist, throw a warning and remove them
   if (any(!annot_df[[".names"]] %in% names_in)) {
     bad_names <- setdiff(annot_df[[".names"]], names_in)
-    cli::cli_abort("Some names in the row annotation don't exist in the data: {.val {bad_names}}",
-                   class = "annot_names_error")
+    cli::cli_warn("{?A/Some} name{?s} in the row annotation do{?es/}n't exist in the data: {.val {bad_names}}.",
+                   class = "annot_names_warn")
+    annot_df <- subset(annot_df, !.names %in% bad_names)
+  }
+
+  # Check that there are no duplicate names
+  # If there are any, throw and error as it becomes unclear which one is the real value
+  if (any(duplicated(annot_df[[".names"]]))) {
+    dupl_names <- unique(annot_df[[".names"]][which(duplicated(annot_df[[".names"]]))])
+    cli::cli_abort("{.val {dupl_names}} appear{?s/} multiple times in {.var {context}}. Names must be unique.",
+                   class = "dupl_annot_name_error")
   }
 
   return(annot_df)

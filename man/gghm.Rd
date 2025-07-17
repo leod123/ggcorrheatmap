@@ -17,7 +17,7 @@ gghm(
   legend_order = NULL,
   include_diag = TRUE,
   names_diag = FALSE,
-  names_diag_param = NULL,
+  names_diag_params = NULL,
   names_x = TRUE,
   names_x_side = "top",
   names_y = TRUE,
@@ -30,7 +30,7 @@ gghm(
   cell_label_size = 3,
   cell_label_digits = 2,
   border_col = "grey",
-  border_lwd = 0.5,
+  border_lwd = 0.1,
   border_lty = 1,
   cell_bg_col = "white",
   cell_bg_alpha = 0,
@@ -88,7 +88,7 @@ If layout is of length two with two opposing triangles, a mixed layout will be u
 \code{text} to write the cell values instead of filling cells (colour scaling with value), and \code{none} for blank cells.}
 
 \item{colr_scale}{Colour scale to use for cells. If NULL, the default ggplot2 scale is used. If a string, the corresponding Brewer or Viridis scales is used.
-Can also be a ggplot2 scale object.}
+A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale. Can also be a ggplot2 scale object.}
 
 \item{colr_name}{String to use for the colour scale legend title. Can be two values in mixed layouts for dual scales.}
 
@@ -110,7 +110,7 @@ Mostly only useful for getting a cleaner look with symmetric correlation matrice
 
 \item{names_diag}{Logical indicating if names should be written in the diagonal cells (for symmetric input).}
 
-\item{names_diag_param}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
+\item{names_diag_params}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
 
 \item{names_x}{Logical indicating if names should be written on the x axis. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
 

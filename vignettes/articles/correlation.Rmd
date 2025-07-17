@@ -68,13 +68,13 @@ The looks of the names displayed on the diagonal of a symmetric matrix can be ad
 
 ```{r, fig.width=10, fig.height=5, fig.alt='Two mtcars correlation heatmaps with the bottom left and bottom right triangles and no diagonals. In the first plot, the names on the diagonal are at a 45 degree angle and the text is magenta-coloured. The second plot has the names angled 45 degrees in the other direction apart from the names at the top and bottom which are angled at 90 and 0 degrees, respectively. The text colour is picked randomly from red, green, and blue.'}
 plt1 <- ggcorrhm(mtcars, layout = "bl", legend_order = NA, include_diag = FALSE,
-                 names_diag_param = list(
+                 names_diag_params = list(
                    angle = 45, vjust = 0.5, hjust = 0.5, colour = "magenta"
                  ))
 # Also take vectorised input
 set.seed(123)
 plt2 <- ggcorrhm(mtcars, layout = "br", include_diag = FALSE,
-                 names_diag_param = list(
+                 names_diag_params = list(
                    angle = c(0, rep(-45, 9), 90),
                    hjust = c(rep(0.7, 10), 0.3),
                    colour = sample(c("red", "green", "blue"), 11, TRUE)

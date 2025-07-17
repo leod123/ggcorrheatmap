@@ -39,10 +39,10 @@ ggcorrhm(
   cell_bg_col = "white",
   cell_bg_alpha = 0,
   border_col = "grey",
-  border_lwd = 0.5,
+  border_lwd = 0.1,
   border_lty = 1,
   names_diag = TRUE,
-  names_diag_param = NULL,
+  names_diag_params = NULL,
   names_x = FALSE,
   names_x_side = "top",
   names_y = FALSE,
@@ -131,6 +131,7 @@ NAs are handled in the correlation computations, use the \code{cor_use} argument
 
 \item{colr_scale}{Scale to use for cell colours. If NULL (default), a divergent scale is constructed from the \code{high}, \code{mid}, \code{low}, \code{midpoint}, \code{limits}, and \code{bins} arguments.
 These arguments are ignored if a \verb{ggplot2::scale_*} function is provided instead. If a string, the corresponding Brewer or Viridis scale is used.
+A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale.
 In mixed layouts, can also be a list of length two containing the two scales to use.}
 
 \item{colr_name}{String to use for the correlation scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.}
@@ -175,7 +176,7 @@ containing values to write in the cells. If mode is \code{text}, the cell label 
 
 \item{names_diag}{Logical indicating if names should be written in the diagonal cells (for symmetric input).}
 
-\item{names_diag_param}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
+\item{names_diag_params}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
 
 \item{names_x}{Logical indicating if names should be written on the x axis. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
 

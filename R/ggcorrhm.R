@@ -15,6 +15,7 @@
 #' @param midpoint Value for the middle point of the colour scale.
 #' @param colr_scale Scale to use for cell colours. If NULL (default), a divergent scale is constructed from the `high`, `mid`, `low`, `midpoint`, `limits`, and `bins` arguments.
 #' These arguments are ignored if a `ggplot2::scale_*` function is provided instead. If a string, the corresponding Brewer or Viridis scale is used.
+#' A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale.
 #' In mixed layouts, can also be a list of length two containing the two scales to use.
 #' @param colr_name String to use for the correlation scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.
 #' @param p_values Logical indicating if p-values should be calculated. Use with `p_thresholds` to mark cells, and/or `return_data` to get the p-values in the output data.
@@ -111,8 +112,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      p_values = FALSE, p_adjust = "none", p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, 1),
                      cell_labels = FALSE, cell_label_p = FALSE, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
                      cell_bg_col = "white", cell_bg_alpha = 0,
-                     border_col = "grey", border_lwd = 0.5, border_lty = 1,
-                     names_diag = TRUE, names_diag_param = NULL,
+                     border_col = "grey", border_lwd = 0.1, border_lty = 1,
+                     names_diag = TRUE, names_diag_params = NULL,
                      names_x = FALSE, names_x_side = "top", names_y = FALSE, names_y_side = "left",
                      annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
                      annot_rows_side = "right", annot_cols_side = "bottom",
@@ -270,7 +271,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                   colr_scale = colr_scale, colr_name = colr_name,
                   size_scale = size_scale, size_name = size_name,
                   border_col = border_col, border_lwd = border_lwd, border_lty = border_lty,
-                  names_diag = names_diag, names_diag_param = names_diag_param,
+                  names_diag = names_diag, names_diag_params = names_diag_params,
                   names_x = names_x, names_x_side = names_x_side,
                   names_y = names_y, names_y_side = names_y_side,
                   cell_labels = cell_labels, cell_label_col = cell_label_col,
@@ -327,6 +328,10 @@ prepare_cell_labels <- function(mode, cell_labels, p_values, cell_label_p, cell_
   if (is.matrix(cell_labels) | is.data.frame(cell_labels)) {
     cell_labels <- list(cell_labels)
   }
+  # If just NULL is passed to mapply the result becomes list()
+  # so put cell_label_digits in a list if not already, to allow for NULL to not round
+  # (any other non-numeric also results in no rounding)
+  if (!is.list(cell_label_digits)) {cell_label_digits <- list(cell_label_digits)}
 
   # Make p symbols if p-values are computed
   if (any(unlist(p_values))) {

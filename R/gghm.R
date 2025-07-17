@@ -10,7 +10,7 @@
 #' @param mode A string specifying plotting mode. Possible values are `heatmap`/`hm` for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
 #' `text` to write the cell values instead of filling cells (colour scaling with value), and `none` for blank cells.
 #' @param colr_scale Colour scale to use for cells. If NULL, the default ggplot2 scale is used. If a string, the corresponding Brewer or Viridis scales is used.
-#' Can also be a ggplot2 scale object.
+#' A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale. Can also be a ggplot2 scale object.
 #' @param colr_name String to use for the colour scale legend title. Can be two values in mixed layouts for dual scales.
 #' @param limits Numeric vector of length two for the limits of the colour scale. NULL uses the default.
 #' @param bins Number of bins to divide the scale into (if continuous values). A 'double' class value uses 'nice.breaks' to put the breaks at nice numbers which may not result
@@ -37,7 +37,7 @@
 #' @param cell_bg_col Colour to use for cell backgrounds in modes 'text' and 'none'.
 #' @param cell_bg_alpha Alpha for cell colours in modes 'text' and 'none'.
 #' @param names_diag Logical indicating if names should be written in the diagonal cells (for symmetric input).
-#' @param names_diag_param List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
+#' @param names_diag_params List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
 #' @param names_x Logical indicating if names should be written on the x axis. Labels can be customised using `ggplot2::theme()` on the output plot.
 #' @param names_x_side String specifying position of the x axis names ("top" or "bottom").
 #' @param names_y Logical indicating if names should be written on the y axis.
@@ -178,11 +178,11 @@ gghm <- function(x,
                  colr_scale = NULL, colr_name = "value", limits = NULL, bins = NULL,
                  size_scale = NULL, size_name = "value",
                  legend_order = NULL,
-                 include_diag = TRUE, names_diag = FALSE, names_diag_param = NULL,
+                 include_diag = TRUE, names_diag = FALSE, names_diag_params = NULL,
                  names_x = TRUE, names_x_side = "top", names_y = TRUE, names_y_side = "left",
                  na_col = "grey50", na_remove = FALSE, return_data = FALSE,
                  cell_labels = F, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
-                 border_col = "grey", border_lwd = 0.5, border_lty = 1,
+                 border_col = "grey", border_lwd = 0.1, border_lty = 1,
                  cell_bg_col = "white", cell_bg_alpha = 0,
                  annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
                  annot_rows_side = "right", annot_cols_side = "bottom",
@@ -303,7 +303,7 @@ gghm <- function(x,
 
   # Prepare parameters for mixed layouts
   if (length(layout) == 2) {
-    # border_* and cell_label*  allow for triangle-specific customisation in mixed layouts
+    # Allow for triangle-specific customisation in mixed layouts
     border_col <- prepare_mixed_param(border_col, "border_col")
     border_lwd <- prepare_mixed_param(border_lwd, "border_lwd")
     border_lty <- prepare_mixed_param(border_lty, "border_lty")
@@ -454,7 +454,7 @@ gghm <- function(x,
                         cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
                         cell_bg_col = cell_bg_col, cell_bg_alpha = cell_bg_alpha)
     if (names_diag) {
-      plt <- add_diag_names(plt = plt, x_long = x_long, names_diag_param = names_diag_param)
+      plt <- add_diag_names(plt = plt, x_long = x_long, names_diag_params = names_diag_params)
     }
   } else if (length(layout) == 2) {
 
@@ -487,7 +487,7 @@ gghm <- function(x,
                         cell_label_size = cell_label_size[[2]], cell_label_digits = cell_label_digits[[2]],
                         cell_bg_col = cell_bg_col[[2]], cell_bg_alpha = cell_bg_alpha[[2]])
     if (names_diag) {
-      plt <- add_diag_names(plt = plt, x_long = x_long, names_diag_param = names_diag_param)
+      plt <- add_diag_names(plt = plt, x_long = x_long, names_diag_params = names_diag_params)
     }
   }
 
@@ -621,7 +621,7 @@ check_layout <- function(layout, mode) {
 #'
 prepare_mixed_param <- function(param, param_name) {
 
-  if (grepl("_scale$", param_name) & is.list(param) & length(param) == 1) {
+  if (grepl("_scale$", param_name) && is.list(param) && length(param) == 1) {
     # If a scale object, put it in a list but don't repeat it
     # If character, repeat
     if (inherits(param[[1]], c("Scale", "ggproto", "gg"))) {
@@ -630,11 +630,11 @@ prepare_mixed_param <- function(param, param_name) {
       param_out <- list(param[[1]], param[[1]])
     }
 
-  } else if (grepl("_scale$", param_name) & is.null(param)) {
+  } else if (is.null(param) && (grepl("_scale$", param_name) || grepl("_digits$", param_name))) {
     # Return a list of NULLs if NULL
     param_out <- list(NULL, NULL)
 
-  } else if (length(param) == 1 | (param_name == "cell_labels" & (is.matrix(param) | is.data.frame(param)))) {
+  } else if (length(param) == 1 || (param_name == "cell_labels" && (is.matrix(param) || is.data.frame(param)))) {
     # Recycle if length one, or if cell_labels is a data frame or matrix for cell labels
     param_out <- list(param, param)
 

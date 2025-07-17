@@ -20,13 +20,13 @@ library(cowplot)    # For extracting and arranging legends
 
 As explained in some of the other articles, the colour scale argument `colr_scale` takes NULL (for default scales), a character (for Brewer and Viridis scales) and `ggplot2` scale objects. When passing scale objects, make sure the correct aesthetic is used (fill or colour/color depending on plotting mode).
 
-```{r, fig.alt='Three heatmaps of the volcano data. The first one uses the default dark blue to light blue gradient for the cells, the second one uses the Brewer Spectral palette, and the third a custom scale going from light blue to white to pink.'}
+```{r, fig.alt='Three heatmaps of the volcano data. The first one uses the default dark blue to light blue gradient for the cells, the second one uses the Viridis magma palette, and the third a custom scale going from light blue to white to pink.'}
 plt1 <- gghm(volcano, colr_name = "Default",
              border_col = NA, names_x = FALSE, names_y = FALSE)
 
 plt2 <- gghm(volcano,
              # Brewer Spectral palette
-             colr_scale = "Spectral", colr_name = "Character",
+             colr_scale = "A", colr_name = "Character",
              border_col = NA, names_x = FALSE, names_y = FALSE)
 
 plt3 <- gghm(volcano,
@@ -65,6 +65,25 @@ gghm(mtcars[1:10, 1:5],
      legend_order = c(NA, 1:3)) +
   theme(plot.margin = margin(0, 0, 30, 0))
 ```
+
+When `colr_scale` is a character, "rev_" or "_rev" can be added to the beginning or end, respectively, to reverse the scale. This also works for annotation scales.
+
+```{r, fig.height=6, fig.width=5, fig.alt='A heatmap of the volcano data with cells coloured using the Viridis magma palette but reversed so that low values are light and high are dark. Two row annotations are seen to the right, both have the same values but one is using the default magma palette and the other the reversed one.'}
+
+row_annot <- data.frame("Default" = 1:nrow(volcano),
+                        "Reversed" = 1:nrow(volcano))
+row_annot_colr <- list("Default" = "A", "Reversed" = "A_rev")
+
+gghm(volcano, names_x = FALSE, names_y = FALSE, border_col = NA,
+     colr_scale = "rev_A", colr_name = "Reversed",
+     annot_rows_df = row_annot,
+     annot_rows_fill = row_annot_colr,
+     # Make the annotation larger for visibility
+     annot_size = 3, annot_dist = 1.5) +
+  # Change the margins a bit too
+  theme(plot.margin = margin(0, 0, 40, 0))
+```
+
 
 The default scale for the main heatmap is different for `ggcorrhm()` as it assumes that correlations are plotted. There are also more arguments to modify the scale, such as the colours or binning.
 
