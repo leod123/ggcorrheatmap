@@ -4,17 +4,12 @@
 \alias{scale_dendrogram}
 \title{Scale height of dendrogram.}
 \usage{
-scale_dendrogram(
-  dend_seg,
-  dend_dim = c("rows", "cols"),
-  dend_side,
-  dend_height
-)
+scale_dendrogram(dend_seg, context = c("rows", "cols"), dend_side, dend_height)
 }
 \arguments{
 \item{dend_seg}{Data frame containing dendrogram segments in format obtained from \code{dendextend}.}
 
-\item{dend_dim}{Dimension to draw dendrogram along (rows or columns).}
+\item{context}{Dimension to draw dendrogram along (rows or columns).}
 
 \item{dend_side}{Logical indicating which side to draw dendrogram on.
 If row dendrogram TRUE is left. If column dendrogram TRUE is down.}

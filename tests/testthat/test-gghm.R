@@ -198,6 +198,27 @@ test_that("warnings and errors", {
     a = 1:11, b = 11:1, c = sample(letters[1:3], 11, T)
   ), annot_cols_fill = list(a = "A", b = "A_rev", c = 3)),
   class = "annot_fill_class_warn")
+  # Annotation and dendrogram side warnings
+  expect_no_warning(gghm(cor(mtcars), annot_rows_df = data.frame(
+    .names = colnames(mtcars), a = 3:13, b = 4:14
+  ), annot_rows_side = "left"))
+  expect_warning(gghm(cor(mtcars), annot_rows_df = data.frame(
+    .names = colnames(mtcars), a = 3:13, b = 4:14
+  ), annot_rows_side = "asdf"),
+  class = "annot_side_warn")
+  expect_no_warning(gghm(cor(mtcars), annot_cols_df = data.frame(
+    .names = colnames(mtcars), a = sample(letters[1:3], 11, T)
+  ), annot_rows_side = "something")) # specifying annot_rows_side for column annotation, no warning
+  expect_warning(gghm(cor(mtcars), annot_cols_df = data.frame(
+    .names = colnames(mtcars), a = sample(letters[1:3], 11, T)
+  ), annot_cols_side = "left"),
+  class = "annot_side_warn")
+  expect_no_warning(gghm(mtcars, cluster_rows = T, dend_rows_side = "left"))
+  expect_no_warning(gghm(mtcars, cluster_rows = T, dend_cols_side = "left"))
+  expect_warning(gghm(mtcars, cluster_rows = T, dend_rows_side = "top"), class = "dend_side_warn")
+  expect_warning(gghm(mtcars, cluster_cols = T, dend_cols_side = "asdf"), class = "dend_side_warn")
+  expect_warning(gghm(cor(mtcars), annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11, b = 11:1),
+                      annot_rows_label_side = "asdf"), class = "annot_label_side_warn")
 })
 
 test_that("annotation names must exist in the data", {

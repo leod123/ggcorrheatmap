@@ -7,7 +7,7 @@
 move_dendrogram(
   dend_seg,
   x_long,
-  dend_dim = c("rows", "cols"),
+  context = c("rows", "cols"),
   dend_side,
   dend_dist,
   annot_df,
@@ -21,7 +21,7 @@ move_dendrogram(
 
 \item{x_long}{Long format data frame with the values}
 
-\item{dend_dim}{Character specifying whether the dendrogram is linked to rows or columns in the heatmap}
+\item{context}{Character specifying whether the dendrogram is linked to rows or columns in the heatmap}
 
 \item{dend_side}{Logical specifying dendrogram position. TRUE is left of the heatmap if row dendrogram, bottom of heatmap if column dendrogram}
 

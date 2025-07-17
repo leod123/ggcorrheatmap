@@ -200,9 +200,9 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 
 \item{annot_cols_fill}{Named list used for column annotation colour scales, used like \code{annot_rows_fill}.}
 
-\item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' or 'l' for left, otherwise right).}
+\item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' or 'right', defaults to 'left').}
 
-\item{annot_cols_side}{String specifying which side column annotation should be drawn ('bottom', 'down', 'b', 'd' for bottom, otherwise top).}
+\item{annot_cols_side}{String specifying which side column annotation should be drawn ('bottom' or 'top', defaults to 'bottom').}
 
 \item{annot_dist}{Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.}
 
@@ -248,9 +248,9 @@ the \verb{annot_*_fill} arguments.}
 
 \item{dend_cols}{Logical indicating if a dendrogram should be drawn for the columns.}
 
-\item{dend_rows_side}{Which side to draw the row dendrogram on ('left' or 'l' for left, otherwise right).}
+\item{dend_rows_side}{Which side to draw the row dendrogram on ('left' or 'right', defaults to 'left').}
 
-\item{dend_cols_side}{Which side to draw the column dendrogram on ('bottom', 'down', 'b', 'd' for bottom, otherwise top).}
+\item{dend_cols_side}{Which side to draw the column dendrogram on ('bottom' or 'top', defaults to 'bottom').}
 
 \item{dend_col}{Colour to use for dendrogram lines, applied to both row and column dendrograms.}
 

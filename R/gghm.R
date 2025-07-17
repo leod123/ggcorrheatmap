@@ -52,8 +52,8 @@
 #' If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
 #' specify order using the `guide` argument in the `ggplot2` scale function.
 #' @param annot_cols_fill Named list used for column annotation colour scales, used like `annot_rows_fill`.
-#' @param annot_rows_side String specifying which side row annotation should be drawn ('left' or 'l' for left, otherwise right).
-#' @param annot_cols_side String specifying which side column annotation should be drawn ('bottom', 'down', 'b', 'd' for bottom, otherwise top).
+#' @param annot_rows_side String specifying which side row annotation should be drawn ('left' or 'right', defaults to 'left').
+#' @param annot_cols_side String specifying which side column annotation should be drawn ('bottom' or 'top', defaults to 'bottom').
 #' @param annot_dist Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_gap Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_size Size (width for row annotation, height for column annotation) of annotation cells compared to a heatmap cell. Used for both row and column annotation.
@@ -77,8 +77,8 @@
 #' @param cluster_method String with the clustering method to use, given to `stats::hclust()`.
 #' @param dend_rows Logical indicating if a dendrogram should be drawn for the rows.
 #' @param dend_cols Logical indicating if a dendrogram should be drawn for the columns.
-#' @param dend_rows_side Which side to draw the row dendrogram on ('left' or 'l' for left, otherwise right).
-#' @param dend_cols_side Which side to draw the column dendrogram on ('bottom', 'down', 'b', 'd' for bottom, otherwise top).
+#' @param dend_rows_side Which side to draw the row dendrogram on ('left' or 'right', defaults to 'left').
+#' @param dend_cols_side Which side to draw the column dendrogram on ('bottom' or 'top', defaults to 'bottom').
 #' @param dend_col Colour to use for dendrogram lines, applied to both row and column dendrograms.
 #' @param dend_dist Distance from heatmap (or annotation) to leaves of dendrogram, measured in heatmap cells (1 is the size of one cell).
 #' @param dend_height Number by which to scale dendrogram height, applied to both row and column dendrograms.
@@ -323,8 +323,14 @@ gghm <- function(x,
     annot_left <- annot_rows_side %in% c("left", "l")
     annot_down <- annot_cols_side %in% c("bottom", "down", "b", "d")
   } else {
-    pos_left = dend_left = annot_left <- layout %in% c("topleft", "tl", "bottomleft", "bl")
-    pos_down = dend_down = annot_down <- layout %in% c("bottomleft", "bl", "bottomright", "br")
+    dend_left = annot_left <- layout %in% c("topleft", "tl", "bottomleft", "bl")
+    dend_down = annot_down <- layout %in% c("bottomleft", "bl", "bottomright", "br")
+  }
+
+  if (!full_plt) {
+    # Move annotation and dendrograms to non-empty sides if not full plot
+    annot_rows_side <- dend_rows_side <- ifelse(layout %in% c("topleft", "tl", "bottomleft", "bl"), "left", "right")
+    annot_cols_side <- dend_cols_side <- ifelse(layout %in% c("bottomleft", "bl", "bottomright", "br"), "bottom", "top")
   }
 
   # Make long format data, ordering columns to fit layout
@@ -396,20 +402,22 @@ gghm <- function(x,
                         border_lty = annot_border_lty, na_col = annot_na_col)
   if (is.data.frame(annot_rows_df)) {
     annot_rows_prep <- prepare_annotation(annot_df = annot_rows_df, annot_defaults = annot_default,
-                                          annot_params = annot_rows_params, lannot_side = annot_left,
-                                          annot_label_params = annot_rows_label_params,
+                                          annot_params = annot_rows_params, annot_side = annot_rows_side,
+                                          context = "rows", annot_label_params = annot_rows_label_params,
                                           annot_label_side = annot_rows_label_side, data_size = ncol(x))
     annot_rows_df <- annot_rows_prep[[1]]; annot_rows_params <- annot_rows_prep[[2]];
     annot_rows_pos <- annot_rows_prep[[3]]; annot_rows_label_params <- annot_rows_prep[[4]]
+    annot_rows_label_side <- annot_rows_prep[[5]]
   }
 
   if (is.data.frame(annot_cols_df)) {
     annot_cols_prep <- prepare_annotation(annot_df = annot_cols_df, annot_defaults = annot_default,
-                                          annot_params = annot_cols_params, lannot_side = annot_down,
-                                          annot_label_params = annot_cols_label_params,
+                                          annot_params = annot_cols_params, annot_side = annot_cols_side,
+                                          context = "cols", annot_label_params = annot_cols_label_params,
                                           annot_label_side = annot_cols_label_side, data_size = nrow(x))
     annot_cols_df <- annot_cols_prep[[1]]; annot_cols_params <- annot_cols_prep[[2]];
     annot_cols_pos <- annot_cols_prep[[3]]; annot_cols_label_params <- annot_cols_prep[[4]]
+    annot_cols_label_side <- annot_cols_prep[[5]]
   }
 
   # Generate dendrograms, positions depend on annotation sizes
@@ -418,28 +426,28 @@ gghm <- function(x,
     # Replace default parameters if any are provided
     dend_rows_params <- replace_default(dend_defaults, dend_rows_params)
 
-    dendro_rows <- prepare_dendrogram(dendro_in = row_clustering$dendro, dend_dim = "rows",
-                                      dend_down = dend_down, dend_left = dend_left,
+    dendro_rows <- prepare_dendrogram(dendro_in = row_clustering$dendro, context = "rows",
+                                      dend_side = dend_rows_side,
                                       dend_dist = dend_rows_params$dist,
                                       dend_height = dend_rows_params$height,
                                       full_plt = full_plt, layout = layout, x_long = x_long,
-                                      annot_df = annot_rows_df, annot_side = annot_left,
+                                      annot_df = annot_rows_df, annot_side = annot_rows_side,
                                       annot_pos = annot_rows_pos, annot_size = annot_rows_params$size)
-    # Check that the dendrogram labels are in the correct positions after mirroring and shifting
-    dendro_rows <- check_dendrogram_pos(dat = x_long, dend_dim = "row", dendro = dendro_rows)
+    # Check that the dendrogram labels are in the correct positions after mirroring and moving
+    dendro_rows <- check_dendrogram_pos(dat = x_long, context = "row", dendro = dendro_rows)
   }
 
   if (lclust_cols & dend_cols) {
     dend_cols_params <- replace_default(dend_defaults, dend_cols_params)
 
-    dendro_cols <- prepare_dendrogram(dendro_in = col_clustering$dendro, dend_dim = "cols",
-                                      dend_down = dend_down, dend_left = dend_left,
+    dendro_cols <- prepare_dendrogram(dendro_in = col_clustering$dendro, context = "cols",
+                                      dend_side = dend_cols_side,
                                       dend_dist = dend_cols_params$dist,
                                       dend_height = dend_cols_params$height,
                                       full_plt = full_plt, layout = layout, x_long = x_long,
-                                      annot_df = annot_cols_df, annot_side = annot_down,
+                                      annot_df = annot_cols_df, annot_side = annot_cols_side,
                                       annot_pos = annot_cols_pos, annot_size = annot_cols_params$size)
-    dendro_cols <- check_dendrogram_pos(x_long, "col", dendro_cols)
+    dendro_cols <- check_dendrogram_pos(dat = x_long, context = "col", dendro = dendro_cols)
   }
 
   # Build plot
@@ -493,29 +501,21 @@ gghm <- function(x,
 
   # Add row and column annotations
   if (is.data.frame(annot_rows_df)) {
-    # Change legend order to be in order of annotations (after main values)
-    lgd_order <- seq_along(annot_rows_df)[-1] + 1
-    names(lgd_order) <- colnames(annot_rows_df)[-which(colnames(annot_rows_df) == ".names")]
-
-    plt <- add_annotation(plt = plt, annot_dim = "rows", annot_df = annot_rows_df, annot_pos = annot_rows_pos,
+    plt <- add_annotation(plt = plt, context = "rows", annot_df = annot_rows_df, annot_pos = annot_rows_pos,
                           annot_size = annot_rows_params$size, annot_border_lwd = annot_rows_params$border_lwd,
                           annot_border_col = annot_rows_params$border_col, annot_border_lty = annot_rows_params$border_lty,
-                          draw_legend = annot_rows_params$legend, draw_label = annot_rows_params$label,
+                          draw_legend = annot_rows_params$legend, annot_label = annot_rows_params$label,
                           na_remove = annot_na_remove, col_scale = annot_scales[["rows"]],
-                          legend_order = lgd_order, label_side = annot_rows_label_side, label_params = annot_rows_label_params)
+                          label_side = annot_rows_label_side, label_params = annot_rows_label_params)
   }
 
   if (is.data.frame(annot_cols_df)) {
-    lgd_order <- if (is.data.frame(annot_rows_df)) {seq_along(annot_cols_df)[-1] + ncol(annot_rows_df)}
-    else {seq_along(annot_cols_df)[-1] + 1}
-    names(lgd_order) <- colnames(annot_cols_df)[-which(colnames(annot_cols_df) == ".names")]
-
-    plt <- add_annotation(plt = plt, annot_dim = "cols", annot_df = annot_cols_df, annot_pos = annot_cols_pos,
+    plt <- add_annotation(plt = plt, context = "cols", annot_df = annot_cols_df, annot_pos = annot_cols_pos,
                           annot_size = annot_cols_params$size, annot_border_lwd = annot_cols_params$border_lwd,
                           annot_border_col = annot_cols_params$border_col, annot_border_lty = annot_cols_params$border_lty,
-                          draw_legend = annot_cols_params$legend, draw_label = annot_cols_params$label,
+                          draw_legend = annot_cols_params$legend, annot_label = annot_cols_params$label,
                           na_remove = annot_na_remove, col_scale = annot_scales[["cols"]],
-                          legend_order = lgd_order, label_side = annot_cols_label_side, label_params = annot_cols_label_params)
+                          label_side = annot_cols_label_side, label_params = annot_cols_label_params)
   }
 
   # Add dendrograms

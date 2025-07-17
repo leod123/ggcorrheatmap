@@ -6,7 +6,7 @@
 \usage{
 add_annotation(
   plt,
-  annot_dim = c("rows", "cols"),
+  context = c("rows", "cols"),
   annot_df,
   annot_pos,
   annot_size,
@@ -14,18 +14,17 @@ add_annotation(
   annot_border_col = "grey",
   annot_border_lty = 1,
   draw_legend = T,
-  draw_label = T,
+  annot_label = T,
   na_remove = F,
   col_scale = NULL,
-  legend_order = NULL,
   label_side,
   label_params = NULL
 )
 }
 \arguments{
-\item{plt}{\code{ggplot} object with \code{geom_tile} layer to add annotations to}
+\item{plt}{\code{ggplot} object with \code{geom_tile} layer to add annotations to.}
 
-\item{annot_dim}{Dimension to add annotations to, either "rows" or "columns"}
+\item{context}{Dimension to add annotations to, either "rows" or "columns".}
 
 \item{annot_df}{Data frame containing the annotations.
 The first column must contain the labels used in the heatmap rows or columns.
@@ -44,14 +43,12 @@ Positions are given by the middle coordinate of the annotation cells.}
 
 \item{draw_legend}{Logical indicating if a legend should be drawn.}
 
-\item{draw_label}{Logical indicating if the annotation names should be drawn.}
+\item{annot_label}{Logical indicating if the annotation names should be drawn.}
 
 \item{na_remove}{Logical indicating if NA values should be removed.}
 
 \item{col_scale}{Named list of fill scales to use, named after the columns in the annotation data frame.
 Each element should either be a \verb{scale_fill_*} object or a string specifying a brewer palette or viridis option.}
-
-\item{legend_order}{Numeric vector specifying the order the legends should be drawn in (applied in order of columns in annot_df).}
 
 \item{label_side}{String specifying which side the labels should be drawn on. "top" or "bottom" for row annotation, "left" or "right" for column annotation.}
 
