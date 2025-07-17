@@ -78,6 +78,19 @@ prepare_dendrogram <- function(dendro_in, context = c("rows", "cols"), dend_side
                                annot_df, annot_side, annot_pos, annot_size) {
   pch <- cex <- x <- y <- NULL
 
+  # Check that numeric arguments are numeric
+  if (any(c(!is.numeric(dend_dist), !is.numeric(dend_height))) ||
+      any(c(length(dend_dist) > 1, length(dend_height) > 1))) {
+    non_num_var <- c("dend_dist", "dend_height")[
+      which(sapply(list(dend_dist, dend_height), function(x) {
+        !is.numeric(x) || length(x) > 1
+      }))
+    ]
+    cli::cli_abort("{.var {non_num_var}} must be {.cls numeric} with length one.",
+                   class = "dend_nonnum_error")
+  }
+
+  # Check that the dendrogram side is ok
   if ((dend_side == "left" && context[1] == "rows") ||
       (dend_side == "bottom" && context[1] == "cols")) {
     ldend_side <- T

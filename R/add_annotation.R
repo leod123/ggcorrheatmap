@@ -52,7 +52,14 @@ add_annotation <- function(plt, context = c("rows", "cols"), annot_df, annot_pos
 
         if (annot_label) {
           # Add labels using annotation_custom to add a text grob without disturbing the plot area limits
-          ggplot2::annotation_custom(do.call(grid::textGrob, append(list(nm), label_params)),
+          ggplot2::annotation_custom(tryCatch(do.call(grid::textGrob, append(list(nm), label_params)),
+                                              error = function(err) {
+                                                cli::cli_abort(c("Error in grid::textGrob when drawing annotation labels:",
+                                                                 i = err[["message"]]),
+                                                               # Make the call a bit more informative
+                                                               call = call("add_annotation"),
+                                                               class = "grid_texrgrob_error")
+                                              }),
                                      # Distance between edge of heatmap and labels is 0.2 (default distance of annotation from heatmap)
                                      # (.3 is .2 away from .5 (middle point of cell), .7 is the same distance in the other direction)
                                      xmin = ifelse(context[1] == "rows", annot_pos[nm], ifelse(label_side == "left", .3, nrow(annot_df) + .7)),
@@ -86,6 +93,13 @@ add_annotation <- function(plt, context = c("rows", "cols"), annot_df, annot_pos
 prepare_annotation <- function(annot_df, annot_defaults, annot_params, annot_side, context = c("rows", "cols"),
                                annot_label_params, annot_label_side, data_size) {
 
+  # Check that annotation label parameters are in a list
+  if (!is.list(annot_label_params) && !is.null(annot_label_params)) {
+    var_name <- paste0("annot_", context[1], "_label_side")
+    cli::cli_abort("{.var {var_name}} must be a {.cls list}, not {.cls {class(annot_label_params)}}.",
+                   class = "annot_label_params_class_error")
+  }
+
   # Logical for annotation position
   if ((annot_side == "left" && context[1] == "rows") ||
       (annot_side == "bottom" && context[1] == "cols")) {
@@ -94,7 +108,7 @@ prepare_annotation <- function(annot_df, annot_defaults, annot_params, annot_sid
              (annot_side == "top" && context[1] == "cols")) {
     lannot_side <- F
   } else {
-    var_name <- switch(context[1], "rows" = "annot_rows_side", "cols" = "annot_cols_side")
+    var_name <- paste0("annot_", context[1], "_side")
     val_name <- switch(context[1], "rows" = c("left", "right"), "cols" = c("top", "bottom"))
     cli::cli_warn("{.var {var_name}} should be {.val {val_name[1]}} or {.val {val_name[2]}},
                   not {.val {annot_side}}.",
@@ -107,6 +121,18 @@ prepare_annotation <- function(annot_df, annot_defaults, annot_params, annot_sid
   # Replace defaults with any provided options
   annot_params <- replace_default(annot_defaults, annot_params)
 
+  # Check final parameters
+  if (any(c(!is.numeric(annot_params[["dist"]]), !is.numeric(annot_params[["gap"]]), !is.numeric(annot_params[["size"]]))) ||
+      any(c(length(annot_params[["dist"]]) > 1, length(annot_params[["gap"]]) > 1, length(annot_params[["size"]]) > 1))) {
+    non_num_var <- c("annot_dist", "annot_gap", "annot_size")[
+      which(sapply(list(annot_params[["dist"]], annot_params[["gap"]], annot_params[["size"]]), function(x) {
+        !is.numeric(x) || length(x) > 1
+      }))
+    ]
+    cli::cli_abort("{.var {non_num_var}} must be {.cls numeric} with length one.",
+                   class = "annot_nonnum_error")
+  }
+
   # Get positions of annotations
   annot_pos <- get_annotation_pos(lannot_side, annot_names, annot_params$size,
                                   annot_params$dist, annot_params$gap, data_size)
@@ -114,7 +140,7 @@ prepare_annotation <- function(annot_df, annot_defaults, annot_params, annot_sid
   # Row annotation label parameters and their defaults (fed to grid::textGrob)
   if (!(context[1] == "rows" && annot_label_side %in% c("top", "bottom")) &&
       !(context[1] == "cols" && annot_label_side %in% c("left", "right"))) {
-    side_var <- paste0("annot_", ifelse(context[1] == "rows", "rows", "cols"), "_label_side")
+    side_var <- paste0("annot_", context[1], "_label_side")
     side_val <- switch(context[1], "rows" = c("top", "bottom"), "cols" = c("left", "right"))
     cli::cli_warn("{.var {side_var}} should be {.val {side_val[1]}} or {.val {side_val[2]}}, not {.val {annot_label_side}}.",
                   class = "annot_label_side_warn")

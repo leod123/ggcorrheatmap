@@ -219,6 +219,30 @@ test_that("warnings and errors", {
   expect_warning(gghm(mtcars, cluster_cols = T, dend_cols_side = "asdf"), class = "dend_side_warn")
   expect_warning(gghm(cor(mtcars), annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11, b = 11:1),
                       annot_rows_label_side = "asdf"), class = "annot_label_side_warn")
+  # Annotation and dendrogram parameters
+  expect_error(gghm(mtcars, annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:32, b = 32:1),
+                    annot_dist = "a"), class = "annot_nonnum_error")
+  ## No error if overwritten with parameter list
+  expect_no_error(gghm(mtcars, annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:32, b = 32:1),
+                       annot_dist = "a", annot_rows_params = list(dist = 1)))
+  ## But still error if only one is overwritten when both should be drawn
+  expect_error(gghm(mtcars, annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:32, b = 32:1),
+                    annot_cols_df = data.frame(.names = colnames(mtcars), c = 1:11),
+                    annot_dist = "a", annot_rows_params = list(dist = 1)),
+               class = "annot_nonnum_error")
+  expect_error(gghm(mtcars, cluster_rows = T, cluster_cols = T, dend_height = "a"),
+               class = "dend_nonnum_error")
+  expect_no_error(gghm(mtcars, cluster_rows = T, cluster_cols = F, dend_height = "a",
+                       dend_rows_params = list(height = 1)))
+  expect_error(gghm(mtcars, cluster_rows = T, cluster_cols = T, dend_height = "a",
+                    dend_rows_params = list(height = 1)),
+               class = "dend_nonnum_error")
+  expect_error(gghm(mtcars, annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:32, b = 32:1),
+                    annot_rows_label_params = 1),
+               class = "annot_label_params_class_error")
+  expect_error(gghm(mtcars, annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:32, b = 32:1),
+                    annot_rows_label_params = list(asdf = 1)),
+               class = "grid_texrgrob_error")
 })
 
 test_that("annotation names must exist in the data", {
