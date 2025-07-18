@@ -33,7 +33,8 @@
 #' @param cell_label_digits Number of digits to display when cells are labelled (if numeric values). Default is 2, passed to `base::round()`. NULL for no rounding.
 #' @param border_col Colour of cell borders. If `mode` is not a number, `border_col` can be set to NA to remove borders completely.
 #' @param border_lwd Size of cell borders. If `mode` is a number, `border_col` can be set to 0 to remove borders.
-#' @param border_lty Line type of cell borders. Not supported for numeric `mode`.
+#' @param border_lty Line type of cell borders. Either a number or its corresponding name, or a string of length 2, 4, 6, or 8. See 'lty' of `graphics::par()` for details.
+#' Not supported for numeric `mode`.
 #' @param cell_bg_col Colour to use for cell backgrounds in modes 'text' and 'none'.
 #' @param cell_bg_alpha Alpha for cell colours in modes 'text' and 'none'.
 #' @param names_diag Logical indicating if names should be written in the diagonal cells (for symmetric input).
@@ -203,6 +204,9 @@ gghm <- function(x,
 
   if (!is.matrix(x) & !is.data.frame(x)) cli::cli_abort("{.var x} must be a matrix or data frame.", class = "input_class_error")
 
+  # Check return_data so you don't get an error after everything is done
+  check_logical(return_data = return_data)
+
   # Convert a tibble to a data frame to support row names
   if (inherits(x, "tbl_df")) {x <- as.data.frame(x)}
 
@@ -335,7 +339,7 @@ gghm <- function(x,
 
   # Make long format data, ordering columns to fit layout
   if (length(layout) == 1) {
-    x_long <- layout_hm(x, layout = layout, na_remove = na_remove)
+    x_long <- layout_hm(x, layout = layout, na_remove = na_remove, include_diag = include_diag)
 
     # Reorder data to ensure it is in the drawing order
     x_long <- if (any(c("topleft", "tl", "bottomright", "br") %in% layout)) {
@@ -359,6 +363,63 @@ gghm <- function(x,
       dplyr::arrange(x_long, layout, col, dplyr::desc(row))
     }
   }
+
+
+  # Annotation for rows and columns
+  # Default annotation parameters
+  annot_default <- list(dist = annot_dist, gap = annot_gap, size = annot_size,
+                        label = annot_label, border_col = annot_border_col,
+                        border_lwd = annot_border_lwd, border_lty = annot_border_lty)
+  if (is.data.frame(annot_rows_df)) {
+    annot_rows_prep <- prepare_annotation(annot_df = annot_rows_df, annot_defaults = annot_default,
+                                          annot_params = annot_rows_params, annot_side = annot_rows_side,
+                                          context = "rows", annot_label_params = annot_rows_label_params,
+                                          annot_label_side = annot_rows_label_side, data_size = ncol(x))
+    annot_rows_df <- annot_rows_prep[[1]]; annot_rows_params <- annot_rows_prep[[2]];
+    annot_rows_pos <- annot_rows_prep[[3]]; annot_rows_label_params <- annot_rows_prep[[4]]
+    annot_rows_label_side <- annot_rows_prep[[5]]
+  }
+
+  if (is.data.frame(annot_cols_df)) {
+    annot_cols_prep <- prepare_annotation(annot_df = annot_cols_df, annot_defaults = annot_default,
+                                          annot_params = annot_cols_params, annot_side = annot_cols_side,
+                                          context = "cols", annot_label_params = annot_cols_label_params,
+                                          annot_label_side = annot_cols_label_side, data_size = nrow(x))
+    annot_cols_df <- annot_cols_prep[[1]]; annot_cols_params <- annot_cols_prep[[2]];
+    annot_cols_pos <- annot_cols_prep[[3]]; annot_cols_label_params <- annot_cols_prep[[4]]
+    annot_cols_label_side <- annot_cols_prep[[5]]
+  }
+
+  # Generate dendrograms, positions depend on annotation sizes
+  dend_defaults <- list(dist = dend_dist, col = dend_col, height = dend_height, lwd = dend_lwd, lty = dend_lty)
+
+  check_logical(dend_rows = dend_rows)
+  check_logical(dend_cols = dend_cols)
+
+  if (lclust_rows & isTRUE(dend_rows)) {
+    dendro_rows <- prepare_dendrogram(dendro_in = row_clustering$dendro, context = "rows",
+                                      dend_side = dend_rows_side,
+                                      dend_defaults = dend_defaults,
+                                      dend_params = dend_rows_params,
+                                      full_plt = full_plt, layout = layout, x_long = x_long,
+                                      annot_df = annot_rows_df, annot_side = annot_rows_side,
+                                      annot_pos = annot_rows_pos, annot_size = annot_rows_params$size)
+
+    # Check that the dendrogram labels are in the correct positions after mirroring and moving
+    dendro_rows <- check_dendrogram_pos(dat = x_long, context = "row", dendro = dendro_rows)
+  }
+
+  if (lclust_cols & isTRUE(dend_cols)) {
+    dendro_cols <- prepare_dendrogram(dendro_in = col_clustering$dendro, context = "cols",
+                                      dend_side = dend_cols_side,
+                                      dend_defaults = dend_defaults,
+                                      dend_params = dend_cols_params,
+                                      full_plt = full_plt, layout = layout, x_long = x_long,
+                                      annot_df = annot_cols_df, annot_side = annot_cols_side,
+                                      annot_pos = annot_cols_pos, annot_size = annot_cols_params$size)
+    dendro_cols <- check_dendrogram_pos(dat = x_long, context = "col", dendro = dendro_cols)
+  }
+
 
   # Generate colour scales according to specifications
   # Skip this whole part if the function call comes directly from ggcorrhm, as it is already handled there
@@ -395,61 +456,6 @@ gghm <- function(x,
     annot_scales <- list("rows" = annot_rows_fill, "cols" = annot_cols_fill)
   }
 
-  # Annotation for rows and columns
-  # Default annotation parameters
-  annot_default <- list(dist = annot_dist, gap = annot_gap, size = annot_size,
-                        label = annot_label, border_col = annot_border_col, border_lwd = annot_border_lwd,
-                        border_lty = annot_border_lty, na_col = annot_na_col)
-  if (is.data.frame(annot_rows_df)) {
-    annot_rows_prep <- prepare_annotation(annot_df = annot_rows_df, annot_defaults = annot_default,
-                                          annot_params = annot_rows_params, annot_side = annot_rows_side,
-                                          context = "rows", annot_label_params = annot_rows_label_params,
-                                          annot_label_side = annot_rows_label_side, data_size = ncol(x))
-    annot_rows_df <- annot_rows_prep[[1]]; annot_rows_params <- annot_rows_prep[[2]];
-    annot_rows_pos <- annot_rows_prep[[3]]; annot_rows_label_params <- annot_rows_prep[[4]]
-    annot_rows_label_side <- annot_rows_prep[[5]]
-  }
-
-  if (is.data.frame(annot_cols_df)) {
-    annot_cols_prep <- prepare_annotation(annot_df = annot_cols_df, annot_defaults = annot_default,
-                                          annot_params = annot_cols_params, annot_side = annot_cols_side,
-                                          context = "cols", annot_label_params = annot_cols_label_params,
-                                          annot_label_side = annot_cols_label_side, data_size = nrow(x))
-    annot_cols_df <- annot_cols_prep[[1]]; annot_cols_params <- annot_cols_prep[[2]];
-    annot_cols_pos <- annot_cols_prep[[3]]; annot_cols_label_params <- annot_cols_prep[[4]]
-    annot_cols_label_side <- annot_cols_prep[[5]]
-  }
-
-  # Generate dendrograms, positions depend on annotation sizes
-  dend_defaults <- list(dist = dend_dist, col = dend_col, height = dend_height, lwd = dend_lwd, lty = dend_lty)
-  if (lclust_rows & dend_rows) {
-    # Replace default parameters if any are provided
-    dend_rows_params <- replace_default(dend_defaults, dend_rows_params)
-
-    dendro_rows <- prepare_dendrogram(dendro_in = row_clustering$dendro, context = "rows",
-                                      dend_side = dend_rows_side,
-                                      dend_dist = dend_rows_params$dist,
-                                      dend_height = dend_rows_params$height,
-                                      full_plt = full_plt, layout = layout, x_long = x_long,
-                                      annot_df = annot_rows_df, annot_side = annot_rows_side,
-                                      annot_pos = annot_rows_pos, annot_size = annot_rows_params$size)
-    # Check that the dendrogram labels are in the correct positions after mirroring and moving
-    dendro_rows <- check_dendrogram_pos(dat = x_long, context = "row", dendro = dendro_rows)
-  }
-
-  if (lclust_cols & dend_cols) {
-    dend_cols_params <- replace_default(dend_defaults, dend_cols_params)
-
-    dendro_cols <- prepare_dendrogram(dendro_in = col_clustering$dendro, context = "cols",
-                                      dend_side = dend_cols_side,
-                                      dend_dist = dend_cols_params$dist,
-                                      dend_height = dend_cols_params$height,
-                                      full_plt = full_plt, layout = layout, x_long = x_long,
-                                      annot_df = annot_cols_df, annot_side = annot_cols_side,
-                                      annot_pos = annot_cols_pos, annot_size = annot_cols_params$size)
-    dendro_cols <- check_dendrogram_pos(dat = x_long, context = "col", dendro = dendro_cols)
-  }
-
   # Build plot
   if (length(layout) == 1) {
     plt <- make_heatmap(x_long = x_long, plt = NULL, mode = mode, include_diag = include_diag,
@@ -461,7 +467,7 @@ gghm <- function(x,
                         cell_labels = cell_labels, cell_label_col = cell_label_col,
                         cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
                         cell_bg_col = cell_bg_col, cell_bg_alpha = cell_bg_alpha)
-    if (names_diag) {
+    if (isTRUE(names_diag)) {
       plt <- add_diag_names(plt = plt, x_long = x_long, names_diag_params = names_diag_params)
     }
   } else if (length(layout) == 2) {
@@ -503,8 +509,9 @@ gghm <- function(x,
   if (is.data.frame(annot_rows_df)) {
     plt <- add_annotation(plt = plt, context = "rows", annot_df = annot_rows_df, annot_pos = annot_rows_pos,
                           annot_size = annot_rows_params$size, annot_border_lwd = annot_rows_params$border_lwd,
-                          annot_border_col = annot_rows_params$border_col, annot_border_lty = annot_rows_params$border_lty,
-                          draw_legend = annot_rows_params$legend, annot_label = annot_rows_params$label,
+                          annot_border_col = annot_rows_params$border_col,
+                          annot_border_lty = annot_rows_params$border_lty,
+                          annot_label = annot_rows_params$label,
                           na_remove = annot_na_remove, col_scale = annot_scales[["rows"]],
                           label_side = annot_rows_label_side, label_params = annot_rows_label_params)
   }
@@ -512,21 +519,22 @@ gghm <- function(x,
   if (is.data.frame(annot_cols_df)) {
     plt <- add_annotation(plt = plt, context = "cols", annot_df = annot_cols_df, annot_pos = annot_cols_pos,
                           annot_size = annot_cols_params$size, annot_border_lwd = annot_cols_params$border_lwd,
-                          annot_border_col = annot_cols_params$border_col, annot_border_lty = annot_cols_params$border_lty,
-                          draw_legend = annot_cols_params$legend, annot_label = annot_cols_params$label,
+                          annot_border_col = annot_cols_params$border_col,
+                          annot_border_lty = annot_cols_params$border_lty,
+                          annot_label = annot_cols_params$label,
                           na_remove = annot_na_remove, col_scale = annot_scales[["cols"]],
                           label_side = annot_cols_label_side, label_params = annot_cols_label_params)
   }
 
   # Add dendrograms
-  if (lclust_rows & dend_rows) {
-    plt <- add_dendrogram(plt = plt, dendro = dendro_rows, dend_col = dend_rows_params$col,
-                          dend_lwd = dend_rows_params$lwd, dend_lty = dend_rows_params$lty)
+  if (lclust_rows & isTRUE(dend_rows)) {
+    plt <- add_dendrogram(plt = plt, dendro = dendro_rows, dend_col = dendro_rows$params$col,
+                          dend_lwd = dendro_rows$params$lwd, dend_lty = dendro_rows$params$lty)
   }
 
-  if (lclust_cols & dend_cols) {
-    plt <- add_dendrogram(plt = plt, dendro = dendro_cols, dend_col = dend_cols_params$col,
-                          dend_lwd = dend_cols_params$lwd, dend_lty = dend_cols_params$lty)
+  if (lclust_cols & isTRUE(dend_cols)) {
+    plt <- add_dendrogram(plt = plt, dendro = dendro_cols, dend_col = dendro_cols$params$col,
+                          dend_lwd = dendro_cols$params$lwd, dend_lty = dendro_cols$params$lty)
   }
 
   if (return_data) {
@@ -657,4 +665,36 @@ prepare_mixed_param <- function(param, param_name) {
   }
 
   return(param_out)
+}
+
+
+#' Check (supposed) logical values.
+#'
+#' @keywords internal
+#'
+#' @param ... Should be a single named argument, where the name is the variable name displayed in the error message.
+#' The value is the (supposed) logical.
+#' @param call Call to use for the call in the error message (used in rlang::abort).
+#' Default is rlang::caller_env() resulting in the function that called check_logical().
+#'
+#' @returns Error if not logical or longer than 1, otherwise nothing.
+#'
+check_logical <- function(..., call = rlang::caller_env()) {
+  arg <- list(...)
+  name <- names(arg)
+  val <- arg[[1]]
+
+  err_msg <- paste0("{.var ", name, "} must be a single {.cls logical} value, not ")
+
+  if (!is.logical(val)) {
+    cli::cli_abort(paste0(
+      err_msg, "a {.cls {class(val)}}."
+    ), class = "logical_error", call = call)
+  }
+
+  if (length(val) > 1) {
+    cli::cli_abort(paste0(
+      err_msg, "{length(val)} values."
+    ), class = "logical_error", call = call)
+  }
 }

@@ -172,7 +172,8 @@ containing values to write in the cells. If mode is \code{text}, the cell label 
 
 \item{border_lwd}{Size of cell borders. If \code{mode} is a number, \code{border_col} can be set to 0 to remove borders.}
 
-\item{border_lty}{Line type of cell borders. Not supported for numeric \code{mode}.}
+\item{border_lty}{Line type of cell borders. Either a number or its corresponding name, or a string of length 2, 4, 6, or 8. See 'lty' of \code{graphics::par()} for details.
+Not supported for numeric \code{mode}.}
 
 \item{names_diag}{Logical indicating if names should be written in the diagonal cells (for symmetric input).}
 

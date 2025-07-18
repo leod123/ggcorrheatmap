@@ -11,6 +11,8 @@
 #'
 layout_hm <- function(x, layout = "f", na_remove = F, include_diag = T) {
 
+  check_logical(include_diag = include_diag)
+
   if (isSymmetric(as.matrix(x)) & layout %in% c("bottomleft", "bl", "topleft", "tl")) {
     x_long <- remove_triangle(x, tri_remove = "upper", na_remove = na_remove)
 
@@ -31,7 +33,7 @@ layout_hm <- function(x, layout = "f", na_remove = F, include_diag = T) {
                          })
   x_long$col <- factor(x_long$col, levels = colnames(x))
 
-  if (!include_diag) {
+  if (isFALSE(include_diag)) {
     x_long <- dplyr::filter(x_long, as.character(row) != as.character(col))
   }
 

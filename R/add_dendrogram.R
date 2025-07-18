@@ -22,6 +22,7 @@ add_dendrogram <- function(plt, dendro, dend_col = "black", dend_lwd = 0.3, dend
   seg[["col"]][is.na(seg[["col"]])] <- dend_col
   seg[["lwd"]][is.na(seg[["lwd"]])] <- dend_lwd
   seg[["lty"]][is.na(seg[["lty"]])] <- dend_lty
+  seg[["col"]] <- as.character(seg[["col"]])
   seg_colr <- dplyr::pull(dplyr::distinct(seg, col), col)
   # Colours for manual scale
   names(seg_colr) <- seg_colr
@@ -38,6 +39,7 @@ add_dendrogram <- function(plt, dendro, dend_col = "black", dend_lwd = 0.3, dend
 
   # Draw nodes
   if (nrow(nod) > 0) {
+    nod[["col"]] <- as.character(nod[["col"]])
     nod_colr <- dplyr::pull(dplyr::distinct(nod, col), col)
     names(nod_colr) <- nod_colr
 
@@ -60,8 +62,8 @@ add_dendrogram <- function(plt, dendro, dend_col = "black", dend_lwd = 0.3, dend
 #' `some_matrix |> dist() |> hclust() |> as.dendrogram() |> dendextend::as.ggdend()`.
 #' @param context Dimension the dendrogram will be plotted against (rows or columns).
 #' @param dend_side String for dendrogram side.
-#' @param dend_dist Distance from heatmap (or annotation) to dendrogram measured in cell size.
-#' @param dend_height Scaling parameter of dendrogram height.
+#' @param dend_defaults List with dendrogram default parameters.
+#' @param dend_params List with dendrogram parameters to overwrite defaults.
 #' @param full_plt Logical indicating if the whole heatmap is plotted or not.
 #' @param layout The heatmap layout (for reordering rows).
 #' @param x_long Data frame containing the values that will be plotted in the heatmap.
@@ -74,9 +76,21 @@ add_dendrogram <- function(plt, dendro, dend_col = "black", dend_lwd = 0.3, dend
 #' @return Data frame with dendrogram segment and node parameters.
 #'
 prepare_dendrogram <- function(dendro_in, context = c("rows", "cols"), dend_side,
-                               dend_dist, dend_height, full_plt, layout, x_long,
+                               dend_defaults, dend_params, full_plt, layout, x_long,
                                annot_df, annot_side, annot_pos, annot_size) {
   pch <- cex <- x <- y <- NULL
+
+  # Replace default parameters if any are provided
+  if (!is.list(dend_params) && !is.null(dend_params)) {
+    var_name <- paste0("dend_", context[1], "_params")
+    cli::cli_warn("{.var {var_name}} should be a {.cls list} or NULL, not {.cls {class(dend_params)}}.",
+                  class = "dend_params_warn")
+  }
+  dend_params <- replace_default(dend_defaults, dend_params,
+                                      warning_context = paste0("In {.var dend_", context[1], "_params}: "))
+
+  dend_height <- dend_params[["height"]]
+  dend_dist <- dend_params[["dist"]]
 
   # Check that numeric arguments are numeric
   if (any(c(!is.numeric(dend_dist), !is.numeric(dend_height))) ||
@@ -153,7 +167,7 @@ prepare_dendrogram <- function(dendro_in, context = c("rows", "cols"), dend_side
   dend_nod[["cex"]][is.na(dend_nod[["cex"]])] <- 1
   dend_nod[["col"]][is.na(dend_nod[["col"]])] <- "black"
 
-  return(list("seg" = dend_seg, "nod" = dend_nod))
+  return(list("seg" = dend_seg, "nod" = dend_nod, "params" = dend_params))
 }
 
 

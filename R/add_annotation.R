@@ -13,7 +13,6 @@
 #' @param annot_border_lwd Linewidth of border lines of annotation cells.
 #' @param annot_border_col Colour of border lines of annotation cells.
 #' @param annot_border_lty Linetype of border lines of annotation cells.
-#' @param draw_legend Logical indicating if a legend should be drawn.
 #' @param annot_label Logical indicating if the annotation names should be drawn.
 #' @param na_remove Logical indicating if NA values should be removed.
 #' @param col_scale Named list of fill scales to use, named after the columns in the annotation data frame.
@@ -25,9 +24,11 @@
 #'
 add_annotation <- function(plt, context = c("rows", "cols"), annot_df, annot_pos, annot_size,
                            annot_border_lwd = 0.5, annot_border_col = "grey", annot_border_lty = 1,
-                           draw_legend = T, annot_label = T, na_remove = F,
-                           col_scale = NULL, label_side, label_params = NULL) {
+                           annot_label = T, na_remove = F, col_scale = NULL, label_side, label_params = NULL) {
   .names <- .data <- NULL
+
+  check_logical(annot_na_remove = na_remove)
+  check_logical(annot_label = annot_label)
 
   annot_names <- colnames(annot_df)[-which(colnames(annot_df) == ".names")]
 
@@ -93,7 +94,12 @@ add_annotation <- function(plt, context = c("rows", "cols"), annot_df, annot_pos
 prepare_annotation <- function(annot_df, annot_defaults, annot_params, annot_side, context = c("rows", "cols"),
                                annot_label_params, annot_label_side, data_size) {
 
-  # Check that annotation label parameters are in a list
+  # Check that annotation and label parameters are in lists
+  if (!is.list(annot_params) && !is.null(annot_params)) {
+    var_name <- paste0("annot_", context[1], "_params")
+    cli::cli_warn("{.var {var_name}} should be a {.cls list} or NULL, not {.cls {class(annot_params)}}.",
+                  class = "annot_params_warn")
+  }
   if (!is.list(annot_label_params) && !is.null(annot_label_params)) {
     var_name <- paste0("annot_", context[1], "_label_side")
     cli::cli_abort("{.var {var_name}} must be a {.cls list}, not {.cls {class(annot_label_params)}}.",
@@ -119,7 +125,8 @@ prepare_annotation <- function(annot_df, annot_defaults, annot_params, annot_sid
   annot_names <- colnames(annot_df)[-which(colnames(annot_df) == ".names")]
 
   # Replace defaults with any provided options
-  annot_params <- replace_default(annot_defaults, annot_params)
+  annot_params <- replace_default(annot_defaults, annot_params,
+                                  warning_context = paste0("In {.var annot_", context[1], "_params}: "))
 
   # Check final parameters
   if (any(c(!is.numeric(annot_params[["dist"]]), !is.numeric(annot_params[["gap"]]), !is.numeric(annot_params[["size"]]))) ||

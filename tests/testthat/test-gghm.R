@@ -243,6 +243,34 @@ test_that("warnings and errors", {
   expect_error(gghm(mtcars, annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:32, b = 32:1),
                     annot_rows_label_params = list(asdf = 1)),
                class = "grid_texrgrob_error")
+  # Annotation and dendrogram parameters, input class
+  expect_warning(gghm(cor(mtcars), annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11, b = 5:15),
+                      annot_rows_params = "a"),
+                 class = "annot_params_warn")
+  expect_warning(gghm(mtcars, cluster_rows = T, dend_rows_params = 1),
+                 class = "dend_params_warn")
+  ## Names of elements
+  expect_warning(gghm(cor(mtcars), annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11, b = 5:15),
+                      annot_rows_params = list(a = "a", col = 1)),
+                 class = "replace_default_warn")
+  expect_warning(gghm(mtcars, cluster_rows = T, dend_rows_params = list(height = 1, asdf = 2)),
+                 class = "replace_default_warn")
+  # Other logical arguments
+  expect_error(gghm(mtcars, cluster_rows = T, dend_rows = "TRUE!!"), class = "logical_error")
+  expect_error(gghm(mtcars, cluster_rows = T, cluster_cols = T, dend_cols = 1), class = "logical_error")
+  expect_error(gghm(mtcars, na_remove = "A"), class = "logical_error")
+  expect_error(gghm(mtcars, annot_cols_df = data.frame(.names = colnames(mtcars), a = 1:11),
+                    annot_na_remove = "asdf"), class = "logical_error")
+  expect_error(gghm(mtcars, return_data = "ASDF"), class = "logical_error")
+  expect_error(gghm(cor(mtcars), names_diag = "T"), class = "logical_error")
+  expect_error(gghm(cor(mtcars), names_x = "TR"), class = "logical_error")
+  expect_error(gghm(cor(mtcars), names_y = "TRU"), class = "logical_error")
+  expect_error(gghm(cor(mtcars), include_diag = "TRUE"), class = "logical_error")
+  expect_error(ggcorrhm(cor(mtcars), annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11),
+                        annot_label = "false"), class = "logical_error")
+  # Other class checks
+  expect_error(gghm(mtcars, annot_cols_df = data.frame(.names = colnames(mtcars), a = c(NA, 1:10)),
+                    annot_na_col = NULL), class = "annot_na_col_length_error")
 })
 
 test_that("annotation names must exist in the data", {

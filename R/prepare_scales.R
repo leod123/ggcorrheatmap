@@ -480,6 +480,12 @@ extract_scales <- function(main_scales, scale_order, aes_type, layout) {
 prepare_scales_annot <- function(scale_order, annot_rows_df = NULL, annot_cols_df = NULL,
                                  annot_rows_col = NULL, annot_cols_col = NULL, na_col = "grey50") {
 
+  # Check NA colour
+  if (is.null(na_col)) {
+    cli::cli_abort("{.var annot_na_col} must be a colour, not NULL.",
+                   class = "annot_na_col_length_error")
+  }
+
   # Go through row and then column annotations and assign a scale if not provided
   disc_num <- 1
   cont_num <- 1
@@ -527,7 +533,8 @@ prepare_scales_annot <- function(scale_order, annot_rows_df = NULL, annot_cols_d
       # Create scale based on input scale type
       if (is.character(lst_in[[i]][[2]][[j]])) {
         # Input is a string, get the corresponding brewer or viridis scale
-        lst_in[[i]][[2]][[j]] <- get_colour_scale(lst_in[[i]][[2]][[j]], type, "fill", leg_order = lg_ord, na_col = na_col)
+        lst_in[[i]][[2]][[j]] <- get_colour_scale(lst_in[[i]][[2]][[j]], type, "fill",
+                                                  leg_order = lg_ord, na_col = na_col)
 
         # If NULL is returned, get a default
         if (is.null(lst_in[[i]][[2]][[j]])) {

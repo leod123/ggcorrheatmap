@@ -124,8 +124,7 @@ ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE, dend_height = 1,
            # Node options
            set("nodes_pch", c(15, 16, 17)) %>%
            set("nodes_cex", 2:4) %>%
-           # If passing numbers for the colours, make sure they are characters
-           set("nodes_col", as.character(1:5)))
+           set("nodes_col", 1:5))
 ```
 
 Leaves can be reordered using functions like `ladderize` or `rotate`, though it is not recommended to do for only one dimension if the matrix is symmetric as the diagonal may end up in strange places. Triangular layouts are not supported if the clustering causes the matrix to become asymmetric.

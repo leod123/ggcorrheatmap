@@ -132,6 +132,9 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      dend_rows_params = NULL, dend_cols_params = NULL,
                      dend_rows_extend = NULL, dend_cols_extend = NULL) {
 
+  # Check return_data so you don't get an error after everything is done
+  check_logical(return_data = return_data)
+
   # If p-values are computed and thresholds given, check that they range between 0 and 1 and that they have enough names
   if (any(unlist(p_values)) & is.numeric(p_thresholds)) {
     if (any(p_thresholds < 0)) cli::cli_abort("Values in {.var p_thresholds} must be above 0.", class = "p_thr_error")

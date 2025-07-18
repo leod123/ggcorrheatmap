@@ -8,8 +8,8 @@ prepare_dendrogram(
   dendro_in,
   context = c("rows", "cols"),
   dend_side,
-  dend_dist,
-  dend_height,
+  dend_defaults,
+  dend_params,
   full_plt,
   layout,
   x_long,
@@ -27,9 +27,9 @@ prepare_dendrogram(
 
 \item{dend_side}{String for dendrogram side.}
 
-\item{dend_dist}{Distance from heatmap (or annotation) to dendrogram measured in cell size.}
+\item{dend_defaults}{List with dendrogram default parameters.}
 
-\item{dend_height}{Scaling parameter of dendrogram height.}
+\item{dend_params}{List with dendrogram parameters to overwrite defaults.}
 
 \item{full_plt}{Logical indicating if the whole heatmap is plotted or not.}
 

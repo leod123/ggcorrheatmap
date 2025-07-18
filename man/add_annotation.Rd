@@ -13,7 +13,6 @@ add_annotation(
   annot_border_lwd = 0.5,
   annot_border_col = "grey",
   annot_border_lty = 1,
-  draw_legend = T,
   annot_label = T,
   na_remove = F,
   col_scale = NULL,
@@ -40,8 +39,6 @@ Positions are given by the middle coordinate of the annotation cells.}
 \item{annot_border_col}{Colour of border lines of annotation cells.}
 
 \item{annot_border_lty}{Linetype of border lines of annotation cells.}
-
-\item{draw_legend}{Logical indicating if a legend should be drawn.}
 
 \item{annot_label}{Logical indicating if the annotation names should be drawn.}
 

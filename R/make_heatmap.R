@@ -40,6 +40,11 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                          cell_bg_col = "white", cell_bg_alpha = 0) {
   value <- .data <- label <- NULL
 
+  check_logical(names_diag = names_diag)
+  check_logical(names_x = names_x)
+  check_logical(names_y = names_y)
+  check_logical(include_diag = include_diag)
+
   # Base plot
   plt_provided <- !is.null(plt)
   if (is.null(plt)) {
@@ -60,9 +65,9 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
 
   # Use different input data depending on desired layout
   # If include_diag is FALSE, skip where row == col, otherwise use the whole data
-  x_long <- if (!include_diag) {
+  x_long <- if (isFALSE(include_diag)) {
     subset(x_long, as.character(row) != as.character(col))
-  } else {
+  } else if (isTRUE(include_diag)) {
     x_long
   }
 
