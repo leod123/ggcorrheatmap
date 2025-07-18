@@ -5,7 +5,6 @@
 #' @param x Matrix to convert to long format.
 #' @param unique_pairs Whether only unique combinations should be included in the output (for symmetric matrices).
 #' @param na_remove Logical indicating if NAs should be excluded (removes NaNs too).
-#' @param nan_remove Logical indicating if NaNs should be excluded (if want to keep NAs but remove some cells that are NaN).
 #'
 #' @returns A data frame with the columns 'row', 'column' (indicating combinations), and 'value'
 #'

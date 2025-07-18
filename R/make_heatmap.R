@@ -15,10 +15,7 @@
 #' @param names_y Logical indicating if names should be displayed on the y axis.
 #' @param names_x_side X axis side.
 #' @param names_y_side Y axis side.
-#' @param fill_scale Scale for fill aesthetic.
-#' @param fill_name Name for fill aesthetic.
-#' @param col_scale Scale for colour aesthetic.
-#' @param col_name Name for colour aesthetic.
+#' @param colr_scale Scale for colour/fill aesthetic.
 #' @param size_scale Scale for size aesthetic.
 #' @param cell_labels Logical indicating if cell labels should be written or a matrix or data frame (same shape as x_long) with values to write.
 #' @param cell_label_col Colour of cell labels.

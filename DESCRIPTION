@@ -19,6 +19,7 @@ Imports:
     dendextend,
     ggnewscale,
     stats,
+    rlang (>= 1.1.0),
     cli
 Suggests: 
     testthat (>= 3.0.0),

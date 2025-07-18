@@ -679,10 +679,14 @@ prepare_mixed_param <- function(param, param_name) {
 #'
 #' @returns Error if not logical or longer than 1, otherwise nothing.
 #'
-check_logical <- function(..., call = rlang::caller_env()) {
+check_logical <- function(..., call = NULL) {
   arg <- list(...)
   name <- names(arg)
   val <- arg[[1]]
+
+  if (is.null(call)) {
+    call <- rlang::caller_env()
+  }
 
   err_msg <- paste0("{.var ", name, "} must be a single {.cls logical} value, not ")
 
