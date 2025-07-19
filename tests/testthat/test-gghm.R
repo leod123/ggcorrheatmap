@@ -127,6 +127,7 @@ test_that("correct input types", {
 
 test_that("warnings and errors", {
   expect_error(gghm(cor(mtcars), mode = "nothing"), class = "nonsup_mode_error")
+  expect_error(gghm(cor(mtcars), layout = c("tl", "br"), mode = c("hm", "heamtap")), class = "nonsup_mode_error")
   expect_error(gghm(cor(mtcars), layout = "nice"), class = "nonsup_layout_error")
   expect_warning(gghm(mtcars, layout = "br"), class = "force_full_warn")
   expect_error(gghm(mtcars, cluster_rows = "a"), class = "clust_class_error")
@@ -271,6 +272,10 @@ test_that("warnings and errors", {
   # Other class checks
   expect_error(gghm(mtcars, annot_cols_df = data.frame(.names = colnames(mtcars), a = c(NA, 1:10)),
                     annot_na_col = NULL), class = "annot_na_col_length_error")
+  expect_error(gghm(mtcars, limits = 1), class = "numeric_error")
+  expect_error(gghm(mtcars, limits = "a"), class = "numeric_error")
+  expect_error(gghm(iris[1:20, -5], bins = TRUE), class = "numeric_error")
+  expect_error(gghm(iris[1:20, -5], bins = c(1, 2)), class = "numeric_error")
 })
 
 test_that("annotation names must exist in the data", {

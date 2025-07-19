@@ -144,6 +144,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   }
 
   # Skip correlation (and p-value) computation if cor_in is TRUE
+  check_logical(cor_in = cor_in)
   if (isTRUE(cor_in)) {
     cor_mat <- x
     cor_mat_dat <- NULL

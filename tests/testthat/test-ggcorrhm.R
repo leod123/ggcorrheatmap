@@ -10,6 +10,15 @@ test_that("it runs without error", {
   expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "18")))
 })
 
+test_that("class errors", {
+  expect_error(ggcorrhm(mtcars, midpoint = c(1, 2, 3)), class = "numeric_error")
+  expect_error(ggcorrhm(mtcars, midpoint = NULL), class = "numeric_error")
+  expect_error(ggcorrhm(mtcars, midpoint = "A"), class = "numeric_error")
+  expect_error(ggcorrhm(mtcars, mode = "21", size_range = "ASDF"), class = "numeric_error")
+  expect_error(ggcorrhm(mtcars, size_range = "ASDF"), class = "numeric_error")
+  expect_error(ggcorrhm(mtcars, mode = "21", size_range = c(1, 2, 3)), class = "numeric_error")
+})
+
 test_that("user-supplied scales", {
   # Change default scale using high, mid, low, etc
   expect_no_error(ggcorrhm(mtcars, high = "pink", mid = "white", low = "lightblue",

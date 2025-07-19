@@ -134,6 +134,12 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
                            high = "sienna2", mid = "white", low = "skyblue2", midpoint = 0,
                            size_range = NULL, na_col = "grey50") {
 
+  # Input class checks
+  check_numeric(bins = bins, allow_null = T, allowed_lengths = 1)
+  check_numeric(limits = limits, allow_null = T, allowed_lengths = 2)
+  check_numeric(midpoint = midpoint, allow_null = F, allowed_lengths = 1)
+  check_numeric(size_range = size_range, allow_null = T, allowed_lengths = c(1, 2))
+
   # Put scales into lists
   if (is.vector(colr_scale)) {
     # For vector, make sure the elements end up in different list indices

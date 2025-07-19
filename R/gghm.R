@@ -684,21 +684,84 @@ check_logical <- function(..., call = NULL) {
   name <- names(arg)
   val <- arg[[1]]
 
+  # Get the call to use for the first part of the error
   if (is.null(call)) {
     call <- rlang::caller_env()
   }
 
+  # First part of error message
   err_msg <- paste0("{.var ", name, "} must be a single {.cls logical} value, not ")
 
+  # Wrong class
   if (!is.logical(val)) {
     cli::cli_abort(paste0(
       err_msg, "a {.cls {class(val)}}."
     ), class = "logical_error", call = call)
   }
 
+  # Too long
   if (length(val) > 1) {
     cli::cli_abort(paste0(
       err_msg, "{length(val)} values."
     ), class = "logical_error", call = call)
+  }
+}
+
+
+#' Check input numeric arguments for class and length.
+#'
+#' @keywords internal
+#'
+#' @inheritParams check_logical
+#' @param allow_null Logical indicating if NULL is allowed as input for the argument.
+#' @param allowed_lengths The allowed lengths of the argument.
+#'
+#' @returns Error if not numeric, NULL when not allowed, or too long/too short.
+#'
+check_numeric <- function(..., allow_null = F, allowed_lengths = 1, call = NULL) {
+  arg <- list(...)
+  name <- names(arg)
+  val <- arg[[1]]
+
+  if (isTRUE(allow_null) && is.null(val)) {
+    return(NULL)
+  }
+
+  if (is.null(call)) {
+    call <- rlang::caller_env()
+  }
+
+  # Error message, taking into consideration if NULL is allowed, multiple allowed
+  # lengths, and min/max allowed lengths
+  err_msg <- paste0("{.var ", name, "} must be ",
+                    ifelse(length(allowed_lengths) > 1,
+                           paste0(min(allowed_lengths), " to ", max(allowed_lengths)),
+                           ifelse(max(allowed_lengths) > 1,
+                                  max(allowed_lengths),
+                                  "a single")),
+                    " {.cls numeric} value", ifelse(max(allowed_lengths) > 1, "s", ""),
+                    ifelse(allow_null, " or NULL", ""),
+                    ", not ")
+
+  # NULL but NULL not allowed
+  if (isFALSE(allow_null) && is.null(val)) {
+    cli::cli_abort(paste0(
+      err_msg, " NULL."
+    ), class = "numeric_error")
+  }
+
+  # Wrong class
+  if (!is.numeric(val)) {
+    cli::cli_abort(paste0(
+      err_msg, " {.cls {class(val)}}."
+    ), class = "numeric_error")
+  }
+
+  # Too long or too short
+  if (!(length(val) <= max(allowed_lengths) &&
+        length(val) >= min(allowed_lengths))) {
+    cli::cli_abort(paste0(
+      err_msg, " {length(val)} value", ifelse(length(val) > 1, "s", ""), "."
+    ), class = "numeric_error")
   }
 }
