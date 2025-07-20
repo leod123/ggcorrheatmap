@@ -32,7 +32,14 @@ test_cor <- function(x, y = NULL, method = "pearson", use = "everything", p_adj_
     )
 
     # Adjust p-values
-    test_pairs[["p_adj"]] <- p.adjust(test_pairs[["p_val"]], method = p_adj_method)
+    test_pairs[["p_adj"]] <- tryCatch(p.adjust(test_pairs[["p_val"]], method = p_adj_method),
+                                      error = function(err) {
+                                        cli::cli_abort(c("Error in p.adjust when adjusting p-values:",
+                                                         i = err[["message"]]),
+                                                       call = call("test_cor"),
+                                                       class = "p_adjust_error")
+                                      })
+
     # Fill the rest of the values
     # Make column with ID of combination, join by ID to fill in other half of the matrix
     test_pairs[["rowcol"]] <- apply(test_pairs, 1, function(i) paste(sort(c(i["row"], i["col"])), collapse = "_"))
@@ -60,7 +67,13 @@ test_cor <- function(x, y = NULL, method = "pearson", use = "everything", p_adj_
     )
 
     # Adjust p-values
-    all_pairs[["p_adj"]] <- p.adjust(all_pairs[["p_val"]], method = p_adj_method)
+    all_pairs[["p_adj"]] <- tryCatch(p.adjust(all_pairs[["p_val"]], method = p_adj_method),
+                                     error = function(err) {
+                                       cli::cli_abort(c("Error in p.adjust when adjusting p-values:",
+                                                        i = err[["message"]]),
+                                                      call = call("test_cor"),
+                                                      class = "p_adjust_error")
+                                     })
 
     return(all_pairs)
   }

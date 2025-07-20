@@ -267,8 +267,8 @@ test_that("warnings and errors", {
   expect_error(gghm(cor(mtcars), names_x = "TR"), class = "logical_error")
   expect_error(gghm(cor(mtcars), names_y = "TRU"), class = "logical_error")
   expect_error(gghm(cor(mtcars), include_diag = "TRUE"), class = "logical_error")
-  expect_error(ggcorrhm(cor(mtcars), annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11),
-                        annot_label = "false"), class = "logical_error")
+  expect_error(gghm(cor(mtcars), annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11),
+                    annot_label = "false"), class = "logical_error")
   # Other class checks
   expect_error(gghm(mtcars, annot_cols_df = data.frame(.names = colnames(mtcars), a = c(NA, 1:10)),
                     annot_na_col = NULL), class = "annot_na_col_length_error")

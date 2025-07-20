@@ -132,16 +132,25 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      dend_rows_params = NULL, dend_cols_params = NULL,
                      dend_rows_extend = NULL, dend_cols_extend = NULL) {
 
-  # Check return_data so you don't get an error after everything is done
+  # Perform some input argument checks
   check_logical(return_data = return_data)
+  check_layout(layout, mode)
 
-  # If p-values are computed and thresholds given, check that they range between 0 and 1 and that they have enough names
+  if (length(mode) > 1) {
+    check_logical(p_values = p_values, list_allowed = T)
+    check_logical(cell_label_p = cell_label_p, list_allowed = T)
+  } else {
+    check_logical(p_values = p_values, list_allowed = F)
+    check_logical(cell_label_p = cell_label_p, list_allowed = F)
+  }
+
   if (any(unlist(p_values)) & is.numeric(p_thresholds)) {
     if (any(p_thresholds < 0)) cli::cli_abort("Values in {.var p_thresholds} must be above 0.", class = "p_thr_error")
     if (p_thresholds[length(p_thresholds)] < 1) cli::cli_abort("The last value of {.var p_thresholds} must be 1 or larger.", class = "p_thr_error")
     if (is.null(names(p_thresholds))) cli::cli_abort("{.var p_thresholds} must have named elements to be used as symbols (up to one unnamed).", class = "p_thr_error")
     if (any(duplicated(names(p_thresholds)))) cli::cli_abort("Symbols (the names) of {.var p_thresholds} must be unique.", class = "p_thr_error")
   }
+
 
   # Skip correlation (and p-value) computation if cor_in is TRUE
   check_logical(cor_in = cor_in)

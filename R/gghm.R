@@ -642,6 +642,10 @@ prepare_mixed_param <- function(param, param_name) {
     # Return a list of NULLs if NULL
     param_out <- list(NULL, NULL)
 
+  } else if (is.list(param) && length(param) == 1) {
+    # If a list of length one, repeat its content
+    param_out <- list(param[[1]], param[[1]])
+
   } else if (length(param) == 1 || (param_name == "cell_labels" && (is.matrix(param) || is.data.frame(param)))) {
     # Recycle if length one, or if cell_labels is a data frame or matrix for cell labels
     param_out <- list(param, param)
@@ -679,7 +683,7 @@ prepare_mixed_param <- function(param, param_name) {
 #'
 #' @returns Error if not logical or longer than 1, otherwise nothing.
 #'
-check_logical <- function(..., call = NULL) {
+check_logical <- function(..., list_allowed = F, call = NULL) {
   arg <- list(...)
   name <- names(arg)
   val <- arg[[1]]
@@ -690,23 +694,69 @@ check_logical <- function(..., call = NULL) {
   }
 
   # First part of error message
-  err_msg <- paste0("{.var ", name, "} must be a single {.cls logical} value, not ")
+  err_msg <- paste0(ifelse(list_allowed, "Each element of ", ""),
+                    "{.var ", name, "} must be a single {.cls logical} value, not ")
 
-  # Wrong class
-  if (!is.logical(val)) {
-    cli::cli_abort(paste0(
-      err_msg, "a {.cls {class(val)}}."
-    ), class = "logical_error", call = call)
-  }
+  if (isFALSE(list_allowed)) {
+    # Wrong class
+    if (!is.logical(val)) {
+      cli::cli_abort(paste0(
+        err_msg, "a {.cls {class(val)}}."
+      ), class = "logical_error", call = call)
+    }
 
-  # Too long
-  if (length(val) > 1) {
-    cli::cli_abort(paste0(
-      err_msg, "{length(val)} values."
-    ), class = "logical_error", call = call)
+    # Too long
+    if (length(val) > 1) {
+      cli::cli_abort(paste0(
+        err_msg, "{length(val)} values."
+      ), class = "logical_error", call = call)
+    }
+  } else {
+
+    # Per element
+    sapply(val, function(v) {
+      if (!is.logical(v)) {
+        cli::cli_abort(paste0(
+          err_msg, "a {.cls {class(v)}}."
+        ), class = "logical_error", call = call)
+      }
+
+      if (length(v) > 1) {
+        cli::cli_abort(paste0(
+          err_msg, "{length(v)} values."
+        ), class = "logical_error", call = call)
+      }
+    })
   }
 }
 
+# check_logical <- function(..., call = NULL) {
+#   arg <- list(...)
+#   name <- names(arg)
+#   val <- arg[[1]]
+#
+#   # Get the call to use for the first part of the error
+#   if (is.null(call)) {
+#     call <- rlang::caller_env()
+#   }
+#
+#   # First part of error message
+#   err_msg <- paste0("{.var ", name, "} must be a single {.cls logical} value, not ")
+#
+#   # Wrong class
+#   if (!is.logical(val)) {
+#     cli::cli_abort(paste0(
+#       err_msg, "a {.cls {class(val)}}."
+#     ), class = "logical_error", call = call)
+#   }
+#
+#   # Too long
+#   if (length(val) > 1) {
+#     cli::cli_abort(paste0(
+#       err_msg, "{length(val)} values."
+#     ), class = "logical_error", call = call)
+#   }
+# }
 
 #' Check input numeric arguments for class and length.
 #'
