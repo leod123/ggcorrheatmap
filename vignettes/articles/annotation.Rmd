@@ -14,7 +14,6 @@ library(ggcorrheatmap)
 library(dplyr)
 library(ggplot2)
 library(patchwork)
-library(cowplot) # For legends section
 ```
 
 Row and column annotation is added by passing data frames to the `annot_rows_df` and `annot_cols_df` arguments. There must be either row names or a column named `.names` containing the names of the rows/columns that are to be annotated. The remaining columns are used for annotation.

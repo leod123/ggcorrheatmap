@@ -33,13 +33,24 @@ ggcorrhm(mtcars)
 
 # Specifying colours
 
-The colours of the heatmap can be adjusted by passing a string specifying a Brewer or Viridis scale or a `ggplot2::scale_fill_*` function call to the `colr_scale` argument.
+The colours of the heatmap can be adjusted by passing a string specifying a Brewer or Viridis scale or a `ggplot2::scale_fill_*` function call to the `colr_scale` argument. The limits can be changed by giving a vector to the `limits` argument.
 
 ```{r, fig.alt='A heatmap of the whole mtcars data using the viridis colour scale.'}
 # Use the Viridis D (can also be "viridis") option
 gghm(mtcars, colr_scale = "D")
 ```
 
+The `bins` argument creates a binned scale (only for continuous data). If `bins` is a float number (class 'double'), `ggplot2` will try to put the breaks at nice numbers at the cost of changing the number of bins. If `bins` is an integer the exact number of bins will instead be prioritised, but the breaks may end up at strange numbers.
+
+```{r, fig.alt='Two heatmaps of the mtcars data using the Viridis magma colour scale. The scale of the first plot is divided into five bins with breaks at 100, 200, 300, and 400. The second scale has six bins with breaks at 78.67, 157.33, 236.0, 314.67, and 393.33.'}
+plt1 <- gghm(mtcars, colr_scale = "A", bins = 6)
+plt2 <- gghm(mtcars, colr_scale = "A", bins = 6L)
+
+plt1 + plt2
+```
+
+
+If the values in the input matrix are discrete a discrete scale will be used. If the input is a data frame with mixed types (e.g. some columns are character vectors and some numeric), the resulting heatmap will be discrete.
 
 ```{r, fig.alt='A heatmap of a 15 by 15 matrix filled randomly with "a", "b", and "c". The Brewer Pastel2 palette is used for filling cells and the cell border colours have been changed to "thistle1".'}
 # Heatmap with discrete values
@@ -50,7 +61,7 @@ gghm(replicate(15, sample(letters[1:3], 15, TRUE)),
      border_lwd = 1)
 ```
 
-For `gghm()` fill, colour and size legends are shown by default. The legend order can be changed using the `legend_order` argument. `ggcorrhm()` tries to hide some legends by default. Legends and scales are covered more in the [legends article](legends.html).
+For `gghm()` fill, colour and size legends are shown by default. The legend order can be changed using the `legend_order` argument. `ggcorrhm()` tries to hide some legends by default. Legends and scales are covered more in the [scales and legends article](legends.html).
 
 # Plotting modes
 

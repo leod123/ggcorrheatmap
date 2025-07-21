@@ -5,11 +5,10 @@
 #' @param x Matrix to plot.
 #' @param layout Layout (full, triangular (topleft, topright, bottomleft, bottomright)).
 #' @param na_remove Logical indicating if NAs should be removed.
-#' @param include_diag Logical indicating if the diagonal should be included.
 #'
 #' @returns Long format data for plotting.
 #'
-layout_hm <- function(x, layout = "f", na_remove = F, include_diag = T) {
+layout_hm <- function(x, layout = "f", na_remove = F) {
 
   if (isSymmetric(as.matrix(x)) & layout %in% c("bottomleft", "bl", "topleft", "tl")) {
     x_long <- remove_triangle(x, tri_remove = "upper", na_remove = na_remove)
@@ -30,10 +29,6 @@ layout_hm <- function(x, layout = "f", na_remove = F, include_diag = T) {
                            rev(rownames(x))
                          })
   x_long$col <- factor(x_long$col, levels = colnames(x))
-
-  if (!include_diag) {
-    x_long <- dplyr::filter(x_long, as.character(row) != as.character(col))
-  }
 
   return(x_long)
 }

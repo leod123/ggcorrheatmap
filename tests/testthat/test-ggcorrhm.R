@@ -7,7 +7,30 @@ test_that("it runs without error", {
   expect_no_error(ggcorrhm(mtcars, p_values = T, p_adjust = "fdr", return_data = T))
   expect_no_error(ggcorrhm(mtcars, p_values = T, p_adjust = "fdr", return_data = F, cell_labels = T))
   expect_no_error(ggcorrhm(mtcars, iris[1:32, -5], p_values = T))
+  expect_no_error(ggcorrhm(iris[1:32, -5], mtcars, p_values = T, p_adjust = "bonferroni"))
   expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "18")))
+})
+
+test_that("class errors", {
+  expect_error(ggcorrhm(mtcars, midpoint = c(1, 2, 3)), class = "numeric_error")
+  expect_error(ggcorrhm(mtcars, midpoint = NULL), class = "numeric_error")
+  expect_error(ggcorrhm(mtcars, midpoint = "A"), class = "numeric_error")
+  expect_error(ggcorrhm(mtcars, mode = "21", size_range = "ASDF"), class = "numeric_error")
+  expect_error(ggcorrhm(mtcars, size_range = "ASDF"), class = "numeric_error")
+  expect_error(ggcorrhm(mtcars, mode = "21", size_range = c(1, 2, 3)), class = "numeric_error")
+  expect_error(ggcorrhm(mtcars, p_values = "T"), class = "logical_error")
+  expect_error(ggcorrhm(mtcars, p_values = c(T, F)), class = "logical_error")
+  expect_error(ggcorrhm(mtcars, p_values = list(T, c(T, F)), layout = c("tl", "br")),
+               class = "logical_error")
+  # Error on cell_label_p even if no p-values are computed
+  expect_error(ggcorrhm(mtcars, cell_labels = T, cell_label_p = list(T)), class = "logical_error")
+  expect_error(ggcorrhm(mtcars, cell_labels = T, cell_label_p = c(T, F)), class = "logical_error")
+  expect_error(ggcorrhm(mtcars, cell_labels = T, cell_label_p = c(T, F),
+                        p_values = T), class = "logical_error")
+  expect_error(ggcorrhm(mtcars, cell_labels = T, cell_label_p = list(c(T, T), F),
+                        layout = c("tr", "bl"), mode = c("hm", "hm")),
+               class = "logical_error")
+  expect_error(ggcorrhm(mtcars, p_values = T, p_adjust = "asdf"), class = "p_adjust_error")
 })
 
 test_that("user-supplied scales", {
@@ -70,7 +93,11 @@ test_that("p-value errors work", {
 test_that("snapshots are ok", {
   vdiffr::expect_doppelganger("basic_ggcorrhm", ggcorrhm(mtcars))
   vdiffr::expect_doppelganger("asymmetric_corrhm", ggcorrhm(iris[1:32, -5], mtcars))
-  vdiffr::expect_doppelganger("corr_layout", ggcorrhm(mtcars, layout = "tr"))
+  # Check that diagonal names end up in the correct positions regardless of inclusion of diagonal
+  vdiffr::expect_doppelganger("diag_names1", ggcorrhm(mtcars, layout = "tr", names_x = T, names_y = T))
+  vdiffr::expect_doppelganger("diag_names2", ggcorrhm(mtcars, layout = "tr", include_diag = F, names_x = T, names_y = T))
+  vdiffr::expect_doppelganger("diag_names3", ggcorrhm(mtcars, layout = "tr", include_diag = F, names_diag = F, names_x = T, names_y = T))
+  vdiffr::expect_doppelganger("diag_names4", ggcorrhm(mtcars, layout = "tr", include_diag = T, names_diag = F, names_x = T, names_y = T))
   vdiffr::expect_doppelganger("corr_w_options", ggcorrhm(mtcars, cluster_rows = T, cluster_cols = T,
                                                          annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:ncol(mtcars)),
                                                          annot_cols_df = data.frame(.names = colnames(mtcars), b = 1:ncol(mtcars))))

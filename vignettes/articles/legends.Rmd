@@ -1,5 +1,5 @@
 ---
-title: "Dealing with legends"
+title: "Scales and legends"
 ---
 
 ```{r, include = FALSE}
@@ -14,7 +14,178 @@ library(ggcorrheatmap)
 library(ggplot2)
 library(patchwork)  # Arrange plots and legends
 library(cowplot)    # For extracting and arranging legends
-library(tibble)     # For colnames with numbers
+```
+
+# Scales
+
+As explained in some of the other articles, the colour scale argument `colr_scale` takes NULL (for default scales), a character (for Brewer and Viridis scales) and `ggplot2` scale objects. When passing scale objects, make sure the correct aesthetic is used (fill or colour/color depending on plotting mode).
+
+```{r, fig.alt='Three heatmaps of the volcano data. The first one uses the default dark blue to light blue gradient for the cells, the second one uses the Viridis magma palette, and the third a custom scale going from light blue to white to pink.'}
+plt1 <- gghm(volcano, colr_name = "Default",
+             border_col = NA, names_x = FALSE, names_y = FALSE)
+
+plt2 <- gghm(volcano,
+             # Brewer Spectral palette
+             colr_scale = "A", colr_name = "Character",
+             border_col = NA, names_x = FALSE, names_y = FALSE)
+
+plt3 <- gghm(volcano,
+             # Custom scale
+             colr_scale = scale_fill_gradient2(
+               high = "pink", mid = "white", low = "lightblue",
+               midpoint = 140, name = "Custom"
+             ),
+             border_col = NA, names_x = FALSE, names_y = FALSE)
+
+plt1 + plt2 + plt3 &
+  theme(legend.position = "bottom",
+        legend.title = element_text(vjust = 0.8))
+```
+
+This is also true for the annotation scale arguments `annot_rows_fill` and `annot_cols_fill`.
+
+```{r, fig.height=5.2, fig.width=5, fig.alt='A heatmap of the first ten rows and five columns of mtcars. Three row annotations can be seen on the right side, the first one using the Viridis scale, the second one the Brewer Spectral, and the third one a custom scale going from light blue to white to pink.'}
+row_annot <- data.frame(.names = rownames(mtcars)[1:10],
+                        Default = 1:10,
+                        Character = 1:10,
+                        Custom = 1:10)
+
+row_annot_fill <- list(Default = NULL,
+                       Character = "Spectral",
+                       Custom = scale_fill_gradient2(
+                         high = "pink", mid = "white", low = "lightblue",
+                         midpoint = 6
+                       ))
+
+gghm(mtcars[1:10, 1:5],
+     annot_rows_df = row_annot,
+     annot_rows_fill = row_annot_fill,
+     # Make annotation larger and hide heatmap legend
+     annot_size = 1,
+     legend_order = c(NA, 1:3)) +
+  theme(plot.margin = margin(0, 0, 30, 0))
+```
+
+When `colr_scale` is a character, "rev_" or "_rev" can be added to the beginning or end, respectively, to reverse the scale. This also works for annotation scales.
+
+```{r, fig.height=6, fig.width=5, fig.alt='A heatmap of the volcano data with cells coloured using the Viridis magma palette but reversed so that low values are light and high are dark. Two row annotations are seen to the right, both have the same values but one is using the default magma palette and the other the reversed one.'}
+
+row_annot <- data.frame("Default" = 1:nrow(volcano),
+                        "Reversed" = 1:nrow(volcano))
+row_annot_colr <- list("Default" = "A", "Reversed" = "A_rev")
+
+gghm(volcano, names_x = FALSE, names_y = FALSE, border_col = NA,
+     colr_scale = "rev_A", colr_name = "Reversed",
+     annot_rows_df = row_annot,
+     annot_rows_fill = row_annot_colr,
+     # Make the annotation larger for visibility
+     annot_size = 3, annot_dist = 1.5) +
+  # Change the margins a bit too
+  theme(plot.margin = margin(0, 0, 40, 0))
+```
+
+
+The default scale for the main heatmap is different for `ggcorrhm()` as it assumes that correlations are plotted. There are also more arguments to modify the scale, such as the colours or binning.
+
+When the plot is using a mixed layout, `colr_scale` can also take a vector or list to apply different scales to the different triangles.
+
+```{r, fig.alt='A heatmap of a 10x10 matrix with values arranged so that there is a gradient across the heatmap with low values in the bottom left and high values in the top right. The top left triangle uses the Viridis magma scale, while the bottom right triangle is using the Brewer RdYlGn palette.'}
+plt_dat <- matrix(
+  sapply(1:10, function(x) seq(x, x + 9)),
+  nrow = 10
+)
+gghm(plt_dat, layout = c("tl", "br"),
+     mode = c("hm", "hm"),
+     # For Viridis options, both the short and long versions work
+     colr_scale = c("magma", "RdYlGn"))
+```
+
+`colr_scale` can still be one value to apply the same scale to both triangles. This does not work for scale objects, as the two triangles may use different aesthetics (fill or colour). This means that there will be two colour legends for the main heatmap if the two triangles use different aesthetics, even if they use the same colours. `ggcorrhm()` hides one of the legends by default and the [legend order section](legends.html#legend-order) goes into more detail on how this can be done.
+
+```{r, fig.alt='A heatmap of the same gradient data as the previous figure. The bottom right triangle now has coloured numbers (cell values) in the cells, using the same colour palette (Viridis magma) as the top left triangle. Two legends showing the same values and scale are on the right.'}
+gghm(plt_dat, layout = c("tl", "br"),
+     mode = c("hm", "text"), colr_scale = "A")
+```
+
+When using scale objects, arguments that change scales and legends such as `colr_name` or `legend_order` and, for `ggcorrhm()`, `high`, `mid`, `low` etc will be ignored to instead give the user full control. This allows for more flexibility, such as changing the breaks, bin sizes, or changing how out of bounds values are treated.
+
+The default way `ggplot2` deals with values outside of the scale range (out of bound value) is to replace them with NAs. The `oob` argument of the scale functions can change the behaviour, e.g. so that OOB values use the extreme colours of the scale.
+
+```{r, fig.height=5, fig.width=10, fig.alt='Two figures of the gradient plot from before, now with low numbers in the top left and high numbers in the bottom right. The values are written in the cells with black text, showing that the gradient goes from 1 to 19. The first plot is simply coloured using the Brewer RdYlGn palette. The second plot uses the same palette, but the limits have been set to 7 and 13, narrowing the colour gradient that was visible in the first plot. Values outside the range are beige in the top right triangle, and green or red in the bottom left (corresponding to the lowest and highest ends of the scale).'}
+# Normal limits
+plt1 <- gghm(plt_dat, colr_scale = "RdYlGn",
+             cell_labels = TRUE)
+
+# Narrower limits with handling of oob values
+plt2 <- gghm(plt_dat, layout = c("tr", "bl"),
+     mode = c("hm", "hm"),
+     colr_scale = list(
+       # scale_fill_distiller to use Brewer palettes with continuous data
+       scale_fill_distiller(
+         palette = "RdYlGn",
+         # Values outside the limits are replaced with NAs
+         limits = c(7, 13),
+         # Can then change the colour using the na.value argument
+         # (corresponding to na_col in gghm)
+         na.value = "beige"
+       ),
+       
+       scale_fill_distiller(
+         palette = "RdYlGn",
+         limits = c(7, 13),
+         # Change oob strategy 'oob' argument
+         # scales::squish assigns the extreme colours to values outside the range
+         oob = scales::squish
+       )
+     ), cell_labels = TRUE)
+
+plt1 + plt2
+```
+
+When binning scales with the `bins` argument, a number of the 'double' class will prioritise breaks at nice numbers while an integer will prioritise the number of bins. As a side note, out-of-bound values with binned scales also default to using the 'squish' strategy shown above.
+
+```{r, fig.height=5, fig.width=10, fig.alt='Two correlation heatmaps with a gradient of values going from low values in the top left to high values in the bottom right. The scales are binned and the first one is binned into four bins with breaks at -1, -0.5, 0, 0.5, and 1, while the second one has five bins with breaks at -1, -0.6, -0.2, 0.2, 0.6, and 1.'}
+
+# Make plot data between -1 and 1 (like correlation data)
+plt_dat_cor <- matrix(
+  sapply(seq(-1, 0, length.out = 10), function(x) {
+    seq(x, x + 1, length.out = 10)
+  }),
+  nrow = 10
+)
+
+plt1 <- ggcorrhm(plt_dat_cor, cor_in = TRUE, bins = 5)
+plt2 <- ggcorrhm(plt_dat_cor, cor_in = TRUE, bins = 5L)
+
+plt1 + plt2
+```
+
+By using scale objects, breaks in both continuous and binned scales can be put wherever desired.
+
+```{r, fig.height=5, fig.width=10, fig.alt='The same kind of gradient heatmaps as shown in the previous plots, but the values now range from -1 (top left) to 1 (bottom right). A diverging colour scale going from blue to white to red is used for the cell colours. The first plot simply shows off the gradient, while the second uses two binned scales ranging between -0.7 to 0.7. The scale in the top right triangle has five bins with breaks at 0.42, 0.14, -0.42, and -0.14, while the bottom left triangle has four bins with breaks at 0.4, 0, and -0.4.'}
+
+plt1 <- ggcorrhm(plt_dat_cor, cor_in = TRUE)
+
+plt2 <- ggcorrhm(plt_dat_cor, cor_in = TRUE,
+                 layout = c("tr", "bl"),
+                 mode = c("hm", "hm"),
+                 colr_scale = list(
+                   scale_fill_gradient2(
+                     # Mimic the default correlation scale
+                     high = "sienna2", mid = "white", low = "skyblue2",
+                     # If not binned this only changes the legend but not the colours
+                     breaks = seq(-1, 1, length.out = 11)
+                   ),
+                   # Binned scales can be made with e.g.
+                   # scale_fill_fermenter, scale_fill_viridis_b, scale_fill_steps etc
+                   scale_fill_steps2(
+                     high = "sienna2", mid = "white", low = "skyblue2",
+                     # Specify exact break points for bins
+                     breaks = c(-1, -0.75, -0.25, 0, 0.25, 0.75, 1)
+                   )
+                 ))
+
+plt1 + plt2
 ```
 
 # Legend order
@@ -27,12 +198,16 @@ Legends have a set default order:
 4. Column annotations in order.
 
 ```{r, fig.alt='A heatmap of the first 10 rows of mtcars (scaled), with coloured diamonds instead of cells. The heatmap colours range from dark blue to light blue. There is one row annotation (using the viridis D option) and one column annotation (using the viridis A option), named 3 and 4, respectively. Four legends are on the right side of the plot for the main heatmap colours, main heatmap sizes, row annotations, and column annotations. The legends are named 1, 2, 3, and 4.'}
+row_annot <- data.frame(.names = rownames(mtcars)[1:10], 1:10)
+colnames(row_annot)[2] <- "3"
+
+col_annot <- data.frame(.names = colnames(mtcars), 11:1)
+colnames(col_annot)[2] <- "4"
+
 gghm(scale(mtcars)[1:10, ], mode = 23,
      colr_name = "1", size_name = "2",
-     annot_rows_df = tibble(.names = rownames(mtcars)[20:30],
-                            "3" = 1:11),
-     annot_cols_df = tibble(.names = colnames(mtcars),
-                            "4" = 11:1)) +
+     annot_rows_df = row_annot,
+     annot_cols_df = col_annot) +
   # Make the legends horizontal to fit better
   theme(legend.direction = "horizontal")
 ```
@@ -48,11 +223,12 @@ The order can be changed by using the `legend_order` argument. This argument tak
 
 ```{r, fig.width=8, fig.height=10, fig.alt='Two mtcars correlation heatmaps with circles instead of cells. Both have two row and two column annotations each. The first heatmap has seven legends on the right (colour, size, colour, row annotation colours 1-2, column annotation colours 1-2), named 1 to 7. The second heatmap is the same as the first but with the legends ordered 4, 2, 7, 1, 5. The 3 and 6 legends are missing.'}
 set.seed(123)
-annot_rows <- tibble(.names = colnames(mtcars),
-                     "4" = 1:11, "5" = 11:1)
-annot_cols <- tibble(.names = colnames(mtcars),
-                     "6" = sample(letters[1:3], 11, TRUE),
-                     "7" = sample(LETTERS[1:2], 11, TRUE))
+annot_rows <- data.frame(.names = colnames(mtcars), 1:11, 11:1)
+colnames(annot_rows)[2:3] <- c("4", "5")
+annot_cols <- data.frame(.names = colnames(mtcars),
+                         sample(letters[1:3], 11, TRUE),
+                         sample(LETTERS[1:2], 11, TRUE))
+colnames(annot_cols)[2:3] <- c("6", "7")
 
 plt1 <- gghm(cor(mtcars), layout = c("tl", "br"), mode = c(19, 21),
              colr_name = c("1", "3"), size_name = c("2"),
@@ -138,7 +314,7 @@ ggcorrhm(mtcars, layout = c("tl", "br"),
 
 # Arranging legends
 
-When there are many legends, some of them may be cut off and it can be tricky to make them fit. One way is to change the positions, sizes or orientations of legends as shown in some of the plots above. A more advanced way is to use packages like `cowplot` and `patchwork` to stitch together a legendless version of the plot with the legends, which also makes it possible to arrange the legends in grids.
+When there are many legends, some of them may be cut off and it can be tricky to make them fit. One way is to change the positions, sizes or orientations of legends as shown in some of the plots above. Another way is to change the size of the figure until the legends fit. A more advanced way is to use packages like `cowplot` and `patchwork` to stitch together a legendless version of the plot with the legends, which also makes it possible to arrange the legends in grids.
 
 ```{r, fig.alt='mtcars correlation heatmap with clustered rows and columns, as well as two row annotations and one column annotation. Four legends can be seen to the right, but they do not all fit and the first and last one cannot be seen fully.'}
 

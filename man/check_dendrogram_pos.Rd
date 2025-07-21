@@ -4,12 +4,12 @@
 \alias{check_dendrogram_pos}
 \title{Check that dendrograms are positioned correctly}
 \usage{
-check_dendrogram_pos(dat, dend_dim = c("row", "col"), dendro)
+check_dendrogram_pos(dat, context = c("row", "col"), dendro)
 }
 \arguments{
 \item{dat}{Long format data for plotting.}
 
-\item{dend_dim}{Dimension to which the dendrogram is added. These are used to directly get the columns
+\item{context}{Dimension to which the dendrogram is added. These are used to directly get the columns
 in the long data and thus need to be "row" or "col".}
 
 \item{dendro}{The dendrogram segments and nodes list.}

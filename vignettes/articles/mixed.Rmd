@@ -152,13 +152,13 @@ ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "hm"),
            NULL,
            # Give a scale object to not be affected by the default scale arguments
            scale_fill_distiller(palette = "PRGn", limits = c(-1, 1))
-         ), bins = 5, high = "pink", mid = "beige", low = "lightblue")
+         ), bins = 5L, high = "pink", mid = "beige", low = "lightblue")
 ```
 
 
 # Some extra plots
 
-Using mixed layouts with mode "none" it is possible to "hack" annotations and dendrograms onto the empty sides of triangular layouts.
+When using triangular layouts, annotations and dendrograms are moved to the non-empty sides of the heatmap for convenience. Using mixed layouts with mode "none" it is possible to "hack" annotations and dendrograms onto the empty sides of triangular layouts.
 
 ```{r, fig.alt='A mtcars correlation heatmap showing only the top left triangle. On the right and below are row and column annotations, leaving a large triangular gap in the bottom right.'}
 annot <- data.frame(.names = colnames(mtcars), a = 1:11)
@@ -166,7 +166,7 @@ ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "none"),
          annot_rows_df = annot, annot_cols_df = annot,
          cluster_rows = TRUE, cluster_cols = TRUE,
          # Hide cell borders only in the 'none' triangle
-         border_lwd = c(0.5, 0))
+         border_lwd = c(0.1, 0))
 ```
 
 Finally, the default full layout reverses the y axis levels so that the rows are in the same order as in the input and the diagonal runs from top left to bottom right. If the opposite layout is desired it can be made using a mixed layout of a top left and a bottom right triangle, like the plot below.

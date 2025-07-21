@@ -2,8 +2,8 @@
 #'
 #' @keywords internal
 #'
-#' @param plt `ggplot` object with `geom_tile` layer to add annotations to
-#' @param annot_dim Dimension to add annotations to, either "rows" or "columns"
+#' @param plt `ggplot` object with `geom_tile` layer to add annotations to.
+#' @param context Dimension to add annotations to, either "rows" or "columns".
 #' @param annot_df Data frame containing the annotations.
 #' The first column must contain the labels used in the heatmap rows or columns.
 #' Each of the other columns should contain corresponding annotations. The column names are used as labels in the legend.
@@ -13,29 +13,24 @@
 #' @param annot_border_lwd Linewidth of border lines of annotation cells.
 #' @param annot_border_col Colour of border lines of annotation cells.
 #' @param annot_border_lty Linetype of border lines of annotation cells.
-#' @param draw_legend Logical indicating if a legend should be drawn.
-#' @param draw_label Logical indicating if the annotation names should be drawn.
+#' @param annot_label Logical indicating if the annotation names should be drawn.
 #' @param na_remove Logical indicating if NA values should be removed.
 #' @param col_scale Named list of fill scales to use, named after the columns in the annotation data frame.
 #' Each element should either be a `scale_fill_*` object or a string specifying a brewer palette or viridis option.
-#' @param legend_order Numeric vector specifying the order the legends should be drawn in (applied in order of columns in annot_df).
 #' @param label_side String specifying which side the labels should be drawn on. "top" or "bottom" for row annotation, "left" or "right" for column annotation.
 #' @param label_params A named list of parameters to give `grid::textGrob` to modify annotation label appearance.
 #'
 #' @return `ggplot` object with added annotations.
 #'
-add_annotation <- function(plt, annot_dim = c("rows", "cols"), annot_df, annot_pos, annot_size,
+add_annotation <- function(plt, context = c("rows", "cols"), annot_df, annot_pos, annot_size,
                            annot_border_lwd = 0.5, annot_border_col = "grey", annot_border_lty = 1,
-                           draw_legend = T, draw_label = T, na_remove = F,
-                           col_scale = NULL, legend_order = NULL, label_side, label_params = NULL) {
+                           annot_label = T, na_remove = F, col_scale = NULL, label_side, label_params = NULL) {
   .names <- .data <- NULL
 
+  check_logical(annot_na_remove = na_remove)
+  check_logical(annot_label = annot_label)
+
   annot_names <- colnames(annot_df)[-which(colnames(annot_df) == ".names")]
-  # Vector for determining the order in which to draw the annotation legends
-  if (is.null(legend_order)) {
-    legend_order <- seq_along(annot_names) + 1
-    names(legend_order) <- annot_names
-  }
 
   plt_out <- plt +
     lapply(annot_names, \(nm) {
@@ -45,26 +40,33 @@ add_annotation <- function(plt, annot_dim = c("rows", "cols"), annot_df, annot_p
 
         # Draw annotation
         ggplot2::geom_tile(data = dplyr::filter(dplyr::select(annot_df, .names, dplyr::all_of(nm)), if (na_remove) !is.na(get(nm)) else T),
-                           mapping = ggplot2::aes(x = if (annot_dim[1] == "rows") {annot_pos[nm]}
+                           mapping = ggplot2::aes(x = if (context[1] == "rows") {annot_pos[nm]}
                                                   else {.data[[".names"]]},
-                                                  y = if (annot_dim[1] == "rows") {.data[[".names"]]}
+                                                  y = if (context[1] == "rows") {.data[[".names"]]}
                                                   else {annot_pos[nm]},
                                                   fill = .data[[nm]]),
-                           width = ifelse(annot_dim[1] == "rows", annot_size, 1),
-                           height = ifelse(annot_dim[1] == "rows", 1, annot_size),
+                           width = ifelse(context[1] == "rows", annot_size, 1),
+                           height = ifelse(context[1] == "rows", 1, annot_size),
                            linewidth = annot_border_lwd, colour = annot_border_col, linetype = annot_border_lty),
 
         col_scale[[nm]],
 
-        if (draw_label) {
+        if (annot_label) {
           # Add labels using annotation_custom to add a text grob without disturbing the plot area limits
-          ggplot2::annotation_custom(do.call(grid::textGrob, append(list(nm), label_params)),
+          ggplot2::annotation_custom(tryCatch(do.call(grid::textGrob, append(list(nm), label_params)),
+                                              error = function(err) {
+                                                cli::cli_abort(c("Error in grid::textGrob when drawing annotation labels:",
+                                                                 i = err[["message"]]),
+                                                               # Make the call a bit more informative
+                                                               call = call("add_annotation"),
+                                                               class = "grid_texrgrob_error")
+                                              }),
                                      # Distance between edge of heatmap and labels is 0.2 (default distance of annotation from heatmap)
                                      # (.3 is .2 away from .5 (middle point of cell), .7 is the same distance in the other direction)
-                                     xmin = ifelse(annot_dim[1] == "rows", annot_pos[nm], ifelse(label_side == "left", .3, nrow(annot_df) + .7)),
-                                     xmax = ifelse(annot_dim[1] == "rows", annot_pos[nm], ifelse(label_side == "left", .3, nrow(annot_df) + .7)),
-                                     ymin = ifelse(annot_dim[1] == "rows", ifelse(label_side == "bottom", .3, nrow(annot_df) + .7), annot_pos[nm]),
-                                     ymax = ifelse(annot_dim[1] == "rows", ifelse(label_side == "bottom", .3, nrow(annot_df) + .7), annot_pos[nm]))
+                                     xmin = ifelse(context[1] == "rows", annot_pos[nm], ifelse(label_side == "left", .3, nrow(annot_df) + .7)),
+                                     xmax = ifelse(context[1] == "rows", annot_pos[nm], ifelse(label_side == "left", .3, nrow(annot_df) + .7)),
+                                     ymin = ifelse(context[1] == "rows", ifelse(label_side == "bottom", .3, nrow(annot_df) + .7), annot_pos[nm]),
+                                     ymax = ifelse(context[1] == "rows", ifelse(label_side == "bottom", .3, nrow(annot_df) + .7), annot_pos[nm]))
         }
       )
     })
@@ -80,35 +82,90 @@ add_annotation <- function(plt, annot_dim = c("rows", "cols"), annot_df, annot_p
 #' @param annot_df Annotation data frame. Should contain the rownames or a column called '.names' with names, other columns are used for annotation
 #' @param annot_defaults Default parameters for annotation.
 #' @param annot_params Provided annotation parameters to update.
-#' @param lannot_side Logical indicating annotation side. TRUE if left (row annotations) or bottom (column annotations).
 #' @param annot_label_params Annotation label (names next to annotations) parameters to update.
+#' @param annot_side String for annotation side.
+#' @param context String stating the context ("rows" or "cols").
 #' @param annot_label_side Annotation label side.
 #' @param data_size Size of data (ncol if row annotations, nrow if column annotations).
 #'
 #' @returns List with updated annotation parameters, calculated annotation positions, and updated
 #' annotation label parameters.
 #'
-prepare_annotation <- function(annot_df, annot_defaults, annot_params, lannot_side,
+prepare_annotation <- function(annot_df, annot_defaults, annot_params, annot_side, context = c("rows", "cols"),
                                annot_label_params, annot_label_side, data_size) {
+
+  # Check that annotation and label parameters are in lists
+  if (!is.list(annot_params) && !is.null(annot_params)) {
+    var_name <- paste0("annot_", context[1], "_params")
+    cli::cli_warn("{.var {var_name}} should be a {.cls list} or NULL, not {.cls {class(annot_params)}}.",
+                  class = "annot_params_warn")
+  }
+  if (!is.list(annot_label_params) && !is.null(annot_label_params)) {
+    var_name <- paste0("annot_", context[1], "_label_side")
+    cli::cli_abort("{.var {var_name}} must be a {.cls list}, not {.cls {class(annot_label_params)}}.",
+                   class = "annot_label_params_class_error")
+  }
+
+  # Logical for annotation position
+  if ((annot_side == "left" && context[1] == "rows") ||
+      (annot_side == "bottom" && context[1] == "cols")) {
+    lannot_side <- T
+  } else if ((annot_side == "right" && context[1] == "rows") ||
+             (annot_side == "top" && context[1] == "cols")) {
+    lannot_side <- F
+  } else {
+    var_name <- paste0("annot_", context[1], "_side")
+    val_name <- switch(context[1], "rows" = c("left", "right"), "cols" = c("top", "bottom"))
+    cli::cli_warn("{.var {var_name}} should be {.val {val_name[1]}} or {.val {val_name[2]}},
+                  not {.val {annot_side}}.",
+                  class = "annot_side_warn")
+    lannot_side <- switch(context[1], "rows" = F, "cols" = T)
+  }
 
   annot_names <- colnames(annot_df)[-which(colnames(annot_df) == ".names")]
 
   # Replace defaults with any provided options
-  annot_params <- replace_default(annot_defaults, annot_params)
+  annot_params <- replace_default(annot_defaults, annot_params,
+                                  warning_context = paste0("In {.var annot_", context[1], "_params}: "))
+
+  # Check final parameters
+  if (any(c(!is.numeric(annot_params[["dist"]]), !is.numeric(annot_params[["gap"]]), !is.numeric(annot_params[["size"]]))) ||
+      any(c(length(annot_params[["dist"]]) > 1, length(annot_params[["gap"]]) > 1, length(annot_params[["size"]]) > 1))) {
+    non_num_var <- c("annot_dist", "annot_gap", "annot_size")[
+      which(sapply(list(annot_params[["dist"]], annot_params[["gap"]], annot_params[["size"]]), function(x) {
+        !is.numeric(x) || length(x) > 1
+      }))
+    ]
+    cli::cli_abort("{.var {non_num_var}} must be {.cls numeric} with length one.",
+                   class = "annot_nonnum_error")
+  }
 
   # Get positions of annotations
   annot_pos <- get_annotation_pos(lannot_side, annot_names, annot_params$size,
                                   annot_params$dist, annot_params$gap, data_size)
 
   # Row annotation label parameters and their defaults (fed to grid::textGrob)
+  if (!(context[1] == "rows" && annot_label_side %in% c("top", "bottom")) &&
+      !(context[1] == "cols" && annot_label_side %in% c("left", "right"))) {
+    side_var <- paste0("annot_", context[1], "_label_side")
+    side_val <- switch(context[1], "rows" = c("top", "bottom"), "cols" = c("left", "right"))
+    cli::cli_warn("{.var {side_var}} should be {.val {side_val[1]}} or {.val {side_val[2]}}, not {.val {annot_label_side}}.",
+                  class = "annot_label_side_warn")
+    annot_label_side <- ifelse(context[1] == "rows", "bottom", "left")
+  }
+
   annot_label_defaults <- list(rot = switch(annot_label_side, "bottom" =, "top" = 90,
                                             "left" =, "right" = 0),
                                just = switch(annot_label_side, "bottom" = "right", "top" = "left",
                                              "left" = "right", "right" = "left"))
+  # Also defaults for the gp parameter
+  annot_gp_defaults <- grid::gpar(fontsize = 9)
+  annot_gp_params <- replace_default(annot_gp_defaults, annot_label_params[["gp"]], add_new = T)
+  annot_label_params[["gp"]] <- annot_gp_params
   # Replace defaults and allow for new parameters to be added
   annot_label_params <- replace_default(annot_label_defaults, annot_label_params, add_new = T)
 
-  return(list(annot_df, annot_params, annot_pos, annot_label_params))
+  return(list(annot_df, annot_params, annot_pos, annot_label_params, annot_label_side))
 }
 
 
@@ -153,6 +210,7 @@ get_annotation_pos <- function(annot_side = T, annot_names, annot_size, annot_di
 #' @returns Annotation data frame (rownames moved to column named '.names' if necessary).
 #'
 check_annot_df <- function(annot_df, names_in, context) {
+  .names <- NULL
 
   # Check that it's a data frame
   if (!is.data.frame(annot_df)) {
@@ -166,10 +224,20 @@ check_annot_df <- function(annot_df, names_in, context) {
   }
 
   # Check that annotation contains the correct names
+  # If any names don't exist, throw a warning and remove them
   if (any(!annot_df[[".names"]] %in% names_in)) {
     bad_names <- setdiff(annot_df[[".names"]], names_in)
-    cli::cli_abort("Some names in the row annotation don't exist in the data: {.val {bad_names}}",
-                   class = "annot_names_error")
+    cli::cli_warn("{?A/Some} name{?s} in the row annotation do{?es/}n't exist in the data: {.val {bad_names}}.",
+                   class = "annot_names_warn")
+    annot_df <- subset(annot_df, !.names %in% bad_names)
+  }
+
+  # Check that there are no duplicate names
+  # If there are any, throw and error as it becomes unclear which one is the real value
+  if (any(duplicated(annot_df[[".names"]]))) {
+    dupl_names <- unique(annot_df[[".names"]][which(duplicated(annot_df[[".names"]]))])
+    cli::cli_abort("{.val {dupl_names}} appear{?s/} multiple times in {.var {context}}. Names must be unique.",
+                   class = "dupl_annot_name_error")
   }
 
   return(annot_df)

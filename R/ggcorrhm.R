@@ -8,20 +8,21 @@
 #' @param y Optional matrix or data frame in wide format containing columns to correlate with the columns in `x`.
 #' @param cor_method String specifying correlation method to use in the `stats::cor()` function. Default is 'pearson'.
 #' @param cor_use String specifying the `use` argument of `stats::cor()`, which defines how to deal with missing values. Default is 'everything'.
+#' @param cor_in Logical indicating if the input data contains correlation values and any correlation computations (including p-values) should be skipped. Default is FALSE.
 #' @param high Colour to use for the highest value of the colour scale.
 #' @param mid Colour to use for 0 in the colour scale.
 #' @param low Colour to use for the lowest value of the colour scale.
 #' @param midpoint Value for the middle point of the colour scale.
-#' @param limits Correlation limits to plot between. Values outside of the limits are treated as NAs.
-#' @param bins Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.
 #' @param colr_scale Scale to use for cell colours. If NULL (default), a divergent scale is constructed from the `high`, `mid`, `low`, `midpoint`, `limits`, and `bins` arguments.
 #' These arguments are ignored if a `ggplot2::scale_*` function is provided instead. If a string, the corresponding Brewer or Viridis scale is used.
+#' A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale.
 #' In mixed layouts, can also be a list of length two containing the two scales to use.
 #' @param colr_name String to use for the correlation scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.
 #' @param p_values Logical indicating if p-values should be calculated. Use with `p_thresholds` to mark cells, and/or `return_data` to get the p-values in the output data.
 #' @param p_adjust String specifying the adjustment method to use for the p-values (default is "none").
 #' @param p_thresholds Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
 #' Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).
+#' If NULL, no thresholding is done and p-value intervals are not marked with symbols.
 #' @param layout String specifying the layout of the output heatmap. Possible layouts include
 #' 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
 #' A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
@@ -102,7 +103,7 @@
 #'                     annot1 = rnorm(ncol(mtcars)),
 #'                     annot2 = sample(letters[1:3], ncol(mtcars), TRUE))
 #' ggcorrhm(mtcars, layout = "tr", annot_cols_df = annot)
-ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything",
+ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything", cor_in = FALSE,
                      high = "sienna2", mid = "white", low = "skyblue2", midpoint = 0, limits = c(-1, 1), bins = NULL,
                      layout = "full", mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
                      include_diag = TRUE, na_col = "grey50", na_remove = FALSE, return_data = FALSE,
@@ -112,8 +113,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      p_values = FALSE, p_adjust = "none", p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, 1),
                      cell_labels = FALSE, cell_label_p = FALSE, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
                      cell_bg_col = "white", cell_bg_alpha = 0,
-                     border_col = "grey", border_lwd = 0.5, border_lty = 1,
-                     names_diag = TRUE, names_diag_param = NULL,
+                     border_col = "grey", border_lwd = 0.1, border_lty = 1,
+                     names_diag = TRUE, names_diag_params = NULL,
                      names_x = FALSE, names_x_side = "top", names_y = FALSE, names_y_side = "left",
                      annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
                      annot_rows_side = "right", annot_cols_side = "bottom",
@@ -132,35 +133,62 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      dend_rows_params = NULL, dend_cols_params = NULL,
                      dend_rows_extend = NULL, dend_cols_extend = NULL) {
 
-  # If p-values are computed and thresholds given, check that they range between 0 and 1 and that they have enough names
-  if (any(unlist(p_values)) & is.numeric(p_thresholds)) {
-    if (any(p_thresholds < 0)) cli::cli_abort("Values in {.var p_thresholds} must be above 0.", class = "p_thr_error")
-    if (p_thresholds[length(p_thresholds)] < 1) cli::cli_abort("The last value of {.var p_thresholds} must be 1 or larger.", class = "p_thr_error")
-    if (is.null(names(p_thresholds))) cli::cli_abort("{.var p_thresholds} must have named elements to be used as symbols (up to one unnamed).", class = "p_thr_error")
-    if (any(duplicated(names(p_thresholds)))) cli::cli_abort("Symbols (the names) of {.var p_thresholds} must be unique.", class = "p_thr_error")
-  }
+  # Perform some input argument checks
+  check_logical(return_data = return_data)
+  check_layout(layout, mode)
 
-  cor_mat <- if (is.null(y)) {
-    cor(x, method = cor_method, use = cor_use)
+  if (length(mode) > 1) {
+    check_logical(p_values = p_values, list_allowed = T)
+    check_logical(cell_label_p = cell_label_p, list_allowed = T)
   } else {
-    cor(x, y, method = cor_method, use = cor_use)
+    check_logical(p_values = p_values, list_allowed = F)
+    check_logical(cell_label_p = cell_label_p, list_allowed = F)
   }
 
-  # Placeholder for p-value data that may be replaced
-  cor_mat_dat <- NULL
-  if (!any(unlist(p_values))) {
-    if (is.null(y)) {
-      cor_mat <- cor(x, method = cor_method, use = cor_use)
+  if (any(unlist(p_values))) {
+    if (!is.numeric(p_thresholds) && !is.null(p_thresholds)) {
+      cli::cli_abort("{.var p_thresholds} must be a named {.cls numeric} vector or NULL.")
     } else {
-      cor_mat <- cor(x, y, method = cor_method, use = cor_use)
+      if (any(is.na(p_thresholds))) cli::cli_abort("{.var p_thresholds} should not contain any missing values.")
+      if (any(p_thresholds <= 0)) cli::cli_abort("Values in {.var p_thresholds} must be above 0.", class = "p_thr_error")
+      if (p_thresholds[length(p_thresholds)] < 1) cli::cli_abort("The last value of {.var p_thresholds} must be 1 or larger.", class = "p_thr_error")
+      if (is.null(names(p_thresholds))) cli::cli_abort("{.var p_thresholds} must have named elements to be used as symbols (up to one unnamed).", class = "p_thr_error")
+      if (any(duplicated(names(p_thresholds)))) cli::cli_abort("Symbols (the names) of {.var p_thresholds} must be unique.", class = "p_thr_error")
     }
-  } else {
-    cor_mat <- test_cor(x, y, method = cor_method, use = cor_use, p_adj_method = p_adjust)
-    # Keep the data for later plotting
-    cor_mat_dat <- cor_mat
+  }
 
-    # Get wide format correlation matrix
-    cor_mat <- shape_mat_wide(dplyr::select(cor_mat, -"p_val", -"p_adj"))
+
+  # Skip correlation (and p-value) computation if cor_in is TRUE
+  check_logical(cor_in = cor_in)
+  if (isTRUE(cor_in)) {
+    cor_mat <- x
+    cor_mat_dat <- NULL
+    p_values <- F
+    cell_label_p <- F
+
+  } else {
+    cor_mat <- if (is.null(y)) {
+      cor(x, method = cor_method, use = cor_use)
+    } else {
+      cor(x, y, method = cor_method, use = cor_use)
+    }
+
+    # Placeholder for p-value data that may be replaced
+    cor_mat_dat <- NULL
+    if (!any(unlist(p_values))) {
+      if (is.null(y)) {
+        cor_mat <- cor(x, method = cor_method, use = cor_use)
+      } else {
+        cor_mat <- cor(x, y, method = cor_method, use = cor_use)
+      }
+    } else {
+      cor_mat <- test_cor(x, y, method = cor_method, use = cor_use, p_adj_method = p_adjust)
+      # Keep the data for later plotting
+      cor_mat_dat <- cor_mat
+
+      # Get wide format correlation matrix
+      cor_mat <- shape_mat_wide(dplyr::select(cor_mat, -"p_val", -"p_adj"))
+    }
   }
 
   # Check annotation data frames (must be done before making scales)
@@ -197,7 +225,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 
   # Don't display names on the diagonal if the plot is non-symmetric as it will cause
   # new ghost columns to be added to draw the names where row == col
-  if (!isSymmetric(cor_mat)) {
+  if (!isSymmetric(as.matrix(cor_mat))) {
     names_diag <- F
     # Also display x and y names by default, but remove if specified as FALSE (when specified as a named argument)
     names_x <- eval(replace_default(list("names_x" = T), as.list(sys.call()))$names_x)
@@ -262,7 +290,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                   colr_scale = colr_scale, colr_name = colr_name,
                   size_scale = size_scale, size_name = size_name,
                   border_col = border_col, border_lwd = border_lwd, border_lty = border_lty,
-                  names_diag = names_diag, names_diag_param = names_diag_param,
+                  names_diag = names_diag, names_diag_params = names_diag_params,
                   names_x = names_x, names_x_side = names_x_side,
                   names_y = names_y, names_y_side = names_y_side,
                   cell_labels = cell_labels, cell_label_col = cell_label_col,
@@ -319,6 +347,10 @@ prepare_cell_labels <- function(mode, cell_labels, p_values, cell_label_p, cell_
   if (is.matrix(cell_labels) | is.data.frame(cell_labels)) {
     cell_labels <- list(cell_labels)
   }
+  # If just NULL is passed to mapply the result becomes list()
+  # so put cell_label_digits in a list if not already, to allow for NULL to not round
+  # (any other non-numeric also results in no rounding)
+  if (!is.list(cell_label_digits)) {cell_label_digits <- list(cell_label_digits)}
 
   # Make p symbols if p-values are computed
   if (any(unlist(p_values))) {

@@ -10,12 +10,14 @@ gghm(
   mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
   colr_scale = NULL,
   colr_name = "value",
+  limits = NULL,
+  bins = NULL,
   size_scale = NULL,
   size_name = "value",
   legend_order = NULL,
   include_diag = TRUE,
   names_diag = FALSE,
-  names_diag_param = NULL,
+  names_diag_params = NULL,
   names_x = TRUE,
   names_x_side = "top",
   names_y = TRUE,
@@ -28,7 +30,7 @@ gghm(
   cell_label_size = 3,
   cell_label_digits = 2,
   border_col = "grey",
-  border_lwd = 0.5,
+  border_lwd = 0.1,
   border_lty = 1,
   cell_bg_col = "white",
   cell_bg_alpha = 0,
@@ -86,9 +88,14 @@ If layout is of length two with two opposing triangles, a mixed layout will be u
 \code{text} to write the cell values instead of filling cells (colour scaling with value), and \code{none} for blank cells.}
 
 \item{colr_scale}{Colour scale to use for cells. If NULL, the default ggplot2 scale is used. If a string, the corresponding Brewer or Viridis scales is used.
-Can also be a ggplot2 scale object.}
+A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale. Can also be a ggplot2 scale object.}
 
 \item{colr_name}{String to use for the colour scale legend title. Can be two values in mixed layouts for dual scales.}
+
+\item{limits}{Numeric vector of length two for the limits of the colour scale. NULL uses the default.}
+
+\item{bins}{Number of bins to divide the scale into (if continuous values). A 'double' class value uses 'nice.breaks' to put the breaks at nice numbers which may not result
+in the specified number of bins. If an integer the number of bins will be prioritised.}
 
 \item{size_scale}{\verb{ggplot2::scale_size_*} call to use for size scaling if \code{mode} is a number from 1 to 25 (R pch). In mixed layouts, can also be a list
 of length two containing the two scales to use.}
@@ -103,7 +110,7 @@ Mostly only useful for getting a cleaner look with symmetric correlation matrice
 
 \item{names_diag}{Logical indicating if names should be written in the diagonal cells (for symmetric input).}
 
-\item{names_diag_param}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
+\item{names_diag_params}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
 
 \item{names_x}{Logical indicating if names should be written on the x axis. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
 
@@ -133,7 +140,8 @@ containing values to write in the cells. If mode is \code{text}, the cell label 
 
 \item{border_lwd}{Size of cell borders. If \code{mode} is a number, \code{border_col} can be set to 0 to remove borders.}
 
-\item{border_lty}{Line type of cell borders. Not supported for numeric \code{mode}.}
+\item{border_lty}{Line type of cell borders. Either a number or its corresponding name, or a string of length 2, 4, 6, or 8. See 'lty' of \code{graphics::par()} for details.
+Not supported for numeric \code{mode}.}
 
 \item{cell_bg_col}{Colour to use for cell backgrounds in modes 'text' and 'none'.}
 
@@ -153,9 +161,9 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 
 \item{annot_cols_fill}{Named list used for column annotation colour scales, used like \code{annot_rows_fill}.}
 
-\item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' or 'l' for left, otherwise right).}
+\item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' or 'right', defaults to 'left').}
 
-\item{annot_cols_side}{String specifying which side column annotation should be drawn ('bottom', 'down', 'b', 'd' for bottom, otherwise top).}
+\item{annot_cols_side}{String specifying which side column annotation should be drawn ('bottom' or 'top', defaults to 'bottom').}
 
 \item{annot_dist}{Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.}
 
@@ -201,9 +209,9 @@ the \verb{annot_*_fill} arguments.}
 
 \item{dend_cols}{Logical indicating if a dendrogram should be drawn for the columns.}
 
-\item{dend_rows_side}{Which side to draw the row dendrogram on ('left' or 'l' for left, otherwise right).}
+\item{dend_rows_side}{Which side to draw the row dendrogram on ('left' or 'right', defaults to 'left').}
 
-\item{dend_cols_side}{Which side to draw the column dendrogram on ('bottom', 'down', 'b', 'd' for bottom, otherwise top).}
+\item{dend_cols_side}{Which side to draw the column dendrogram on ('bottom' or 'top', defaults to 'bottom').}
 
 \item{dend_col}{Colour to use for dendrogram lines, applied to both row and column dendrograms.}
 
@@ -240,8 +248,8 @@ or lists of length two, each element containing one value (apply to whole triang
 \code{cell_labels} can also be specified per triangle, either as a logical vector of length two, or a list of length two containing a mix of
 logicals and matrices/data frames.
 
-It is also possible to provide two scales for filling or colouring if the two triangles are coloured by the same aesthetic.
-In this case the \code{fill_scale} or \code{col_scale} arguments must be lists of length two containing the scales to use (also works for \code{size_scale}).
+It is also possible to provide two scales for filling or colouring the triangles differently.
+In this case the \code{colr_scale} must be one character value (scale used for both triangles) or NULL or a list of length two
 
 The annotation parameter arguments \code{annot_rows_params} and \code{annot_cols_params} should be named lists, where the possible options correspond to
 the different \verb{annot_*} arguments. The possible options are "dist" (distance between heatmap and annotation), "gap" (distance between annotations),

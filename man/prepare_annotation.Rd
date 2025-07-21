@@ -8,7 +8,8 @@ prepare_annotation(
   annot_df,
   annot_defaults,
   annot_params,
-  lannot_side,
+  annot_side,
+  context = c("rows", "cols"),
   annot_label_params,
   annot_label_side,
   data_size
@@ -21,7 +22,9 @@ prepare_annotation(
 
 \item{annot_params}{Provided annotation parameters to update.}
 
-\item{lannot_side}{Logical indicating annotation side. TRUE if left (row annotations) or bottom (column annotations).}
+\item{annot_side}{String for annotation side.}
+
+\item{context}{String stating the context ("rows" or "cols").}
 
 \item{annot_label_params}{Annotation label (names next to annotations) parameters to update.}
 

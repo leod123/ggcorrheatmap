@@ -9,6 +9,7 @@ ggcorrhm(
   y = NULL,
   cor_method = "pearson",
   cor_use = "everything",
+  cor_in = FALSE,
   high = "sienna2",
   mid = "white",
   low = "skyblue2",
@@ -38,10 +39,10 @@ ggcorrhm(
   cell_bg_col = "white",
   cell_bg_alpha = 0,
   border_col = "grey",
-  border_lwd = 0.5,
+  border_lwd = 0.1,
   border_lty = 1,
   names_diag = TRUE,
-  names_diag_param = NULL,
+  names_diag_params = NULL,
   names_x = FALSE,
   names_x_side = "top",
   names_y = FALSE,
@@ -95,6 +96,8 @@ ggcorrhm(
 
 \item{cor_use}{String specifying the \code{use} argument of \code{stats::cor()}, which defines how to deal with missing values. Default is 'everything'.}
 
+\item{cor_in}{Logical indicating if the input data contains correlation values and any correlation computations (including p-values) should be skipped. Default is FALSE.}
+
 \item{high}{Colour to use for the highest value of the colour scale.}
 
 \item{mid}{Colour to use for 0 in the colour scale.}
@@ -103,9 +106,10 @@ ggcorrhm(
 
 \item{midpoint}{Value for the middle point of the colour scale.}
 
-\item{limits}{Correlation limits to plot between. Values outside of the limits are treated as NAs.}
+\item{limits}{Numeric vector of length two for the limits of the colour scale. NULL uses the default.}
 
-\item{bins}{Specify number of bins if the correlation scale should be binned. NULL for a continuous scale.}
+\item{bins}{Number of bins to divide the scale into (if continuous values). A 'double' class value uses 'nice.breaks' to put the breaks at nice numbers which may not result
+in the specified number of bins. If an integer the number of bins will be prioritised.}
 
 \item{layout}{String specifying the layout of the output heatmap. Possible layouts include
 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
@@ -127,6 +131,7 @@ NAs are handled in the correlation computations, use the \code{cor_use} argument
 
 \item{colr_scale}{Scale to use for cell colours. If NULL (default), a divergent scale is constructed from the \code{high}, \code{mid}, \code{low}, \code{midpoint}, \code{limits}, and \code{bins} arguments.
 These arguments are ignored if a \verb{ggplot2::scale_*} function is provided instead. If a string, the corresponding Brewer or Viridis scale is used.
+A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale.
 In mixed layouts, can also be a list of length two containing the two scales to use.}
 
 \item{colr_name}{String to use for the correlation scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.}
@@ -146,7 +151,8 @@ NAs hide the corresponding legends, a single NA hides all. Ignored for \code{ggp
 \item{p_adjust}{String specifying the adjustment method to use for the p-values (default is "none").}
 
 \item{p_thresholds}{Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
-Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).}
+Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).
+If NULL, no thresholding is done and p-value intervals are not marked with symbols.}
 
 \item{cell_labels}{Logical specifying if the cells should be labelled with the correlation values. Alternatively, a matrix or data frame with the same shape and dimnames as \code{x}
 containing values to write in the cells. If mode is \code{text}, the cell label colours will scale with the correlation values and \code{cell_label_col} is ignored.}
@@ -167,11 +173,12 @@ containing values to write in the cells. If mode is \code{text}, the cell label 
 
 \item{border_lwd}{Size of cell borders. If \code{mode} is a number, \code{border_col} can be set to 0 to remove borders.}
 
-\item{border_lty}{Line type of cell borders. Not supported for numeric \code{mode}.}
+\item{border_lty}{Line type of cell borders. Either a number or its corresponding name, or a string of length 2, 4, 6, or 8. See 'lty' of \code{graphics::par()} for details.
+Not supported for numeric \code{mode}.}
 
 \item{names_diag}{Logical indicating if names should be written in the diagonal cells (for symmetric input).}
 
-\item{names_diag_param}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
+\item{names_diag_params}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
 
 \item{names_x}{Logical indicating if names should be written on the x axis. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
 
@@ -195,9 +202,9 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 
 \item{annot_cols_fill}{Named list used for column annotation colour scales, used like \code{annot_rows_fill}.}
 
-\item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' or 'l' for left, otherwise right).}
+\item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' or 'right', defaults to 'left').}
 
-\item{annot_cols_side}{String specifying which side column annotation should be drawn ('bottom', 'down', 'b', 'd' for bottom, otherwise top).}
+\item{annot_cols_side}{String specifying which side column annotation should be drawn ('bottom' or 'top', defaults to 'bottom').}
 
 \item{annot_dist}{Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.}
 
@@ -243,9 +250,9 @@ the \verb{annot_*_fill} arguments.}
 
 \item{dend_cols}{Logical indicating if a dendrogram should be drawn for the columns.}
 
-\item{dend_rows_side}{Which side to draw the row dendrogram on ('left' or 'l' for left, otherwise right).}
+\item{dend_rows_side}{Which side to draw the row dendrogram on ('left' or 'right', defaults to 'left').}
 
-\item{dend_cols_side}{Which side to draw the column dendrogram on ('bottom', 'down', 'b', 'd' for bottom, otherwise top).}
+\item{dend_cols_side}{Which side to draw the column dendrogram on ('bottom' or 'top', defaults to 'bottom').}
 
 \item{dend_col}{Colour to use for dendrogram lines, applied to both row and column dendrograms.}
 

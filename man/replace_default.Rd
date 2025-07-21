@@ -4,7 +4,7 @@
 \alias{replace_default}
 \title{Replace default elements in a named list with corresponding elements in a new list.}
 \usage{
-replace_default(default_param, new_param, add_new = F)
+replace_default(default_param, new_param, add_new = F, warning_context = NULL)
 }
 \arguments{
 \item{default_param}{Named list with elements to potentially replace ("defaults").}
@@ -12,6 +12,9 @@ replace_default(default_param, new_param, add_new = F)
 \item{new_param}{Named list with elements to replace with.}
 
 \item{add_new}{Logical, if TRUE elements with names unique to \code{new_param} will be added to the output.}
+
+\item{warning_context}{String to add to the beginning of warning message if any unsupported parameters are detected (if add_new is FALSE).
+Default (NULL) produces no warning.}
 }
 \value{
 A named list where overlapping elements with overlapping names are replaced.

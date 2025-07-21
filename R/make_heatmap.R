@@ -15,10 +15,7 @@
 #' @param names_y Logical indicating if names should be displayed on the y axis.
 #' @param names_x_side X axis side.
 #' @param names_y_side Y axis side.
-#' @param fill_scale Scale for fill aesthetic.
-#' @param fill_name Name for fill aesthetic.
-#' @param col_scale Scale for colour aesthetic.
-#' @param col_name Name for colour aesthetic.
+#' @param colr_scale Scale for colour/fill aesthetic.
 #' @param size_scale Scale for size aesthetic.
 #' @param cell_labels Logical indicating if cell labels should be written or a matrix or data frame (same shape as x_long) with values to write.
 #' @param cell_label_col Colour of cell labels.
@@ -31,7 +28,7 @@
 #'
 make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                          include_diag = T, invisible_diag = F,
-                         border_lwd = 0.5, border_col = "grey", border_lty = 1,
+                         border_lwd = 0.1, border_col = "grey", border_lty = 1,
                          names_diag = T, names_x = F, names_y = F,
                          names_x_side = "top", names_y_side = "left",
                          colr_scale = NULL, size_scale = NULL,
@@ -39,6 +36,11 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                          cell_label_size = 3, cell_label_digits = 2,
                          cell_bg_col = "white", cell_bg_alpha = 0) {
   value <- .data <- label <- NULL
+
+  # names_diag checked earlier
+  check_logical(names_x = names_x)
+  check_logical(names_y = names_y)
+  check_logical(include_diag = include_diag)
 
   # Base plot
   plt_provided <- !is.null(plt)
@@ -60,9 +62,9 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
 
   # Use different input data depending on desired layout
   # If include_diag is FALSE, skip where row == col, otherwise use the whole data
-  x_long <- if (!include_diag) {
+  x_long <- if (isFALSE(include_diag)) {
     subset(x_long, as.character(row) != as.character(col))
-  } else {
+  } else if (isTRUE(include_diag)) {
     x_long
   }
 
@@ -163,6 +165,11 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
     # Skip NA labels
     cell_data <- subset(cell_data, !is.na(label))
 
+    if (nrow(cell_data) < 1) {
+      cli::cli_warn("There are no cells in {.var cell_labels} that correspond to cells in the plotted data.",
+                    class = "cell_labels_rowcol_warn")
+    }
+
     # skip diagonal if already occupied
     if (!(include_diag & !names_diag)) {cell_data <- subset(cell_data, as.character(row) != as.character(col))}
 
@@ -185,6 +192,10 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
         }
       )
 
+  } else if (!isFALSE(cell_labels)) {
+    cli::cli_warn("{.var cell_labels} should be a {.cls logical} to write the cell values, or
+                  a {.cls matrix} or {.cls data.frame} that shares row/colnames with the plotted matrix.",
+                  class = "cell_labels_class_warn")
   }
 
   return(plt)
@@ -197,11 +208,11 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
 #'
 #' @param plt Plot object to add names to.
 #' @param x_long Long format plotting data.
-#' @param names_diag_param Parameters for diagonal names.
+#' @param names_diag_params Parameters for diagonal names.
 #'
 #' @returns Plot with labels added.
 #'
-add_diag_names <- function(plt, x_long, names_diag_param = NULL) {
+add_diag_names <- function(plt, x_long, names_diag_params = NULL) {
   label <- NULL
 
   # Names on the diagonal
@@ -211,8 +222,12 @@ add_diag_names <- function(plt, x_long, names_diag_param = NULL) {
 
   # Construct call using optional parameters
   text_call_params <- list(data = axis_lab, mapping = ggplot2::aes(x = label, y = label, label = label))
-  if (is.list(names_diag_param)) {
-    text_call_params <- append(text_call_params, names_diag_param)
+  if (is.list(names_diag_params)) {
+    text_call_params <- append(text_call_params, names_diag_params)
+  } else if (!is.null(names_diag_params)) {
+    cli::cli_warn("{.var names_diag_params} should be a list with static aesthetics to
+                  pass to {.var ggplot2::geom_text}.",
+                  class = "diag_names_arg_warn")
   }
 
   plt <- plt +

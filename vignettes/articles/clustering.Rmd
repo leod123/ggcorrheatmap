@@ -124,14 +124,12 @@ ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE, dend_height = 1,
            # Node options
            set("nodes_pch", c(15, 16, 17)) %>%
            set("nodes_cex", 2:4) %>%
-           # If passing numbers for the colours, make sure they are characters
-           set("nodes_col", as.character(1:5)))
+           set("nodes_col", 1:5))
 ```
 
 Leaves can be reordered using functions like `ladderize` or `rotate`, though it is not recommended to do for only one dimension if the matrix is symmetric as the diagonal may end up in strange places. Triangular layouts are not supported if the clustering causes the matrix to become asymmetric.
 
 ```{r, fig.alt='Two heatmaps of rows 11 to 15 of mtcars. Both have clustered rows, but the second plot has its rows in the opposite order compared to the first plot.'}
-# 
 plt1 <- gghm(scale(mtcars[11:15, ]), cluster_rows = TRUE, na_remove = TRUE) # Remove NaNs introduced by scaling
 plt2 <- gghm(scale(mtcars[11:15, ]), cluster_rows = TRUE, na_remove = TRUE,
              # dendextend::rotate() to flip the order of rows

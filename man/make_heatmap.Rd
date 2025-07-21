@@ -10,7 +10,7 @@ make_heatmap(
   mode = "heatmap",
   include_diag = T,
   invisible_diag = F,
-  border_lwd = 0.5,
+  border_lwd = 0.1,
   border_col = "grey",
   border_lty = 1,
   names_diag = T,
@@ -55,6 +55,8 @@ make_heatmap(
 
 \item{names_y_side}{Y axis side.}
 
+\item{colr_scale}{Scale for colour/fill aesthetic.}
+
 \item{size_scale}{Scale for size aesthetic.}
 
 \item{cell_labels}{Logical indicating if cell labels should be written or a matrix or data frame (same shape as x_long) with values to write.}
@@ -68,14 +70,6 @@ make_heatmap(
 \item{cell_bg_col}{Cell background colour (fill).}
 
 \item{cell_bg_alpha}{Cell background alpha.}
-
-\item{fill_scale}{Scale for fill aesthetic.}
-
-\item{fill_name}{Name for fill aesthetic.}
-
-\item{col_scale}{Scale for colour aesthetic.}
-
-\item{col_name}{Name for colour aesthetic.}
 }
 \value{
 ggplot object with heatmap component.

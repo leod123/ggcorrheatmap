@@ -38,7 +38,8 @@ set.seed(123)
 row_annot <- data.frame(.names = colnames(mtcars),
                         annot1 = sample(letters[1:3], ncol(mtcars), TRUE),
                         annot2 = rnorm(ncol(mtcars)))
-ggcorrhm(mtcars, layout = "br", cluster_rows = TRUE, cluster_cols = TRUE,
+ggcorrhm(mtcars, layout = "bottomright",
+         cluster_rows = TRUE, cluster_cols = TRUE,
          dend_rows = FALSE, annot_rows_df = row_annot)
 ```
 
@@ -59,9 +60,7 @@ It is also possible to make a normal heatmap, for a more flexible
 output.
 
 ``` r
-library(ggplot2)
-gghm(scale(mtcars), cluster_rows = TRUE, cluster_cols = TRUE) +
-  theme(axis.text.x.top = element_text(angle = 90, vjust = 0.3, hjust = 0))
+gghm(scale(mtcars), cluster_rows = TRUE, cluster_cols = TRUE)
 ```
 
 ![](man/figures/README-example3-1.png)<!-- -->

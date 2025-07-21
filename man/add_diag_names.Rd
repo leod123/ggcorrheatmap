@@ -4,14 +4,14 @@
 \alias{add_diag_names}
 \title{Add diagonal names to heatmap.}
 \usage{
-add_diag_names(plt, x_long, names_diag_param = NULL)
+add_diag_names(plt, x_long, names_diag_params = NULL)
 }
 \arguments{
 \item{plt}{Plot object to add names to.}
 
 \item{x_long}{Long format plotting data.}
 
-\item{names_diag_param}{Parameters for diagonal names.}
+\item{names_diag_params}{Parameters for diagonal names.}
 }
 \value{
 Plot with labels added.

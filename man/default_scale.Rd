@@ -9,7 +9,9 @@ default_scale(
   aes_type,
   leg_order = 1,
   title = ggplot2::waiver(),
-  na_col = "grey50"
+  na_col = "grey50",
+  bins = NULL,
+  limits = NULL
 )
 }
 \arguments{
