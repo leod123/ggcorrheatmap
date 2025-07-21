@@ -327,7 +327,7 @@ gghm <- function(x,
 
   # Make long format data, ordering columns to fit layout
   if (length(layout) == 1) {
-    x_long <- layout_hm(x, layout = layout, na_remove = na_remove, include_diag = include_diag)
+    x_long <- layout_hm(x, layout = layout, na_remove = na_remove)
 
     # Reorder data to ensure it is in the drawing order
     x_long <- if (any(c("topleft", "tl", "bottomright", "br") %in% layout)) {
@@ -339,8 +339,8 @@ gghm <- function(x,
   } else if (length(layout) == 2) {
     # Mixed layout, generate one per half and mark by layout. The first one gets the diagonal
     x_long <- dplyr::bind_rows(
-      dplyr::mutate(layout_hm(x, layout = layout[1], na_remove = na_remove, include_diag = T), layout = layout[1]),
-      dplyr::mutate(layout_hm(x, layout = layout[2], na_remove = na_remove, include_diag = F), layout = layout[2])
+      dplyr::mutate(layout_hm(x, layout = layout[1], na_remove = na_remove), layout = layout[1]),
+      dplyr::mutate(layout_hm(x, layout = layout[2], na_remove = na_remove), layout = layout[2])
     )
     # Convert layout to a factor vector
     x_long[["layout"]] <- factor(x_long[["layout"]], levels = layout)
@@ -445,9 +445,11 @@ gghm <- function(x,
   }
 
   # Build plot
+  check_logical(names_diag = names_diag)
+
   if (length(layout) == 1) {
     plt <- make_heatmap(x_long = x_long, plt = NULL, mode = mode, include_diag = include_diag,
-                        invisible_diag = isSymmetric(as.matrix(x)) & !include_diag,
+                        invisible_diag = isSymmetric(as.matrix(x)) && isTRUE(names_diag),
                         border_lwd = border_lwd, border_col = border_col, border_lty = border_lty,
                         names_diag = names_diag, names_x = names_x, names_y = names_y,
                         names_x_side = names_x_side, names_y_side = names_y_side,

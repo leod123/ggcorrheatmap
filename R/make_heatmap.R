@@ -37,7 +37,7 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                          cell_bg_col = "white", cell_bg_alpha = 0) {
   value <- .data <- label <- NULL
 
-  check_logical(names_diag = names_diag)
+  # names_diag checked earlier
   check_logical(names_x = names_x)
   check_logical(names_y = names_y)
   check_logical(include_diag = include_diag)

@@ -93,7 +93,11 @@ test_that("p-value errors work", {
 test_that("snapshots are ok", {
   vdiffr::expect_doppelganger("basic_ggcorrhm", ggcorrhm(mtcars))
   vdiffr::expect_doppelganger("asymmetric_corrhm", ggcorrhm(iris[1:32, -5], mtcars))
-  vdiffr::expect_doppelganger("corr_layout", ggcorrhm(mtcars, layout = "tr"))
+  # Check that diagonal names end up in the correct positions regardless of inclusion of diagonal
+  vdiffr::expect_doppelganger("diag_names1", ggcorrhm(mtcars, layout = "tr", names_x = T, names_y = T))
+  vdiffr::expect_doppelganger("diag_names2", ggcorrhm(mtcars, layout = "tr", include_diag = F, names_x = T, names_y = T))
+  vdiffr::expect_doppelganger("diag_names3", ggcorrhm(mtcars, layout = "tr", include_diag = F, names_diag = F, names_x = T, names_y = T))
+  vdiffr::expect_doppelganger("diag_names4", ggcorrhm(mtcars, layout = "tr", include_diag = T, names_diag = F, names_x = T, names_y = T))
   vdiffr::expect_doppelganger("corr_w_options", ggcorrhm(mtcars, cluster_rows = T, cluster_cols = T,
                                                          annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:ncol(mtcars)),
                                                          annot_cols_df = data.frame(.names = colnames(mtcars), b = 1:ncol(mtcars))))
