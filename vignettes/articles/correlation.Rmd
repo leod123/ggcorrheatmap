@@ -167,7 +167,7 @@ ggcorrhm(mtcars, layout = c("tr", "bl"))
 
 `ggcorrhm()` adds support for correlation p-values which can be calculated by setting the `p_values` argument to `TRUE`. The values can be adjusted for multiple testing by passing a string specifying the adjustment method to the `p_adjust` argument. If the correlation matrix is symmetric, the diagonal is excluded and only half of the off-diagonal values are used for the adjustment. The calculated p-values will be included in the data if `return_data` is `TRUE`. P-values and adjusted p-values for the correlations of the diagonal in a symmetric matrix are set to 0 as the correlations are always 1.
 
-By default, cells are marked with asterisks if `p_values` is `TRUE`. The `p_thresholds` argument controls the p-value thresholds. `p_thresholds` must be a named numeric vector where the values specify the thresholds (in ascending order) and the names are the symbols to use when an adjusted p-value is below each threshold. `stats::symnum()` is used to convert p-values and the last value of `p_thresholds` must be 1 (or any higher number) to set the upper bound. By default, `p_thresholds` is set to be `c("***" = 0.001, "**" = 0.01, "*" = 0.05", 1)`. As can be seen, 1 is left unnamed so that any p-values between 0.05 and 1 are unmarked.
+By default, cells are marked with asterisks if `p_values` is `TRUE`. The `p_thresholds` argument controls the p-value thresholds. `p_thresholds` must be NULL (for no thresholds or symbols) or a named numeric vector where the values specify the thresholds (in ascending order) and the names are the symbols to use when an adjusted p-value is below each threshold. `stats::symnum()` is used to convert p-values and the last value of `p_thresholds` must be 1 (or any higher number) to set the upper bound. By default, `p_thresholds` is set to be `c("***" = 0.001, "**" = 0.01, "*" = 0.05", 1)`. As can be seen, 1 is left unnamed so that any p-values between 0.05 and 1 are unmarked.
 
 ```{r, fig.width=10, fig.height=5, fig.alt="Two mtcars correlation heatmaps. The cells are coloured by correlation and contain text that depends on the p-values of the correlation coefficients. In the first one cells are marked with up to three asterisks. The second plot instead has a mix of cells with a plus symbol, an asterisk, and 'ns' written in them."}
 # P-value symbols added to the plot
@@ -179,7 +179,7 @@ plt2 <- ggcorrhm(mtcars, p_values = TRUE, p_adjust = "bonferroni",
 plt1 + plt2
 ```
 
-In a mixed layout it is possible to display p-values in only half of the plot by passing a vector to the `p_values` argument. If `cell_labels` is `TRUE` (so that correlation values are written in the cells), the symbols from `p_thresholds` are added at the end of the correlation values. 
+In a mixed layout it is possible to display p-values in only half of the plot by passing a vector or list of length two to the `p_values` argument. If `cell_labels` is `TRUE` (so that correlation values are written in the cells), the symbols from `p_thresholds` are added at the end of the correlation values. 
 
 ```{r, fig.alt='A mtcars correlation heatmaps with filled cells in the top left and labelled white cells in the bottom right. There are correlation values written in the bottom right, with asterisks signifying the p-value.'}
 # P-values only in the bottom right, mode 'none' for labels with empty background

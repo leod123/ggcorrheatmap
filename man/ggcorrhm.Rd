@@ -151,7 +151,8 @@ NAs hide the corresponding legends, a single NA hides all. Ignored for \code{ggp
 \item{p_adjust}{String specifying the adjustment method to use for the p-values (default is "none").}
 
 \item{p_thresholds}{Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
-Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).}
+Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).
+If NULL, no thresholding is done and p-value intervals are not marked with symbols.}
 
 \item{cell_labels}{Logical specifying if the cells should be labelled with the correlation values. Alternatively, a matrix or data frame with the same shape and dimnames as \code{x}
 containing values to write in the cells. If mode is \code{text}, the cell label colours will scale with the correlation values and \code{cell_label_col} is ignored.}

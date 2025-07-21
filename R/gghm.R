@@ -319,18 +319,6 @@ gghm <- function(x,
     cell_label_digits <- prepare_mixed_param(cell_label_digits, "cell_label_digits")
   }
 
-  # Positions of different elements
-  if (full_plt) {
-    # Allow for specification of dendrogram positions only when the whole matrix is drawn
-    dend_left <- dend_rows_side %in% c("left", "l")
-    dend_down <- dend_cols_side %in% c("bottom", "down", "b", "d")
-    annot_left <- annot_rows_side %in% c("left", "l")
-    annot_down <- annot_cols_side %in% c("bottom", "down", "b", "d")
-  } else {
-    dend_left = annot_left <- layout %in% c("topleft", "tl", "bottomleft", "bl")
-    dend_down = annot_down <- layout %in% c("bottomleft", "bl", "bottomright", "br")
-  }
-
   if (!full_plt) {
     # Move annotation and dendrograms to non-empty sides if not full plot
     annot_rows_side <- dend_rows_side <- ifelse(layout %in% c("topleft", "tl", "bottomleft", "bl"), "left", "right")
@@ -701,7 +689,7 @@ check_logical <- function(..., list_allowed = F, call = NULL) {
     # Wrong class
     if (!is.logical(val)) {
       cli::cli_abort(paste0(
-        err_msg, "a {.cls {class(val)}}."
+        err_msg, "{.cls {class(val)}}."
       ), class = "logical_error", call = call)
     }
 
@@ -717,7 +705,7 @@ check_logical <- function(..., list_allowed = F, call = NULL) {
     sapply(val, function(v) {
       if (!is.logical(v)) {
         cli::cli_abort(paste0(
-          err_msg, "a {.cls {class(v)}}."
+          err_msg, "{.cls {class(v)}}."
         ), class = "logical_error", call = call)
       }
 
@@ -729,34 +717,6 @@ check_logical <- function(..., list_allowed = F, call = NULL) {
     })
   }
 }
-
-# check_logical <- function(..., call = NULL) {
-#   arg <- list(...)
-#   name <- names(arg)
-#   val <- arg[[1]]
-#
-#   # Get the call to use for the first part of the error
-#   if (is.null(call)) {
-#     call <- rlang::caller_env()
-#   }
-#
-#   # First part of error message
-#   err_msg <- paste0("{.var ", name, "} must be a single {.cls logical} value, not ")
-#
-#   # Wrong class
-#   if (!is.logical(val)) {
-#     cli::cli_abort(paste0(
-#       err_msg, "a {.cls {class(val)}}."
-#     ), class = "logical_error", call = call)
-#   }
-#
-#   # Too long
-#   if (length(val) > 1) {
-#     cli::cli_abort(paste0(
-#       err_msg, "{length(val)} values."
-#     ), class = "logical_error", call = call)
-#   }
-# }
 
 #' Check input numeric arguments for class and length.
 #'

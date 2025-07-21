@@ -22,6 +22,7 @@
 #' @param p_adjust String specifying the adjustment method to use for the p-values (default is "none").
 #' @param p_thresholds Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
 #' Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).
+#' If NULL, no thresholding is done and p-value intervals are not marked with symbols.
 #' @param layout String specifying the layout of the output heatmap. Possible layouts include
 #' 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
 #' A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
@@ -144,11 +145,16 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
     check_logical(cell_label_p = cell_label_p, list_allowed = F)
   }
 
-  if (any(unlist(p_values)) & is.numeric(p_thresholds)) {
-    if (any(p_thresholds < 0)) cli::cli_abort("Values in {.var p_thresholds} must be above 0.", class = "p_thr_error")
-    if (p_thresholds[length(p_thresholds)] < 1) cli::cli_abort("The last value of {.var p_thresholds} must be 1 or larger.", class = "p_thr_error")
-    if (is.null(names(p_thresholds))) cli::cli_abort("{.var p_thresholds} must have named elements to be used as symbols (up to one unnamed).", class = "p_thr_error")
-    if (any(duplicated(names(p_thresholds)))) cli::cli_abort("Symbols (the names) of {.var p_thresholds} must be unique.", class = "p_thr_error")
+  if (any(unlist(p_values))) {
+    if (!is.numeric(p_thresholds) && !is.null(p_thresholds)) {
+      cli::cli_abort("{.var p_thresholds} must be a named {.cls numeric} vector or NULL.")
+    } else {
+      if (any(is.na(p_thresholds))) cli::cli_abort("{.var p_thresholds} should not contain any missing values.")
+      if (any(p_thresholds <= 0)) cli::cli_abort("Values in {.var p_thresholds} must be above 0.", class = "p_thr_error")
+      if (p_thresholds[length(p_thresholds)] < 1) cli::cli_abort("The last value of {.var p_thresholds} must be 1 or larger.", class = "p_thr_error")
+      if (is.null(names(p_thresholds))) cli::cli_abort("{.var p_thresholds} must have named elements to be used as symbols (up to one unnamed).", class = "p_thr_error")
+      if (any(duplicated(names(p_thresholds)))) cli::cli_abort("Symbols (the names) of {.var p_thresholds} must be unique.", class = "p_thr_error")
+    }
   }
 
 
