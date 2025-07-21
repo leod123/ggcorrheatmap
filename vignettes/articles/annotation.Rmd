@@ -40,7 +40,7 @@ gghm(mat_in, annot_rows_df = row_annot, annot_cols_df = col_annot,
      legend_order = NA)
 ```
 
-The colours can be changed by passing a named list of `ggplot2` fill scales or strings specifying brewer palettes or viridis options to the `annot_rows_fill` and `annot_cols_fill` arguments. Annotations not included in the list will get the default colours. When supplying a scale object, the order of the legends may change (by default the main heatmap annotation is first, followed by row annotations in order and column annotations in order). The order can be adjusted by using the `guide` argument of the scale functions, e.g. `guide = ggplot2::guide_legend(order = 3)`.
+The colours can be changed by passing a named list of `ggplot2` fill scales or strings specifying brewer palettes or viridis options to the `annot_rows_col` and `annot_cols_col` arguments. Annotations not included in the list will get the default colours. When supplying a scale object, the order of the legends may change (by default the main heatmap annotation is first, followed by row annotations in order and column annotations in order). The order can be adjusted by using the `guide` argument of the scale functions, e.g. `guide = ggplot2::guide_legend(order = 3)`.
 
 ```{r, fig.alt='Correlation heatmap of eight columns from mtcars. Below the heatmap are eight annotation rows, the first four categorical and the last four continuous. Their names alternate between custom1, custom2, ... and default1, default2, .... The custom ones use user-specified colours while the default ones use the colour schemes in the annotations of the previous heatmap.'}
 # Make annotation with eight columns, half categorical and half continuous
@@ -54,7 +54,7 @@ col_annot_fill <- list(custom1 = "Oranges",
                        custom3 = "mako",
                        custom4 = scale_fill_continuous(guide = "none"))
 ggcorrhm(mtcars[, 1:8], annot_cols_df = col_annot,
-         annot_cols_fill = col_annot_fill, legend_order = NA)
+         annot_cols_col = col_annot_fill, legend_order = NA)
 ```
 
 # Annotation positioning
@@ -73,8 +73,8 @@ plt1 <- gghm(cor(mtcars), annot_rows_df = annot, annot_cols_df = annot,
         plot.margin = margin(10, 50, 30, 10))
 plt2 <- gghm(cor(mtcars), annot_rows_df = annot, annot_cols_df = annot,
              annot_rows_side = "left", annot_cols_side = "top",
-             layout = "br", include_diag = TRUE, names_diag = TRUE,
-             names_x = FALSE, names_y = FALSE) +
+             layout = "br", include_diag = TRUE, show_names_diag = TRUE,
+             show_names_x = FALSE, show_names_y = FALSE) +
   theme(plot.margin = margin(20, 10, 10, 50))
 
 plt1 + plt2
@@ -146,7 +146,7 @@ If the annotation labels are too long and are cut off, the plot margins can be a
 
 # Dealing with missing values
 
-If there are NAs in the annotation they are by default coloured grey. The colour can be changed using the `annot_na_col` argument, or by specifying a colour for the `na.value` argument in a `ggplot2` scale when supplied using the `annot_rows_fill` and `annot_cols_fill` arguments. The `annot_na_remove` argument can be set to `TRUE` to not display the cells at all. If the annotation data frame does not contain all the names of the axis, those rows/columns will be left empty.
+If there are NAs in the annotation they are by default coloured grey. The colour can be changed using the `annot_na_col` argument, or by specifying a colour for the `na.value` argument in a `ggplot2` scale when supplied using the `annot_rows_col` and `annot_cols_col` arguments. The `annot_na_remove` argument can be set to `TRUE` to not display the cells at all. If the annotation data frame does not contain all the names of the axis, those rows/columns will be left empty.
 
 As a side note, `annot_na_remove` is by default set to be the same as `na_remove` so setting the NAs to be removed from the main heatmap removes NAs from the annotation unless `annot_na_remove` is changed. Similarly, the `annot_na_col` argument is also set to by default be the same as `na_col`.
 
@@ -168,7 +168,7 @@ col_annot <- data.frame(.names = sample(colnames(mtcars), 7),
 plt1 <- ggcorrhm(mtcars, annot_rows_df = row_annot, annot_cols_df = col_annot,
                  annot_na_remove = TRUE)
 plt2 <- ggcorrhm(mtcars, annot_rows_df = row_annot, annot_cols_df = col_annot,
-                 annot_na_remove = FALSE, annot_rows_fill = row_fill,
+                 annot_na_remove = FALSE, annot_rows_col = row_fill,
                  annot_na_col = "blue")
 
 plt1 + plt2

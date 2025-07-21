@@ -3,7 +3,7 @@
 #' @keywords internal
 #'
 #' @param mode Plotting modes.
-#' @param colr_scale One or two colour scales (shared for fill and colour). NULL for default, string for Brewer or Viridis, or a scale.
+#' @param col_scale One or two colour scales (shared for fill and colour). NULL for default, string for Brewer or Viridis, or a scale.
 #' @param size_scale Size scales (NULL or ggplot2 scales).
 #' @param annot_rows_df Annotation data frame for rows.
 #' @param annot_cols_df Annotation data frame for columnss.
@@ -11,7 +11,7 @@
 #'
 #' @returns A list with aesthetics for the main plot and orders of all legends.
 #'
-make_legend_order <- function(mode, colr_scale = NULL, size_scale = NULL,
+make_legend_order <- function(mode, col_scale = NULL, size_scale = NULL,
                               annot_rows_df = NULL, annot_cols_df = NULL, legend_order = NULL) {
 
   scales_to_use <- dplyr::case_when(mode %in% c("heatmap", "hm") ~ "fill",
@@ -28,7 +28,7 @@ make_legend_order <- function(mode, colr_scale = NULL, size_scale = NULL,
   scale_vec <- unlist(scale_list)
 
   # Remove scales if only one is needed (e.g. two fill modes but only one scale (or none) provided
-  scale_vec <- remove_duplicate_scales(scale_vec, colr_scale, size_scale)
+  scale_vec <- remove_duplicate_scales(scale_vec, col_scale, size_scale)
 
   # Assign scales a legend order
   if (!is.null(legend_order) && !all(is.na(legend_order)) && !is.numeric(legend_order)) {
@@ -85,14 +85,14 @@ make_legend_order <- function(mode, colr_scale = NULL, size_scale = NULL,
 #' @keywords internal
 #'
 #' @param scale_vec Vector of scale aesthetics.
-#' @param colr_scale Input colour scales (NULL, string or scale object).
+#' @param col_scale Input colour scales (NULL, string or scale object).
 #' @param size_scale Input size scales.
 #'
 #' @returns Vector of aesthetics with duplicates removed if appropriate.
 #'
-remove_duplicate_scales <- function(scale_vec, colr_scale = NULL, size_scale = NULL) {
+remove_duplicate_scales <- function(scale_vec, col_scale = NULL, size_scale = NULL) {
   for (i in c("fill", "col", "size", "none")) {
-    input_scale <- switch(i, "fill" = , "col" = colr_scale, "size" = size_scale, "none" = NULL)
+    input_scale <- switch(i, "fill" = , "col" = col_scale, "size" = size_scale, "none" = NULL)
     if (sum(scale_vec == i) == 2 &&                                         # Only remove if two of the same name and
         ((length(input_scale) < 2 || all(is.null(unlist(input_scale)))) ||  # input scales not a list with two scales or strings, or
          inherits(input_scale, c("Scale", "ggproto", "gg")))                # a single scale or
@@ -112,8 +112,8 @@ remove_duplicate_scales <- function(scale_vec, colr_scale = NULL, size_scale = N
 #' @param scale_order List of necessary scales and their orders, as obtained make_legend_order.
 #' @param context Scale context (gghm or ggcorrhm) for deciding which defaults to use.
 #' @param val_type String with type of value ('continuous' or 'discrete').
-#' @param colr_scale Colour scales input.
-#' @param colr_name Colour scale names.
+#' @param col_scale Colour scales input.
+#' @param col_name Colour scale names.
 #' @param size_scale Size scales input.
 #' @param size_name Size scale names.
 #' @param bins Number of bins to divide scale into (only for ggcorrhm).
@@ -128,7 +128,7 @@ remove_duplicate_scales <- function(scale_vec, colr_scale = NULL, size_scale = N
 #' @returns ggplot2 scales for the plot.
 #'
 prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_type,
-                           colr_scale = NULL, colr_name = "value",
+                           col_scale = NULL, col_name = "value",
                            size_scale = NULL, size_name = "value",
                            bins = NULL, limits = c(-1, 1),
                            high = "sienna2", mid = "white", low = "skyblue2", midpoint = 0,
@@ -141,11 +141,11 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
   check_numeric(size_range = size_range, allow_null = T, allowed_lengths = c(1, 2))
 
   # Put scales into lists
-  if (is.vector(colr_scale)) {
+  if (is.vector(col_scale)) {
     # For vector, make sure the elements end up in different list indices
-    colr_scale <- as.list(colr_scale)
-  } else if (!is.list(colr_scale)) {
-    colr_scale <- list(colr_scale)
+    col_scale <- as.list(col_scale)
+  } else if (!is.list(col_scale)) {
+    col_scale <- list(col_scale)
   }
   if (is.vector(size_scale)) {
     size_scale <- as.list(size_scale)
@@ -165,11 +165,11 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
     legend_order <- scale_order[["main_scales"]][["order"]][[i]]
     input_scale <- switch(scl,
                           "fill" = ,
-                          "col" = colr_scale[[colr_id]],
+                          "col" = col_scale[[colr_id]],
                           "size" = size_scale[[size_id]])
     scale_title <- switch(scl,
                           "fill" = ,
-                          "col" = colr_name[[colr_id]],
+                          "col" = col_name[[colr_id]],
                           "size" = size_name[[size_id]])
 
     if (inherits(input_scale, c("Scale", "ggproto", "gg"))) {
@@ -197,7 +197,7 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
           cli::cli_warn("{.var size_scale} should be NULL (default) or a ggplot2 scale object,
           or a combination if a mixed layout.", class = "scale_class_warn")
         } else {
-          cli::cli_warn("{.var colr_scale} should be NULL (default), a character value,
+          cli::cli_warn("{.var col_scale} should be NULL (default), a character value,
           or a ggplot2 scale object, or a combination of those if a mixed layout.",
                         class = "scale_class_warn")
         }
@@ -253,11 +253,23 @@ get_colour_scale <- function(name, val_type, aes_type, limits = NULL, bins = NUL
                "Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu", "PuBuGn",
                "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd")
   vir_opt <- c(LETTERS[1:8], c("viridis", "magma", "plasma", "inferno", "cividis", "mako", "rocket", "turbo"))
+  # Another option for the default scale of ggcorrhm (like RdBu but a bit lighter)
+  extra_scale <- c("cor", "corr")
 
-  if (!name %in% c(brw_pal, vir_opt)) {
+  if (!name %in% c(brw_pal, vir_opt, extra_scale)) {
     cli::cli_warn("{.val {name}} is not a valid Brewer or Viridis option. Using default scale instead.",
                   class = "invalid_colr_option_warn")
     return(NULL)
+  }
+
+  if (name %in% extra_scale) {
+    scl_out <- default_scale_corr(aes_type = aes_type, bins = bins, limits = limits,
+                                  high =  ifelse(scl_dir > 0, "sienna2", "skyblue2"),
+                                  mid = "white",
+                                  low = ifelse(scl_dir > 0, "skyblue2", "sienna2"),
+                                  midpoint = 0, na_col = na_col, leg_order = leg_order,
+                                  title = title)
+    return(scl_out)
   }
 
   # Make list of inputs to use for the scale

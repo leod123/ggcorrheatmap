@@ -13,11 +13,11 @@
 #' @param mid Colour to use for 0 in the colour scale.
 #' @param low Colour to use for the lowest value of the colour scale.
 #' @param midpoint Value for the middle point of the colour scale.
-#' @param colr_scale Scale to use for cell colours. If NULL (default), a divergent scale is constructed from the `high`, `mid`, `low`, `midpoint`, `limits`, and `bins` arguments.
+#' @param col_scale Scale to use for cell colours. If NULL (default), a divergent scale is constructed from the `high`, `mid`, `low`, `midpoint`, `limits`, and `bins` arguments.
 #' These arguments are ignored if a `ggplot2::scale_*` function is provided instead. If a string, the corresponding Brewer or Viridis scale is used.
 #' A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale.
 #' In mixed layouts, can also be a list of length two containing the two scales to use.
-#' @param colr_name String to use for the correlation scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.
+#' @param col_name String to use for the correlation scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.
 #' @param p_values Logical indicating if p-values should be calculated. Use with `p_thresholds` to mark cells, and/or `return_data` to get the p-values in the output data.
 #' @param p_adjust String specifying the adjustment method to use for the p-values (default is "none").
 #' @param p_thresholds Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
@@ -33,7 +33,7 @@
 #' NAs are handled in the correlation computations, use the `cor_use` argument for NA handling in correlation.
 #' @param return_data Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, clustering and p-values) should be returned.
 #' @param legend_order Integer vector specifying the order of legends (first value is for the first legend, second for the second, etc). The default (NULL) shows all but size legends.
-#' NAs hide the corresponding legends, a single NA hides all. Ignored for `ggplot2` scale objects in `colr_scale` and `size_scale`.
+#' NAs hide the corresponding legends, a single NA hides all. Ignored for `ggplot2` scale objects in `col_scale` and `size_scale`.
 #' @param size_range Numeric vector of length 2, specifying lower and upper ranges of shape sizes. Ignored if `size_scale` is not NULL.
 #' @param size_scale `ggplot2::scale_size_*` call to use for size scaling if `mode` is a number from 1 to 25 (R pch).
 #' The default behaviour (NULL) is to use a continuous scale with the absolute values of the correlation.
@@ -107,16 +107,16 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      high = "sienna2", mid = "white", low = "skyblue2", midpoint = 0, limits = c(-1, 1), bins = NULL,
                      layout = "full", mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
                      include_diag = TRUE, na_col = "grey50", na_remove = FALSE, return_data = FALSE,
-                     colr_scale = NULL, colr_name = NULL,
+                     col_scale = NULL, col_name = NULL,
                      size_range = c(4, 10), size_scale = NULL, size_name = NULL,
                      legend_order = NULL,
                      p_values = FALSE, p_adjust = "none", p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, 1),
                      cell_labels = FALSE, cell_label_p = FALSE, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
                      cell_bg_col = "white", cell_bg_alpha = 0,
                      border_col = "grey", border_lwd = 0.1, border_lty = 1,
-                     names_diag = TRUE, names_diag_params = NULL,
-                     names_x = FALSE, names_x_side = "top", names_y = FALSE, names_y_side = "left",
-                     annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
+                     show_names_diag = TRUE, names_diag_params = NULL,
+                     show_names_x = FALSE, names_x_side = "top", show_names_y = FALSE, names_y_side = "left",
+                     annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_col = NULL, annot_cols_col = NULL,
                      annot_rows_side = "right", annot_cols_side = "bottom",
                      annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = TRUE,
                      annot_border_col = if (length(border_col) == 1) border_col else "grey",
@@ -128,7 +128,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      annot_rows_label_params = NULL, annot_cols_label_params = NULL,
                      cluster_rows = FALSE, cluster_cols = FALSE,
                      cluster_distance = "euclidean", cluster_method = "complete",
-                     dend_rows = TRUE, dend_cols = TRUE, dend_rows_side = "right", dend_cols_side = "bottom",
+                     show_dend_rows = TRUE, show_dend_cols = TRUE, dend_rows_side = "right", dend_cols_side = "bottom",
                      dend_col = "black", dend_dist = 0, dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
                      dend_rows_params = NULL, dend_cols_params = NULL,
                      dend_rows_extend = NULL, dend_cols_extend = NULL) {
@@ -216,8 +216,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                         "pearson" = "Pearson r",
                         "spearman" = "Spearman\nrho",
                         "kendall" = "Kendall\ntau")
-  if (is.null(colr_name)) {
-    colr_name <- scale_names
+  if (is.null(col_name)) {
+    col_name <- scale_names
   }
   if (is.null(size_name)) {
     size_name <- scale_names
@@ -226,22 +226,22 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   # Don't display names on the diagonal if the plot is non-symmetric as it will cause
   # new ghost columns to be added to draw the names where row == col
   if (!isSymmetric(as.matrix(cor_mat))) {
-    names_diag <- F
+    show_names_diag <- F
     # Also display x and y names by default, but remove if specified as FALSE (when specified as a named argument)
-    names_x <- eval(replace_default(list("names_x" = T), as.list(sys.call()))$names_x)
-    names_y <- eval(replace_default(list("names_y" = T), as.list(sys.call()))$names_y)
+    show_names_x <- eval(replace_default(list("show_names_x" = T), as.list(sys.call()))$show_names_x)
+    show_names_y <- eval(replace_default(list("show_names_y" = T), as.list(sys.call()))$show_names_y)
   }
 
   # Get scales and their orders
   scale_order <- make_legend_order(mode = mode,
-                                   colr_scale = colr_scale,
+                                   col_scale = col_scale,
                                    size_scale = size_scale, annot_rows_df = annot_rows_df,
                                    annot_cols_df = annot_cols_df, legend_order = legend_order)
 
   # Prepare scales for mixed layouts
   if (length(layout) == 2) {
-    colr_name <- prepare_mixed_param(colr_name, "colr_name")
-    colr_scale <- prepare_mixed_param(colr_scale, "colr_scale")
+    col_name <- prepare_mixed_param(col_name, "col_name")
+    col_scale <- prepare_mixed_param(col_scale, "col_scale")
     size_name <- prepare_mixed_param(size_name, "size_name")
     size_scale <- prepare_mixed_param(size_scale, "size_scale")
   }
@@ -258,8 +258,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
       # If a mixed layout with different aesthetics is used and
       if (all(c("col", "fill") %in% scale_order[["main_scales"]][["scales"]]) &
           # the default or just one colour scale is used (not a scale object since it will be aesthetic-specific)
-          (all(sapply(colr_scale, is.null)) |
-           (identical(colr_scale[[1]], colr_scale[[2]]) & is.character(colr_scale[[1]])))
+          (all(sapply(col_scale, is.null)) |
+           (identical(col_scale[[1]], col_scale[[2]]) & is.character(col_scale[[1]])))
       ) {
         # Hide one of the legends (col)
         scale_order[["main_scales"]][["order"]][which(scale_order[["main_scales"]][["scales"]] == "col")] <- NA
@@ -269,7 +269,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 
   # Generate the necessary scales
   main_scales <- prepare_scales(scale_order = scale_order, context = "ggcorrhm", val_type = "continuous",
-                                colr_scale = colr_scale, colr_name = colr_name,
+                                col_scale = col_scale, col_name = col_name,
                                 size_scale = size_scale, size_name = size_name,
                                 bins = bins, limits = limits,
                                 high = high, mid = mid, low = low, midpoint = midpoint,
@@ -277,27 +277,27 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   # Annotation scales
   annot_scales <- prepare_scales_annot(scale_order = scale_order, na_col = annot_na_col,
                                        annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
-                                       annot_rows_col = annot_rows_fill, annot_cols_col = annot_cols_fill)
+                                       annot_rows_col = annot_rows_col, annot_cols_col = annot_cols_col)
 
   # Generate the scale lists to pass to gghm
-  colr_scale <- extract_scales(main_scales, scale_order, c("fill", "col"), layout)
+  col_scale <- extract_scales(main_scales, scale_order, c("fill", "col"), layout)
   size_scale <- extract_scales(main_scales, scale_order, "size", layout)
 
   # Call with all arguments to get the tooltips when calling ggcorrhm
   cor_plt <- gghm(cor_mat,
                   na_remove = na_remove,
                   mode = mode, layout = layout, include_diag = include_diag, return_data = T,
-                  colr_scale = colr_scale, colr_name = colr_name,
+                  col_scale = col_scale, col_name = col_name,
                   size_scale = size_scale, size_name = size_name,
                   border_col = border_col, border_lwd = border_lwd, border_lty = border_lty,
-                  names_diag = names_diag, names_diag_params = names_diag_params,
-                  names_x = names_x, names_x_side = names_x_side,
-                  names_y = names_y, names_y_side = names_y_side,
+                  show_names_diag = show_names_diag, names_diag_params = names_diag_params,
+                  show_names_x = show_names_x, names_x_side = names_x_side,
+                  show_names_y = show_names_y, names_y_side = names_y_side,
                   cell_labels = cell_labels, cell_label_col = cell_label_col,
                   cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
                   cell_bg_col = cell_bg_col, cell_bg_alpha = cell_bg_alpha,
                   annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
-                  annot_rows_fill = annot_scales[["rows"]], annot_cols_fill = annot_scales[["cols"]],
+                  annot_rows_col = annot_scales[["rows"]], annot_cols_col = annot_scales[["cols"]],
                   annot_rows_side = annot_rows_side, annot_cols_side = annot_cols_side,
                   annot_dist = annot_dist, annot_gap = annot_gap,
                   annot_size = annot_size, annot_label = annot_label,
@@ -308,7 +308,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                   annot_rows_label_params = annot_rows_label_params, annot_cols_label_params = annot_cols_label_params,
                   cluster_rows = cluster_rows, cluster_cols = cluster_cols,
                   cluster_distance = cluster_distance, cluster_method = cluster_method,
-                  dend_rows = dend_rows, dend_cols = dend_cols,
+                  show_dend_rows = show_dend_rows, show_dend_cols = show_dend_cols,
                   dend_rows_side = dend_rows_side, dend_cols_side = dend_cols_side,
                   dend_col = dend_col, dend_dist = dend_dist, dend_height = dend_height, dend_lwd = dend_lwd, dend_lty = dend_lty,
                   dend_rows_params = dend_rows_params, dend_cols_params = dend_cols_params,

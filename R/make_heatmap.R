@@ -10,12 +10,12 @@
 #' @param border_lwd Border linewidth.
 #' @param border_col Border colour.
 #' @param border_lty Border linetype.
-#' @param names_diag Logical indicating if names should be displayed on the diagonal.
-#' @param names_x Logical indicating if names should be displayed on the x axis.
-#' @param names_y Logical indicating if names should be displayed on the y axis.
+#' @param show_names_diag Logical indicating if names should be displayed on the diagonal.
+#' @param show_names_x Logical indicating if names should be displayed on the x axis.
+#' @param show_names_y Logical indicating if names should be displayed on the y axis.
 #' @param names_x_side X axis side.
 #' @param names_y_side Y axis side.
-#' @param colr_scale Scale for colour/fill aesthetic.
+#' @param col_scale Scale for colour/fill aesthetic.
 #' @param size_scale Scale for size aesthetic.
 #' @param cell_labels Logical indicating if cell labels should be written or a matrix or data frame (same shape as x_long) with values to write.
 #' @param cell_label_col Colour of cell labels.
@@ -29,17 +29,17 @@
 make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                          include_diag = T, invisible_diag = F,
                          border_lwd = 0.1, border_col = "grey", border_lty = 1,
-                         names_diag = T, names_x = F, names_y = F,
+                         show_names_diag = T, show_names_x = F, show_names_y = F,
                          names_x_side = "top", names_y_side = "left",
-                         colr_scale = NULL, size_scale = NULL,
+                         col_scale = NULL, size_scale = NULL,
                          cell_labels = F, cell_label_col = "black",
                          cell_label_size = 3, cell_label_digits = 2,
                          cell_bg_col = "white", cell_bg_alpha = 0) {
   value <- .data <- label <- NULL
 
-  # names_diag checked earlier
-  check_logical(names_x = names_x)
-  check_logical(names_y = names_y)
+  # show_names_diag checked earlier
+  check_logical(show_names_x = show_names_x)
+  check_logical(show_names_y = show_names_y)
   check_logical(include_diag = include_diag)
 
   # Base plot
@@ -97,7 +97,7 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
             round(value, cell_label_digits)
           } else {value}, colour = value),
           # For text, skip diagonals if names are written there
-          data = if (names_diag) {
+          data = if (show_names_diag) {
             subset(x_long, as.character(row) != as.character(col))
           } else {x_long},
           size = cell_label_size
@@ -106,7 +106,7 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
         # Draw nothing
       }
     ) +
-    colr_scale + size_scale
+    col_scale + size_scale
 
   # Only add scales and coordinate systems once to avoid messages
   if (!plt_provided) {
@@ -119,11 +119,11 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
       ggplot2::theme_classic() +
       # Remove axis elements
       ggplot2::theme(axis.line = ggplot2::element_blank(),
-                     axis.text.y = if (names_y) ggplot2::element_text() else ggplot2::element_blank(),
+                     axis.text.y = if (show_names_y) ggplot2::element_text() else ggplot2::element_blank(),
                      axis.ticks = ggplot2::element_blank(),
                      axis.title = ggplot2::element_blank())
     # Rotate x labels if names on x axis
-    if (names_x) {
+    if (show_names_x) {
       plt <- plt +
         if (names_x_side == "top") ggplot2::theme(axis.text.x.top = ggplot2::element_text(angle = 90, hjust = 0, vjust = 0.3))
       else if (names_x_side == "bottom") ggplot2::theme(axis.text.x.bottom = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.3))
@@ -171,7 +171,7 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
     }
 
     # skip diagonal if already occupied
-    if (!(include_diag & !names_diag)) {cell_data <- subset(cell_data, as.character(row) != as.character(col))}
+    if (!(include_diag & !show_names_diag)) {cell_data <- subset(cell_data, as.character(row) != as.character(col))}
 
     plt <- plt +
       list(

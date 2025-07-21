@@ -8,8 +8,8 @@ prepare_scales(
   scale_order,
   context = c("gghm", "ggcorrhm"),
   val_type,
-  colr_scale = NULL,
-  colr_name = "value",
+  col_scale = NULL,
+  col_name = "value",
   size_scale = NULL,
   size_name = "value",
   bins = NULL,
@@ -29,9 +29,9 @@ prepare_scales(
 
 \item{val_type}{String with type of value ('continuous' or 'discrete').}
 
-\item{colr_scale}{Colour scales input.}
+\item{col_scale}{Colour scales input.}
 
-\item{colr_name}{Colour scale names.}
+\item{col_name}{Colour scale names.}
 
 \item{size_scale}{Size scales input.}
 

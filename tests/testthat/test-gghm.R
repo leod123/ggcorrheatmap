@@ -34,7 +34,7 @@ test_that("basic functionality works", {
   expect_no_error(gghm(mtcars, cell_labels = lbl2))
   # Mixed layout with multiple scales
   expect_no_error(gghm(cor(mtcars), layout = c("tr", "bl"), mode = c("hm", "hm"),
-                       colr_scale = list(
+                       col_scale = list(
                          ggplot2::scale_fill_gradient(high = "pink", low = "white",
                                                       guide = ggplot2::guide_colourbar(order = 1)),
                          "D"
@@ -42,7 +42,7 @@ test_that("basic functionality works", {
                                                      a = 1:11, b = 11:1),
                        legend_order = c(NA, 4, 1, 3)))
   expect_no_error(gghm(cor(mtcars), layout = c("tl", "br"), mode = c("19", "19"),
-                       colr_scale = list(
+                       col_scale = list(
                          ggplot2::scale_colour_gradient(high = "pink", low = "white"),
                          ggplot2::scale_colour_viridis_c()
                        ),
@@ -104,12 +104,12 @@ test_that("snapshots", {
   lbl1[sample(1:length(lbl1), 100, F)] <- 10
   vdiffr::expect_doppelganger("cell_labels_from_matrix", gghm(mtcars, cell_labels = lbl1))
   vdiffr::expect_doppelganger("mixed_scales1", gghm(cor(mtcars), layout = c("tr", "bl"), mode = c("hm", "hm"),
-                                                    colr_scale = list(
+                                                    col_scale = list(
                                                       ggplot2::scale_fill_gradient(high = "pink", low = "white"),
                                                       "D"
                                                     )))
   vdiffr::expect_doppelganger("mixed_scales2", gghm(cor(mtcars), layout = c("tl", "br"), mode = c("19", "19"),
-                                                    colr_scale = list(
+                                                    col_scale = list(
                                                       ggplot2::scale_colour_gradient(high = "pink", low = "white"),
                                                       ggplot2::scale_colour_viridis_c()
                                                     ),
@@ -131,7 +131,7 @@ test_that("warnings and errors", {
   expect_error(gghm(cor(mtcars), layout = "nice"), class = "nonsup_layout_error")
   expect_warning(gghm(mtcars, layout = "br"), class = "force_full_warn")
   expect_error(gghm(mtcars, cluster_rows = "a"), class = "clust_class_error")
-  expect_warning(gghm(mtcars, colr_scale = 1), class = "scale_class_warn")
+  expect_warning(gghm(mtcars, col_scale = 1), class = "scale_class_warn")
   expect_warning(gghm(mtcars, mode = "21", size_scale = "a"), class = "scale_class_warn")
   expect_warning(gghm(cor(mtcars), layout = "br", cluster_rows = T), class = "force_clust_warn")
   expect_warning(gghm(cor(mtcars), layout = c("tl", "br"), cluster_rows = T), class = "force_clust_warn")
@@ -142,7 +142,7 @@ test_that("warnings and errors", {
   expect_warning(gghm(mtcars, cell_labels = NULL), class = "cell_labels_class_warn")
   expect_warning(gghm(mtcars, cell_labels = iris), class = "cell_labels_rowcol_warn")
   # Diagonal names parameters
-  expect_warning(gghm(cor(mtcars), names_diag = T, names_diag_params = "a"),
+  expect_warning(gghm(cor(mtcars), show_names_diag = T, names_diag_params = "a"),
                  class = "diag_names_arg_warn")
   # Input is clustering or dendrogram object
   # asymmetric matrix
@@ -190,14 +190,14 @@ test_that("warnings and errors", {
                          cluster_rows = hclust(dist(cor(mtcars))),
                          cluster_cols = hclust(dist(cor(mtcars), method = "manhattan"), method = "ward.D2")))
   # Warning for invalid colour scale when character input
-  expect_warning(gghm(mtcars, colr_scale = "ABC"), class = "invalid_colr_option_warn")
+  expect_warning(gghm(mtcars, col_scale = "ABC"), class = "invalid_colr_option_warn")
   expect_warning(gghm(mtcars, annot_cols_df = data.frame(.names = colnames(mtcars), a = 1:11, b = 11:1),
-                      annot_cols_fill = list(a = "A", b = "ASDF")), class = "invalid_colr_option_warn")
+                      annot_cols_col = list(a = "A", b = "ASDF")), class = "invalid_colr_option_warn")
   # Invalid annotation colour scale option
   expect_warning(gghm(mtcars, annot_cols_df = data.frame(
     .names = c(colnames(mtcars)),
     a = 1:11, b = 11:1, c = sample(letters[1:3], 11, T)
-  ), annot_cols_fill = list(a = "A", b = "A_rev", c = 3)),
+  ), annot_cols_col = list(a = "A", b = "A_rev", c = 3)),
   class = "annot_fill_class_warn")
   # Annotation and dendrogram side warnings
   expect_no_warning(gghm(cor(mtcars), annot_rows_df = data.frame(
@@ -257,15 +257,15 @@ test_that("warnings and errors", {
   expect_warning(gghm(mtcars, cluster_rows = T, dend_rows_params = list(height = 1, asdf = 2)),
                  class = "replace_default_warn")
   # Other logical arguments
-  expect_error(gghm(mtcars, cluster_rows = T, dend_rows = "TRUE!!"), class = "logical_error")
-  expect_error(gghm(mtcars, cluster_rows = T, cluster_cols = T, dend_cols = 1), class = "logical_error")
+  expect_error(gghm(mtcars, cluster_rows = T, show_dend_rows = "TRUE!!"), class = "logical_error")
+  expect_error(gghm(mtcars, cluster_rows = T, cluster_cols = T, show_dend_cols = 1), class = "logical_error")
   expect_error(gghm(mtcars, na_remove = "A"), class = "logical_error")
   expect_error(gghm(mtcars, annot_cols_df = data.frame(.names = colnames(mtcars), a = 1:11),
                     annot_na_remove = "asdf"), class = "logical_error")
   expect_error(gghm(mtcars, return_data = "ASDF"), class = "logical_error")
-  expect_error(gghm(cor(mtcars), names_diag = "T"), class = "logical_error")
-  expect_error(gghm(cor(mtcars), names_x = "TR"), class = "logical_error")
-  expect_error(gghm(cor(mtcars), names_y = "TRU"), class = "logical_error")
+  expect_error(gghm(cor(mtcars), show_names_diag = "T"), class = "logical_error")
+  expect_error(gghm(cor(mtcars), show_names_x = "TR"), class = "logical_error")
+  expect_error(gghm(cor(mtcars), show_names_y = "TRU"), class = "logical_error")
   expect_error(gghm(cor(mtcars), include_diag = "TRUE"), class = "logical_error")
   expect_error(gghm(cor(mtcars), annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11),
                     annot_label = "false"), class = "logical_error")

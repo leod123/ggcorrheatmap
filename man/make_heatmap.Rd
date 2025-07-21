@@ -13,12 +13,12 @@ make_heatmap(
   border_lwd = 0.1,
   border_col = "grey",
   border_lty = 1,
-  names_diag = T,
-  names_x = F,
-  names_y = F,
+  show_names_diag = T,
+  show_names_x = F,
+  show_names_y = F,
   names_x_side = "top",
   names_y_side = "left",
-  colr_scale = NULL,
+  col_scale = NULL,
   size_scale = NULL,
   cell_labels = F,
   cell_label_col = "black",
@@ -45,17 +45,17 @@ make_heatmap(
 
 \item{border_lty}{Border linetype.}
 
-\item{names_diag}{Logical indicating if names should be displayed on the diagonal.}
+\item{show_names_diag}{Logical indicating if names should be displayed on the diagonal.}
 
-\item{names_x}{Logical indicating if names should be displayed on the x axis.}
+\item{show_names_x}{Logical indicating if names should be displayed on the x axis.}
 
-\item{names_y}{Logical indicating if names should be displayed on the y axis.}
+\item{show_names_y}{Logical indicating if names should be displayed on the y axis.}
 
 \item{names_x_side}{X axis side.}
 
 \item{names_y_side}{Y axis side.}
 
-\item{colr_scale}{Scale for colour/fill aesthetic.}
+\item{col_scale}{Scale for colour/fill aesthetic.}
 
 \item{size_scale}{Scale for size aesthetic.}
 
