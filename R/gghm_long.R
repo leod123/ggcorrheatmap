@@ -9,9 +9,10 @@
 #' @param ...
 gghm_long <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, annot_cols = NULL, ...) {
 
-  if (missing(x)) cli::cli_abort("Argument {.var x} is missing!")
-  if (missing(rows)) cli::cli_abort("Argument {.var rows} is missing!")
-  if (missing(cols)) cli::cli_abort("Argument {.var cols} is missing!")
+  if (missing(x)) cli::cli_abort("Argument {.var x} is missing! It needs to be a data frame.")
+  if (missing(rows)) cli::cli_abort("Argument {.var rows} is missing! Provide the name of the column that contains the heatmap rownames.")
+  if (missing(cols)) cli::cli_abort("Argument {.var cols} is missing! Provide the name of the column that contains the heatmap colnames.")
+  if (missing(values)) cli::cli_abort("Argument {.var values} is missing! Provide the name of the column that contains the heatmap values.")
 
   # Move this to a separate function and reuse in ggcorrhm_long
   x_long <- dplyr::select(x, {{rows}}, {{cols}}, {{values}})
@@ -36,7 +37,7 @@ gghm_long <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, a
     cell_label_df <- shape_mat_wide(cell_label_df)
 
   } else {
-    cell_label_df <- NULL
+    cell_label_df <- F
   }
 
   # Annotation
