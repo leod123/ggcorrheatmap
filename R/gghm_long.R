@@ -1,13 +1,18 @@
-#' gghm for long format data
+#' gghm for long format data using tidy input.
 #'
-#' @param x
+#' @param x Data frame containing data to plot.
 #' @param rows Name of column to use as rows.
 #' @param cols Name of column to use as columns.
 #' @param values Name of column to use for cell values.
-#' @param annot_rows
-#' @param annot_cols
-#' @param ...
-gghm_long <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, annot_cols = NULL, ...) {
+#' @param annot_rows Names of columns to use for row annotations.
+#' @param annot_cols Names of columns to use for column annotations.
+#' @param ... Additional arguments for `gghm()`.
+#'
+#' @export
+#'
+#' @return A ggplot2 object with the heatmap. If `return_data` is `TRUE`, plotting data is returned as well.
+#'
+gghm_tidy <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, annot_cols = NULL, ...) {
 
   if (missing(x)) cli::cli_abort("Argument {.var x} is missing! It needs to be a data frame.")
   if (missing(rows)) cli::cli_abort("Argument {.var rows} is missing! Provide the name of the column that contains the heatmap rownames.")
@@ -28,6 +33,12 @@ gghm_long <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, a
   x_wide <- shape_mat_wide(x_long)
 
   # Reorder rows and columns if input data has factor levels
+  if (is.factor(x_long[["row"]])) {
+    x_wide <- x_wide[levels(x_long[["row"]]), ]
+  }
+  if (is.factor(x_long[["col"]])) {
+    x_wide <- x_wide[, levels(x_long[["col"]])]
+  }
 
   # Cell labels
   if (!rlang::quo_is_null(rlang::enquo(labels))) {
@@ -65,13 +76,12 @@ gghm_long <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, a
   return(plt)
 }
 
-ggcorrhm_long <- function(x, rows, cols, values, annot_rows = NULL, annot_cols = NULL,
+ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols = NULL,
 
                           ...) {
-  # rows and cols are the names of columns that will be in the matrix that will be correlated?
-  # And then the output has only the colnames
-  # how should it work for two inputs? all cols in the same df or two dfs?
-  # allow only one input matrix for the long version?
+  # rows and cols -> rows and columns of matrix fed to cor() OR the correlation matrix if cor_in is TRUE
+  # only allow for one matrix to be fed to cor. use cor_in if other shape is required
+
   # annotation only uses cols unlike gghm_long?
   # what about cell labels?
 
