@@ -103,6 +103,14 @@
 #'                     annot1 = rnorm(ncol(mtcars)),
 #'                     annot2 = sample(letters[1:3], ncol(mtcars), TRUE))
 #' ggcorrhm(mtcars, layout = "tr", annot_cols_df = annot)
+#'
+#' # Both
+#' ggcorrhm(mtcars, layout = "full", cluster_rows = TRUE, cluster_cols = TRUE,
+#'          annot_rows_df = annot[, -3], annot_cols_df = annot[, -2])
+#'
+#' # Mixed layout
+#' ggcorrhm(mtcars, layout = c("tl", "br"))
+#'
 ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything", cor_in = FALSE,
                      high = "sienna2", mid = "white", low = "skyblue2", midpoint = 0, limits = c(-1, 1), bins = NULL,
                      layout = "full", mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),

@@ -306,6 +306,12 @@ annot_rows <- data.frame(.names = rownames(hm_in),
 # Specify colour scale for one of the annotations (viridis mako)
 annot_fill <- list(annot1 = "G")
 
+gghm(scale(hm_in),
+     # Change colours of heatmap (Brewer Purples)
+     col_scale = "Purples",
+     annot_rows_df = annot_rows, annot_rows_col = annot_fill) +
+     # Use ggplot2::theme to adjust margins to fit the annotation names
+     theme(plot.margin = margin(30, 10, 60, 20))
 
 # Using the dend_*_extend arguments
 gghm(scale(hm_in), cluster_rows = TRUE, dend_rows_extend =
