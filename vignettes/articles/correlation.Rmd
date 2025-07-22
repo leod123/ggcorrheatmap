@@ -37,7 +37,7 @@ ggcorrhm(mtcars, high = "green", low = "magenta", mid = "yellow", bins = 4L)
 
 If complete control is needed, the `col_scale` argument can be used to overwrite the default scale. This can be a string specifying a Brewer or Viridis scale, or a `ggplot2` scale object.
 
-```{r, fig.width=10, fig.height=5, fig.alt='Two correlation heatmaps of mtcars. The first one uses the Brewer "RdYlGn" palette on a continuous scale, while the second one uses the Brewer "PuOr" scale with the data put into discrete bins.'}
+```{r, fig.width=10, fig.height=5, fig.alt='Two correlation heatmaps of mtcars. The first one uses the Brewer RdYlGn palette on a continuous scale, while the second one uses the Brewer PuOr scale with the data put into discrete bins.'}
 plt1 <- ggcorrhm(mtcars, col_scale = "RdYlGn")
 
 # Arguments like bins and limits still work with brewer and viridis scales

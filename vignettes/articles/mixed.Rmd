@@ -107,12 +107,12 @@ plt1 + plt2
 
 In mixed layouts the two triangles can use different scales for colours and sizes by using the `col_scale` argument.
 
-```{r, fig.alt='mtcars correlation heatmap with normal cells in the top right and coloured text in the bottom left triangle. The cells in the top right triangle use the viridis "mako" scale while the text in the bottom left use the viridis "turbo" scale. Each scale has a legend on the right (with the same name: "Pearson r").'}
+```{r, fig.alt='mtcars correlation heatmap with normal cells in the top right and coloured text in the bottom left triangle. The cells in the top right triangle use the viridis mako scale while the text in the bottom left use the viridis turbo scale. Each scale has a legend on the right (with the same name: Pearson r).'}
 ggcorrhm(mtcars, layout = c("tr", "bl"),
          col_scale = c("G", "H"))
 ```
 
-```{r, fig.alt='mtcars correlation heatmap with cells in the top left and circles in the bottom right. The cells use the Brewer "RdYlGn" palette (going from green (low) to yellow to red (high)), while the circles use a custom scale with light blue for low values, white for middle values and pink for high values. The two legends on the right are named "Bottom right" (blue-pink) and "Top left" (RdYlGn).'}
+```{r, fig.alt='mtcars correlation heatmap with cells in the top left and circles in the bottom right. The cells use the Brewer RdYlGn palette (going from green (low) to yellow to red (high)), while the circles use a custom scale with light blue for low values, white for middle values and pink for high values. The two legends on the right are named Bottom right (blue-pink) and Top left (RdYlGn).'}
 # Two fill scales
 ggcorrhm(mtcars, layout = c("br", "tl"), mode = c("21", "hm"),
          show_names_diag = FALSE,
@@ -129,7 +129,7 @@ ggcorrhm(mtcars, layout = c("br", "tl"), mode = c("21", "hm"),
 
 Use the `guide` argument in the `ggplot2` scale functions to set the order or hide legends if a scale object is passed in the `col_scale` argument.
 
-```{r, fig.alt='mtcars correlation heatmap with circles in the top right and text labels in empty cells in the bottom left. The circles use a scale going from white at low values to brown at high values while the text in the cells uses the Brewer "Spectral" palette. The legends are named "First legend" (brown) and "Second legend" (Spectral).'}
+```{r, fig.alt='mtcars correlation heatmap with circles in the top right and text labels in empty cells in the bottom left. The circles use a scale going from white at low values to brown at high values while the text in the cells uses the Brewer Spectral palette. The legends are named First legend (brown) and Second legend (Spectral).'}
 # Two colour scales
 ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("19", "text"),
          col_scale = list(
@@ -145,7 +145,7 @@ ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("19", "text"),
 
 If one of the scales is `NULL`, the default scale is used instead (and can be customised with the `high`, `mid`, `low` etc arguments).
 
-```{r, fig.alt='mtcars correlation heatmap. The cells in the top left triangle use a divergent colour scale going from light blue to beige to pink, while the bottom right cells use a binned scale with the Brewer "PrGn" palette, going from green to white to purple.'}
+```{r, fig.alt='mtcars correlation heatmap. The cells in the top left triangle use a divergent colour scale going from light blue to beige to pink, while the bottom right cells use a binned scale with the Brewer PrGn palette, going from green to white to purple.'}
 # NULL uses the default that changes with high, mid, low etc
 ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "hm"),
          col_scale = list(
