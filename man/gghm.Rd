@@ -8,19 +8,19 @@ gghm(
   x,
   layout = "full",
   mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
-  colr_scale = NULL,
-  colr_name = "value",
+  col_scale = NULL,
+  col_name = "value",
   limits = NULL,
   bins = NULL,
   size_scale = NULL,
   size_name = "value",
   legend_order = NULL,
   include_diag = TRUE,
-  names_diag = FALSE,
+  show_names_diag = FALSE,
   names_diag_params = NULL,
-  names_x = TRUE,
+  show_names_x = TRUE,
   names_x_side = "top",
-  names_y = TRUE,
+  show_names_y = TRUE,
   names_y_side = "left",
   na_col = "grey50",
   na_remove = FALSE,
@@ -36,14 +36,13 @@ gghm(
   cell_bg_alpha = 0,
   annot_rows_df = NULL,
   annot_cols_df = NULL,
-  annot_rows_fill = NULL,
-  annot_cols_fill = NULL,
+  annot_rows_col = NULL,
+  annot_cols_col = NULL,
   annot_rows_side = "right",
   annot_cols_side = "bottom",
   annot_dist = 0.2,
   annot_gap = 0,
   annot_size = 0.5,
-  annot_label = TRUE,
   annot_border_col = if (length(border_col) == 1) border_col else "grey",
   annot_border_lwd = if (length(border_lwd) == 1) border_lwd else 0.5,
   annot_border_lty = if (length(border_lty) == 1) border_lty else 1,
@@ -51,16 +50,18 @@ gghm(
   annot_na_remove = na_remove,
   annot_rows_params = NULL,
   annot_cols_params = NULL,
-  annot_rows_label_side = "bottom",
-  annot_cols_label_side = "left",
-  annot_rows_label_params = NULL,
-  annot_cols_label_params = NULL,
+  show_annot_names = TRUE,
+  annot_names_size = 9,
+  annot_rows_names_side = "bottom",
+  annot_cols_names_side = "left",
+  annot_rows_name_params = NULL,
+  annot_cols_name_params = NULL,
   cluster_rows = FALSE,
   cluster_cols = FALSE,
   cluster_distance = "euclidean",
   cluster_method = "complete",
-  dend_rows = TRUE,
-  dend_cols = TRUE,
+  show_dend_rows = TRUE,
+  show_dend_cols = TRUE,
   dend_rows_side = "right",
   dend_cols_side = "bottom",
   dend_col = "black",
@@ -87,10 +88,11 @@ If layout is of length two with two opposing triangles, a mixed layout will be u
 \item{mode}{A string specifying plotting mode. Possible values are \code{heatmap}/\code{hm} for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
 \code{text} to write the cell values instead of filling cells (colour scaling with value), and \code{none} for blank cells.}
 
-\item{colr_scale}{Colour scale to use for cells. If NULL, the default ggplot2 scale is used. If a string, the corresponding Brewer or Viridis scales is used.
-A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale. Can also be a ggplot2 scale object.}
+\item{col_scale}{Colour scale to use for cells. If NULL, the default ggplot2 scale is used. If a string, the corresponding Brewer or Viridis scale is used.
+A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale. Can also be a ggplot2 scale object to overwrite the scale.
+In mixed layouts, a list of two scales can be provided.}
 
-\item{colr_name}{String to use for the colour scale legend title. Can be two values in mixed layouts for dual scales.}
+\item{col_name}{String to use for the colour scale legend title. Can be two values in mixed layouts for dual scales.}
 
 \item{limits}{Numeric vector of length two for the limits of the colour scale. NULL uses the default.}
 
@@ -103,20 +105,20 @@ of length two containing the two scales to use.}
 \item{size_name}{String to use for the size scale legend title. Can be two values in mixed layouts for dual scales.}
 
 \item{legend_order}{Integer vector specifying the order of legends (first value is for the first legend, second for the second, etc). The default (NULL) shows all legends.
-NAs hide the corresponding legends, a single NA hides all. Ignored for \code{ggplot2} scale objects in \code{colr_scale} and \code{size_scale}.}
+NAs hide the corresponding legends, a single NA hides all. Ignored for \code{ggplot2} scale objects in \code{col_scale} and \code{size_scale}.}
 
 \item{include_diag}{Logical indicating if the diagonal cells (of a symmetric matrix) should be plotted.
 Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.}
 
-\item{names_diag}{Logical indicating if names should be written in the diagonal cells (for symmetric input).}
+\item{show_names_diag}{Logical indicating if names should be written in the diagonal cells (for symmetric input).}
 
 \item{names_diag_params}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
 
-\item{names_x}{Logical indicating if names should be written on the x axis. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
+\item{show_names_x}{Logical indicating if names should be written on the x axis. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
 
 \item{names_x_side}{String specifying position of the x axis names ("top" or "bottom").}
 
-\item{names_y}{Logical indicating if names should be written on the y axis.}
+\item{show_names_y}{Logical indicating if names should be written on the y axis.}
 
 \item{names_y_side}{String specifying position of the y axis names ("left" or "right").}
 
@@ -154,12 +156,12 @@ colour scale while factor or character columns use discrete scales.}
 
 \item{annot_cols_df}{Same usage as \code{annot_rows_df} but for column annotation.}
 
-\item{annot_rows_fill}{Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
+\item{annot_rows_col}{Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
 Elements can be strings or ggplot2 "Scale" class objects. If a string, it is used as the brewer palette or viridis option.
 If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
 specify order using the \code{guide} argument in the \code{ggplot2} scale function.}
 
-\item{annot_cols_fill}{Named list used for column annotation colour scales, used like \code{annot_rows_fill}.}
+\item{annot_cols_col}{Named list used for column annotation colour scales, used like \code{annot_rows_col}.}
 
 \item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' or 'right', defaults to 'left').}
 
@@ -170,8 +172,6 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 \item{annot_gap}{Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.}
 
 \item{annot_size}{Size (width for row annotation, height for column annotation) of annotation cells compared to a heatmap cell. Used for both row and column annotation.}
-
-\item{annot_label}{Logical controlling if names of annotations should be shown in the drawing area.}
 
 \item{annot_border_col}{Colour of cell borders in annotation. By default it is the same as \code{border_col} of the main heatmap if it is of length 1, otherwise uses default (grey).}
 
@@ -189,13 +189,17 @@ the \verb{annot_*_fill} arguments.}
 
 \item{annot_cols_params}{Named list with parameters for column annotations, used like \code{annot_rows_params}.}
 
-\item{annot_rows_label_side}{String specifying which side the row annotation labels should be on. Either "top" or "bottom".}
+\item{show_annot_names}{Logical controlling if names of annotations should be shown in the drawing area.}
 
-\item{annot_cols_label_side}{String specifying which side the column annotation labels should be on. Either "left" or "right".}
+\item{annot_names_size}{Size of annotation names.}
 
-\item{annot_rows_label_params}{Named list of parameters for row annotation labels. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
+\item{annot_rows_names_side}{String specifying which side the row annotation names should be on. Either "top" or "bottom".}
 
-\item{annot_cols_label_params}{Named list of parameters for column annotation labels. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
+\item{annot_cols_names_side}{String specifying which side the column annotation names should be on. Either "left" or "right".}
+
+\item{annot_rows_name_params}{Named list of parameters for row annotation names. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
+
+\item{annot_cols_name_params}{Named list of parameters for column annotation names. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
 
 \item{cluster_rows}{Logical indicating if rows should be clustered. Can also be a \code{hclust} or \code{dendrogram} object.}
 
@@ -205,9 +209,9 @@ the \verb{annot_*_fill} arguments.}
 
 \item{cluster_method}{String with the clustering method to use, given to \code{stats::hclust()}.}
 
-\item{dend_rows}{Logical indicating if a dendrogram should be drawn for the rows.}
+\item{show_dend_rows}{Logical indicating if a dendrogram should be drawn for the rows.}
 
-\item{dend_cols}{Logical indicating if a dendrogram should be drawn for the columns.}
+\item{show_dend_cols}{Logical indicating if a dendrogram should be drawn for the columns.}
 
 \item{dend_rows_side}{Which side to draw the row dendrogram on ('left' or 'right', defaults to 'left').}
 
@@ -249,11 +253,11 @@ or lists of length two, each element containing one value (apply to whole triang
 logicals and matrices/data frames.
 
 It is also possible to provide two scales for filling or colouring the triangles differently.
-In this case the \code{colr_scale} must be one character value (scale used for both triangles) or NULL or a list of length two
+In this case the \code{col_scale} must be one character value (scale used for both triangles) or NULL or a list of length two
 
 The annotation parameter arguments \code{annot_rows_params} and \code{annot_cols_params} should be named lists, where the possible options correspond to
 the different \verb{annot_*} arguments. The possible options are "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
-"size" (cell size), "label" (logical, if the annotation names should be displayed), "border_col" (colour of border) and "border_lwd" (border line width).
+"size" (cell size), "show_names" (logical, if the annotation names should be displayed), "border_col" (colour of border) and "border_lwd" (border line width).
 Any unused options will use the defaults set by the \verb{annot_*} arguments.
 
 The dendrogram parameters arguments \code{dend_rows_params} and \code{dend_cols_params} should be named lists, analogous to the annotation parameter arguments. Possible options are

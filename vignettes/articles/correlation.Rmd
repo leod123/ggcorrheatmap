@@ -35,13 +35,13 @@ ggcorrhm(mtcars, high = "green", low = "magenta", mid = "yellow", bins = 4L)
 
 ```
 
-If complete control is needed, the `colr_scale` argument can be used to overwrite the default scale. This can be a string specifying a Brewer or Viridis scale, or a `ggplot2` scale object.
+If complete control is needed, the `col_scale` argument can be used to overwrite the default scale. This can be a string specifying a Brewer or Viridis scale, or a `ggplot2` scale object.
 
 ```{r, fig.width=10, fig.height=5, fig.alt='Two correlation heatmaps of mtcars. The first one uses the Brewer "RdYlGn" palette on a continuous scale, while the second one uses the Brewer "PuOr" scale with the data put into discrete bins.'}
-plt1 <- ggcorrhm(mtcars, colr_scale = "RdYlGn")
+plt1 <- ggcorrhm(mtcars, col_scale = "RdYlGn")
 
 # Arguments like bins and limits still work with brewer and viridis scales
-plt2 <- ggcorrhm(mtcars, colr_scale = "PuOr", bins = 5L)
+plt2 <- ggcorrhm(mtcars, col_scale = "PuOr", bins = 5L)
 
 plt1 + plt2
 ```
@@ -62,7 +62,7 @@ plt1 + plt2
 
 # Label customisation
 
-For symmetric matrices, the axis names are drawn on the diagonal. The `names_diag`, `names_x` and `names_y` arguments control where names should be drawn.
+For symmetric matrices, the axis names are drawn on the diagonal. The `show_names_diag`, `show_names_x` and `show_names_y` arguments control where names should be drawn.
 
 The looks of the names displayed on the diagonal of a symmetric matrix can be adjusted with the `names_diag_params` argument, which takes a named list of parameters to pass to `ggplot2::geom_text()`. For names displayed on the x and y axes, use `ggplot2::theme()` on the generated plot object to change the appearance.
 
@@ -110,9 +110,9 @@ row_annot <- data.frame(.names = colnames(mtcars),
                         annot2 = rnorm(ncol(mtcars)))
 ggcorrhm(mtcars, layout = "tl",
          cluster_rows = TRUE, cluster_cols = TRUE,
-         dend_rows = FALSE,
+         show_dend_rows = FALSE,
          annot_rows_df = row_annot,
-         annot_rows_label_side = "top")
+         annot_rows_names_side = "top")
 ```
 
 # Cell text
@@ -128,7 +128,7 @@ plt_list <- lapply(c("tl", "tr", "bl", "br"), function(lt) {
   # Play a bit with the legend for the last plot
   legend_order <- if (lt == "br") 1 else NA
   ggcorrhm(mtcars, layout = lt, legend_order = legend_order,
-           cell_labels = lab_mat, names_diag = FALSE) +
+           cell_labels = lab_mat, show_names_diag = FALSE) +
     theme(legend.position = "inside",
           legend.position.inside = c(0.025, 1.075))
 })

@@ -33,9 +33,9 @@ The positions of the dendrograms can be changed with the `dend_rows_side` ('left
 plt1 <- ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
                  dend_rows_side = "left", dend_cols_side = "top")
 
-# Dendrograms can be hidden by setting 'dend_rows' and/or 'dend_cols' to FALSE
+# Dendrograms can be hidden by setting 'show_dend_rows' and/or 'show_dend_cols' to FALSE
 plt2 <- ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE, layout = "bl",
-                 dend_rows = FALSE, dend_cols_side = "top")
+                 show_dend_rows = FALSE, dend_cols_side = "top")
 
 plt1 + plt2
 ```

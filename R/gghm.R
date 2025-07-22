@@ -9,9 +9,10 @@
 #' `mode` needs a vector of length two (applied in the same order as layout). See details for more information.
 #' @param mode A string specifying plotting mode. Possible values are `heatmap`/`hm` for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
 #' `text` to write the cell values instead of filling cells (colour scaling with value), and `none` for blank cells.
-#' @param colr_scale Colour scale to use for cells. If NULL, the default ggplot2 scale is used. If a string, the corresponding Brewer or Viridis scales is used.
-#' A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale. Can also be a ggplot2 scale object.
-#' @param colr_name String to use for the colour scale legend title. Can be two values in mixed layouts for dual scales.
+#' @param col_scale Colour scale to use for cells. If NULL, the default ggplot2 scale is used. If a string, the corresponding Brewer or Viridis scale is used.
+#' A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale. Can also be a ggplot2 scale object to overwrite the scale.
+#' In mixed layouts, a list of two scales can be provided.
+#' @param col_name String to use for the colour scale legend title. Can be two values in mixed layouts for dual scales.
 #' @param limits Numeric vector of length two for the limits of the colour scale. NULL uses the default.
 #' @param bins Number of bins to divide the scale into (if continuous values). A 'double' class value uses 'nice.breaks' to put the breaks at nice numbers which may not result
 #' in the specified number of bins. If an integer the number of bins will be prioritised.
@@ -19,7 +20,7 @@
 #' of length two containing the two scales to use.
 #' @param size_name String to use for the size scale legend title. Can be two values in mixed layouts for dual scales.
 #' @param legend_order Integer vector specifying the order of legends (first value is for the first legend, second for the second, etc). The default (NULL) shows all legends.
-#' NAs hide the corresponding legends, a single NA hides all. Ignored for `ggplot2` scale objects in `colr_scale` and `size_scale`.
+#' NAs hide the corresponding legends, a single NA hides all. Ignored for `ggplot2` scale objects in `col_scale` and `size_scale`.
 #' @param include_diag Logical indicating if the diagonal cells (of a symmetric matrix) should be plotted.
 #' Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.
 #' @param na_col Colour to use for cells with NA (both main heatmap and annotation).
@@ -37,28 +38,27 @@
 #' Not supported for numeric `mode`.
 #' @param cell_bg_col Colour to use for cell backgrounds in modes 'text' and 'none'.
 #' @param cell_bg_alpha Alpha for cell colours in modes 'text' and 'none'.
-#' @param names_diag Logical indicating if names should be written in the diagonal cells (for symmetric input).
+#' @param show_names_diag Logical indicating if names should be written in the diagonal cells (for symmetric input).
 #' @param names_diag_params List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
-#' @param names_x Logical indicating if names should be written on the x axis. Labels can be customised using `ggplot2::theme()` on the output plot.
+#' @param show_names_x Logical indicating if names should be written on the x axis. Labels can be customised using `ggplot2::theme()` on the output plot.
 #' @param names_x_side String specifying position of the x axis names ("top" or "bottom").
-#' @param names_y Logical indicating if names should be written on the y axis.
+#' @param show_names_y Logical indicating if names should be written on the y axis.
 #' @param names_y_side String specifying position of the y axis names ("left" or "right").
 #' @param annot_rows_df Data frame for row annotations. The names of the columns in the data must be included,
 #' either as row names or in a column named `.names`. Each other column specifies an annotation where the column name
 #' will be used as the annotation name (in the legend and next to the annotation). Numeric columns will use a continuous
 #' colour scale while factor or character columns use discrete scales.
 #' @param annot_cols_df Same usage as `annot_rows_df` but for column annotation.
-#' @param annot_rows_fill Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
+#' @param annot_rows_col Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
 #' Elements can be strings or ggplot2 "Scale" class objects. If a string, it is used as the brewer palette or viridis option.
 #' If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
 #' specify order using the `guide` argument in the `ggplot2` scale function.
-#' @param annot_cols_fill Named list used for column annotation colour scales, used like `annot_rows_fill`.
+#' @param annot_cols_col Named list used for column annotation colour scales, used like `annot_rows_col`.
 #' @param annot_rows_side String specifying which side row annotation should be drawn ('left' or 'right', defaults to 'left').
 #' @param annot_cols_side String specifying which side column annotation should be drawn ('bottom' or 'top', defaults to 'bottom').
 #' @param annot_dist Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_gap Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_size Size (width for row annotation, height for column annotation) of annotation cells compared to a heatmap cell. Used for both row and column annotation.
-#' @param annot_label Logical controlling if names of annotations should be shown in the drawing area.
 #' @param annot_border_col Colour of cell borders in annotation. By default it is the same as `border_col` of the main heatmap if it is of length 1, otherwise uses default (grey).
 #' @param annot_border_lwd Line width of cell borders in annotation. By default it is the same as `border_lwd` of the main heatmap if it is of length 1, otherwise uses default (0.5).
 #' @param annot_border_lty Line type of cell borders in annotation. By default it is the same as `border_lty` of the main heatmap if it is of length 1, otherwise uses default (solid).
@@ -68,16 +68,18 @@
 #' @param annot_rows_params Named list with parameters for row annotations to overwrite the defaults set by the `annot_*` arguments, each name corresponding to the `*` part
 #' (see details for more information).
 #' @param annot_cols_params Named list with parameters for column annotations, used like `annot_rows_params`.
-#' @param annot_rows_label_side String specifying which side the row annotation labels should be on. Either "top" or "bottom".
-#' @param annot_cols_label_side String specifying which side the column annotation labels should be on. Either "left" or "right".
-#' @param annot_rows_label_params Named list of parameters for row annotation labels. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
-#' @param annot_cols_label_params Named list of parameters for column annotation labels. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
+#' @param show_annot_names Logical controlling if names of annotations should be shown in the drawing area.
+#' @param annot_names_size Size of annotation names.
+#' @param annot_rows_names_side String specifying which side the row annotation names should be on. Either "top" or "bottom".
+#' @param annot_cols_names_side String specifying which side the column annotation names should be on. Either "left" or "right".
+#' @param annot_rows_name_params Named list of parameters for row annotation names. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
+#' @param annot_cols_name_params Named list of parameters for column annotation names. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
 #' @param cluster_rows Logical indicating if rows should be clustered. Can also be a `hclust` or `dendrogram` object.
 #' @param cluster_cols Logical indicating if columns should be clustered. Can also be a `hclust` or `dendrogram` object.
 #' @param cluster_distance String with the distance metric to use for clustering, given to `stats::dist()`.
 #' @param cluster_method String with the clustering method to use, given to `stats::hclust()`.
-#' @param dend_rows Logical indicating if a dendrogram should be drawn for the rows.
-#' @param dend_cols Logical indicating if a dendrogram should be drawn for the columns.
+#' @param show_dend_rows Logical indicating if a dendrogram should be drawn for the rows.
+#' @param show_dend_cols Logical indicating if a dendrogram should be drawn for the columns.
 #' @param dend_rows_side Which side to draw the row dendrogram on ('left' or 'right', defaults to 'left').
 #' @param dend_cols_side Which side to draw the column dendrogram on ('bottom' or 'top', defaults to 'bottom').
 #' @param dend_col Colour to use for dendrogram lines, applied to both row and column dendrograms.
@@ -107,12 +109,12 @@
 #' logicals and matrices/data frames.
 #'
 #' It is also possible to provide two scales for filling or colouring the triangles differently.
-#' In this case the `colr_scale` must be one character value (scale used for both triangles) or NULL or a list of length two
+#' In this case the `col_scale` must be one character value (scale used for both triangles) or NULL or a list of length two
 # containing the scales to use (character or scale object, or NULL for default). `size_scale` works in the same way (but takes no character values).
 #'
 #' The annotation parameter arguments `annot_rows_params` and `annot_cols_params` should be named lists, where the possible options correspond to
 #' the different `annot_*` arguments. The possible options are "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
-#' "size" (cell size), "label" (logical, if the annotation names should be displayed), "border_col" (colour of border) and "border_lwd" (border line width).
+#' "size" (cell size), "show_names" (logical, if the annotation names should be displayed), "border_col" (colour of border) and "border_lwd" (border line width).
 #' Any unused options will use the defaults set by the `annot_*` arguments.
 #'
 #' The dendrogram parameters arguments `dend_rows_params` and `dend_cols_params` should be named lists, analogous to the annotation parameter arguments. Possible options are
@@ -163,9 +165,9 @@
 #'
 # gghm(scale(hm_in),
 #      # Change colours of heatmap (Brewer Purples)
-#      colr_scale = "Purples",
-#      annot_rows_df = annot_rows, annot_rows_fill = annot_fill) +
-#      # Use ggplot2::theme to adjust margins to fit the annotation labels
+#      col_scale = "Purples",
+#      annot_rows_df = annot_rows, annot_rows_col = annot_fill) +
+#      # Use ggplot2::theme to adjust margins to fit the annotation names
 #      theme(plot.margin = margin(20, 10, 60, 20))
 #'
 #' # Using the dend_*_extend arguments
@@ -176,28 +178,30 @@
 gghm <- function(x,
                  layout = "full",
                  mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
-                 colr_scale = NULL, colr_name = "value", limits = NULL, bins = NULL,
+                 col_scale = NULL, col_name = "value", limits = NULL, bins = NULL,
                  size_scale = NULL, size_name = "value",
                  legend_order = NULL,
-                 include_diag = TRUE, names_diag = FALSE, names_diag_params = NULL,
-                 names_x = TRUE, names_x_side = "top", names_y = TRUE, names_y_side = "left",
+                 include_diag = TRUE, show_names_diag = FALSE, names_diag_params = NULL,
+                 show_names_x = TRUE, names_x_side = "top", show_names_y = TRUE, names_y_side = "left",
                  na_col = "grey50", na_remove = FALSE, return_data = FALSE,
                  cell_labels = F, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
                  border_col = "grey", border_lwd = 0.1, border_lty = 1,
                  cell_bg_col = "white", cell_bg_alpha = 0,
-                 annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_fill = NULL, annot_cols_fill = NULL,
+                 annot_rows_df = NULL, annot_cols_df = NULL,
+                 annot_rows_col = NULL, annot_cols_col = NULL,
                  annot_rows_side = "right", annot_cols_side = "bottom",
-                 annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = TRUE,
+                 annot_dist = 0.2, annot_gap = 0, annot_size = 0.5,
                  annot_border_col = if (length(border_col) == 1) border_col else "grey",
                  annot_border_lwd = if (length(border_lwd) == 1) border_lwd else 0.5,
                  annot_border_lty = if (length(border_lty) == 1) border_lty else 1,
                  annot_na_col = na_col, annot_na_remove = na_remove,
                  annot_rows_params = NULL, annot_cols_params = NULL,
-                 annot_rows_label_side = "bottom", annot_cols_label_side = "left",
-                 annot_rows_label_params = NULL, annot_cols_label_params = NULL,
+                 show_annot_names = TRUE, annot_names_size = 9,
+                 annot_rows_names_side = "bottom", annot_cols_names_side = "left",
+                 annot_rows_name_params = NULL, annot_cols_name_params = NULL,
                  cluster_rows = FALSE, cluster_cols = FALSE,
                  cluster_distance = "euclidean", cluster_method = "complete",
-                 dend_rows = TRUE, dend_cols = TRUE, dend_rows_side = "right", dend_cols_side = "bottom",
+                 show_dend_rows = TRUE, show_dend_cols = TRUE, dend_rows_side = "right", dend_cols_side = "bottom",
                  dend_col = "black", dend_dist = 0, dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
                  dend_rows_params = NULL, dend_cols_params = NULL,
                  dend_rows_extend = NULL, dend_cols_extend = NULL) {
@@ -249,12 +253,12 @@ gghm <- function(x,
     mode <- mode[1]
   }
 
-  # Overwrite names_diag if the input is non-symmetric as it would cause
+  # Overwrite show_names_diag if the input is non-symmetric as it would cause
   # new ghost columns to be added to draw the names where row == col
   # This does not prevent diag names in initially symmetric matrices that become asymmetric as a result
   # of unequal clustering of rows and columns, the result will look a bit strange but no new columns are created
   if (!x_sym) {
-    names_diag <- F
+    show_names_diag <- F
   }
 
   # If clustering a symmetric matrix with a triangular layout, both rows and columns must be clustered. Automatically cluster both and throw a warning
@@ -356,35 +360,37 @@ gghm <- function(x,
   # Annotation for rows and columns
   # Default annotation parameters
   annot_default <- list(dist = annot_dist, gap = annot_gap, size = annot_size,
-                        label = annot_label, border_col = annot_border_col,
+                        show_names = show_annot_names, border_col = annot_border_col,
                         border_lwd = annot_border_lwd, border_lty = annot_border_lty)
   if (is.data.frame(annot_rows_df)) {
     annot_rows_prep <- prepare_annotation(annot_df = annot_rows_df, annot_defaults = annot_default,
                                           annot_params = annot_rows_params, annot_side = annot_rows_side,
-                                          context = "rows", annot_label_params = annot_rows_label_params,
-                                          annot_label_side = annot_rows_label_side, data_size = ncol(x))
+                                          context = "rows", annot_name_params = annot_rows_name_params,
+                                          annot_names_size = annot_names_size,
+                                          annot_names_side = annot_rows_names_side, data_size = ncol(x))
     annot_rows_df <- annot_rows_prep[[1]]; annot_rows_params <- annot_rows_prep[[2]];
-    annot_rows_pos <- annot_rows_prep[[3]]; annot_rows_label_params <- annot_rows_prep[[4]]
-    annot_rows_label_side <- annot_rows_prep[[5]]
+    annot_rows_pos <- annot_rows_prep[[3]]; annot_rows_name_params <- annot_rows_prep[[4]]
+    annot_rows_names_side <- annot_rows_prep[[5]]
   }
 
   if (is.data.frame(annot_cols_df)) {
     annot_cols_prep <- prepare_annotation(annot_df = annot_cols_df, annot_defaults = annot_default,
                                           annot_params = annot_cols_params, annot_side = annot_cols_side,
-                                          context = "cols", annot_label_params = annot_cols_label_params,
-                                          annot_label_side = annot_cols_label_side, data_size = nrow(x))
+                                          context = "cols", annot_name_params = annot_cols_name_params,
+                                          annot_names_size = annot_names_size,
+                                          annot_names_side = annot_cols_names_side, data_size = nrow(x))
     annot_cols_df <- annot_cols_prep[[1]]; annot_cols_params <- annot_cols_prep[[2]];
-    annot_cols_pos <- annot_cols_prep[[3]]; annot_cols_label_params <- annot_cols_prep[[4]]
-    annot_cols_label_side <- annot_cols_prep[[5]]
+    annot_cols_pos <- annot_cols_prep[[3]]; annot_cols_name_params <- annot_cols_prep[[4]]
+    annot_cols_names_side <- annot_cols_prep[[5]]
   }
 
   # Generate dendrograms, positions depend on annotation sizes
   dend_defaults <- list(dist = dend_dist, col = dend_col, height = dend_height, lwd = dend_lwd, lty = dend_lty)
 
-  check_logical(dend_rows = dend_rows)
-  check_logical(dend_cols = dend_cols)
+  check_logical(show_dend_rows = show_dend_rows)
+  check_logical(show_dend_cols = show_dend_cols)
 
-  if (lclust_rows & isTRUE(dend_rows)) {
+  if (lclust_rows & isTRUE(show_dend_rows)) {
     dendro_rows <- prepare_dendrogram(dendro_in = row_clustering$dendro, context = "rows",
                                       dend_side = dend_rows_side,
                                       dend_defaults = dend_defaults,
@@ -397,7 +403,7 @@ gghm <- function(x,
     dendro_rows <- check_dendrogram_pos(dat = x_long, context = "row", dendro = dendro_rows)
   }
 
-  if (lclust_cols & isTRUE(dend_cols)) {
+  if (lclust_cols & isTRUE(show_dend_cols)) {
     dendro_cols <- prepare_dendrogram(dendro_in = col_clustering$dendro, context = "cols",
                                       dend_side = dend_cols_side,
                                       dend_defaults = dend_defaults,
@@ -414,14 +420,14 @@ gghm <- function(x,
   if (!grepl("^ggcorrhm\\(", deparse(sys.call(-1))[1])) {
     # Get scales and their orders
     scale_order <- make_legend_order(mode = mode,
-                                     colr_scale = colr_scale,
+                                     col_scale = col_scale,
                                      size_scale = size_scale, annot_rows_df = annot_rows_df,
                                      annot_cols_df = annot_cols_df, legend_order = legend_order)
 
     # Prepare scales for mixed layouts
     if (length(layout) == 2) {
-      colr_name <- prepare_mixed_param(colr_name, "colr_name")
-      colr_scale <- prepare_mixed_param(colr_scale, "colr_scale")
+      col_name <- prepare_mixed_param(col_name, "col_name")
+      col_scale <- prepare_mixed_param(col_scale, "col_scale")
       size_name <- prepare_mixed_param(size_name, "size_name")
       size_scale <- prepare_mixed_param(size_scale, "size_scale")
     }
@@ -429,35 +435,35 @@ gghm <- function(x,
     # Generate the necessary scales
     main_scales <- prepare_scales(scale_order = scale_order, context = "gghm",
                                   val_type = ifelse(is.character(x_long[["value"]]) | is.factor(x_long[["value"]]), "discrete", "continuous"),
-                                  colr_scale = colr_scale, colr_name = colr_name,
+                                  col_scale = col_scale, col_name = col_name,
                                   size_scale = size_scale, size_name = size_name,
                                   na_col = na_col, limits = limits, bins = bins)
     # Annotation scales
     annot_scales <- prepare_scales_annot(scale_order = scale_order, na_col = annot_na_col,
                                          annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
-                                         annot_rows_col = annot_rows_fill, annot_cols_col = annot_cols_fill)
+                                         annot_rows_col = annot_rows_col, annot_cols_col = annot_cols_col)
 
     # Generate the scale lists to pass to gghm
-    colr_scale <- extract_scales(main_scales, scale_order, c("fill", "col"), layout)
+    col_scale <- extract_scales(main_scales, scale_order, c("fill", "col"), layout)
     size_scale <- extract_scales(main_scales, scale_order, "size", layout)
   } else {
-    annot_scales <- list("rows" = annot_rows_fill, "cols" = annot_cols_fill)
+    annot_scales <- list("rows" = annot_rows_col, "cols" = annot_cols_col)
   }
 
   # Build plot
-  check_logical(names_diag = names_diag)
+  check_logical(show_names_diag = show_names_diag)
 
   if (length(layout) == 1) {
     plt <- make_heatmap(x_long = x_long, plt = NULL, mode = mode, include_diag = include_diag,
-                        invisible_diag = isSymmetric(as.matrix(x)) && isTRUE(names_diag),
+                        invisible_diag = isSymmetric(as.matrix(x)) && isTRUE(show_names_diag),
                         border_lwd = border_lwd, border_col = border_col, border_lty = border_lty,
-                        names_diag = names_diag, names_x = names_x, names_y = names_y,
+                        show_names_diag = show_names_diag, show_names_x = show_names_x, show_names_y = show_names_y,
                         names_x_side = names_x_side, names_y_side = names_y_side,
-                        colr_scale = colr_scale, size_scale = size_scale,
+                        col_scale = col_scale, size_scale = size_scale,
                         cell_labels = cell_labels, cell_label_col = cell_label_col,
                         cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
                         cell_bg_col = cell_bg_col, cell_bg_alpha = cell_bg_alpha)
-    if (isTRUE(names_diag)) {
+    if (isTRUE(show_names_diag)) {
       plt <- add_diag_names(plt = plt, x_long = x_long, names_diag_params = names_diag_params)
     }
   } else if (length(layout) == 2) {
@@ -468,29 +474,29 @@ gghm <- function(x,
     plt <- make_heatmap(x_long = dplyr::filter(x_long, layout == lt[1]), plt = NULL,
                         mode = mode[1], include_diag = include_diag, invisible_diag = T,
                         border_lwd = border_lwd[[1]], border_col = border_col[[1]], border_lty = border_lty[[1]],
-                        names_diag = names_diag, names_x = names_x, names_y = names_y,
+                        show_names_diag = show_names_diag, show_names_x = show_names_x, show_names_y = show_names_y,
                         names_x_side = names_x_side, names_y_side = names_y_side,
-                        colr_scale = colr_scale[[1]], size_scale = size_scale[[1]],
+                        col_scale = col_scale[[1]], size_scale = size_scale[[1]],
                         cell_labels = cell_labels[[1]], cell_label_col = cell_label_col[[1]],
                         cell_label_size = cell_label_size[[1]], cell_label_digits = cell_label_digits[[1]],
                         cell_bg_col = cell_bg_col[[1]], cell_bg_alpha = cell_bg_alpha[[1]])
     # Remaining half
     # Add new scales if multiple are provided
-    if (isTRUE(colr_scale[[1]][["aesthetics"]] == colr_scale[[2]][["aesthetics"]])) {
-      plt <- plt + ggnewscale::new_scale(colr_scale[[1]][["aesthetics"]])
+    if (isTRUE(col_scale[[1]][["aesthetics"]] == col_scale[[2]][["aesthetics"]])) {
+      plt <- plt + ggnewscale::new_scale(col_scale[[1]][["aesthetics"]])
     }
     if (!is.null(size_scale[[2]])) {plt <- plt + ggnewscale::new_scale(new_aes = "size")}
 
     plt <- make_heatmap(x_long = dplyr::filter(x_long, layout == lt[2]), plt = plt,
                         mode = mode[2], include_diag = F, invisible_diag = F,
                         border_lwd = border_lwd[[2]], border_col = border_col[[2]], border_lty = border_lty[[2]],
-                        names_diag = F, names_x = names_x, names_y = names_y,
+                        show_names_diag = F, show_names_x = show_names_x, show_names_y = show_names_y,
                         names_x_side = names_x_side, names_y_side = names_y_side,
-                        colr_scale = colr_scale[[2]], size_scale = size_scale[[2]],
+                        col_scale = col_scale[[2]], size_scale = size_scale[[2]],
                         cell_labels = cell_labels[[2]], cell_label_col = cell_label_col[[2]],
                         cell_label_size = cell_label_size[[2]], cell_label_digits = cell_label_digits[[2]],
                         cell_bg_col = cell_bg_col[[2]], cell_bg_alpha = cell_bg_alpha[[2]])
-    if (names_diag) {
+    if (show_names_diag) {
       plt <- add_diag_names(plt = plt, x_long = x_long, names_diag_params = names_diag_params)
     }
   }
@@ -501,9 +507,9 @@ gghm <- function(x,
                           annot_size = annot_rows_params$size, annot_border_lwd = annot_rows_params$border_lwd,
                           annot_border_col = annot_rows_params$border_col,
                           annot_border_lty = annot_rows_params$border_lty,
-                          annot_label = annot_rows_params$label,
+                          show_annot_names = annot_rows_params$show_names,
                           na_remove = annot_na_remove, col_scale = annot_scales[["rows"]],
-                          label_side = annot_rows_label_side, label_params = annot_rows_label_params)
+                          names_side = annot_rows_names_side, name_params = annot_rows_name_params)
   }
 
   if (is.data.frame(annot_cols_df)) {
@@ -511,18 +517,18 @@ gghm <- function(x,
                           annot_size = annot_cols_params$size, annot_border_lwd = annot_cols_params$border_lwd,
                           annot_border_col = annot_cols_params$border_col,
                           annot_border_lty = annot_cols_params$border_lty,
-                          annot_label = annot_cols_params$label,
+                          show_annot_names = annot_cols_params$show_names,
                           na_remove = annot_na_remove, col_scale = annot_scales[["cols"]],
-                          label_side = annot_cols_label_side, label_params = annot_cols_label_params)
+                          names_side = annot_cols_names_side, name_params = annot_cols_name_params)
   }
 
   # Add dendrograms
-  if (lclust_rows & isTRUE(dend_rows)) {
+  if (lclust_rows & isTRUE(show_dend_rows)) {
     plt <- add_dendrogram(plt = plt, dendro = dendro_rows, dend_col = dendro_rows$params$col,
                           dend_lwd = dendro_rows$params$lwd, dend_lty = dendro_rows$params$lty)
   }
 
-  if (lclust_cols & isTRUE(dend_cols)) {
+  if (lclust_cols & isTRUE(show_dend_cols)) {
     plt <- add_dendrogram(plt = plt, dendro = dendro_cols, dend_col = dendro_cols$params$col,
                           dend_lwd = dendro_cols$params$lwd, dend_lty = dendro_cols$params$lty)
   }
@@ -641,7 +647,7 @@ prepare_mixed_param <- function(param, param_name) {
     param_out <- list(param, param)
 
   } else if (length(param) != 2) {
-    msg <- if (param_name == "colr_scale") {
+    msg <- if (param_name == "col_scale") {
       "In a mixed layout, {.var {param_name}} must be either one character specifying a scale (used for all),
        or a list with up to two scales (character, scale object or NULL). See the details of 'gghm' for more on usage."
     } else if (param_name == "size_scale") {

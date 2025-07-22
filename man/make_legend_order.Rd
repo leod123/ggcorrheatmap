@@ -6,7 +6,7 @@
 \usage{
 make_legend_order(
   mode,
-  colr_scale = NULL,
+  col_scale = NULL,
   size_scale = NULL,
   annot_rows_df = NULL,
   annot_cols_df = NULL,
@@ -16,7 +16,7 @@ make_legend_order(
 \arguments{
 \item{mode}{Plotting modes.}
 
-\item{colr_scale}{One or two colour scales (shared for fill and colour). NULL for default, string for Brewer or Viridis, or a scale.}
+\item{col_scale}{One or two colour scales (shared for fill and colour). NULL for default, string for Brewer or Viridis, or a scale.}
 
 \item{size_scale}{Size scales (NULL or ggplot2 scales).}
 

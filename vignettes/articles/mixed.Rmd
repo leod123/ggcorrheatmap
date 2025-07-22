@@ -105,34 +105,34 @@ plt1 + plt2
 
 # Mixed scales
 
-In mixed layouts the two triangles can use different scales for colours and sizes by using the `colr_scale` argument.
+In mixed layouts the two triangles can use different scales for colours and sizes by using the `col_scale` argument.
 
 ```{r, fig.alt='mtcars correlation heatmap with normal cells in the top right and coloured text in the bottom left triangle. The cells in the top right triangle use the viridis "mako" scale while the text in the bottom left use the viridis "turbo" scale. Each scale has a legend on the right (with the same name: "Pearson r").'}
 ggcorrhm(mtcars, layout = c("tr", "bl"),
-         colr_scale = c("G", "H"))
+         col_scale = c("G", "H"))
 ```
 
 ```{r, fig.alt='mtcars correlation heatmap with cells in the top left and circles in the bottom right. The cells use the Brewer "RdYlGn" palette (going from green (low) to yellow to red (high)), while the circles use a custom scale with light blue for low values, white for middle values and pink for high values. The two legends on the right are named "Bottom right" (blue-pink) and "Top left" (RdYlGn).'}
 # Two fill scales
 ggcorrhm(mtcars, layout = c("br", "tl"), mode = c("21", "hm"),
-         names_diag = FALSE,
-         colr_scale = list(
+         show_names_diag = FALSE,
+         col_scale = list(
            # When a scale object is passed, arguments of gghm/ggcorrhm
            # that modify legends will be ignored
            scale_fill_gradient2(high = "pink", mid = "white", low = "lightblue",
                                 limits = c(-1, 1), name = "Bottom right"),
            "RdYlGn"
          ),
-         # colr_name can also take two values
-         colr_name = c("This name will be ignored", "Top left"))
+         # col_name can also take two values
+         col_name = c("This name will be ignored", "Top left"))
 ```
 
-Use the `guide` argument in the `ggplot2` scale functions to set the order or hide legends if a scale object is passed in the `colr_scale` argument.
+Use the `guide` argument in the `ggplot2` scale functions to set the order or hide legends if a scale object is passed in the `col_scale` argument.
 
 ```{r, fig.alt='mtcars correlation heatmap with circles in the top right and text labels in empty cells in the bottom left. The circles use a scale going from white at low values to brown at high values while the text in the cells uses the Brewer "Spectral" palette. The legends are named "First legend" (brown) and "Second legend" (Spectral).'}
 # Two colour scales
 ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("19", "text"),
-         colr_scale = list(
+         col_scale = list(
            scale_colour_gradient(high = "lightsalmon4", low = "white", limits = c(-1, 1),
                                  # Can use the guide argument to change order of legends (or hide them)
                                  guide = guide_colourbar(order = 1),
@@ -140,7 +140,7 @@ ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("19", "text"),
            scale_colour_distiller(palette = "Spectral", limits = c(-1, 1),
                                   name = "Second legend")
          ), cell_label_size = 4,
-         colr_name = c("Names that will", "be ignored"))
+         col_name = c("Names that will", "be ignored"))
 ```
 
 If one of the scales is `NULL`, the default scale is used instead (and can be customised with the `high`, `mid`, `low` etc arguments).
@@ -148,7 +148,7 @@ If one of the scales is `NULL`, the default scale is used instead (and can be cu
 ```{r, fig.alt='mtcars correlation heatmap. The cells in the top left triangle use a divergent colour scale going from light blue to beige to pink, while the bottom right cells use a binned scale with the Brewer "PrGn" palette, going from green to white to purple.'}
 # NULL uses the default that changes with high, mid, low etc
 ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "hm"),
-         colr_scale = list(
+         col_scale = list(
            NULL,
            # Give a scale object to not be affected by the default scale arguments
            scale_fill_distiller(palette = "PRGn", limits = c(-1, 1))

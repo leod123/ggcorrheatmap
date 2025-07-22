@@ -161,7 +161,7 @@
 <rect x='581.85' y='425.46' width='23.40' height='46.79' style='stroke-width: 0.21; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #7AD151;' />
 <rect x='581.85' y='472.26' width='23.40' height='46.79' style='stroke-width: 0.21; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #C0DD40;' />
 <rect x='581.85' y='519.05' width='23.40' height='46.79' style='stroke-width: 0.21; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FDE725;' />
-<text transform='translate(593.54,41.76) rotate(-45)' style='font-size: 9.00px; fill: #FF0000; font-family: sans;' textLength='5.01px' lengthAdjust='spacingAndGlyphs'>a</text>
+<text transform='translate(593.54,41.76) rotate(-45)' style='font-size: 15.00px; fill: #FF0000; font-family: sans;' textLength='8.34px' lengthAdjust='spacingAndGlyphs'>a</text>
 <rect x='605.24' y='51.12' width='23.40' height='46.79' style='stroke-width: 0.21; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FCFDBF;' />
 <rect x='605.24' y='97.91' width='23.40' height='46.79' style='stroke-width: 0.21; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FFCE95;' />
 <rect x='605.24' y='144.70' width='23.40' height='46.79' style='stroke-width: 0.21; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #FE9F6D;' />
@@ -173,7 +173,7 @@
 <rect x='605.24' y='425.46' width='23.40' height='46.79' style='stroke-width: 0.21; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #3B0F70;' />
 <rect x='605.24' y='472.26' width='23.40' height='46.79' style='stroke-width: 0.21; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #220F3A;' />
 <rect x='605.24' y='519.05' width='23.40' height='46.79' style='stroke-width: 0.21; stroke: #BEBEBE; stroke-linecap: butt; stroke-linejoin: miter; fill: #000004;' />
-<text transform='translate(616.94,41.76) rotate(-45)' style='font-size: 9.00px; fill: #FF0000; font-family: sans;' textLength='5.01px' lengthAdjust='spacingAndGlyphs'>b</text>
+<text transform='translate(616.94,41.76) rotate(-45)' style='font-size: 15.00px; fill: #FF0000; font-family: sans;' textLength='8.34px' lengthAdjust='spacingAndGlyphs'>b</text>
 <text transform='translate(81.16,41.51) rotate(-45)' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='17.12px' lengthAdjust='spacingAndGlyphs'>mpg</text>
 <text transform='translate(127.95,41.51) rotate(-45)' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='10.76px' lengthAdjust='spacingAndGlyphs'>cyl</text>
 <text transform='translate(174.75,41.51) rotate(-45)' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='16.15px' lengthAdjust='spacingAndGlyphs'>disp</text>

@@ -13,11 +13,11 @@ add_annotation(
   annot_border_lwd = 0.5,
   annot_border_col = "grey",
   annot_border_lty = 1,
-  annot_label = T,
+  show_annot_names = T,
   na_remove = F,
   col_scale = NULL,
-  label_side,
-  label_params = NULL
+  names_side,
+  name_params = NULL
 )
 }
 \arguments{
@@ -40,16 +40,16 @@ Positions are given by the middle coordinate of the annotation cells.}
 
 \item{annot_border_lty}{Linetype of border lines of annotation cells.}
 
-\item{annot_label}{Logical indicating if the annotation names should be drawn.}
+\item{show_annot_names}{Logical indicating if the annotation names should be drawn.}
 
 \item{na_remove}{Logical indicating if NA values should be removed.}
 
 \item{col_scale}{Named list of fill scales to use, named after the columns in the annotation data frame.
 Each element should either be a \verb{scale_fill_*} object or a string specifying a brewer palette or viridis option.}
 
-\item{label_side}{String specifying which side the labels should be drawn on. "top" or "bottom" for row annotation, "left" or "right" for column annotation.}
+\item{names_side}{String specifying which side the labels should be drawn on. "top" or "bottom" for row annotation, "left" or "right" for column annotation.}
 
-\item{label_params}{A named list of parameters to give \code{grid::textGrob} to modify annotation label appearance.}
+\item{name_params}{A named list of parameters to give \code{grid::textGrob} to modify annotation label appearance.}
 }
 \value{
 \code{ggplot} object with added annotations.

@@ -40,7 +40,7 @@ row_annot <- data.frame(.names = colnames(mtcars),
                         annot2 = rnorm(ncol(mtcars)))
 ggcorrhm(mtcars, layout = "bottomright",
          cluster_rows = TRUE, cluster_cols = TRUE,
-         dend_rows = FALSE, annot_rows_df = row_annot)
+         show_dend_rows = FALSE, annot_rows_df = row_annot)
 ```
 
 <img src="man/figures/README-example1-1.png" width="70%" style="display: block; margin: auto;" />

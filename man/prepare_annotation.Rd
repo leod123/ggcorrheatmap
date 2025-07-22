@@ -10,8 +10,9 @@ prepare_annotation(
   annot_params,
   annot_side,
   context = c("rows", "cols"),
-  annot_label_params,
-  annot_label_side,
+  annot_names_size,
+  annot_name_params,
+  annot_names_side,
   data_size
 )
 }
@@ -26,9 +27,11 @@ prepare_annotation(
 
 \item{context}{String stating the context ("rows" or "cols").}
 
-\item{annot_label_params}{Annotation label (names next to annotations) parameters to update.}
+\item{annot_names_size}{Size of annotation names.}
 
-\item{annot_label_side}{Annotation label side.}
+\item{annot_name_params}{Annotation label (names next to annotations) parameters to update.}
+
+\item{annot_names_side}{Annotation label side.}
 
 \item{data_size}{Size of data (ncol if row annotations, nrow if column annotations).}
 }

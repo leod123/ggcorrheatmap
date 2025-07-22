@@ -4,12 +4,12 @@
 \alias{remove_duplicate_scales}
 \title{Remove duplicate scales.}
 \usage{
-remove_duplicate_scales(scale_vec, colr_scale = NULL, size_scale = NULL)
+remove_duplicate_scales(scale_vec, col_scale = NULL, size_scale = NULL)
 }
 \arguments{
 \item{scale_vec}{Vector of scale aesthetics.}
 
-\item{colr_scale}{Input colour scales (NULL, string or scale object).}
+\item{col_scale}{Input colour scales (NULL, string or scale object).}
 
 \item{size_scale}{Input size scales.}
 }

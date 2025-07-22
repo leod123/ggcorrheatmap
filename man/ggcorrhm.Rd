@@ -22,8 +22,8 @@ ggcorrhm(
   na_col = "grey50",
   na_remove = FALSE,
   return_data = FALSE,
-  colr_scale = NULL,
-  colr_name = NULL,
+  col_scale = NULL,
+  col_name = NULL,
   size_range = c(4, 10),
   size_scale = NULL,
   size_name = NULL,
@@ -41,22 +41,21 @@ ggcorrhm(
   border_col = "grey",
   border_lwd = 0.1,
   border_lty = 1,
-  names_diag = TRUE,
+  show_names_diag = TRUE,
   names_diag_params = NULL,
-  names_x = FALSE,
+  show_names_x = FALSE,
   names_x_side = "top",
-  names_y = FALSE,
+  show_names_y = FALSE,
   names_y_side = "left",
   annot_rows_df = NULL,
   annot_cols_df = NULL,
-  annot_rows_fill = NULL,
-  annot_cols_fill = NULL,
+  annot_rows_col = NULL,
+  annot_cols_col = NULL,
   annot_rows_side = "right",
   annot_cols_side = "bottom",
   annot_dist = 0.2,
   annot_gap = 0,
   annot_size = 0.5,
-  annot_label = TRUE,
   annot_border_col = if (length(border_col) == 1) border_col else "grey",
   annot_border_lwd = if (length(border_lwd) == 1) border_lwd else 0.5,
   annot_border_lty = if (length(border_lty) == 1) border_lty else 1,
@@ -64,16 +63,18 @@ ggcorrhm(
   annot_na_remove = na_remove,
   annot_rows_params = NULL,
   annot_cols_params = NULL,
-  annot_rows_label_side = "bottom",
-  annot_cols_label_side = "left",
-  annot_rows_label_params = NULL,
-  annot_cols_label_params = NULL,
+  show_annot_names = TRUE,
+  annot_names_size = 9,
+  annot_rows_names_side = "bottom",
+  annot_cols_names_side = "left",
+  annot_rows_name_params = NULL,
+  annot_cols_name_params = NULL,
   cluster_rows = FALSE,
   cluster_cols = FALSE,
   cluster_distance = "euclidean",
   cluster_method = "complete",
-  dend_rows = TRUE,
-  dend_cols = TRUE,
+  show_dend_rows = TRUE,
+  show_dend_cols = TRUE,
   dend_rows_side = "right",
   dend_cols_side = "bottom",
   dend_col = "black",
@@ -129,12 +130,12 @@ NAs are handled in the correlation computations, use the \code{cor_use} argument
 
 \item{return_data}{Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, clustering and p-values) should be returned.}
 
-\item{colr_scale}{Scale to use for cell colours. If NULL (default), a divergent scale is constructed from the \code{high}, \code{mid}, \code{low}, \code{midpoint}, \code{limits}, and \code{bins} arguments.
+\item{col_scale}{Scale to use for cell colours. If NULL (default), a divergent scale is constructed from the \code{high}, \code{mid}, \code{low}, \code{midpoint}, \code{limits}, and \code{bins} arguments.
 These arguments are ignored if a \verb{ggplot2::scale_*} function is provided instead. If a string, the corresponding Brewer or Viridis scale is used.
 A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale.
 In mixed layouts, can also be a list of length two containing the two scales to use.}
 
-\item{colr_name}{String to use for the correlation scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.}
+\item{col_name}{String to use for the correlation scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.}
 
 \item{size_range}{Numeric vector of length 2, specifying lower and upper ranges of shape sizes. Ignored if \code{size_scale} is not NULL.}
 
@@ -144,7 +145,7 @@ The default behaviour (NULL) is to use a continuous scale with the absolute valu
 \item{size_name}{String to use for the size scale legend title. Can be two values in mixed layouts for dual scales.}
 
 \item{legend_order}{Integer vector specifying the order of legends (first value is for the first legend, second for the second, etc). The default (NULL) shows all but size legends.
-NAs hide the corresponding legends, a single NA hides all. Ignored for \code{ggplot2} scale objects in \code{colr_scale} and \code{size_scale}.}
+NAs hide the corresponding legends, a single NA hides all. Ignored for \code{ggplot2} scale objects in \code{col_scale} and \code{size_scale}.}
 
 \item{p_values}{Logical indicating if p-values should be calculated. Use with \code{p_thresholds} to mark cells, and/or \code{return_data} to get the p-values in the output data.}
 
@@ -176,15 +177,15 @@ containing values to write in the cells. If mode is \code{text}, the cell label 
 \item{border_lty}{Line type of cell borders. Either a number or its corresponding name, or a string of length 2, 4, 6, or 8. See 'lty' of \code{graphics::par()} for details.
 Not supported for numeric \code{mode}.}
 
-\item{names_diag}{Logical indicating if names should be written in the diagonal cells (for symmetric input).}
+\item{show_names_diag}{Logical indicating if names should be written in the diagonal cells (for symmetric input).}
 
 \item{names_diag_params}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
 
-\item{names_x}{Logical indicating if names should be written on the x axis. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
+\item{show_names_x}{Logical indicating if names should be written on the x axis. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
 
 \item{names_x_side}{String specifying position of the x axis names ("top" or "bottom").}
 
-\item{names_y}{Logical indicating if names should be written on the y axis.}
+\item{show_names_y}{Logical indicating if names should be written on the y axis.}
 
 \item{names_y_side}{String specifying position of the y axis names ("left" or "right").}
 
@@ -195,12 +196,12 @@ colour scale while factor or character columns use discrete scales.}
 
 \item{annot_cols_df}{Same usage as \code{annot_rows_df} but for column annotation.}
 
-\item{annot_rows_fill}{Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
+\item{annot_rows_col}{Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
 Elements can be strings or ggplot2 "Scale" class objects. If a string, it is used as the brewer palette or viridis option.
 If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
 specify order using the \code{guide} argument in the \code{ggplot2} scale function.}
 
-\item{annot_cols_fill}{Named list used for column annotation colour scales, used like \code{annot_rows_fill}.}
+\item{annot_cols_col}{Named list used for column annotation colour scales, used like \code{annot_rows_col}.}
 
 \item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' or 'right', defaults to 'left').}
 
@@ -211,8 +212,6 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 \item{annot_gap}{Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.}
 
 \item{annot_size}{Size (width for row annotation, height for column annotation) of annotation cells compared to a heatmap cell. Used for both row and column annotation.}
-
-\item{annot_label}{Logical controlling if names of annotations should be shown in the drawing area.}
 
 \item{annot_border_col}{Colour of cell borders in annotation. By default it is the same as \code{border_col} of the main heatmap if it is of length 1, otherwise uses default (grey).}
 
@@ -230,13 +229,17 @@ the \verb{annot_*_fill} arguments.}
 
 \item{annot_cols_params}{Named list with parameters for column annotations, used like \code{annot_rows_params}.}
 
-\item{annot_rows_label_side}{String specifying which side the row annotation labels should be on. Either "top" or "bottom".}
+\item{show_annot_names}{Logical controlling if names of annotations should be shown in the drawing area.}
 
-\item{annot_cols_label_side}{String specifying which side the column annotation labels should be on. Either "left" or "right".}
+\item{annot_names_size}{Size of annotation names.}
 
-\item{annot_rows_label_params}{Named list of parameters for row annotation labels. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
+\item{annot_rows_names_side}{String specifying which side the row annotation names should be on. Either "top" or "bottom".}
 
-\item{annot_cols_label_params}{Named list of parameters for column annotation labels. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
+\item{annot_cols_names_side}{String specifying which side the column annotation names should be on. Either "left" or "right".}
+
+\item{annot_rows_name_params}{Named list of parameters for row annotation names. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
+
+\item{annot_cols_name_params}{Named list of parameters for column annotation names. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
 
 \item{cluster_rows}{Logical indicating if rows should be clustered. Can also be a \code{hclust} or \code{dendrogram} object.}
 
@@ -246,9 +249,9 @@ the \verb{annot_*_fill} arguments.}
 
 \item{cluster_method}{String with the clustering method to use, given to \code{stats::hclust()}.}
 
-\item{dend_rows}{Logical indicating if a dendrogram should be drawn for the rows.}
+\item{show_dend_rows}{Logical indicating if a dendrogram should be drawn for the rows.}
 
-\item{dend_cols}{Logical indicating if a dendrogram should be drawn for the columns.}
+\item{show_dend_cols}{Logical indicating if a dendrogram should be drawn for the columns.}
 
 \item{dend_rows_side}{Which side to draw the row dendrogram on ('left' or 'right', defaults to 'left').}
 
