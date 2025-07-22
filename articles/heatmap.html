@@ -127,11 +127,7 @@ will be discrete.</p>
 <span><span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, <span class="fl">15</span>, <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>     col_scale <span class="op">=</span> <span class="st">"Pastel2"</span>, border_col <span class="op">=</span> <span class="st">"thistle1"</span>,</span>
 <span>     border_lwd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<p>&lt;img
-src=“/home/runner/work/ggcorrheatmap/ggcorrheatmap/docs/articles/heatmap_files/figure-html/unnamed-chunk-4-1.png”
-alt=“A heatmap of a 15 by 15 matrix filled randomly with”a”, “b”, and
-“c”. The Brewer Pastel2 palette is used for filling cells and the cell
-border colours have been changed to “thistle1”.” width=“700” /&gt;</p>
+<p><img src="heatmap_files/figure-html/unnamed-chunk-4-1.png" alt="A heatmap of a 15 by 15 matrix filled randomly with a, b, and c. The Brewer Pastel2 palette is used for filling cells and the cell border colours have been changed to thistle1." width="700"></p>
 <p>For <code><a href="../reference/gghm.html">gghm()</a></code> fill, colour and size legends are shown by
 default. The legend order can be changed using the
 <code>legend_order</code> argument. <code><a href="../reference/ggcorrhm.html">ggcorrhm()</a></code> tries to
@@ -189,11 +185,7 @@ arguments.</p>
 <span><span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">volcano</span>, col_scale <span class="op">=</span> <span class="st">"H"</span>,</span>
 <span>     border_col <span class="op">=</span> <span class="cn">NA</span>, border_lwd <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>     show_names_x <span class="op">=</span> <span class="cn">FALSE</span>, show_names_y <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p>&lt;img
-src=“/home/runner/work/ggcorrheatmap/ggcorrheatmap/docs/articles/heatmap_files/figure-html/unnamed-chunk-8-1.png”
-alt=“A heatmap of the”volcano” R dataset using the viridis colour scale
-for filling cells. The cell borders have been removed.” width=“700”
-/&gt;</p>
+<p><img src="heatmap_files/figure-html/unnamed-chunk-8-1.png" alt="A heatmap of the volcano R dataset using the viridis colour scale for filling cells. The cell borders have been removed." width="700"></p>
 <p><code>border_col</code>, <code>border_lwd</code>, and
 <code>border_lty</code> can take either values of length 1 or the same
 length as the input data. Using the <code>return_data</code> argument to
@@ -220,14 +212,7 @@ customisation of borders.</p>
 <span></span>
 <span><span class="co"># Make one figure with both plots using the patchwork package</span></span>
 <span><span class="va">plt1</span> <span class="op">+</span> <span class="va">plt2</span></span></code></pre></div>
-<p>&lt;img
-src=“/home/runner/work/ggcorrheatmap/ggcorrheatmap/docs/articles/heatmap_files/figure-html/unnamed-chunk-9-1.png”
-alt=“Two correlation heatmaps of the mtcars data. Both use the viridis
-mako scale for filling cells. In the first plot the cell borders are
-thick, orange and dashed. In the second one, all cells where the row
-is”hp” are red and thick, cells wherer the column is “vs” are yellow and
-thick, and the rest are grey and thin. All cell borders are dashed.”
-width=“700” /&gt;</p>
+<p><img src="heatmap_files/figure-html/unnamed-chunk-9-1.png" alt="Two correlation heatmaps of the mtcars data. Both use the viridis mako scale for filling cells. In the first plot the cell borders are thick, orange and dashed. In the second one, all cells where the row is hp are red and thick, cells wherer the column is vs are yellow and thick, and the rest are grey and thin. All cell borders are dashed." width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="handling-nas">Handling NAs<a class="anchor" aria-label="anchor" href="#handling-nas"></a>
@@ -244,13 +229,19 @@ interfere with clustering if a whole row or column is all NAs.</p>
 <span><span class="va">df_na</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">df_na</span><span class="op">)</span>, <span class="fl">100</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>
 <span></span>
 <span><span class="co"># With NAs and the default colour</span></span>
-<span><span class="va">na_plt1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">df_na</span>, legend_order <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"NAs default"</span><span class="op">)</span></span>
+<span><span class="va">na_plt1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">df_na</span>, legend_order <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>                <span class="co"># Darker borders for demonstration</span></span>
+<span>                border_col <span class="op">=</span> <span class="st">"black"</span>, border_lwd <span class="op">=</span> <span class="fl">.3</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"NAs default"</span><span class="op">)</span></span>
 <span><span class="co"># Colour NAs using scale function</span></span>
 <span><span class="va">na_plt2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">df_na</span>, legend_order <span class="op">=</span> <span class="cn">NA</span>, show_names_y <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                border_col <span class="op">=</span> <span class="st">"black"</span>, border_lwd <span class="op">=</span> <span class="fl">.3</span>,</span>
 <span>                na_col <span class="op">=</span> <span class="st">"white"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Change NA colour"</span><span class="op">)</span></span>
 <span><span class="co"># Remove NAs, removes the border as well</span></span>
-<span><span class="va">na_plt3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">df_na</span>, legend_order <span class="op">=</span> <span class="cn">NA</span>, show_names_y <span class="op">=</span> <span class="cn">FALSE</span>, na_remove <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span><span class="va">na_plt3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">df_na</span>, legend_order <span class="op">=</span> <span class="cn">NA</span>, show_names_y <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                border_col <span class="op">=</span> <span class="st">"black"</span>, border_lwd <span class="op">=</span> <span class="fl">.3</span>,</span>
+<span>                na_remove <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"NAs removed"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">na_plt1</span> <span class="op">+</span> <span class="va">na_plt2</span> <span class="op">+</span> <span class="va">na_plt3</span> <span class="op">&amp;</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>

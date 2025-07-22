@@ -196,13 +196,7 @@ colours and sizes by using the <code>col_scale</code> argument.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tr"</span>, <span class="st">"bl"</span><span class="op">)</span>,</span>
 <span>         col_scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"G"</span>, <span class="st">"H"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>&lt;img
-src=“/home/runner/work/ggcorrheatmap/ggcorrheatmap/docs/articles/mixed_files/figure-html/unnamed-chunk-8-1.png”
-alt=“mtcars correlation heatmap with normal cells in the top right and
-coloured text in the bottom left triangle. The cells in the top right
-triangle use the viridis”mako” scale while the text in the bottom left
-use the viridis “turbo” scale. Each scale has a legend on the right
-(with the same name: “Pearson r”).” width=“700” /&gt;</p>
+<p><img src="mixed_files/figure-html/unnamed-chunk-8-1.png" alt="mtcars correlation heatmap with normal cells in the top right and coloured text in the bottom left triangle. The cells in the top right triangle use the viridis mako scale while the text in the bottom left use the viridis turbo scale. Each scale has a legend on the right (with the same name: Pearson r)." width="700"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Two fill scales</span></span>
 <span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"br"</span>, <span class="st">"tl"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"21"</span>, <span class="st">"hm"</span><span class="op">)</span>,</span>
@@ -216,14 +210,7 @@ use the viridis “turbo” scale. Each scale has a legend on the right
 <span>         <span class="op">)</span>,</span>
 <span>         <span class="co"># col_name can also take two values</span></span>
 <span>         col_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"This name will be ignored"</span>, <span class="st">"Top left"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>&lt;img
-src=“/home/runner/work/ggcorrheatmap/ggcorrheatmap/docs/articles/mixed_files/figure-html/unnamed-chunk-9-1.png”
-alt=“mtcars correlation heatmap with cells in the top left and circles
-in the bottom right. The cells use the Brewer”RdYlGn” palette (going
-from green (low) to yellow to red (high)), while the circles use a
-custom scale with light blue for low values, white for middle values and
-pink for high values. The two legends on the right are named “Bottom
-right” (blue-pink) and “Top left” (RdYlGn).” width=“700” /&gt;</p>
+<p><img src="mixed_files/figure-html/unnamed-chunk-9-1.png" alt="mtcars correlation heatmap with cells in the top left and circles in the bottom right. The cells use the Brewer RdYlGn palette (going from green (low) to yellow to red (high)), while the circles use a custom scale with light blue for low values, white for middle values and pink for high values. The two legends on the right are named Bottom right (blue-pink) and Top left (RdYlGn)." width="700"></p>
 <p>Use the <code>guide</code> argument in the <code>ggplot2</code> scale
 functions to set the order or hide legends if a scale object is passed
 in the <code>col_scale</code> argument.</p>
@@ -239,13 +226,7 @@ in the <code>col_scale</code> argument.</p>
 <span>                                  name <span class="op">=</span> <span class="st">"Second legend"</span><span class="op">)</span></span>
 <span>         <span class="op">)</span>, cell_label_size <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>         col_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Names that will"</span>, <span class="st">"be ignored"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>&lt;img
-src=“/home/runner/work/ggcorrheatmap/ggcorrheatmap/docs/articles/mixed_files/figure-html/unnamed-chunk-10-1.png”
-alt=“mtcars correlation heatmap with circles in the top right and text
-labels in empty cells in the bottom left. The circles use a scale going
-from white at low values to brown at high values while the text in the
-cells uses the Brewer”Spectral” palette. The legends are named “First
-legend” (brown) and “Second legend” (Spectral).” width=“700” /&gt;</p>
+<p><img src="mixed_files/figure-html/unnamed-chunk-10-1.png" alt="mtcars correlation heatmap with circles in the top right and text labels in empty cells in the bottom left. The circles use a scale going from white at low values to brown at high values while the text in the cells uses the Brewer Spectral palette. The legends are named First legend (brown) and Second legend (Spectral)." width="700"></p>
 <p>If one of the scales is <code>NULL</code>, the default scale is used
 instead (and can be customised with the <code>high</code>,
 <code>mid</code>, <code>low</code> etc arguments).</p>
@@ -257,12 +238,7 @@ instead (and can be customised with the <code>high</code>,
 <span>           <span class="co"># Give a scale object to not be affected by the default scale arguments</span></span>
 <span>           <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_fill_distiller</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"PRGn"</span>, limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span>         <span class="op">)</span>, bins <span class="op">=</span> <span class="fl">5L</span>, high <span class="op">=</span> <span class="st">"pink"</span>, mid <span class="op">=</span> <span class="st">"beige"</span>, low <span class="op">=</span> <span class="st">"lightblue"</span><span class="op">)</span></span></code></pre></div>
-<p>&lt;img
-src=“/home/runner/work/ggcorrheatmap/ggcorrheatmap/docs/articles/mixed_files/figure-html/unnamed-chunk-11-1.png”
-alt=“mtcars correlation heatmap. The cells in the top left triangle use
-a divergent colour scale going from light blue to beige to pink, while
-the bottom right cells use a binned scale with the Brewer”PrGn” palette,
-going from green to white to purple.” width=“700” /&gt;</p>
+<p><img src="mixed_files/figure-html/unnamed-chunk-11-1.png" alt="mtcars correlation heatmap. The cells in the top left triangle use a divergent colour scale going from light blue to beige to pink, while the bottom right cells use a binned scale with the Brewer PrGn palette, going from green to white to purple." width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="some-extra-plots">Some extra plots<a class="anchor" aria-label="anchor" href="#some-extra-plots"></a>
