@@ -77,17 +77,17 @@ gghm_tidy <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, a
 }
 
 ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols = NULL,
-
-                          ...) {
+                          labels = NULL, cor_in = TRUE, ...) {
   # rows and cols -> rows and columns of matrix fed to cor() OR the correlation matrix if cor_in is TRUE
   # only allow for one matrix to be fed to cor. use cor_in if other shape is required
 
   # annotation only uses cols unlike gghm_long?
   # what about cell labels?
 
-  if (missing(x)) cli::cli_abort("Argument {.var x} is missing!")
-  if (missing(rows)) cli::cli_abort("Argument {.var rows} is missing!")
-  if (missing(cols)) cli::cli_abort("Argument {.var cols} is missing!")
+  if (missing(x)) cli::cli_abort("Argument {.var x} is missing! It needs to be a data frame.")
+  if (missing(rows)) cli::cli_abort("Argument {.var rows} is missing! Provide the name of the column that contains the heatmap rownames.")
+  if (missing(cols)) cli::cli_abort("Argument {.var cols} is missing! Provide the name of the column that contains the heatmap colnames.")
+  if (missing(values)) cli::cli_abort("Argument {.var values} is missing! Provide the name of the column that contains the heatmap values.")
 
   # Move this to a separate function and reuse in ggcorrhm_long
   x_long <- dplyr::select(x, {{rows}}, {{cols}}, {{values}})
@@ -102,29 +102,62 @@ ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols =
   x_long <- as.data.frame(x_long)
   x_wide <- shape_mat_wide(x_long)
 
+  # Behave like gghm_tidy if cor_in is TRUE
+  check_logical(cor_in = cor_in)
+  if (isTRUE(cor_in)) {
+    if (!rlang::quo_is_null(rlang::enquo(labels))) {
+      cell_label_df <- dplyr::select(x, {{rows}}, {{cols}}, {{labels}})
+      colnames(cell_label_df) <- c("row", "col", "value")
+      cell_label_df <- as.data.frame(cell_label_df)
+      cell_label_df <- shape_mat_wide(cell_label_df)
+
+    } else {
+      cell_label_df <- F
+    }
+
+    if (!rlang::quo_is_null(rlang::enquo(annot_rows))) {
+      annot_rows_df <- dplyr::distinct(dplyr::select(x, {{rows}}, {{annot_rows}}))
+      colnames(annot_rows_df)[1] <- ".names"
+
+    } else {
+      annot_rows_df <- NULL
+    }
+
+    if (!rlang::quo_is_null(rlang::enquo(annot_cols))) {
+      annot_cols_df <- dplyr::distinct(dplyr::select(x, {{cols}}, {{annot_cols}}))
+      colnames(annot_cols_df)[1] <- ".names"
+    } else {
+      annot_cols_df <- NULL
+    }
+
+  } else {
+    # If cor_in is FALSE, labels can only take TRUE or FALSE
+    # and annotation only takes the columns into consideration
+    cell_label_df <- labels
+
+    if (!rlang::quo_is_null(rlang::enquo(annot_rows))) {
+
+      # Unlike gghm_long, use cols for both rows and cols
+      annot_rows_df <- dplyr::distinct(dplyr::select(x, {{cols}}, {{annot_rows}}))
+      colnames(annot_rows_df)[1] <- ".names"
+
+    } else {
+      annot_rows_df <- NULL
+    }
+
+    if (!rlang::quo_is_null(rlang::enquo(annot_cols))) {
+      annot_cols_df <- dplyr::distinct(dplyr::select(x, {{cols}}, {{annot_cols}}))
+      colnames(annot_cols_df)[1] <- ".names"
+    } else {
+      annot_cols_df <- NULL
+    }
+  }
+
   # Reorder rows and columns if input data has factor levels
 
 
-  # Annotation
-  ### How to do when two input matrices???
-  # Make the annotation data frames if any columns have been provided
-  if (!rlang::quo_is_null(rlang::enquo(annot_rows))) {
-    # Unlike gghm_long, use cols for both rows and cols
-    annot_rows_df <- dplyr::distinct(dplyr::select(x, {{cols}}, {{annot_rows}}))
-    colnames(annot_rows_df)[1] <- ".names"
-
-  } else {
-    annot_rows_df <- NULL
-  }
-
-  if (!rlang::quo_is_null(rlang::enquo(annot_cols))) {
-    annot_cols_df <- dplyr::distinct(dplyr::select(x, {{cols}}, {{annot_cols}}))
-    colnames(annot_cols_df)[1] <- ".names"
-  } else {
-    annot_cols_df <- NULL
-  }
-
-  plt <- ggcorrhm(x_wide, annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df, ...)
+  plt <- ggcorrhm(x_wide, annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
+                  cell_labels = cell_label_df, ...)
 
   return(plt)
 }
