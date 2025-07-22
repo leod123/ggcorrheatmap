@@ -78,6 +78,9 @@ test_that("user-supplied scales", {
 })
 
 test_that("p-value errors work", {
+  expect_no_error(ggcorrhm(mtcars, p_values = T, p_thresholds = NULL))
+  expect_error(ggcorrhm(mtcars, p_values = T, p_thresholds = c("a", "b", "c")),
+               class = "p_thr_class_error")
   expect_error(ggcorrhm(mtcars, p_values = T, p_thresholds = c("a" = -1, "b" = 0.5, "c" = 1)),
                class = "p_thr_error")
   expect_error(ggcorrhm(mtcars, p_values = T, p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, .1)),

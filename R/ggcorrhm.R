@@ -149,8 +149,9 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 
   if (any(unlist(p_values))) {
     if (!is.numeric(p_thresholds) && !is.null(p_thresholds)) {
-      cli::cli_abort("{.var p_thresholds} must be a named {.cls numeric} vector or NULL.")
-    } else {
+      cli::cli_abort("{.var p_thresholds} must be a named {.cls numeric} vector or NULL.",
+                     class = "p_thr_class_error")
+    } else if (!is.null(p_thresholds)) {
       if (any(is.na(p_thresholds))) cli::cli_abort("{.var p_thresholds} should not contain any missing values.")
       if (any(p_thresholds <= 0)) cli::cli_abort("Values in {.var p_thresholds} must be above 0.", class = "p_thr_error")
       if (p_thresholds[length(p_thresholds)] < 1) cli::cli_abort("The last value of {.var p_thresholds} must be 1 or larger.", class = "p_thr_error")

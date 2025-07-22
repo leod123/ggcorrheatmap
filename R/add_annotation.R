@@ -160,6 +160,7 @@ prepare_annotation <- function(annot_df, annot_defaults, annot_params, annot_sid
                                just = switch(annot_names_side, "bottom" = "right", "top" = "left",
                                              "left" = "right", "right" = "left"))
   # Also defaults for the gp parameter
+  check_numeric(annot_names_size = annot_names_size, allow_null = F, allowed_lengths = 1)
   annot_gp_defaults <- grid::gpar(fontsize = annot_names_size)
   annot_gp_params <- replace_default(annot_gp_defaults, annot_name_params[["gp"]], add_new = T)
   annot_name_params[["gp"]] <- annot_gp_params
