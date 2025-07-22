@@ -253,23 +253,12 @@ get_colour_scale <- function(name, val_type, aes_type, limits = NULL, bins = NUL
                "Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu", "PuBuGn",
                "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd")
   vir_opt <- c(LETTERS[1:8], c("viridis", "magma", "plasma", "inferno", "cividis", "mako", "rocket", "turbo"))
-  # Another option for the default scale of ggcorrhm (like RdBu but a bit lighter)
-  extra_scale <- c("cor", "corr")
 
-  if (!name %in% c(brw_pal, vir_opt, extra_scale)) {
-    cli::cli_warn("{.val {name}} is not a valid Brewer or Viridis option. Using default scale instead.",
+  if (!name %in% c(brw_pal, vir_opt)) {
+    cli::cli_warn(c("{.val {name}} is not a valid scale. Using default scale instead.",
+                    i = "Use NULL for the default, a Brewer or Viridis scale name, or a ggplot2 scale object."),
                   class = "invalid_colr_option_warn")
     return(NULL)
-  }
-
-  if (name %in% extra_scale) {
-    scl_out <- default_scale_corr(aes_type = aes_type, bins = bins, limits = limits,
-                                  high =  ifelse(scl_dir > 0, "sienna2", "skyblue2"),
-                                  mid = "white",
-                                  low = ifelse(scl_dir > 0, "skyblue2", "sienna2"),
-                                  midpoint = 0, na_col = na_col, leg_order = leg_order,
-                                  title = title)
-    return(scl_out)
   }
 
   # Make list of inputs to use for the scale

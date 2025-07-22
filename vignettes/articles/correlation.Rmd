@@ -112,7 +112,7 @@ ggcorrhm(mtcars, layout = "tl",
          cluster_rows = TRUE, cluster_cols = TRUE,
          show_dend_rows = FALSE,
          annot_rows_df = row_annot,
-         annot_rows_label_side = "top")
+         annot_rows_names_side = "top")
 ```
 
 # Cell text

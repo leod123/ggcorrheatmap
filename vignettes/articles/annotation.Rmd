@@ -67,7 +67,7 @@ annot <- data.frame(.names = colnames(mtcars), annot1 = rnorm(ncol(mtcars)))
 
 plt1 <- gghm(cor(mtcars), annot_rows_df = annot, annot_cols_df = annot,
              annot_rows_side = "left", annot_cols_side = "top",
-             annot_cols_label_side = "right") +
+             annot_cols_names_side = "right") +
   # Adjust legend position and margins
   theme(legend.position = "left",
         plot.margin = margin(10, 50, 30, 10))
@@ -96,9 +96,9 @@ ggcorrhm(mtcars, annot_rows_df = row_annot,
          annot_size = 2)
 ```
 
-Other arguments to control annotations include `annot_label` (show/hide labels), `annot_legend` (show/hide legends), `border_col` (cell border colour), and `border_lwd` (cell border linewidth). The border arguments are for the main heatmap but are applied to the annotations as well.
+Other arguments to control annotations include `show_annot_names` (show/hide names), `annot_legend` (show/hide legends), `border_col` (cell border colour), and `border_lwd` (cell border linewidth). The border arguments are for the main heatmap but are applied to the annotations as well.
 
-These parameters are applied to both row and column annotations but can be applied independently for row and column annotation by using the `annot_rows_params` and `annot_cols_params` arguments. These are named lists where the names specify what to change (`dist`, `gap`, `size`, `label`, `border_col`, and `border_lwd`).
+These parameters are applied to both row and column annotations but can be applied independently for row and column annotation by using the `annot_rows_params` and `annot_cols_params` arguments. These are named lists where the names specify what to change (`dist`, `gap`, `size`, `show_names`, `border_col`, and `border_lwd`).
 
 ```{r, fig.alt='A 3x3 matrix with two row and two column annotations. The heatmap and the row annotations have thick yellow cell borders. The column annotations have thin white borders and are themselves thinner than the row annotation while also being far below the heatmap with a gap between the two annotations. While the column annotations have legends there are no legends for the row annotations.'}
 df_in <- matrix(1:9, nrow = 3, ncol = 3, byrow = TRUE)
@@ -111,7 +111,7 @@ gghm(df_in, annot_rows_df = row_annot, annot_cols_df = col_annot,
      border_col = "yellow", border_lwd = 1,
      annot_rows_params = list(
        # Hide labels
-       label = FALSE
+       show_names = FALSE
      ),
      annot_cols_params = list(
        # 'border_col' and 'border_lwd' control the border colour and linewidth
@@ -123,7 +123,7 @@ gghm(df_in, annot_rows_df = row_annot, annot_cols_df = col_annot,
 
 # Annotation labels
 
-The annotation labels can be customised by passing named lists to the `annot_rows_label_params` and `annot_cols_label_params` arguments. These lists are passed on to `grid::textGrob()`.
+The sizes of the names can be changed using the `annot_names_size` argument. Further customisation is possible by passing named lists to the `annot_rows_name_params` and `annot_cols_name_params` arguments. These lists are passed on to `grid::textGrob()`, see its help page (and the example below) for more on what arguments are supported.
 
 ```{r, fig.alt='A 3x3 heatmap with two each of row and column annotations. The row annotation has vertical, large, magenta labels below showing the names. The column annotations have labels to the left, angled at 45 degrees.'}
 df_in <- matrix(1:9, nrow = 3, ncol = 3, byrow = TRUE)
@@ -132,11 +132,11 @@ col_annot <- data.frame(annot3 = letters[1:3], annot4 = letters[4:6])
 
 gghm(df_in, annot_rows_df = row_annot, annot_cols_df = col_annot,
      legend_order = NA,
-     annot_rows_label_params = list(
+     annot_rows_name_params = list(
        # Use 'grid::gpar' for the 'gp' argument for a number of text-related parameters
        gp = grid::gpar(col = "magenta", alpha = 0.5, fontsize = 20, fontface = "bold")
      ),
-     annot_cols_label_params = list(
+     annot_cols_name_params = list(
        # 'rot' instead of 'angle' to change the angle
        rot = -45, hjust = 0.7, vjust = 0
      ))

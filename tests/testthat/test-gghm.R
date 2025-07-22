@@ -63,8 +63,9 @@ test_that("snapshots", {
   vdiffr::expect_doppelganger("mixed_mode", gghm(cor(mtcars), layout = c("tl", "br")))
   vdiffr::expect_doppelganger("annotation labels", gghm(cor(mtcars),
                                                         annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11, b = 11:1),
-                                                        annot_rows_label_side = "top",
-                                                        annot_rows_label_params = list(gp = grid::gpar(col = "red"),
+                                                        annot_rows_names_side = "top",
+                                                        annot_names_size = 15,
+                                                        annot_rows_name_params = list(gp = grid::gpar(col = "red"),
                                                                                        vjust = 0, rot = 45)) +
                                 ggplot2::theme(axis.text.x.top = ggplot2::element_text(angle = 45, vjust = 0)))
   vdiffr::expect_doppelganger("clustering_extended",
@@ -219,7 +220,7 @@ test_that("warnings and errors", {
   expect_warning(gghm(mtcars, cluster_rows = T, dend_rows_side = "top"), class = "dend_side_warn")
   expect_warning(gghm(mtcars, cluster_cols = T, dend_cols_side = "asdf"), class = "dend_side_warn")
   expect_warning(gghm(cor(mtcars), annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11, b = 11:1),
-                      annot_rows_label_side = "asdf"), class = "annot_label_side_warn")
+                      annot_rows_names_side = "asdf"), class = "annot_names_side_warn")
   # Annotation and dendrogram parameters
   expect_error(gghm(mtcars, annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:32, b = 32:1),
                     annot_dist = "a"), class = "annot_nonnum_error")
@@ -239,10 +240,10 @@ test_that("warnings and errors", {
                     dend_rows_params = list(height = 1)),
                class = "dend_nonnum_error")
   expect_error(gghm(mtcars, annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:32, b = 32:1),
-                    annot_rows_label_params = 1),
-               class = "annot_label_params_class_error")
+                    annot_rows_name_params = 1),
+               class = "annot_name_params_class_error")
   expect_error(gghm(mtcars, annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:32, b = 32:1),
-                    annot_rows_label_params = list(asdf = 1)),
+                    annot_rows_name_params = list(asdf = 1)),
                class = "grid_texrgrob_error")
   # Annotation and dendrogram parameters, input class
   expect_warning(gghm(cor(mtcars), annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11, b = 5:15),
@@ -268,7 +269,7 @@ test_that("warnings and errors", {
   expect_error(gghm(cor(mtcars), show_names_y = "TRU"), class = "logical_error")
   expect_error(gghm(cor(mtcars), include_diag = "TRUE"), class = "logical_error")
   expect_error(gghm(cor(mtcars), annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11),
-                    annot_label = "false"), class = "logical_error")
+                    show_annot_names = "false"), class = "logical_error")
   # Other class checks
   expect_error(gghm(mtcars, annot_cols_df = data.frame(.names = colnames(mtcars), a = c(NA, 1:10)),
                     annot_na_col = NULL), class = "annot_na_col_length_error")

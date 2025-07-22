@@ -116,16 +116,18 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      border_col = "grey", border_lwd = 0.1, border_lty = 1,
                      show_names_diag = TRUE, names_diag_params = NULL,
                      show_names_x = FALSE, names_x_side = "top", show_names_y = FALSE, names_y_side = "left",
-                     annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_col = NULL, annot_cols_col = NULL,
+                     annot_rows_df = NULL, annot_cols_df = NULL,
+                     annot_rows_col = NULL, annot_cols_col = NULL,
                      annot_rows_side = "right", annot_cols_side = "bottom",
-                     annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = TRUE,
+                     annot_dist = 0.2, annot_gap = 0, annot_size = 0.5,
                      annot_border_col = if (length(border_col) == 1) border_col else "grey",
                      annot_border_lwd = if (length(border_lwd) == 1) border_lwd else 0.5,
                      annot_border_lty = if (length(border_lty) == 1) border_lty else 1,
                      annot_na_col = na_col, annot_na_remove = na_remove,
                      annot_rows_params = NULL, annot_cols_params = NULL,
-                     annot_rows_label_side = "bottom", annot_cols_label_side = "left",
-                     annot_rows_label_params = NULL, annot_cols_label_params = NULL,
+                     show_annot_names = TRUE, annot_names_size = 9,
+                     annot_rows_names_side = "bottom", annot_cols_names_side = "left",
+                     annot_rows_name_params = NULL, annot_cols_name_params = NULL,
                      cluster_rows = FALSE, cluster_cols = FALSE,
                      cluster_distance = "euclidean", cluster_method = "complete",
                      show_dend_rows = TRUE, show_dend_cols = TRUE, dend_rows_side = "right", dend_cols_side = "bottom",
@@ -300,12 +302,13 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                   annot_rows_col = annot_scales[["rows"]], annot_cols_col = annot_scales[["cols"]],
                   annot_rows_side = annot_rows_side, annot_cols_side = annot_cols_side,
                   annot_dist = annot_dist, annot_gap = annot_gap,
-                  annot_size = annot_size, annot_label = annot_label,
+                  annot_size = annot_size, show_annot_names = show_annot_names,
                   annot_border_col = annot_border_col, annot_border_lwd = annot_border_lwd, annot_border_lty = annot_border_lty,
                   annot_na_col = annot_na_col, annot_na_remove = annot_na_remove,
                   annot_rows_params = annot_rows_params, annot_cols_params = annot_cols_params,
-                  annot_rows_label_side = annot_rows_label_side, annot_cols_label_side = annot_cols_label_side,
-                  annot_rows_label_params = annot_rows_label_params, annot_cols_label_params = annot_cols_label_params,
+                  annot_names_size = annot_names_size,
+                  annot_rows_names_side = annot_rows_names_side, annot_cols_names_side = annot_cols_names_side,
+                  annot_rows_name_params = annot_rows_name_params, annot_cols_name_params = annot_cols_name_params,
                   cluster_rows = cluster_rows, cluster_cols = cluster_cols,
                   cluster_distance = cluster_distance, cluster_method = cluster_method,
                   show_dend_rows = show_dend_rows, show_dend_cols = show_dend_cols,
@@ -364,7 +367,6 @@ prepare_cell_labels <- function(mode, cell_labels, p_values, cell_label_p, cell_
       # Nothing if no thresholds provided
       ""
     }
-
   }
 
   # Otherwise, iterate over values and check contents

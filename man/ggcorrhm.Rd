@@ -56,7 +56,6 @@ ggcorrhm(
   annot_dist = 0.2,
   annot_gap = 0,
   annot_size = 0.5,
-  annot_label = TRUE,
   annot_border_col = if (length(border_col) == 1) border_col else "grey",
   annot_border_lwd = if (length(border_lwd) == 1) border_lwd else 0.5,
   annot_border_lty = if (length(border_lty) == 1) border_lty else 1,
@@ -64,10 +63,12 @@ ggcorrhm(
   annot_na_remove = na_remove,
   annot_rows_params = NULL,
   annot_cols_params = NULL,
-  annot_rows_label_side = "bottom",
-  annot_cols_label_side = "left",
-  annot_rows_label_params = NULL,
-  annot_cols_label_params = NULL,
+  show_annot_names = TRUE,
+  annot_names_size = 9,
+  annot_rows_names_side = "bottom",
+  annot_cols_names_side = "left",
+  annot_rows_name_params = NULL,
+  annot_cols_name_params = NULL,
   cluster_rows = FALSE,
   cluster_cols = FALSE,
   cluster_distance = "euclidean",
@@ -212,8 +213,6 @@ specify order using the \code{guide} argument in the \code{ggplot2} scale functi
 
 \item{annot_size}{Size (width for row annotation, height for column annotation) of annotation cells compared to a heatmap cell. Used for both row and column annotation.}
 
-\item{annot_label}{Logical controlling if names of annotations should be shown in the drawing area.}
-
 \item{annot_border_col}{Colour of cell borders in annotation. By default it is the same as \code{border_col} of the main heatmap if it is of length 1, otherwise uses default (grey).}
 
 \item{annot_border_lwd}{Line width of cell borders in annotation. By default it is the same as \code{border_lwd} of the main heatmap if it is of length 1, otherwise uses default (0.5).}
@@ -230,13 +229,17 @@ the \verb{annot_*_fill} arguments.}
 
 \item{annot_cols_params}{Named list with parameters for column annotations, used like \code{annot_rows_params}.}
 
-\item{annot_rows_label_side}{String specifying which side the row annotation labels should be on. Either "top" or "bottom".}
+\item{show_annot_names}{Logical controlling if names of annotations should be shown in the drawing area.}
 
-\item{annot_cols_label_side}{String specifying which side the column annotation labels should be on. Either "left" or "right".}
+\item{annot_names_size}{Size of annotation names.}
 
-\item{annot_rows_label_params}{Named list of parameters for row annotation labels. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
+\item{annot_rows_names_side}{String specifying which side the row annotation names should be on. Either "top" or "bottom".}
 
-\item{annot_cols_label_params}{Named list of parameters for column annotation labels. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
+\item{annot_cols_names_side}{String specifying which side the column annotation names should be on. Either "left" or "right".}
+
+\item{annot_rows_name_params}{Named list of parameters for row annotation names. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
+
+\item{annot_cols_name_params}{Named list of parameters for column annotation names. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
 
 \item{cluster_rows}{Logical indicating if rows should be clustered. Can also be a \code{hclust} or \code{dendrogram} object.}
 

@@ -170,14 +170,14 @@ set.seed(123)
 row_annot <- data.frame(.names = rownames(mtcars)[1:15],
                         a = sample(letters[1:4], 15, TRUE))
 
-gghm(mtcars[1:15, ], annot_rows_df = row_annot, annot_rows_label_side = "top")
+gghm(mtcars[1:15, ], annot_rows_df = row_annot, annot_rows_names_side = "top")
 ```
 
 Clustering and annotation can of course be added simultaneously.
 
 ```{r, fig.alt='Heatmap of mtcars. The rows have been clustered and along the right side is an annotation column with a dendrogram on its right.'}
 gghm(scale(mtcars)[1:15, ], cluster_rows = TRUE,
-     annot_rows_df = row_annot, annot_rows_label_side = "top")
+     annot_rows_df = row_annot, annot_rows_names_side = "top")
 ```
 
 # Cell labels

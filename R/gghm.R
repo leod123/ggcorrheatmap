@@ -9,8 +9,9 @@
 #' `mode` needs a vector of length two (applied in the same order as layout). See details for more information.
 #' @param mode A string specifying plotting mode. Possible values are `heatmap`/`hm` for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
 #' `text` to write the cell values instead of filling cells (colour scaling with value), and `none` for blank cells.
-#' @param col_scale Colour scale to use for cells. If NULL, the default ggplot2 scale is used. If a string, the corresponding Brewer or Viridis scales is used.
-#' A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale. Can also be a ggplot2 scale object.
+#' @param col_scale Colour scale to use for cells. If NULL, the default ggplot2 scale is used. If a string, the corresponding Brewer or Viridis scale is used.
+#' A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale. Can also be a ggplot2 scale object to overwrite the scale.
+#' In mixed layouts, a list of two scales can be provided.
 #' @param col_name String to use for the colour scale legend title. Can be two values in mixed layouts for dual scales.
 #' @param limits Numeric vector of length two for the limits of the colour scale. NULL uses the default.
 #' @param bins Number of bins to divide the scale into (if continuous values). A 'double' class value uses 'nice.breaks' to put the breaks at nice numbers which may not result
@@ -58,7 +59,6 @@
 #' @param annot_dist Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_gap Distance between each annotation where 1 is the size of one heatmap cell. Used for both row and column annotation.
 #' @param annot_size Size (width for row annotation, height for column annotation) of annotation cells compared to a heatmap cell. Used for both row and column annotation.
-#' @param annot_label Logical controlling if names of annotations should be shown in the drawing area.
 #' @param annot_border_col Colour of cell borders in annotation. By default it is the same as `border_col` of the main heatmap if it is of length 1, otherwise uses default (grey).
 #' @param annot_border_lwd Line width of cell borders in annotation. By default it is the same as `border_lwd` of the main heatmap if it is of length 1, otherwise uses default (0.5).
 #' @param annot_border_lty Line type of cell borders in annotation. By default it is the same as `border_lty` of the main heatmap if it is of length 1, otherwise uses default (solid).
@@ -68,10 +68,12 @@
 #' @param annot_rows_params Named list with parameters for row annotations to overwrite the defaults set by the `annot_*` arguments, each name corresponding to the `*` part
 #' (see details for more information).
 #' @param annot_cols_params Named list with parameters for column annotations, used like `annot_rows_params`.
-#' @param annot_rows_label_side String specifying which side the row annotation labels should be on. Either "top" or "bottom".
-#' @param annot_cols_label_side String specifying which side the column annotation labels should be on. Either "left" or "right".
-#' @param annot_rows_label_params Named list of parameters for row annotation labels. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
-#' @param annot_cols_label_params Named list of parameters for column annotation labels. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
+#' @param show_annot_names Logical controlling if names of annotations should be shown in the drawing area.
+#' @param annot_names_size Size of annotation names.
+#' @param annot_rows_names_side String specifying which side the row annotation names should be on. Either "top" or "bottom".
+#' @param annot_cols_names_side String specifying which side the column annotation names should be on. Either "left" or "right".
+#' @param annot_rows_name_params Named list of parameters for row annotation names. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
+#' @param annot_cols_name_params Named list of parameters for column annotation names. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
 #' @param cluster_rows Logical indicating if rows should be clustered. Can also be a `hclust` or `dendrogram` object.
 #' @param cluster_cols Logical indicating if columns should be clustered. Can also be a `hclust` or `dendrogram` object.
 #' @param cluster_distance String with the distance metric to use for clustering, given to `stats::dist()`.
@@ -112,7 +114,7 @@
 #'
 #' The annotation parameter arguments `annot_rows_params` and `annot_cols_params` should be named lists, where the possible options correspond to
 #' the different `annot_*` arguments. The possible options are "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
-#' "size" (cell size), "label" (logical, if the annotation names should be displayed), "border_col" (colour of border) and "border_lwd" (border line width).
+#' "size" (cell size), "show_names" (logical, if the annotation names should be displayed), "border_col" (colour of border) and "border_lwd" (border line width).
 #' Any unused options will use the defaults set by the `annot_*` arguments.
 #'
 #' The dendrogram parameters arguments `dend_rows_params` and `dend_cols_params` should be named lists, analogous to the annotation parameter arguments. Possible options are
@@ -165,7 +167,7 @@
 #      # Change colours of heatmap (Brewer Purples)
 #      col_scale = "Purples",
 #      annot_rows_df = annot_rows, annot_rows_col = annot_fill) +
-#      # Use ggplot2::theme to adjust margins to fit the annotation labels
+#      # Use ggplot2::theme to adjust margins to fit the annotation names
 #      theme(plot.margin = margin(20, 10, 60, 20))
 #'
 #' # Using the dend_*_extend arguments
@@ -185,16 +187,18 @@ gghm <- function(x,
                  cell_labels = F, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
                  border_col = "grey", border_lwd = 0.1, border_lty = 1,
                  cell_bg_col = "white", cell_bg_alpha = 0,
-                 annot_rows_df = NULL, annot_cols_df = NULL, annot_rows_col = NULL, annot_cols_col = NULL,
+                 annot_rows_df = NULL, annot_cols_df = NULL,
+                 annot_rows_col = NULL, annot_cols_col = NULL,
                  annot_rows_side = "right", annot_cols_side = "bottom",
-                 annot_dist = 0.2, annot_gap = 0, annot_size = 0.5, annot_label = TRUE,
+                 annot_dist = 0.2, annot_gap = 0, annot_size = 0.5,
                  annot_border_col = if (length(border_col) == 1) border_col else "grey",
                  annot_border_lwd = if (length(border_lwd) == 1) border_lwd else 0.5,
                  annot_border_lty = if (length(border_lty) == 1) border_lty else 1,
                  annot_na_col = na_col, annot_na_remove = na_remove,
                  annot_rows_params = NULL, annot_cols_params = NULL,
-                 annot_rows_label_side = "bottom", annot_cols_label_side = "left",
-                 annot_rows_label_params = NULL, annot_cols_label_params = NULL,
+                 show_annot_names = TRUE, annot_names_size = 9,
+                 annot_rows_names_side = "bottom", annot_cols_names_side = "left",
+                 annot_rows_name_params = NULL, annot_cols_name_params = NULL,
                  cluster_rows = FALSE, cluster_cols = FALSE,
                  cluster_distance = "euclidean", cluster_method = "complete",
                  show_dend_rows = TRUE, show_dend_cols = TRUE, dend_rows_side = "right", dend_cols_side = "bottom",
@@ -356,26 +360,28 @@ gghm <- function(x,
   # Annotation for rows and columns
   # Default annotation parameters
   annot_default <- list(dist = annot_dist, gap = annot_gap, size = annot_size,
-                        label = annot_label, border_col = annot_border_col,
+                        show_names = show_annot_names, border_col = annot_border_col,
                         border_lwd = annot_border_lwd, border_lty = annot_border_lty)
   if (is.data.frame(annot_rows_df)) {
     annot_rows_prep <- prepare_annotation(annot_df = annot_rows_df, annot_defaults = annot_default,
                                           annot_params = annot_rows_params, annot_side = annot_rows_side,
-                                          context = "rows", annot_label_params = annot_rows_label_params,
-                                          annot_label_side = annot_rows_label_side, data_size = ncol(x))
+                                          context = "rows", annot_name_params = annot_rows_name_params,
+                                          annot_names_size = annot_names_size,
+                                          annot_names_side = annot_rows_names_side, data_size = ncol(x))
     annot_rows_df <- annot_rows_prep[[1]]; annot_rows_params <- annot_rows_prep[[2]];
-    annot_rows_pos <- annot_rows_prep[[3]]; annot_rows_label_params <- annot_rows_prep[[4]]
-    annot_rows_label_side <- annot_rows_prep[[5]]
+    annot_rows_pos <- annot_rows_prep[[3]]; annot_rows_name_params <- annot_rows_prep[[4]]
+    annot_rows_names_side <- annot_rows_prep[[5]]
   }
 
   if (is.data.frame(annot_cols_df)) {
     annot_cols_prep <- prepare_annotation(annot_df = annot_cols_df, annot_defaults = annot_default,
                                           annot_params = annot_cols_params, annot_side = annot_cols_side,
-                                          context = "cols", annot_label_params = annot_cols_label_params,
-                                          annot_label_side = annot_cols_label_side, data_size = nrow(x))
+                                          context = "cols", annot_name_params = annot_cols_name_params,
+                                          annot_names_size = annot_names_size,
+                                          annot_names_side = annot_cols_names_side, data_size = nrow(x))
     annot_cols_df <- annot_cols_prep[[1]]; annot_cols_params <- annot_cols_prep[[2]];
-    annot_cols_pos <- annot_cols_prep[[3]]; annot_cols_label_params <- annot_cols_prep[[4]]
-    annot_cols_label_side <- annot_cols_prep[[5]]
+    annot_cols_pos <- annot_cols_prep[[3]]; annot_cols_name_params <- annot_cols_prep[[4]]
+    annot_cols_names_side <- annot_cols_prep[[5]]
   }
 
   # Generate dendrograms, positions depend on annotation sizes
@@ -501,9 +507,9 @@ gghm <- function(x,
                           annot_size = annot_rows_params$size, annot_border_lwd = annot_rows_params$border_lwd,
                           annot_border_col = annot_rows_params$border_col,
                           annot_border_lty = annot_rows_params$border_lty,
-                          annot_label = annot_rows_params$label,
+                          show_annot_names = annot_rows_params$show_names,
                           na_remove = annot_na_remove, col_scale = annot_scales[["rows"]],
-                          label_side = annot_rows_label_side, label_params = annot_rows_label_params)
+                          names_side = annot_rows_names_side, name_params = annot_rows_name_params)
   }
 
   if (is.data.frame(annot_cols_df)) {
@@ -511,9 +517,9 @@ gghm <- function(x,
                           annot_size = annot_cols_params$size, annot_border_lwd = annot_cols_params$border_lwd,
                           annot_border_col = annot_cols_params$border_col,
                           annot_border_lty = annot_cols_params$border_lty,
-                          annot_label = annot_cols_params$label,
+                          show_annot_names = annot_cols_params$show_names,
                           na_remove = annot_na_remove, col_scale = annot_scales[["cols"]],
-                          label_side = annot_cols_label_side, label_params = annot_cols_label_params)
+                          names_side = annot_cols_names_side, name_params = annot_cols_name_params)
   }
 
   # Add dendrograms
