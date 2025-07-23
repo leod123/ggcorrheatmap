@@ -4,9 +4,9 @@
 \name{ggcorrheatmap-package}
 \alias{ggcorrheatmap}
 \alias{ggcorrheatmap-package}
-\title{ggcorrheatmap: Flexible 'ggplot' Correlation Heatmaps}
+\title{ggcorrheatmap: Make Flexible 'ggplot2' Correlation Heatmaps}
 \description{
-Create flexible 'ggplot2' heatmaps and correlation heatmaps with clustering and annotation.
+Create correlation heatmaps with 'ggplot2' and customise them with flexible annotation and clustering. Symmetric heatmaps can use triangular or mixed layouts, removing redundant information or displaying complementary information in the two halves. There is also support for general heatmap not displaying correlations.
 }
 \seealso{
 Useful links:

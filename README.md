@@ -6,7 +6,7 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/leod123/ggcorrheatmap/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/leod123/ggcorrheatmap/actions/workflows/R-CMD-check.yaml)
-[![codecov](https://codecov.io/gh/leod123/ggcorrheatmap/graph/badge.svg?token=H2DMCDW7KV)](https://codecov.io/gh/leod123/ggcorrheatmap)
+[![codecov](https://codecov.io/gh/leod123/ggcorrheatmap/branch/main/graph/badge.svg)](https://app.codecov.io/gh/leod123/ggcorrheatmap/branch/main)
 <!-- badges: end -->
 
 ggcorrheatmap is a convenient package for generating correlation
@@ -18,7 +18,13 @@ heatmaps.
 
 ## Installation
 
-You can install the development version of ggcorrheatmap from
+You can install ggcorrheatmap from CRAN using:
+
+``` r
+install.packages("ggcorrheatmap")
+```
+
+Or you can install the development version from
 [GitHub](https://github.com/) with:
 
 ``` r

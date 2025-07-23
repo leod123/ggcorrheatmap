@@ -17,14 +17,20 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/leod123/ggcorrheatmap/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/leod123/ggcorrheatmap/actions/workflows/R-CMD-check.yaml)
-[![codecov](https://codecov.io/gh/leod123/ggcorrheatmap/graph/badge.svg?token=H2DMCDW7KV)](https://codecov.io/gh/leod123/ggcorrheatmap)
+[![codecov](https://codecov.io/gh/leod123/ggcorrheatmap/branch/main/graph/badge.svg)](https://app.codecov.io/gh/leod123/ggcorrheatmap/branch/main)
 <!-- badges: end -->
 
 ggcorrheatmap is a convenient package for generating correlation heatmaps made with ggplot2, with support for triangular layouts, clustering and annotation. As the output is a ggplot2 object you can further customise the appearance using familiar ggplot2 functions. Besides correlation heatmaps, there is also support for making general heatmaps.
 
 ## Installation
 
-You can install the development version of ggcorrheatmap from [GitHub](https://github.com/) with:
+You can install ggcorrheatmap from CRAN using:
+
+``` r
+install.packages("ggcorrheatmap")
+```
+
+Or you can install the development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
