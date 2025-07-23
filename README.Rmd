@@ -63,3 +63,13 @@ It is also possible to make a normal heatmap, for a more flexible output.
 gghm(scale(mtcars), cluster_rows = TRUE, cluster_cols = TRUE)
 ```
 
+## More examples
+
+There are many more options for customisation, covered in the different articles of the package:
+
+- [Making a heatmap](https://leod123.github.io/ggcorrheatmap/articles/heatmap.html)
+- [Correlation heatmaps](https://leod123.github.io/ggcorrheatmap/articles/correlation.html)
+- [Annotation](https://leod123.github.io/ggcorrheatmap/articles/annotation.html)
+- [Clustering](https://leod123.github.io/ggcorrheatmap/articles/clustering.html)
+- [Mixed layouts](https://leod123.github.io/ggcorrheatmap/articles/mixed.html)
+- [Scales and legends](https://leod123.github.io/ggcorrheatmap/articles/legends.html)

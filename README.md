@@ -65,3 +65,19 @@ gghm(scale(mtcars), cluster_rows = TRUE, cluster_cols = TRUE)
 ```
 
 <img src="man/figures/README-example3-1.png" alt="A heatmap of the mtcars data (scaled). Cells are coloured with a scale going from dark blue to light blue. Both rows and columns have been clustered, with dendrograms to the right and below the heatmap."  />
+
+## More examples
+
+There are many more options for customisation, covered in the different
+articles of the package:
+
+- [Making a
+  heatmap](https://leod123.github.io/ggcorrheatmap/articles/heatmap.html)
+- [Correlation
+  heatmaps](https://leod123.github.io/ggcorrheatmap/articles/correlation.html)
+- [Annotation](https://leod123.github.io/ggcorrheatmap/articles/annotation.html)
+- [Clustering](https://leod123.github.io/ggcorrheatmap/articles/clustering.html)
+- [Mixed
+  layouts](https://leod123.github.io/ggcorrheatmap/articles/mixed.html)
+- [Scales and
+  legends](https://leod123.github.io/ggcorrheatmap/articles/legends.html)

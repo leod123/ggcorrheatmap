@@ -12,6 +12,7 @@ Create flexible 'ggplot2' heatmaps and correlation heatmaps with clustering and 
 Useful links:
 \itemize{
   \item \url{https://github.com/leod123/ggcorrheatmap}
+  \item \url{https://leod123.github.io/ggcorrheatmap/}
   \item Report bugs at \url{https://github.com/leod123/ggcorrheatmap/issues}
 }
 

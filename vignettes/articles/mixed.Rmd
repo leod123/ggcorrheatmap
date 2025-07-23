@@ -105,7 +105,7 @@ plt1 + plt2
 
 # Mixed scales
 
-In mixed layouts the two triangles can use different scales for colours and sizes by using the `col_scale` argument.
+In mixed layouts the two triangles can use different scales for colours by using the `col_scale` argument.
 
 ```{r, fig.alt='mtcars correlation heatmap with normal cells in the top right and coloured text in the bottom left triangle. The cells in the top right triangle use the viridis mako scale while the text in the bottom left use the viridis turbo scale. Each scale has a legend on the right (with the same name: Pearson r).'}
 ggcorrhm(mtcars, layout = c("tr", "bl"),
@@ -118,7 +118,8 @@ ggcorrhm(mtcars, layout = c("br", "tl"), mode = c("21", "hm"),
          show_names_diag = FALSE,
          col_scale = list(
            # When a scale object is passed, arguments of gghm/ggcorrhm
-           # that modify legends will be ignored
+           # that modify legends will be ignored.
+           # 'heatmap' mode and modes 20-25 use the fill aesthetic
            scale_fill_gradient2(high = "pink", mid = "white", low = "lightblue",
                                 limits = c(-1, 1), name = "Bottom right"),
            "RdYlGn"
@@ -133,6 +134,7 @@ Use the `guide` argument in the `ggplot2` scale functions to set the order or hi
 # Two colour scales
 ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("19", "text"),
          col_scale = list(
+           # 'text' mode and modes 1-20 use the colour aesthetic and need colour scales
            scale_colour_gradient(high = "lightsalmon4", low = "white", limits = c(-1, 1),
                                  # Can use the guide argument to change order of legends (or hide them)
                                  guide = guide_colourbar(order = 1),
@@ -153,6 +155,20 @@ ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "hm"),
            # Give a scale object to not be affected by the default scale arguments
            scale_fill_distiller(palette = "PRGn", limits = c(-1, 1))
          ), bins = 5L, high = "pink", mid = "beige", low = "lightblue")
+```
+
+It's also possible to use different scales for the sizes with the `size_scale` argument. 
+
+```{r, fig.alt='mtcars correlation heatmap with diamonds instead of cells in both triangles. The diamonds in the top right are smaller than those in the bottom left. Two legends can be seen to the right, one called scale_size_binned with a binned scale with breaks from 0.2 to 0.8 and the other called scale_size_continuous with breaks from -0.5 to 0.5.'}
+ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c(23, 23),
+         size_scale = list(
+           # Can make a binned size scale
+           scale_size_binned(n.breaks = 6, range = c(1, 5),
+                             # Absolute value transform but legend loses meaning
+                             transform = scales::trans_new("abs", abs, abs),
+                             name = "scale_size_binned", guide = guide_bins(order = 1)),
+           scale_size_continuous(range = c(5, 10), name = "scale_size_continuous")
+         ), border_lwd = 1, legend_order = NA)
 ```
 
 

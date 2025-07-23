@@ -87,7 +87,7 @@ gghm(volcano, show_names_x = FALSE, show_names_y = FALSE, border_col = NA,
 
 The default scale for the main heatmap is different for `ggcorrhm()` as it assumes that correlations are plotted. There are also more arguments to modify the scale, such as the colours or binning.
 
-When the plot is using a mixed layout, `col_scale` can also take a vector or list to apply different scales to the different triangles.
+When the plot is using a [mixed layout](mixed.html), `col_scale` can also take a vector or list to apply different scales to the different triangles.
 
 ```{r, fig.alt='A heatmap of a 10x10 matrix with values arranged so that there is a gradient across the heatmap with low values in the bottom left and high values in the top right. The top left triangle uses the Viridis magma scale, while the bottom right triangle is using the Brewer RdYlGn palette.'}
 plt_dat <- matrix(
@@ -187,6 +187,23 @@ plt2 <- ggcorrhm(plt_dat_cor, cor_in = TRUE,
 
 plt1 + plt2
 ```
+
+Size scales can be customised as well. `ggcorrhm()` uses an absolute value tansform for the default size scale and hides the legend as it becomes inaccurate (as can be seen in the plot below). `scale_size_area` can be passed to `size_scale` to still scale with the absolute value and keep a meaningful legend, at the cost of not being able to set the lower limit for the sizes.
+
+```{r, fig.alt='mtcars correlation heatmap with diamonds instead of cells. In the top right triangle the diamonds are smaller than in the bottom left. The sizes of all diamonds scale with the absolute value of the correlations, but the legend for the top right diamonds goes from 0 to 1 while the legend for the other triangle properly shows the negative values too.'}
+ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c(23, 23),
+         size_scale = list(
+           # Can make a binned size scale
+           scale_size_binned(n.breaks = 6, range = c(2, 6),
+                             # Absolute value transform but legend loses meaning
+                             transform = scales::trans_new("abs", abs, abs),
+                             name = "scale_size_binned", guide = guide_bins(order = 1)),
+           # scale_size_area, scale_size_binned_area also scale with absolute value
+           # but fewer options to control sizes
+           scale_size_area(max_size = 10, name = "scale_size_area")
+         ), border_lwd = 1, legend_order = NA)
+```
+
 
 # Legend order
 
