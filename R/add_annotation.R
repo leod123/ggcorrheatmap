@@ -33,7 +33,7 @@ add_annotation <- function(plt, context = c("rows", "cols"), annot_df, annot_pos
   annot_names <- colnames(annot_df)[-which(colnames(annot_df) == ".names")]
 
   plt_out <- plt +
-    lapply(annot_names, \(nm) {
+    lapply(annot_names, function(nm) {
       list(
         # Add separate colour scale for each annotation
         ggnewscale::new_scale_fill(),
@@ -187,7 +187,7 @@ prepare_annotation <- function(annot_df, annot_defaults, annot_params, annot_sid
 #' @return Numeric vector of annotation cell positions
 #'
 get_annotation_pos <- function(annot_side = T, annot_names, annot_size, annot_dist, annot_gap, data_size) {
-  positions <- sapply(seq_along(annot_names), \(id) {
+  positions <- sapply(seq_along(annot_names), function(id) {
     ifelse(annot_side, 1, data_size) +            # To middle of first or last column/row
       (0.5 + annot_dist +                         # Add half of cell width + specified distance to heatmap
          0.5 * annot_size +                       # Add half of annotation width (cell middle point is the coordinate for the cell)
