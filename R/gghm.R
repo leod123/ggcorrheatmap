@@ -426,6 +426,14 @@ gghm <- function(x,
 
     # Prepare scales for mixed layouts
     if (length(layout) == 2) {
+      bins <- prepare_mixed_param(bins, "bins")
+      limits <- prepare_mixed_param(limits, "limits")
+      midpoint <- prepare_mixed_param(midpoint, "midpoint")
+      size_range <- prepare_mixed_param(size_range, "size_range")
+      high <- prepare_mixed_param(high, "high")
+      mid <- prepare_mixed_param(mid, "mid")
+      low <- prepare_mixed_param(low, "low")
+      na_col <- prepare_mixed_param(na_col, "na_col")
       col_name <- prepare_mixed_param(col_name, "col_name")
       col_scale <- prepare_mixed_param(col_scale, "col_scale")
       size_name <- prepare_mixed_param(size_name, "size_name")
@@ -434,6 +442,7 @@ gghm <- function(x,
 
     # Generate the necessary scales
     main_scales <- prepare_scales(scale_order = scale_order, context = "gghm",
+                                  layout = layout,
                                   val_type = ifelse(is.character(x_long[["value"]]) | is.factor(x_long[["value"]]), "discrete", "continuous"),
                                   col_scale = col_scale, col_name = col_name,
                                   size_scale = size_scale, size_name = size_name,
@@ -634,13 +643,18 @@ prepare_mixed_param <- function(param, param_name) {
       param_out <- list(param[[1]], param[[1]])
     }
 
-  } else if (is.null(param) && (grepl("_scale$", param_name) || grepl("_digits$", param_name))) {
+  } else if (is.null(param) && (grepl("_scale$", param_name) || grepl("_digits$", param_name) ||
+                                param_name %in% c("size_range", "limits", "bins"))) {
     # Return a list of NULLs if NULL
     param_out <- list(NULL, NULL)
 
   } else if (is.list(param) && length(param) == 1) {
     # If a list of length one, repeat its content
     param_out <- list(param[[1]], param[[1]])
+
+  } else if (!is.list(param) && param_name %in% c("size_range", "limits")) {
+    # Scale parameters that can be a vector
+    param_out <- list(param, param)
 
   } else if (length(param) == 1 || (param_name == "cell_labels" && (is.matrix(param) || is.data.frame(param)))) {
     # Recycle if length one, or if cell_labels is a data frame or matrix for cell labels
@@ -674,6 +688,7 @@ prepare_mixed_param <- function(param, param_name) {
 #'
 #' @param ... Should be a single named argument, where the name is the variable name displayed in the error message.
 #' The value is the (supposed) logical.
+#' @param list_allowed Logical indicating if the argument is allowed to be a list. If TRUE each element will be checked.
 #' @param call Call to use for the call in the error message (used in rlang::abort).
 #' Default is rlang::caller_env() resulting in the function that called check_logical().
 #'
@@ -736,13 +751,16 @@ check_logical <- function(..., list_allowed = F, call = NULL) {
 #'
 #' @returns Error if not numeric, NULL when not allowed, or too long/too short.
 #'
-check_numeric <- function(..., allow_null = F, allowed_lengths = 1, call = NULL) {
+check_numeric <- function(..., allow_null = F, allowed_lengths = 1,
+                          list_allowed = F, call = NULL) {
   arg <- list(...)
   name <- names(arg)
   val <- arg[[1]]
 
-  if (isTRUE(allow_null) && is.null(val)) {
-    return(NULL)
+  if (isFALSE(list_allowed)) {
+    if (isTRUE(allow_null) && is.null(val)) {
+      return(NULL)
+    }
   }
 
   if (is.null(call)) {
@@ -751,7 +769,8 @@ check_numeric <- function(..., allow_null = F, allowed_lengths = 1, call = NULL)
 
   # Error message, taking into consideration if NULL is allowed, multiple allowed
   # lengths, and min/max allowed lengths
-  err_msg <- paste0("{.var ", name, "} must be ",
+  err_msg <- paste0(ifelse(list_allowed, "Each element of ", ""),
+                    "{.var ", name, "} must be ",
                     ifelse(length(allowed_lengths) > 1,
                            paste0(min(allowed_lengths), " to ", max(allowed_lengths)),
                            ifelse(max(allowed_lengths) > 1,
@@ -761,25 +780,55 @@ check_numeric <- function(..., allow_null = F, allowed_lengths = 1, call = NULL)
                     ifelse(allow_null, " or NULL", ""),
                     ", not ")
 
-  # NULL but NULL not allowed
-  if (isFALSE(allow_null) && is.null(val)) {
-    cli::cli_abort(paste0(
-      err_msg, " NULL."
-    ), class = "numeric_error")
+  if (isFALSE(list_allowed)) {
+    # NULL but NULL not allowed
+    if (isFALSE(allow_null) && is.null(val)) {
+      cli::cli_abort(paste0(
+        err_msg, " NULL."
+      ), class = "numeric_error")
+    }
+
+    # Wrong class
+    if (!is.numeric(val)) {
+      cli::cli_abort(paste0(
+        err_msg, " {.cls {class(val)}}."
+      ), class = "numeric_error")
+    }
+
+    # Too long or too short
+    if (!(length(val) <= max(allowed_lengths) &&
+          length(val) >= min(allowed_lengths))) {
+      cli::cli_abort(paste0(
+        err_msg, " {length(val)} value", ifelse(length(val) > 1, "s", ""), "."
+      ), class = "numeric_error")
+    }
+  } else {
+
+    # Per element
+    sapply(val, function(v) {
+      if (isTRUE(allow_null) && is.null(v)) {
+        return(NULL)
+      }
+
+      if (isFALSE(allow_null) && is.null(v)) {
+        cli::cli_abort(paste0(
+          err_msg, " NULL."
+        ), class = "numeric_error")
+      }
+
+      if (!is.numeric(v)) {
+        cli::cli_abort(paste0(
+          err_msg, " {.cls {class(v)}}."
+        ), class = "numeric_error")
+      }
+
+      if (!(length(v) <= max(allowed_lengths) &&
+            length(v) >= min(allowed_lengths))) {
+        cli::cli_abort(paste0(
+          err_msg, " {length(v)} value", ifelse(length(v) > 1, "s", ""), "."
+        ), class = "numeric_error")
+      }
+    })
   }
 
-  # Wrong class
-  if (!is.numeric(val)) {
-    cli::cli_abort(paste0(
-      err_msg, " {.cls {class(val)}}."
-    ), class = "numeric_error")
-  }
-
-  # Too long or too short
-  if (!(length(val) <= max(allowed_lengths) &&
-        length(val) >= min(allowed_lengths))) {
-    cli::cli_abort(paste0(
-      err_msg, " {length(val)} value", ifelse(length(val) > 1, "s", ""), "."
-    ), class = "numeric_error")
-  }
 }

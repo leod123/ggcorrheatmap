@@ -251,6 +251,14 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 
   # Prepare scales for mixed layouts
   if (length(layout) == 2) {
+    bins <- prepare_mixed_param(bins, "bins")
+    limits <- prepare_mixed_param(limits, "limits")
+    midpoint <- prepare_mixed_param(midpoint, "midpoint")
+    size_range <- prepare_mixed_param(size_range, "size_range")
+    high <- prepare_mixed_param(high, "high")
+    mid <- prepare_mixed_param(mid, "mid")
+    low <- prepare_mixed_param(low, "low")
+    na_col <- prepare_mixed_param(na_col, "na_col")
     col_name <- prepare_mixed_param(col_name, "col_name")
     col_scale <- prepare_mixed_param(col_scale, "col_scale")
     size_name <- prepare_mixed_param(size_name, "size_name")
@@ -279,7 +287,9 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   }
 
   # Generate the necessary scales
-  main_scales <- prepare_scales(scale_order = scale_order, context = "ggcorrhm", val_type = "continuous",
+  main_scales <- prepare_scales(scale_order = scale_order, context = "ggcorrhm",
+                                layout = layout,
+                                val_type = "continuous",
                                 col_scale = col_scale, col_name = col_name,
                                 size_scale = size_scale, size_name = size_name,
                                 bins = bins, limits = limits,

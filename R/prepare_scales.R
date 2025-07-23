@@ -127,7 +127,8 @@ remove_duplicate_scales <- function(scale_vec, col_scale = NULL, size_scale = NU
 #'
 #' @returns ggplot2 scales for the plot.
 #'
-prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_type,
+prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"),
+                           layout, val_type,
                            col_scale = NULL, col_name = "value",
                            size_scale = NULL, size_name = "value",
                            bins = NULL, limits = c(-1, 1),
@@ -135,10 +136,29 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
                            size_range = NULL, na_col = "grey50") {
 
   # Input class checks
-  check_numeric(bins = bins, allow_null = T, allowed_lengths = 1)
-  check_numeric(limits = limits, allow_null = T, allowed_lengths = 2)
-  check_numeric(midpoint = midpoint, allow_null = F, allowed_lengths = 1)
-  check_numeric(size_range = size_range, allow_null = T, allowed_lengths = c(1, 2))
+  if (length(layout) == 2) {
+    if (!is.list(bins)) {bins <- as.list(bins)}
+    if (!is.list(midpoint)) {midpoint <- as.list(midpoint)}
+
+    check_numeric(bins = bins, allow_null = T, allowed_lengths = 1, list_allowed = T)
+    check_numeric(limits = limits, allow_null = T, allowed_lengths = 2, list_allowed = T)
+    check_numeric(midpoint = midpoint, allow_null = F, allowed_lengths = 1, list_allowed = T)
+    check_numeric(size_range = size_range, allow_null = T, allowed_lengths = c(1, 2), list_allowed = T)
+  } else {
+    check_numeric(bins = bins, allow_null = T, allowed_lengths = 1)
+    check_numeric(limits = limits, allow_null = T, allowed_lengths = 2)
+    check_numeric(midpoint = midpoint, allow_null = F, allowed_lengths = 1)
+    check_numeric(size_range = size_range, allow_null = T, allowed_lengths = c(1, 2))
+
+    bins <- list(bins)
+    limits <- list(limits)
+    midpoint <- list(midpoint)
+    size_range <- list(size_range)
+    high <- list(high)
+    mid <- list(mid)
+    low <- list(low)
+    na_col <- list(na_col)
+  }
 
   # Put scales into lists
   if (is.vector(col_scale)) {
@@ -179,13 +199,15 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
     } else if (is.character(input_scale) && scl != "size") {
       # If a character, check that it's a valid brewer or viridis scale and if so use that
       scl_temp <- get_colour_scale(input_scale, val_type = val_type[1], aes_type = scl, title = scale_title,
-                                   limits = limits, bins = bins, leg_order = legend_order, na_col = na_col)
+                                   limits = limits[[colr_id]], bins = bins[[colr_id]],
+                                   leg_order = legend_order, na_col = na_col[[colr_id]])
 
       if (is.null(scl_temp)) {
         # If it didn't work, use default
         main_scales_out[[i]] <- switch(context,
-                                       "gghm" = default_scale(val_type[1], scl, legend_order, scale_title, na_col, bins, limits),
-                                       "ggcorrhm" = default_scale_corr(scl, bins, limits, size_range, high, mid, low, midpoint, na_col, legend_order, scale_title))
+                                       "gghm" = default_scale(val_type[1], scl, legend_order, scale_title, na_col[[colr_id]], bins[[colr_id]], limits[[colr_id]]),
+                                       "ggcorrhm" = default_scale_corr(scl, bins[[colr_id]], limits[[colr_id]], size_range[[size_id]], high[[colr_id]], mid[[colr_id]],
+                                                                       low[[colr_id]], midpoint[[colr_id]], na_col[[colr_id]], legend_order, scale_title))
       } else {
         main_scales_out[[i]] <- scl_temp
       }
@@ -204,8 +226,9 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
       }
       # Otherwise make the default scale
       main_scales_out[[i]] <- switch(context,
-                                     "gghm" = default_scale(val_type[1], scl, legend_order, scale_title, na_col, bins, limits),
-                                     "ggcorrhm" = default_scale_corr(scl, bins, limits, size_range, high, mid, low, midpoint, na_col, legend_order, scale_title))
+                                     "gghm" = default_scale(val_type[1], scl, legend_order, scale_title, na_col[[colr_id]], bins[[colr_id]], limits[[colr_id]]),
+                                     "ggcorrhm" = default_scale_corr(scl, bins[[colr_id]], limits[[colr_id]], size_range[[size_id]], high[[colr_id]], mid[[colr_id]],
+                                                                     low[[colr_id]], midpoint[[colr_id]], na_col[[colr_id]], legend_order, scale_title))
 
     }
 
