@@ -148,9 +148,9 @@ also works for annotation scales.</p>
 <code><a href="../reference/ggcorrhm.html">ggcorrhm()</a></code> as it assumes that correlations are plotted.
 There are also more arguments to modify the scale, such as the colours
 or binning.</p>
-<p>When the plot is using a mixed layout, <code>col_scale</code> can
-also take a vector or list to apply different scales to the different
-triangles.</p>
+<p>When the plot is using a <a href="mixed.html">mixed layout</a>,
+<code>col_scale</code> can also take a vector or list to apply different
+scales to the different triangles.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plt_dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">x</span> <span class="op">+</span> <span class="fl">9</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -260,6 +260,25 @@ can be put wherever desired.</p>
 <span></span>
 <span><span class="va">plt1</span> <span class="op">+</span> <span class="va">plt2</span></span></code></pre></div>
 <p><img src="legends_files/figure-html/unnamed-chunk-9-1.png" alt="The same kind of gradient heatmaps as shown in the previous plots, but the values now range from -1 (top left) to 1 (bottom right). A diverging colour scale going from blue to white to red is used for the cell colours. The first plot simply shows off the gradient, while the second uses two binned scales ranging between -0.7 to 0.7. The scale in the top right triangle has five bins with breaks at 0.42, 0.14, -0.42, and -0.14, while the bottom left triangle has four bins with breaks at 0.4, 0, and -0.4." width="960"></p>
+<p>Size scales can be customised as well. <code><a href="../reference/ggcorrhm.html">ggcorrhm()</a></code> uses
+an absolute value tansform for the default size scale and hides the
+legend as it becomes inaccurate (as can be seen in the plot below).
+<code>scale_size_area</code> can be passed to <code>size_scale</code> to
+still scale with the absolute value and keep a meaningful legend, at the
+cost of not being able to set the lower limit for the sizes.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tr"</span>, <span class="st">"bl"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">23</span>, <span class="fl">23</span><span class="op">)</span>,</span>
+<span>         size_scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>           <span class="co"># Can make a binned size scale</span></span>
+<span>           <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_size.html" class="external-link">scale_size_binned</a></span><span class="op">(</span>n.breaks <span class="op">=</span> <span class="fl">6</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">6</span><span class="op">)</span>,</span>
+<span>                             <span class="co"># Absolute value transform but legend loses meaning</span></span>
+<span>                             transform <span class="op">=</span> <span class="fu">scales</span><span class="fu">::</span><span class="fu"><a href="https://scales.r-lib.org/reference/new_transform.html" class="external-link">trans_new</a></span><span class="op">(</span><span class="st">"abs"</span>, <span class="va">abs</span>, <span class="va">abs</span><span class="op">)</span>,</span>
+<span>                             name <span class="op">=</span> <span class="st">"scale_size_binned"</span>, guide <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_bins.html" class="external-link">guide_bins</a></span><span class="op">(</span>order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>           <span class="co"># scale_size_area, scale_size_binned_area also scale with absolute value</span></span>
+<span>           <span class="co"># but fewer options to control sizes</span></span>
+<span>           <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_size.html" class="external-link">scale_size_area</a></span><span class="op">(</span>max_size <span class="op">=</span> <span class="fl">10</span>, name <span class="op">=</span> <span class="st">"scale_size_area"</span><span class="op">)</span></span>
+<span>         <span class="op">)</span>, border_lwd <span class="op">=</span> <span class="fl">1</span>, legend_order <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span></code></pre></div>
+<p><img src="legends_files/figure-html/unnamed-chunk-10-1.png" alt="mtcars correlation heatmap with diamonds instead of cells. In the top right triangle the diamonds are smaller than in the bottom left. The sizes of all diamonds scale with the absolute value of the correlations, but the legend for the top right diamonds goes from 0 to 1 while the legend for the other triangle properly shows the negative values too." width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="legend-order">Legend order<a class="anchor" aria-label="anchor" href="#legend-order"></a>
@@ -271,7 +290,7 @@ can be put wherever desired.</p>
 <li>Row annotations in order.</li>
 <li>Column annotations in order.</li>
 </ol>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">row_annot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">row_annot</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"3"</span></span>
 <span></span>
@@ -284,19 +303,19 @@ can be put wherever desired.</p>
 <span>     annot_cols_df <span class="op">=</span> <span class="va">col_annot</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="co"># Make the legends horizontal to fit better</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.direction <span class="op">=</span> <span class="st">"horizontal"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="legends_files/figure-html/unnamed-chunk-10-1.png" alt="A heatmap of the first 10 rows of mtcars (scaled), with coloured diamonds instead of cells. The heatmap colours range from dark blue to light blue. There is one row annotation (using the viridis D option) and one column annotation (using the viridis A option), named 3 and 4, respectively. Four legends are on the right side of the plot for the main heatmap colours, main heatmap sizes, row annotations, and column annotations. The legends are named 1, 2, 3, and 4." width="700"></p>
+<p><img src="legends_files/figure-html/unnamed-chunk-11-1.png" alt="A heatmap of the first 10 rows of mtcars (scaled), with coloured diamonds instead of cells. The heatmap colours range from dark blue to light blue. There is one row annotation (using the viridis D option) and one column annotation (using the viridis A option), named 3 and 4, respectively. Four legends are on the right side of the plot for the main heatmap colours, main heatmap sizes, row annotations, and column annotations. The legends are named 1, 2, 3, and 4." width="700"></p>
 <p>If the layout is mixed, the legends of the first triangle appear
 before those of the second triangle.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tr"</span>, <span class="st">"bl"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"15"</span>, <span class="st">"hm"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.direction <span class="op">=</span> <span class="st">"horizontal"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="legends_files/figure-html/unnamed-chunk-11-1.png" alt="mtcars correlation heatmap with cells in the bottom left triangle and squares with sizes varying with the value in the top right. The deafult ggplot2 colour scale (dark blue to light blue) is used for both triangles. Three legends are on the right, the first one a colour scale, the second one a size scale, and the third one another colour scale." width="700"></p>
+<p><img src="legends_files/figure-html/unnamed-chunk-12-1.png" alt="mtcars correlation heatmap with cells in the bottom left triangle and squares with sizes varying with the value in the top right. The deafult ggplot2 colour scale (dark blue to light blue) is used for both triangles. Three legends are on the right, the first one a colour scale, the second one a size scale, and the third one another colour scale." width="700"></p>
 <p>The order can be changed by using the <code>legend_order</code>
 argument. This argument takes a numeric vector, the first element
 specifying the order for the first legend (of the default order), the
 second element for the second legend and so on. If a value is
 <code>NA</code>, that legend is hidden.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="va">annot_rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">11</span>, <span class="fl">11</span><span class="op">:</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">annot_rows</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"4"</span>, <span class="st">"5"</span><span class="op">)</span></span>
@@ -318,20 +337,20 @@ second element for the second legend and so on. If a value is
 <span></span>
 <span><span class="va">plt1</span> <span class="op">/</span> <span class="va">plt2</span> <span class="op">&amp;</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.direction <span class="op">=</span> <span class="st">"horizontal"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="legends_files/figure-html/unnamed-chunk-12-1.png" alt="Two mtcars correlation heatmaps with circles instead of cells. Both have two row and two column annotations each. The first heatmap has seven legends on the right (colour, size, colour, row annotation colours 1-2, column annotation colours 1-2), named 1 to 7. The second heatmap is the same as the first but with the legends ordered 4, 2, 7, 1, 5. The 3 and 6 legends are missing." width="768"></p>
+<p><img src="legends_files/figure-html/unnamed-chunk-13-1.png" alt="Two mtcars correlation heatmaps with circles instead of cells. Both have two row and two column annotations each. The first heatmap has seven legends on the right (colour, size, colour, row annotation colours 1-2, column annotation colours 1-2), named 1 to 7. The second heatmap is the same as the first but with the legends ordered 4, 2, 7, 1, 5. The 3 and 6 legends are missing." width="768"></p>
 <p>A single NA value hides all legends.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">19</span>, <span class="fl">21</span><span class="op">)</span>,</span>
 <span>     col_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"3"</span><span class="op">)</span>, size_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2"</span><span class="op">)</span>,</span>
 <span>     annot_rows_df <span class="op">=</span> <span class="va">annot_rows</span>,</span>
 <span>     annot_cols_df <span class="op">=</span> <span class="va">annot_cols</span>,</span>
 <span>     legend_order <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span></code></pre></div>
-<p><img src="legends_files/figure-html/unnamed-chunk-13-1.png" alt="The mtcars correlation heatmap with circles as above, but with no legends." width="700"></p>
+<p><img src="legends_files/figure-html/unnamed-chunk-14-1.png" alt="The mtcars correlation heatmap with circles as above, but with no legends." width="700"></p>
 <p>Scales can be specified as <code>ggplot2</code> scale objects. In
 this case the user has complete control over the scale and it is
 unaffected by arguments like <code>legend_order</code> or
 <code>col_name</code>.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">19</span>, <span class="fl">21</span><span class="op">)</span>,</span>
 <span>     col_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1"</span>, <span class="st">"3"</span><span class="op">)</span>, size_name <span class="op">=</span> <span class="st">"2"</span>,</span>
 <span>     col_scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -358,7 +377,7 @@ unaffected by arguments like <code>legend_order</code> or
 <span>     <span class="co"># (Try to) Remove all legends</span></span>
 <span>     legend_order <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.direction <span class="op">=</span> <span class="st">"horizontal"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="legends_files/figure-html/unnamed-chunk-14-1.png" alt="mtcars correlation heatmap with circles like above but with some colours altered. The top left triangle uses the dark to light blue colour scale, while the bottom right triangle uses the Viridis mako scale (black to teal or emerald-like green). The second row annotation uses the Brewer Purples scale (white to purple). The second column annotation has red, white, and blue. Only the bottom right triangle and second row annotation have legends to the right." width="700"></p>
+<p><img src="legends_files/figure-html/unnamed-chunk-15-1.png" alt="mtcars correlation heatmap with circles like above but with some colours altered. The top left triangle uses the dark to light blue colour scale, while the bottom right triangle uses the Viridis mako scale (black to teal or emerald-like green). The second row annotation uses the Brewer Purples scale (white to purple). The second column annotation has red, white, and blue. Only the bottom right triangle and second row annotation have legends to the right." width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="legends-in-correlation-heatmaps">Legends in correlation heatmaps<a class="anchor" aria-label="anchor" href="#legends-in-correlation-heatmaps"></a>
@@ -373,23 +392,23 @@ contains <code>ggplot2</code> scale objects both legends will be shown
 (unless specified not to in the scale object).</p>
 <p>Default size legends are also hidden as they use an absolute value
 transformation and show different information from the colour scale.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># If both triangles use the same colour scale</span></span>
 <span><span class="co"># (when col_scale is NULL or a one character value)</span></span>
 <span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span>,</span>
 <span>         mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hm"</span>, <span class="st">"18"</span><span class="op">)</span>, col_scale <span class="op">=</span> <span class="st">"RdYlBu"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="legends_files/figure-html/unnamed-chunk-15-1.png" alt="mtcars correlation heatmap with cells in the top left and diamonds in the bottom right. The heatmap uses the Brewer RdYlBu scale that ranges from blue to yellow to red. There is only one legend on the right, showing the colour scale." width="700"></p>
+<p><img src="legends_files/figure-html/unnamed-chunk-16-1.png" alt="mtcars correlation heatmap with cells in the top left and diamonds in the bottom right. The heatmap uses the Brewer RdYlBu scale that ranges from blue to yellow to red. There is only one legend on the right, showing the colour scale." width="700"></p>
 <p>The legends can be included again by using the
 <code>legend_order</code> argument or using scale objects for the
 scales.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span>,</span>
 <span>         mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hm"</span>, <span class="st">"18"</span><span class="op">)</span>, col_scale <span class="op">=</span> <span class="st">"RdYlBu"</span>,</span>
 <span>         <span class="co"># Elements beyond the number of legends are ignored</span></span>
 <span>         <span class="co"># On a related note, if legend_order is shorter than</span></span>
 <span>         <span class="co"># the number of legends, legends not in the vector are hidden</span></span>
 <span>         legend_order <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span></code></pre></div>
-<p><img src="legends_files/figure-html/unnamed-chunk-16-1.png" alt="mtcars correlation heatmap with cells and diamonds and the RdYlBu scale like above. There are three legends one the right, the first two for the colour scale and the last one for the sizes (showing the absolute values)." width="700"></p>
+<p><img src="legends_files/figure-html/unnamed-chunk-17-1.png" alt="mtcars correlation heatmap with cells and diamonds and the RdYlBu scale like above. There are three legends one the right, the first two for the colour scale and the last one for the sizes (showing the absolute values)." width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="arranging-legends">Arranging legends<a class="anchor" aria-label="anchor" href="#arranging-legends"></a>
@@ -402,7 +421,7 @@ advanced way is to use packages like <code>cowplot</code> and
 <code>patchwork</code> to stitch together a legendless version of the
 plot with the legends, which also makes it possible to arrange the
 legends in grids.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Plot with legends</span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>, cluster_cols <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -421,8 +440,8 @@ legends in grids.</p>
 <span></span>
 <span><span class="co"># Show plot with default legends</span></span>
 <span><span class="va">p</span></span></code></pre></div>
-<p><img src="legends_files/figure-html/unnamed-chunk-17-1.png" alt="mtcars correlation heatmap with clustered rows and columns, as well as two row annotations and one column annotation. Four legends can be seen to the right, but they do not all fit and the first and last one cannot be seen fully." width="700"></p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<p><img src="legends_files/figure-html/unnamed-chunk-18-1.png" alt="mtcars correlation heatmap with clustered rows and columns, as well as two row annotations and one column annotation. Four legends can be seen to the right, but they do not all fit and the first and last one cannot be seen fully." width="700"></p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Extract the four legends</span></span>
 <span><span class="va">lgd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/get_legend.html" class="external-link">get_legend</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">[[</span><span class="st">"grobs"</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span></span>
 <span></span>
@@ -431,8 +450,8 @@ legends in grids.</p>
 <span></span>
 <span><span class="co"># Combine legend-less plot and legends with cowplot</span></span>
 <span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span><span class="va">pl</span>, <span class="va">lgd_grid</span>, rel_widths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="legends_files/figure-html/unnamed-chunk-18-1.png" alt="The same heatmap with annotations as the previous figure, but the legends are now all visible, arranged in a 2x2 grid to the right of the plot." width="700"></p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<p><img src="legends_files/figure-html/unnamed-chunk-19-1.png" alt="The same heatmap with annotations as the previous figure, but the legends are now all visible, arranged in a 2x2 grid to the right of the plot." width="700"></p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Code for the same layout as above</span></span>
 <span><span class="co"># # Arrange in a grid (patchwork)</span></span>
@@ -455,7 +474,7 @@ legends in grids.</p>
 <span><span class="st">           AAAAAAA</span></span>
 <span><span class="st">           CCDDEEE</span></span>
 <span><span class="st">           "</span><span class="op">)</span></span></code></pre></div>
-<p><img src="legends_files/figure-html/unnamed-chunk-19-1.png" alt="The same heatmap as the previous plot. The legends are now horizontal and split into two groups, the Pearson r legend above and the annotation legends below the heatmap." width="672"></p>
+<p><img src="legends_files/figure-html/unnamed-chunk-20-1.png" alt="The same heatmap as the previous plot. The legends are now horizontal and split into two groups, the Pearson r legend above and the annotation legends below the heatmap." width="672"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
