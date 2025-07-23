@@ -6,6 +6,7 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/leod123/ggcorrheatmap/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/leod123/ggcorrheatmap/actions/workflows/R-CMD-check.yaml)
+[![codecov](https://codecov.io/gh/leod123/ggcorrheatmap/graph/badge.svg?token=H2DMCDW7KV)](https://codecov.io/gh/leod123/ggcorrheatmap)
 <!-- badges: end -->
 
 ggcorrheatmap is a convenient package for generating correlation
