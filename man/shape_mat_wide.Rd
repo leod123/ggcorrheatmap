@@ -2,7 +2,7 @@
 % Please edit documentation in R/shape_mat_long.R
 \name{shape_mat_wide}
 \alias{shape_mat_wide}
-\title{Convert long formt matrix to wide.}
+\title{Convert long format matrix to wide.}
 \usage{
 shape_mat_wide(x)
 }
@@ -13,6 +13,6 @@ shape_mat_wide(x)
 Wide format version of x.
 }
 \description{
-Convert long formt matrix to wide.
+Convert long format matrix to wide.
 }
 \keyword{internal}

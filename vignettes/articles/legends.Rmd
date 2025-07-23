@@ -188,7 +188,7 @@ plt2 <- ggcorrhm(plt_dat_cor, cor_in = TRUE,
 plt1 + plt2
 ```
 
-Size scales can be customised as well. `ggcorrhm()` uses an absolute value tansform for the default size scale and hides the legend as it becomes inaccurate (as can be seen in the plot below). `scale_size_area` can be passed to `size_scale` to still scale with the absolute value and keep a meaningful legend, at the cost of not being able to set the lower limit for the sizes.
+Size scales can be customised as well. `ggcorrhm()` uses an absolute value transform for the default size scale and hides the legend as it becomes inaccurate (as can be seen in the plot below). `scale_size_area` can be passed to `size_scale` to still scale with the absolute value and keep a meaningful legend, at the cost of not being able to set the lower limit for the sizes.
 
 ```{r, fig.alt='mtcars correlation heatmap with diamonds instead of cells. In the top right triangle the diamonds are smaller than in the bottom left. The sizes of all diamonds scale with the absolute value of the correlations, but the legend for the top right diamonds goes from 0 to 1 while the legend for the other triangle properly shows the negative values too.'}
 ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c(23, 23),
@@ -331,7 +331,7 @@ ggcorrhm(mtcars, layout = c("tl", "br"),
 
 # Arranging legends
 
-When there are many legends, some of them may be cut off and it can be tricky to make them fit. One way is to change the positions, sizes or orientations of legends as shown in some of the plots above. Another way is to change the size of the figure until the legends fit. A more advanced way is to use packages like `cowplot` and `patchwork` to stitch together a legendless version of the plot with the legends, which also makes it possible to arrange the legends in grids.
+When there are many legends, some of them may be cut off and it can be tricky to make them fit. One way is to change the positions, sizes or orientations of legends as shown in some of the plots above. Another way is to change the size of the figure until the legends fit. A more advanced way is to use packages like `cowplot` and `patchwork` to stitch together a legend-less version of the plot with the legends, which also makes it possible to arrange the legends in grids.
 
 ```{r, fig.alt='mtcars correlation heatmap with clustered rows and columns, as well as two row annotations and one column annotation. Four legends can be seen to the right, but they do not all fit and the first and last one cannot be seen fully.'}
 

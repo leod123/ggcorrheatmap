@@ -22,7 +22,7 @@ make_legend_order(
 
 \item{annot_rows_df}{Annotation data frame for rows.}
 
-\item{annot_cols_df}{Annotation data frame for columnss.}
+\item{annot_cols_df}{Annotation data frame for columns.}
 
 \item{legend_order}{Numeric vector with legend order. NULL for default.}
 }

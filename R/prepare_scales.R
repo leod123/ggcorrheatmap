@@ -6,7 +6,7 @@
 #' @param col_scale One or two colour scales (shared for fill and colour). NULL for default, string for Brewer or Viridis, or a scale.
 #' @param size_scale Size scales (NULL or ggplot2 scales).
 #' @param annot_rows_df Annotation data frame for rows.
-#' @param annot_cols_df Annotation data frame for columnss.
+#' @param annot_cols_df Annotation data frame for columns.
 #' @param legend_order Numeric vector with legend order. NULL for default.
 #'
 #' @returns A list with aesthetics for the main plot and orders of all legends.

@@ -41,7 +41,7 @@ shape_mat_long <- function(x, unique_pairs = F, na_remove = F) {
 }
 
 
-#' Convert long formt matrix to wide.
+#' Convert long format matrix to wide.
 #'
 #' @keywords internal
 #'
