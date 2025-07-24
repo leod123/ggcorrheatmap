@@ -110,7 +110,9 @@
 #'
 #' It is also possible to provide two scales for filling or colouring the triangles differently.
 #' In this case the `col_scale` must be one character value (scale used for both triangles) or NULL or a list of length two
-# containing the scales to use (character or scale object, or NULL for default). `size_scale` works in the same way (but takes no character values).
+#' containing the scales to use (character or scale object, or NULL for default). `size_scale` works in the same way (but takes no character values).
+#' In addition, the scale-modifying arguments `bins`, `na_col` and `limits` can also be specified per triangle. `limits` must be a list of length two (or one) where each
+#' element is a numeric vector of length two.
 #'
 #' The annotation parameter arguments `annot_rows_params` and `annot_cols_params` should be named lists, where the possible options correspond to
 #' the different `annot_*` arguments. The possible options are "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
@@ -423,7 +425,7 @@ gghm <- function(x,
                                      col_scale = col_scale,
                                      size_scale = size_scale, annot_rows_df = annot_rows_df,
                                      annot_cols_df = annot_cols_df,
-                                     bins = bins, limits = limits,
+                                     bins = bins, limits = limits, na_col = na_col,
                                      legend_order = legend_order)
 
     # Prepare scales for mixed layouts

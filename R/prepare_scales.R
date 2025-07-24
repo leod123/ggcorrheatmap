@@ -8,13 +8,21 @@
 #' @param annot_rows_df Annotation data frame for rows.
 #' @param annot_cols_df Annotation data frame for columns.
 #' @param legend_order Numeric vector with legend order. NULL for default.
+#' @param bins Numeric for number of bins to determine if multiple scales are needed (if multiple bins values).
+#' @param limits Limits of scale (list of limits if two scales).
+#' @param high Colours at high values (correlation heatmap).
+#' @param mid Colours at medium values (correlation heatmap).
+#' @param low Colours at low values (correlation heatmap).
+#' @param na_col Colour if NA.
+#' @param midpoint Midpoint of divergent scale (correlation heatmap).
+#' @param size_range Size range (list of ranges if two scales).
 #'
 #' @returns A list with aesthetics for the main plot and orders of all legends.
 #'
 make_legend_order <- function(mode, col_scale = NULL, size_scale = NULL,
                               annot_rows_df = NULL, annot_cols_df = NULL,
                               bins = NULL, limits = NULL, high = NULL, mid = NULL, low = NULL,
-                              midpoint = 0, size_range = NULL,
+                              na_col = "grey50", midpoint = 0, size_range = NULL,
                               legend_order = NULL) {
 
   scales_to_use <- dplyr::case_when(mode %in% c("heatmap", "hm") ~ "fill",
@@ -32,8 +40,8 @@ make_legend_order <- function(mode, col_scale = NULL, size_scale = NULL,
 
   # Remove scales if only one is needed (e.g. two fill modes but only one scale (or none) provided
   # But don't remove if there are two values for a parameter like bins, high. low, etc
-  scale_vec <- remove_duplicate_scales(scale_vec, col_scale, size_scale, mode,
-                                       bins, limits, high, mid, low,
+  scale_vec <- remove_duplicate_scales(scale_vec, col_scale, size_scale,
+                                       bins, limits, high, mid, low, na_col,
                                        midpoint, size_range)
 
   # Assign scales a legend order
@@ -91,6 +99,8 @@ make_legend_order <- function(mode, col_scale = NULL, size_scale = NULL,
 #'
 #' @keywords internal
 #'
+#' @inheritParams make_legend_order
+#'
 #' @param scale_vec Vector of scale aesthetics.
 #' @param col_scale Input colour scales (NULL, string or scale object).
 #' @param size_scale Input size scales.
@@ -98,12 +108,12 @@ make_legend_order <- function(mode, col_scale = NULL, size_scale = NULL,
 #' @returns Vector of aesthetics with duplicates removed if appropriate.
 #'
 remove_duplicate_scales <- function(scale_vec, col_scale = NULL, size_scale = NULL,
-                                    mode, bins, limits, high, mid, low,
+                                    bins, limits, high, mid, low, na_col,
                                     midpoint, size_range) {
   for (i in c("fill", "col", "size", "none")) {
     # Skip if some parameter has multiple values
     if (i %in% c("fill", "col")) {
-      if (any(lengths(list(bins, high, mid, low, midpoint)) > 1) ||
+      if (any(lengths(list(bins, high, mid, low, na_col, midpoint)) > 1) ||
           (is.list(limits) && length(limits) > 1)) {
         next
       }
@@ -132,6 +142,7 @@ remove_duplicate_scales <- function(scale_vec, col_scale = NULL, size_scale = NU
 #'
 #' @param scale_order List of necessary scales and their orders, as obtained make_legend_order.
 #' @param context Scale context (gghm or ggcorrhm) for deciding which defaults to use.
+#' @param layout Layout of plot to treat parameters depending on length.
 #' @param val_type String with type of value ('continuous' or 'discrete').
 #' @param col_scale Colour scales input.
 #' @param col_name Colour scale names.
@@ -284,6 +295,7 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"),
 #' @param bins Number of bins if binned scale.
 #' @param leg_order Order of legend.
 #' @param title Legend title.
+#' @param na_col Colour of NA cells.
 #'
 #' @returns ggplot2 scale using Brewer or Viridis.
 #'
@@ -379,14 +391,13 @@ get_colour_scale <- function(name, val_type, aes_type, limits = NULL, bins = NUL
 }
 
 
-#' Get a default scale for correlation heatmaps.
+#' Get a default colour scale for correlation heatmaps.
 #'
 #' @keywords internal
 #'
 #' @param aes_type Type of aesthetic ('fill', 'col', or 'size').
 #' @param bins Number of bins (for fill and colour scales).
 #' @param limits Scale limits (fill and colour).
-#' @param size_range Range of sizes (size).
 #' @param high Colours at higher end of fill or colour scale.
 #' @param mid Colours at middle point of fill or colour scale.
 #' @param low Colours at lower end of fill or colour scale.
@@ -421,6 +432,16 @@ default_col_scale_corr <- function(aes_type, bins = NULL, limits = c(-1, 1),
 }
 
 
+#' Get a default size scale for correlation heatmaps.
+#'
+#' @keywords internal
+#'
+#' @param size_range Numeric vector of length 1 or 2 for size limits.
+#' @param leg_order Order of legend.
+#' @param title Title of legend.
+#'
+#' @returns ggplot2 size scale for correlation heatmap (absolute value transform).
+#'
 default_size_scale_corr <- function(size_range = NULL, leg_order = 1, title = ggplot2::waiver()) {
 
   guide_arg <- if (is.na(leg_order)) {"none"} else {ggplot2::guide_legend(order = leg_order)}
@@ -434,7 +455,7 @@ default_size_scale_corr <- function(size_range = NULL, leg_order = 1, title = gg
 }
 
 
-#' Get default scale for non-correlation heatmaps.
+#' Get default colour scale for non-correlation heatmaps.
 #'
 #' @keywords internal
 #'
@@ -442,8 +463,11 @@ default_size_scale_corr <- function(size_range = NULL, leg_order = 1, title = gg
 #' @param aes_type Aesthetic type ('fill', 'col' or 'size).
 #' @param leg_order Order of legend.
 #' @param title Legend title.
+#' @param na_col Colour of NA values.
+#' @param bins Number of bins in scale(s).
+#' @param limits Limits of scales.
 #'
-#' @returns ggplot2 scale for non-correlation heatmaps.
+#' @returns ggplot2 colour scale for non-correlation heatmaps.
 #'
 default_col_scale <- function(val_type, aes_type, leg_order = 1, title = ggplot2::waiver(),
                               na_col = "grey50", bins = NULL, limits = NULL) {
@@ -494,6 +518,14 @@ default_col_scale <- function(val_type, aes_type, leg_order = 1, title = ggplot2
 }
 
 
+#' Get default size scale for non-correlation heatmaps.
+#'
+#' @keywords internal
+#'
+#' @inheritParams default_col_scale
+#'
+#' @returns ggplot2 size scale for non-correlation heatmaps.
+#'
 default_size_scale <- function(val_type, leg_order = 1, title = ggplot2::waiver()) {
 
   # Use the default ggplot2 scale but set the order
@@ -553,6 +585,7 @@ extract_scales <- function(main_scales, scale_order, aes_type, layout) {
 #' @param annot_cols_df Data frame with annotation for columns.
 #' @param annot_rows_col List with colour scales for rows.
 #' @param annot_cols_col List with colour scales for columns.
+#' @param na_col Colour of NA cells.
 #'
 #' @returns List of length two containing lists of row annotation and column annotation.
 #'

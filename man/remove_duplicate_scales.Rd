@@ -4,7 +4,19 @@
 \alias{remove_duplicate_scales}
 \title{Remove duplicate scales.}
 \usage{
-remove_duplicate_scales(scale_vec, col_scale = NULL, size_scale = NULL)
+remove_duplicate_scales(
+  scale_vec,
+  col_scale = NULL,
+  size_scale = NULL,
+  bins,
+  limits,
+  high,
+  mid,
+  low,
+  na_col,
+  midpoint,
+  size_range
+)
 }
 \arguments{
 \item{scale_vec}{Vector of scale aesthetics.}
@@ -12,6 +24,22 @@ remove_duplicate_scales(scale_vec, col_scale = NULL, size_scale = NULL)
 \item{col_scale}{Input colour scales (NULL, string or scale object).}
 
 \item{size_scale}{Input size scales.}
+
+\item{bins}{Numeric for number of bins to determine if multiple scales are needed (if multiple bins values).}
+
+\item{limits}{Limits of scale (list of limits if two scales).}
+
+\item{high}{Colours at high values (correlation heatmap).}
+
+\item{mid}{Colours at medium values (correlation heatmap).}
+
+\item{low}{Colours at low values (correlation heatmap).}
+
+\item{na_col}{Colour if NA.}
+
+\item{midpoint}{Midpoint of divergent scale (correlation heatmap).}
+
+\item{size_range}{Size range (list of ranges if two scales).}
 }
 \value{
 Vector of aesthetics with duplicates removed if appropriate.

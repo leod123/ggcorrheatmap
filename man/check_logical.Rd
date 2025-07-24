@@ -10,6 +10,8 @@ check_logical(..., list_allowed = F, call = NULL)
 \item{...}{Should be a single named argument, where the name is the variable name displayed in the error message.
 The value is the (supposed) logical.}
 
+\item{list_allowed}{Logical indicating if the argument is allowed to be a list. If TRUE each element will be checked.}
+
 \item{call}{Call to use for the call in the error message (used in rlang::abort).
 Default is rlang::caller_env() resulting in the function that called check_logical().}
 }
