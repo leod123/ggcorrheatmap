@@ -422,17 +422,14 @@ gghm <- function(x,
     scale_order <- make_legend_order(mode = mode,
                                      col_scale = col_scale,
                                      size_scale = size_scale, annot_rows_df = annot_rows_df,
-                                     annot_cols_df = annot_cols_df, legend_order = legend_order)
+                                     annot_cols_df = annot_cols_df,
+                                     bins = bins, limits = limits,
+                                     legend_order = legend_order)
 
     # Prepare scales for mixed layouts
     if (length(layout) == 2) {
       bins <- prepare_mixed_param(bins, "bins")
       limits <- prepare_mixed_param(limits, "limits")
-      midpoint <- prepare_mixed_param(midpoint, "midpoint")
-      size_range <- prepare_mixed_param(size_range, "size_range")
-      high <- prepare_mixed_param(high, "high")
-      mid <- prepare_mixed_param(mid, "mid")
-      low <- prepare_mixed_param(low, "low")
       na_col <- prepare_mixed_param(na_col, "na_col")
       col_name <- prepare_mixed_param(col_name, "col_name")
       col_scale <- prepare_mixed_param(col_scale, "col_scale")

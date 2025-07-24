@@ -247,7 +247,11 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   scale_order <- make_legend_order(mode = mode,
                                    col_scale = col_scale,
                                    size_scale = size_scale, annot_rows_df = annot_rows_df,
-                                   annot_cols_df = annot_cols_df, legend_order = legend_order)
+                                   annot_cols_df = annot_cols_df,
+                                   bins = bins, limits = limits,
+                                   high = high, mid = mid, low = low,
+                                   midpoint = midpoint, size_range = size_range,
+                                   legend_order = legend_order)
 
   # Prepare scales for mixed layouts
   if (length(layout) == 2) {
