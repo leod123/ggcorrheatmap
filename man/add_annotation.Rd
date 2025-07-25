@@ -13,8 +13,8 @@ add_annotation(
   annot_border_lwd = 0.5,
   annot_border_col = "grey",
   annot_border_lty = 1,
-  show_annot_names = T,
-  na_remove = F,
+  show_annot_names = TRUE,
+  na_remove = FALSE,
   col_scale = NULL,
   names_side,
   name_params = NULL

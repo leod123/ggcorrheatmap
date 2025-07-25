@@ -148,11 +148,11 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   check_layout(layout, mode)
 
   if (length(mode) > 1) {
-    check_logical(p_values = p_values, list_allowed = T)
-    check_logical(cell_label_p = cell_label_p, list_allowed = T)
+    check_logical(p_values = p_values, list_allowed = TRUE)
+    check_logical(cell_label_p = cell_label_p, list_allowed = TRUE)
   } else {
-    check_logical(p_values = p_values, list_allowed = F)
-    check_logical(cell_label_p = cell_label_p, list_allowed = F)
+    check_logical(p_values = p_values, list_allowed = FALSE)
+    check_logical(cell_label_p = cell_label_p, list_allowed = FALSE)
   }
 
   if (any(unlist(p_values))) {
@@ -174,8 +174,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   if (isTRUE(cor_in)) {
     cor_mat <- x
     cor_mat_dat <- NULL
-    p_values <- F
-    cell_label_p <- F
+    p_values <- FALSE
+    cell_label_p <- FALSE
 
   } else {
     cor_mat <- if (is.null(y)) {
@@ -237,10 +237,10 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   # Don't display names on the diagonal if the plot is non-symmetric as it will cause
   # new ghost columns to be added to draw the names where row == col
   if (!isSymmetric(as.matrix(cor_mat))) {
-    show_names_diag <- F
+    show_names_diag <- FALSE
     # Also display x and y names by default, but remove if specified as FALSE (when specified as a named argument)
-    show_names_x <- eval(replace_default(list("show_names_x" = T), as.list(sys.call()))$show_names_x)
-    show_names_y <- eval(replace_default(list("show_names_y" = T), as.list(sys.call()))$show_names_y)
+    show_names_x <- eval(replace_default(list("show_names_x" = TRUE), as.list(sys.call()))$show_names_x)
+    show_names_y <- eval(replace_default(list("show_names_y" = TRUE), as.list(sys.call()))$show_names_y)
   }
 
   # Get scales and their orders
@@ -297,7 +297,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   # Call with all arguments to get the tooltips when calling ggcorrhm
   cor_plt <- gghm(cor_mat,
                   na_remove = na_remove,
-                  mode = mode, layout = layout, include_diag = include_diag, return_data = T,
+                  mode = mode, layout = layout, include_diag = include_diag, return_data = TRUE,
                   col_scale = col_scale, col_name = col_name,
                   size_scale = size_scale, size_name = size_name,
                   border_col = border_col, border_lwd = border_lwd, border_lty = border_lty,
@@ -421,7 +421,7 @@ prepare_cell_labels <- function(mode, cell_labels, p_values, cell_label_p, cell_
         }
         cell_labels_long <- dplyr::mutate(cell_labels_long,
                                           # Replace NAs with "" to not get "NA" written in the cells
-                                          value = dplyr::case_when(is.na(value) ~ "", T ~ as.character(value)),
+                                          value = dplyr::case_when(is.na(value) ~ "", TRUE ~ as.character(value)),
                                           value = paste0(value, p_sym))
         cell_labels_wide <- shape_mat_wide(dplyr::select(cell_labels_long, row, col, value))
 
@@ -443,7 +443,7 @@ prepare_cell_labels <- function(mode, cell_labels, p_values, cell_label_p, cell_
       }
     }
 
-  }, mode, cell_labels, p_values, cell_label_p, cell_label_digits, SIMPLIFY = F)
+  }, mode, cell_labels, p_values, cell_label_p, cell_label_digits, SIMPLIFY = FALSE)
 
   # If only one element, unlist it
   if (length(cell_labels) == 1) {cell_labels <- cell_labels[[1]]}

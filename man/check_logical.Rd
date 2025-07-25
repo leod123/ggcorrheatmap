@@ -4,7 +4,7 @@
 \alias{check_logical}
 \title{Check (supposed) logical values.}
 \usage{
-check_logical(..., list_allowed = F, call = NULL)
+check_logical(..., list_allowed = FALSE, call = NULL)
 }
 \arguments{
 \item{...}{Should be a single named argument, where the name is the variable name displayed in the error message.

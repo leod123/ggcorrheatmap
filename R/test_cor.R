@@ -14,7 +14,7 @@ test_cor <- function(x, y = NULL, method = "pearson", use = "everything", p_adj_
   value <- rowcol <- p_val <- p_adj <- NULL
 
   if (is.null(y) | identical(x, y)) {
-    test_pairs <- shape_mat_long(matrix(nrow = ncol(x), ncol = ncol(x), dimnames = list(colnames(x), colnames(x))), unique_pairs = T)
+    test_pairs <- shape_mat_long(matrix(nrow = ncol(x), ncol = ncol(x), dimnames = list(colnames(x), colnames(x))), unique_pairs = TRUE)
 
     # Make a data frame of all relevant combinations to fill in with values later, to avoid running tests for duplicated pairs or diagonals
     all_pairs <- shape_mat_long(matrix(nrow = ncol(x), ncol = ncol(x), dimnames = list(colnames(x), colnames(x))))
@@ -27,7 +27,7 @@ test_cor <- function(x, y = NULL, method = "pearson", use = "everything", p_adj_
         apply(test_pairs, 1, function(comb) {
           tst <- cor.test(x[, comb["row"]], x[, comb["col"]], method = method, use = use)
           data.frame(value = unname(tst[["estimate"]]), p_val = tst[["p.value"]])
-        }, simplify = T)
+        }, simplify = TRUE)
       )
     )
 
@@ -49,9 +49,9 @@ test_cor <- function(x, y = NULL, method = "pearson", use = "everything", p_adj_
 
     # Fill in diagonal values
     all_pairs <- dplyr::mutate(all_pairs,
-                               value = dplyr::case_when(row == col ~ 1, T ~ value),
-                               p_val = dplyr::case_when(row == col ~ 0, T ~ p_val),
-                               p_adj = dplyr::case_when(row == col ~ 0, T ~ p_adj))
+                               value = dplyr::case_when(row == col ~ 1, TRUE ~ value),
+                               p_val = dplyr::case_when(row == col ~ 0, TRUE ~ p_val),
+                               p_adj = dplyr::case_when(row == col ~ 0, TRUE ~ p_adj))
 
     return(all_pairs)
 
@@ -62,7 +62,7 @@ test_cor <- function(x, y = NULL, method = "pearson", use = "everything", p_adj_
         apply(all_pairs, 1, function(comb) {
           tst <- cor.test(x[, comb["row"]], y[, comb["col"]], method = method, use = use)
           data.frame(value = unname(tst[["estimate"]]), p_val = tst[["p.value"]])
-        }, simplify = T)
+        }, simplify = TRUE)
       )
     )
 

@@ -184,7 +184,7 @@ gghm <- function(x,
                  include_diag = TRUE, show_names_diag = FALSE, names_diag_params = NULL,
                  show_names_x = TRUE, names_x_side = "top", show_names_y = TRUE, names_y_side = "left",
                  na_col = "grey50", na_remove = FALSE, return_data = FALSE,
-                 cell_labels = F, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
+                 cell_labels = FALSE, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
                  border_col = "grey", border_lwd = 0.1, border_lty = 1,
                  cell_bg_col = "white", cell_bg_alpha = 0,
                  annot_rows_df = NULL, annot_cols_df = NULL,
@@ -248,7 +248,7 @@ gghm <- function(x,
   if (!x_sym & (!full_plt | length(layout) == 2)) {
     cli::cli_warn("Triangular layouts are not supported for asymmetric matrices, plotting the full matrix instead.",
                   class = "force_full_warn")
-    full_plt <- T
+    full_plt <- TRUE
     layout <- "f"
     mode <- mode[1]
   }
@@ -258,7 +258,7 @@ gghm <- function(x,
   # This does not prevent diag names in initially symmetric matrices that become asymmetric as a result
   # of unequal clustering of rows and columns, the result will look a bit strange but no new columns are created
   if (!x_sym) {
-    show_names_diag <- F
+    show_names_diag <- FALSE
   }
 
   # If clustering a symmetric matrix with a triangular layout, both rows and columns must be clustered. Automatically cluster both and throw a warning
@@ -274,22 +274,22 @@ gghm <- function(x,
 
   # Make dendrograms
   # To allow for providing a hclust or dendrogram object when clustering, make a separate logical clustering variable
-  lclust_rows <- F
+  lclust_rows <- FALSE
   if (!isFALSE(cluster_rows)) {
     row_clustering <- cluster_data(cluster_rows, x, cluster_distance, cluster_method, dend_rows_extend)
 
     # Reorder matrix to fit clustering
     x <- x[row_clustering$dendro$labels$label, ]
-    lclust_rows <- T
+    lclust_rows <- TRUE
   }
 
-  lclust_cols <- F
+  lclust_cols <- FALSE
   if (!isFALSE(cluster_cols)) {
     col_clustering <- cluster_data(cluster_cols, t(x), cluster_distance, cluster_method, dend_cols_extend)
 
     # Reorder matrix to fit clustering
     x <- x[, col_clustering$dendro$labels$label]
-    lclust_cols <- T
+    lclust_cols <- TRUE
   }
 
   # Throw a warning if clustering caused a symmetric input to become asymmetric. Plot the full matrix if not already the case
@@ -299,7 +299,7 @@ gghm <- function(x,
                          " The diagonal may be scrambled due to the unequal row and column orders."),
                   class = "unequal_clust_warn")
     layout <- "f"
-    full_plt <- T
+    full_plt <- TRUE
     mode <- mode[1]
   }
 
@@ -344,7 +344,8 @@ gghm <- function(x,
     # Mixed layout, generate one per half and mark by layout. The first one gets the diagonal
     x_long <- dplyr::bind_rows(
       dplyr::mutate(layout_hm(x, layout = layout[1], na_remove = na_remove), layout = layout[1]),
-      dplyr::mutate(layout_hm(x, layout = layout[2], na_remove = na_remove), layout = layout[2])
+      dplyr::filter(dplyr::mutate(layout_hm(x, layout = layout[2], na_remove = na_remove), layout = layout[2]),
+                    as.character(row) != as.character(col))
     )
     # Convert layout to a factor vector
     x_long[["layout"]] <- factor(x_long[["layout"]], levels = layout)
@@ -472,7 +473,7 @@ gghm <- function(x,
     lt <- layout
     # First half of the plot
     plt <- make_heatmap(x_long = dplyr::filter(x_long, layout == lt[1]), plt = NULL,
-                        mode = mode[1], include_diag = include_diag, invisible_diag = T,
+                        mode = mode[1], include_diag = include_diag, invisible_diag = TRUE,
                         border_lwd = border_lwd[[1]], border_col = border_col[[1]], border_lty = border_lty[[1]],
                         show_names_diag = show_names_diag, show_names_x = show_names_x, show_names_y = show_names_y,
                         names_x_side = names_x_side, names_y_side = names_y_side,
@@ -488,9 +489,9 @@ gghm <- function(x,
     if (!is.null(size_scale[[2]])) {plt <- plt + ggnewscale::new_scale(new_aes = "size")}
 
     plt <- make_heatmap(x_long = dplyr::filter(x_long, layout == lt[2]), plt = plt,
-                        mode = mode[2], include_diag = F, invisible_diag = F,
+                        mode = mode[2], include_diag = FALSE, invisible_diag = FALSE,
                         border_lwd = border_lwd[[2]], border_col = border_col[[2]], border_lty = border_lty[[2]],
-                        show_names_diag = F, show_names_x = show_names_x, show_names_y = show_names_y,
+                        show_names_diag = FALSE, show_names_x = show_names_x, show_names_y = show_names_y,
                         names_x_side = names_x_side, names_y_side = names_y_side,
                         col_scale = col_scale[[2]], size_scale = size_scale[[2]],
                         cell_labels = cell_labels[[2]], cell_label_col = cell_label_col[[2]],
@@ -679,7 +680,7 @@ prepare_mixed_param <- function(param, param_name) {
 #'
 #' @returns Error if not logical or longer than 1, otherwise nothing.
 #'
-check_logical <- function(..., list_allowed = F, call = NULL) {
+check_logical <- function(..., list_allowed = FALSE, call = NULL) {
   arg <- list(...)
   name <- names(arg)
   val <- arg[[1]]
@@ -736,7 +737,7 @@ check_logical <- function(..., list_allowed = F, call = NULL) {
 #'
 #' @returns Error if not numeric, NULL when not allowed, or too long/too short.
 #'
-check_numeric <- function(..., allow_null = F, allowed_lengths = 1, call = NULL) {
+check_numeric <- function(..., allow_null = FALSE, allowed_lengths = 1, call = NULL) {
   arg <- list(...)
   name <- names(arg)
   val <- arg[[1]]

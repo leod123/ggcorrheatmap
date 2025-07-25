@@ -135,10 +135,10 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
                            size_range = NULL, na_col = "grey50") {
 
   # Input class checks
-  check_numeric(bins = bins, allow_null = T, allowed_lengths = 1)
-  check_numeric(limits = limits, allow_null = T, allowed_lengths = 2)
-  check_numeric(midpoint = midpoint, allow_null = F, allowed_lengths = 1)
-  check_numeric(size_range = size_range, allow_null = T, allowed_lengths = c(1, 2))
+  check_numeric(bins = bins, allow_null = TRUE, allowed_lengths = 1)
+  check_numeric(limits = limits, allow_null = TRUE, allowed_lengths = 2)
+  check_numeric(midpoint = midpoint, allow_null = FALSE, allowed_lengths = 1)
+  check_numeric(size_range = size_range, allow_null = TRUE, allowed_lengths = c(1, 2))
 
   # Put scales into lists
   if (is.vector(col_scale)) {
@@ -241,8 +241,8 @@ get_colour_scale <- function(name, val_type, aes_type, limits = NULL, bins = NUL
   # Set direction of scale
   scl_dir <- 1
   # If the name contains "rev_" or "_rev", reverse the scale
-  if (grepl("^rev_|_rev$", name, ignore.case = T)) {
-    name <- gsub("^rev_|_rev$", "", name, ignore.case = T)
+  if (grepl("^rev_|_rev$", name, ignore.case = TRUE)) {
+    name <- gsub("^rev_|_rev$", "", name, ignore.case = TRUE)
     scl_dir <- -1
   }
 
@@ -287,7 +287,7 @@ get_colour_scale <- function(name, val_type, aes_type, limits = NULL, bins = NUL
   # Make an option for binned continuous scales and add input argument for scale
   if (is.numeric(bins) && val_type == "continuous") {
     aes_type <- paste0(aes_type, "_bin")
-    scl_inputs <- append(scl_inputs, list(n.breaks = bins - 1, nice.breaks = ifelse(is.integer(bins), F, T)))
+    scl_inputs <- append(scl_inputs, list(n.breaks = bins - 1, nice.breaks = ifelse(is.integer(bins), FALSE, TRUE)))
   }
 
   scl_fun <- if (name %in% brw_pal) {
@@ -356,7 +356,7 @@ default_scale_corr <- function(aes_type, bins = NULL, limits = c(-1, 1), size_ra
     scale_args <- list(limits = limits, high = high, mid = mid, low = low, midpoint = midpoint,
                        na.value = na_col, name = title, guide = guide_arg)
     if (is.numeric(bins)) {
-      scale_args <- append(scale_args, list(n.breaks = bins - 1, nice.breaks = ifelse(is.integer(bins), F, T)))
+      scale_args <- append(scale_args, list(n.breaks = bins - 1, nice.breaks = ifelse(is.integer(bins), FALSE, TRUE)))
       scale_fun <- switch(aes_type,
                           "fill" = ggplot2::scale_fill_steps2,
                           "col" = ggplot2::scale_colour_steps2)
@@ -430,7 +430,7 @@ default_scale <- function(val_type, aes_type, leg_order = 1, title = ggplot2::wa
 
       if (grepl("_bins", aes_type)) {
         # Finally add bins if binned
-        scale_args <- append(scale_args, list(n.breaks = bins - 1, nice.breaks = ifelse(is.integer(bins), F, T)))
+        scale_args <- append(scale_args, list(n.breaks = bins - 1, nice.breaks = ifelse(is.integer(bins), FALSE, TRUE)))
       }
     }
   }
@@ -621,7 +621,7 @@ get_default_annot_scale <- function(num, type) {
   name <- if (type == "discrete") {
     c("Pastel1", "Pastel2", "Set1", "Set2", "Set3", "Paired", "Dark2", "Accent")[num]
   } else if (type == "continuous") {
-    c("D", "A", "G", "C", "E", "B", "F", "H")[num]
+    c("D", "A", "G", "C", "E", "B", "FALSE", "H")[num]
   }
 
   return(name)

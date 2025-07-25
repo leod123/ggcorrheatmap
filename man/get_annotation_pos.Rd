@@ -5,7 +5,7 @@
 \title{Calculate positions of annotations for heatmap.}
 \usage{
 get_annotation_pos(
-  annot_side = T,
+  annot_side = TRUE,
   annot_names,
   annot_size,
   annot_dist,

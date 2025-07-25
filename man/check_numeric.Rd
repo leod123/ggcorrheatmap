@@ -4,7 +4,7 @@
 \alias{check_numeric}
 \title{Check input numeric arguments for class and length.}
 \usage{
-check_numeric(..., allow_null = F, allowed_lengths = 1, call = NULL)
+check_numeric(..., allow_null = FALSE, allowed_lengths = 1, call = NULL)
 }
 \arguments{
 \item{...}{Should be a single named argument, where the name is the variable name displayed in the error message.

@@ -25,7 +25,7 @@ gghm(
   na_col = "grey50",
   na_remove = FALSE,
   return_data = FALSE,
-  cell_labels = F,
+  cell_labels = FALSE,
   cell_label_col = "black",
   cell_label_size = 3,
   cell_label_digits = 2,

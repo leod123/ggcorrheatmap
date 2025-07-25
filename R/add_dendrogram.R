@@ -107,20 +107,20 @@ prepare_dendrogram <- function(dendro_in, context = c("rows", "cols"), dend_side
   # Check that the dendrogram side is ok
   if ((dend_side == "left" && context[1] == "rows") ||
       (dend_side == "bottom" && context[1] == "cols")) {
-    ldend_side <- T
+    ldend_side <- TRUE
   } else if ((dend_side == "right" && context[1] == "rows") ||
              (dend_side == "top" && context[1] == "cols")) {
-    ldend_side <- F
+    ldend_side <- FALSE
   } else {
     var_name <- switch(context[1], "rows" = "annot_rows_side", "cols" = "annot_cols_side")
     val_name <- switch(context[1], "rows" = c("left", "right"), "cols" = c("top", "bottom"))
     cli::cli_warn("{.var {var_name}} should be {.val {val_name[1]}} or {.val {val_name[2]}},
                   not {.val {dend_side}}.",
                   class = "dend_side_warn")
-    ldend_side <- switch(context[1], "rows" = F, "cols" = T)
+    ldend_side <- switch(context[1], "rows" = FALSE, "cols" = TRUE)
   }
   # Annotation side validity is checked earlier in prepare_annotation
-  lannot_side <- ifelse(annot_side %in% c("left", "bottom"), T, F)
+  lannot_side <- ifelse(annot_side %in% c("left", "bottom"), TRUE, FALSE)
 
   context <- context[1]
   # Segments
@@ -466,7 +466,7 @@ check_dendrogram_pos <- function(dat, context = c("row", "col"), dendro) {
   dend_lab <- dplyr::select(seg, lbl, !!coord_dim)
   dend_lab <- dplyr::filter(dend_lab, !is.na(lbl))
   # Take only distinct rows, in case a segment ends up on the same coordinate as the lowest node
-  dend_lab <- dplyr::distinct(dend_lab, lbl, !!coord_dim, .keep_all = T)
+  dend_lab <- dplyr::distinct(dend_lab, lbl, !!coord_dim, .keep_all = TRUE)
 
   # Add plot coordinates of labels
   dend_lab$plt_coord <- seq_along(levels(dat[[context[1]]]))[match(dend_lab$lbl, levels(dat[[context[1]]]))]
