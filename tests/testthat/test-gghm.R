@@ -51,6 +51,8 @@ test_that("basic functionality works", {
                          ggplot2::scale_size_continuous(range = c(5, 8))
                        ),
                        cluster_rows = TRUE, cluster_cols = TRUE))
+  expect_equal(nrow(gghm(mtcars, return_data = TRUE)$plot_data), nrow(mtcars) * ncol(mtcars))
+  expect_equal(nrow(gghm(cor(mtcars), return_data = TRUE)$plot_data), ncol(mtcars) * ncol(mtcars))
 })
 
 test_that("snapshots", {
