@@ -9,6 +9,10 @@ test_that("it runs without error", {
   expect_no_error(ggcorrhm(mtcars, iris[1:32, -5], p_values = T))
   expect_no_error(ggcorrhm(iris[1:32, -5], mtcars, p_values = T, p_adjust = "bonferroni"))
   expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "18")))
+  # Number of rows in returned data
+  expect_equal(nrow(ggcorrhm(mtcars, return_data = T)$plot_data), ncol(mtcars) * ncol(mtcars))
+  expect_equal(nrow(ggcorrhm(mtcars, return_data = T, layout = c("tl", "br"))$plot_data),
+               ncol(mtcars) * ncol(mtcars))
 })
 
 test_that("class errors", {

@@ -346,7 +346,10 @@ gghm <- function(x,
     # Mixed layout, generate one per half and mark by layout. The first one gets the diagonal
     x_long <- dplyr::bind_rows(
       dplyr::mutate(layout_hm(x, layout = layout[1], na_remove = na_remove), layout = layout[1]),
-      dplyr::mutate(layout_hm(x, layout = layout[2], na_remove = na_remove), layout = layout[2])
+      dplyr::filter(
+        dplyr::mutate(layout_hm(x, layout = layout[2], na_remove = na_remove), layout = layout[2]),
+        as.character(row) != as.character(col)
+        )
     )
     # Convert layout to a factor vector
     x_long[["layout"]] <- factor(x_long[["layout"]], levels = layout)
