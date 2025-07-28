@@ -192,11 +192,6 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"),
     na_col <- list(na_col)
   }
 
-  # check_numeric(bins = bins, allow_null = T, allowed_lengths = 1)
-  # check_numeric(limits = limits, allow_null = T, allowed_lengths = 2)
-  # check_numeric(midpoint = midpoint, allow_null = F, allowed_lengths = 1)
-  # check_numeric(size_range = size_range, allow_null = T, allowed_lengths = c(1, 2))
-
   # Put scales into lists
   if (is.vector(col_scale)) {
     # For vector, make sure the elements end up in different list indices
@@ -412,6 +407,11 @@ default_col_scale_corr <- function(aes_type, bins = NULL, limits = c(-1, 1),
                                    high = "sienna2", mid = "white", low = "skyblue2", midpoint = 0,
                                    na_col = "grey50", leg_order = 1, title = ggplot2::waiver()) {
 
+  # Replace NULL with default colours
+  if (is.null(high)) high <- "sienna2"
+  if (is.null(mid)) mid <- "white"
+  if (is.null(low)) low <- "skyblue2"
+
   guide_arg <- if (is.na(leg_order)) {"none"} else {ggplot2::guide_colourbar(order = leg_order)}
   scale_args <- list(limits = limits, high = high, mid = mid, low = low, midpoint = midpoint,
                      na.value = na_col, name = title, guide = guide_arg)
@@ -537,7 +537,7 @@ default_size_scale <- function(val_type, leg_order = 1, title = ggplot2::waiver(
 
   scale_args <- list(
     name = title,
-    guide = ggplot2::guide_legend(order = leg_order)
+    guide = if (is.na(leg_order)) {"none"} else {ggplot2::guide_legend(order = leg_order)}
   )
 
   scale_out <- do.call(scale_fun, scale_args)

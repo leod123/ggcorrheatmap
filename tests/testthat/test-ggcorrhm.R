@@ -137,4 +137,26 @@ test_that("snapshots are ok", {
                                                         ),
                                                         # Both names are ignored
                                                         col_name = c("default", "gradient")))
+  vdiffr::expect_doppelganger("mixed_scale_param1", {
+    a <- cor(mtcars)
+    a[c(2, 12, 14, 24, 26, 36)] <- NA
+    ggcorrhm(a, cor_in = TRUE, layout = c("tr", "bl"), mode = c("hm", "hm"),
+             high = c("pink", "green"),
+             mid = c("white", "yellow"),
+             low = c("lightblue", "red"),
+             limits = list(c(-1, 1), c(-.75, .75)),
+             bins = c(4L, 5L),
+             na_col = c("beige", "magenta"))
+  })
+  vdiffr::expect_doppelganger("mixed_scale_param2", {
+    ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("21", "18"),
+             high = c("pink", "green"),
+             mid = c("white", "yellow"),
+             low = c("lightblue", "red"),
+             limits = list(c(-1, 1), c(-.75, .75)),
+             bins = c(4L, 5L),
+             na_col = c("beige", "magenta"),
+             size_range = list(c(6), c(7, 14)),
+             legend_order = 1:10)
+  })
 })

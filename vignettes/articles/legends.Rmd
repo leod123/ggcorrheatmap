@@ -90,10 +90,8 @@ The default scale for the main heatmap is different for `ggcorrhm()` as it assum
 When the plot is using a [mixed layout](mixed.html), `col_scale` can also take a vector or list to apply different scales to the different triangles.
 
 ```{r, fig.alt='A heatmap of a 10x10 matrix with values arranged so that there is a gradient across the heatmap with low values in the bottom left and high values in the top right. The top left triangle uses the Viridis magma scale, while the bottom right triangle is using the Brewer RdYlGn palette.'}
-plt_dat <- matrix(
-  sapply(1:10, function(x) seq(x, x + 9)),
-  nrow = 10
-)
+plt_dat <- sapply(1:10, function(x) seq(x, x + 9))
+
 gghm(plt_dat, layout = c("tl", "br"),
      mode = c("hm", "hm"),
      # For Viridis options, both the short and long versions work
@@ -107,13 +105,22 @@ gghm(plt_dat, layout = c("tl", "br"),
      mode = c("hm", "text"), col_scale = "A")
 ```
 
+As also explained in the [mixed layout](mixed.html#mixed-scales) article, the scale-modifying arguments `bins`, `na_col`, `limits`, and in `ggcorrhm()` also `high`, `mid`, `low`, `midpoint`, and `size_range` can be applied triangle-wise. If only one scale is provided but a scale-modifying argument is applied differently per triangle, two scales are created anyway.
+
+```{r, fig.alt='A 10x10 heatmap showing a gradient of values going from low values (starting at 1) in the top left to high values (up to 19) in the bottom right. The Viridis mako colour scale is used, shifting from black (low values) through blue and teal and ending at a pale green. The top right triangle of the heatmap is divided in to four bins while the bottom left triangle has eight.'}
+# Only one scale supplied, but it is split into two by
+# specifying two different binnings
+gghm(plt_dat, layout = c("tr", "bl"), mode = c("hm", "hm"),
+     col_scale = "G", bins = c(4L, 8L))
+```
+
 When using scale objects, arguments that change scales and legends such as `col_name` or `legend_order` and, for `ggcorrhm()`, `high`, `mid`, `low` etc will be ignored to instead give the user full control. This allows for more flexibility, such as changing the breaks, bin sizes, or changing how out of bounds values are treated.
 
 The default way `ggplot2` deals with values outside of the scale range (out of bound value) is to replace them with NAs. The `oob` argument of the scale functions can change the behaviour, e.g. so that OOB values use the extreme colours of the scale.
 
 ```{r, fig.height=5, fig.width=10, fig.alt='Two figures of the gradient plot from before, now with low numbers in the top left and high numbers in the bottom right. The values are written in the cells with black text, showing that the gradient goes from 1 to 19. The first plot is simply coloured using the Brewer RdYlGn palette. The second plot uses the same palette, but the limits have been set to 7 and 13, narrowing the colour gradient that was visible in the first plot. Values outside the range are beige in the top right triangle, and green or red in the bottom left (corresponding to the lowest and highest ends of the scale).'}
 # Normal limits
-plt1 <- gghm(plt_dat, col_scale = "RdYlGn",
+plt1 <- gghm(plt_dat, col_scale = "RdYlGn_rev",
              cell_labels = TRUE)
 
 # Narrower limits with handling of oob values
@@ -121,6 +128,7 @@ plt2 <- gghm(plt_dat, layout = c("tr", "bl"),
      mode = c("hm", "hm"),
      col_scale = list(
        # scale_fill_distiller to use Brewer palettes with continuous data
+       # The default direction in distiller is -1, opposite of gghm
        scale_fill_distiller(
          palette = "RdYlGn",
          # Values outside the limits are replaced with NAs
@@ -144,25 +152,39 @@ plt1 + plt2
 
 When binning scales with the `bins` argument, a number of the 'double' class will prioritise breaks at nice numbers while an integer will prioritise the number of bins. As a side note, out-of-bound values with binned scales also default to using the 'squish' strategy shown above.
 
-```{r, fig.height=5, fig.width=10, fig.alt='Two correlation heatmaps with a gradient of values going from low values in the top left to high values in the bottom right. The scales are binned and the first one is binned into four bins with breaks at -1, -0.5, 0, 0.5, and 1, while the second one has five bins with breaks at -1, -0.6, -0.2, 0.2, 0.6, and 1.'}
+```{r, fig.height=5, fig.width=10, fig.alt='Two 100x100 heatmaps with values from -1 to 1 in a gradient going from the bottom left to the top right. The heatmaps are using the Brewer Spectral colour scale in the top left triangle and the Viridis turbo scale in the bottom right. The first heatmap simply shows the gradient. The second heatmap has binned scales, with 11 bins in the top left triangle (with breaks at numbers with many decimals and limits at -0.5 and 0.5) and 10 bins in the bottom right triangle (evenly spaced at intervals of 0.2 going from -1 to 1).'}
 
 # Make plot data between -1 and 1 (like correlation data)
-plt_dat_cor <- matrix(
-  sapply(seq(-1, 0, length.out = 10), function(x) {
-    seq(x, x + 1, length.out = 10)
-  }),
-  nrow = 10
-)
+plt_dat_cor <- sapply(seq(-1, 0, length.out = 100), function(x) {
+  seq(x, x + 1, length.out = 100)
+})
 
-plt1 <- ggcorrhm(plt_dat_cor, cor_in = TRUE, bins = 5)
-plt2 <- ggcorrhm(plt_dat_cor, cor_in = TRUE, bins = 5L)
+# Simple mixed layout with mixed scales
+plt1 <- ggcorrhm(plt_dat_cor, cor_in = TRUE, show_names_diag = FALSE,
+                 border_col = 0, layout = c("tl", "br"), mode = c("hm", "hm"),
+                 col_scale = c("Spectral", "H"))
+
+# With many scale arguments applied
+plt2 <- ggcorrhm(plt_dat_cor, cor_in = TRUE, show_names_diag = FALSE,
+                 border_col = 0, layout = c("tl", "br"), mode = c("hm", "hm"),
+                 col_scale = c("Spectral", "H"),
+                 # Provide a list as a mix of integer and float would be coerced if atomic vector
+                 # Integer vs double, results in 11 and 10 bins
+                 bins = list(11L, 11),
+                 # NULL to use default limits (-1 to 1 in ggcorrhm)
+                 limits = list(c(-.5, .5), NULL))
 
 plt1 + plt2
+
 ```
 
 By using scale objects, breaks in both continuous and binned scales can be put wherever desired.
 
 ```{r, fig.height=5, fig.width=10, fig.alt='The same kind of gradient heatmaps as shown in the previous plots, but the values now range from -1 (top left) to 1 (bottom right). A diverging colour scale going from blue to white to red is used for the cell colours. The first plot simply shows off the gradient, while the second uses two binned scales ranging between -0.7 to 0.7. The scale in the top right triangle has five bins with breaks at 0.42, 0.14, -0.42, and -0.14, while the bottom left triangle has four bins with breaks at 0.4, 0, and -0.4.'}
+
+plt_dat_cor <- sapply(seq(-1, 0, length.out = 10), function(x) {
+  seq(x, x + 1, length.out = 10)
+})
 
 plt1 <- ggcorrhm(plt_dat_cor, cor_in = TRUE)
 
@@ -197,7 +219,8 @@ ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c(23, 23),
            scale_size_binned(n.breaks = 6, range = c(2, 6),
                              # Absolute value transform but legend loses meaning
                              transform = scales::trans_new("abs", abs, abs),
-                             name = "scale_size_binned", guide = guide_bins(order = 1)),
+                             name = "scale_size_binned\n(absolute value)",
+                             guide = guide_bins(order = 1)),
            # scale_size_area, scale_size_binned_area also scale with absolute value
            # but fewer options to control sizes
            scale_size_area(max_size = 10, name = "scale_size_area")
@@ -232,7 +255,9 @@ gghm(scale(mtcars)[1:10, ], mode = 23,
 If the layout is mixed, the legends of the first triangle appear before those of the second triangle.
 
 ```{r, fig.alt='mtcars correlation heatmap with cells in the bottom left triangle and squares with sizes varying with the value in the top right. The deafult ggplot2 colour scale (dark blue to light blue) is used for both triangles. Three legends are on the right, the first one a colour scale, the second one a size scale, and the third one another colour scale.'}
-gghm(cor(mtcars), layout = c("tr", "bl"), mode = c("15", "hm")) +
+gghm(cor(mtcars), layout = c("tr", "bl"), mode = c("15", "hm"),
+     col_scale = c("H", "A"), col_name = c("Triangle 1", "Triangle 2"),
+     size_name = "Triangle 1") +
   theme(legend.direction = "horizontal")
 ```
 

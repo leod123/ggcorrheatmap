@@ -121,6 +121,13 @@ test_that("snapshots", {
                                                       ggplot2::scale_size_continuous(range = c(5, 8))
                                                     ),
                                                     cluster_rows = T, cluster_cols = T))
+  vdiffr::expect_doppelganger("mixed_scale_params", {
+    a <- cor(mtcars)
+    a[c(2, 12, 14, 24, 26, 36)] <- NA
+    gghm(a, layout = c("tl", "br"), mode = c("hm", "hm"),
+         bins = c(4L, 6L), limits = list(c(-1, 1), c(-.5, .5)),
+         col_scale = c("A", "D"), na_col = c("green", "blue"))
+  })
 })
 
 test_that("correct input types", {

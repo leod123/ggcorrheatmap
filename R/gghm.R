@@ -449,6 +449,7 @@ gghm <- function(x,
                                   col_scale = col_scale, col_name = col_name,
                                   size_scale = size_scale, size_name = size_name,
                                   na_col = na_col, limits = limits, bins = bins)
+
     # Annotation scales
     annot_scales <- prepare_scales_annot(scale_order = scale_order, na_col = annot_na_col,
                                          annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
