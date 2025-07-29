@@ -4,6 +4,10 @@
 
 * The scale-modifying arguments `bins`, `limits`, `high`, `mid`, `low`, and `size_range` can now take two inputs in mixed layouts.
 
+## Patches
+
+* Fix default continuous colour scale nr 7.
+
 # ggcorrheatmap 0.1.2
 
 ## Minor fixes

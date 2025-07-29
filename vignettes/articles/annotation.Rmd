@@ -30,11 +30,13 @@ ggcorrhm(mtcars, annot_rows_df = row_annot, annot_cols_df = col_annot)
 
 The colours used for annotation are selected in order from eight brewer palettes (categorical annotations, `ggplot2::scale_fill_brewer()`) or eight viridis options (continuous annotations, `ggplot2::scale_fill_viridis_c()`), starting again from the beginning if there are more than eight annotations. 
 
-```{r, fig.alt='A small 3x3 heatmap. Rows and columns are named 1, 2, 3, and the values in the heatmap go from 1 to 9. To the right are 12 categorical row annotation columns using different colours scales. After the eighth annotation the colour scale cycles back to the first one. Below the heatmap are 12 annotations using viridis colour scales for continuous data, also recycling scales after the eighth annotation.'}
-mat_in <- matrix(1:9, nrow = 3, ncol = 3, byrow = TRUE)
+```{r, fig.alt='An 8x8 heatmap. Rows and columns are named 1 to 8, and the values in the heatmap go from 1 to 64, rowwise from the top left. To the right are 12 categorical row annotation columns using different Brewer colour scales. After the eighth annotation the colour scale cycles back to the first one. Below the heatmap are 12 annotations using viridis colour scales for continuous data, also recycling scales after the eighth annotation.'}
+# Make 8x8 matrix as some colour scales have a maximum of 8 possible colours
+mat_in <- matrix(1:64, nrow = 8, ncol = 8, byrow = TRUE)
 # Works without rownames or '.names' column as they are by default set to the same numbers here
-row_annot <- as.data.frame(replicate(12, letters[1:3]))
-col_annot <- as.data.frame(replicate(12, 1:3))
+row_annot <- as.data.frame(replicate(12, letters[1:8]))
+col_annot <- as.data.frame(replicate(12, 1:8))
+colnames(row_annot) <- colnames(col_annot) <- 1:12
 gghm(mat_in, annot_rows_df = row_annot, annot_cols_df = col_annot,
      # Hide the legends
      legend_order = NA)

@@ -726,7 +726,7 @@ get_default_annot_scale <- function(num, type) {
   name <- if (type == "discrete") {
     c("Pastel1", "Pastel2", "Set1", "Set2", "Set3", "Paired", "Dark2", "Accent")[num]
   } else if (type == "continuous") {
-    c("D", "A", "G", "C", "E", "B", "F", "H")[num]
+    c("viridis", "magma", "mako", "plasma", "cividis", "inferno", "rocket", "turbo")[num]
   }
 
   return(name)
