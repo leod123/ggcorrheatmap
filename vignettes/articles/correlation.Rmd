@@ -100,7 +100,7 @@ plt1 + plt2
 
 # Clustering and annotation
 
-Just like with `gghm()`, the heatmap can be clustered and annotated. Triangular layouts limit the positions of annotation and dendrograms to the non-empty sides of the heatmap.
+Just like with `gghm()`, the heatmap can be clustered and annotated. Triangular layouts limit the positions of annotations and dendrograms to the non-empty sides of the heatmap.
 
 ```{r clustering and annotation, fig.alt='A top left triangle correlation heatmap of mtcars. The rows and columns have been clustered and a dendrogram is drawn above the heatmap. On the left side are two thinner columns containing continuous and categorical annotation.'}
 set.seed(123)

@@ -1,3 +1,9 @@
+# ggcorrheatmap (development version)
+
+## Updated arguments
+
+* The scale-modifying arguments `bins`, `limits`, `high`, `mid`, `low`, and `size_range` can now take two inputs in mixed layouts.
+
 # ggcorrheatmap 0.1.2
 
 ## Minor fixes

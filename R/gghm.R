@@ -110,7 +110,9 @@
 #'
 #' It is also possible to provide two scales for filling or colouring the triangles differently.
 #' In this case the `col_scale` must be one character value (scale used for both triangles) or NULL or a list of length two
-# containing the scales to use (character or scale object, or NULL for default). `size_scale` works in the same way (but takes no character values).
+#' containing the scales to use (character or scale object, or NULL for default). `size_scale` works in the same way (but takes no character values).
+#' In addition, the scale-modifying arguments `bins`, `na_col` and `limits` can also be specified per triangle. `limits` must be a list of length two (or one) where each
+#' element is a numeric vector of length two.
 #'
 #' The annotation parameter arguments `annot_rows_params` and `annot_cols_params` should be named lists, where the possible options correspond to
 #' the different `annot_*` arguments. The possible options are "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
@@ -344,8 +346,10 @@ gghm <- function(x,
     # Mixed layout, generate one per half and mark by layout. The first one gets the diagonal
     x_long <- dplyr::bind_rows(
       dplyr::mutate(layout_hm(x, layout = layout[1], na_remove = na_remove), layout = layout[1]),
-      dplyr::filter(dplyr::mutate(layout_hm(x, layout = layout[2], na_remove = na_remove), layout = layout[2]),
-                    as.character(row) != as.character(col))
+      dplyr::filter(
+        dplyr::mutate(layout_hm(x, layout = layout[2], na_remove = na_remove), layout = layout[2]),
+        as.character(row) != as.character(col)
+        )
     )
     # Convert layout to a factor vector
     x_long[["layout"]] <- factor(x_long[["layout"]], levels = layout)
@@ -423,10 +427,15 @@ gghm <- function(x,
     scale_order <- make_legend_order(mode = mode,
                                      col_scale = col_scale,
                                      size_scale = size_scale, annot_rows_df = annot_rows_df,
-                                     annot_cols_df = annot_cols_df, legend_order = legend_order)
+                                     annot_cols_df = annot_cols_df,
+                                     bins = bins, limits = limits, na_col = na_col,
+                                     legend_order = legend_order)
 
     # Prepare scales for mixed layouts
     if (length(layout) == 2) {
+      bins <- prepare_mixed_param(bins, "bins")
+      limits <- prepare_mixed_param(limits, "limits")
+      na_col <- prepare_mixed_param(na_col, "na_col")
       col_name <- prepare_mixed_param(col_name, "col_name")
       col_scale <- prepare_mixed_param(col_scale, "col_scale")
       size_name <- prepare_mixed_param(size_name, "size_name")
@@ -435,10 +444,12 @@ gghm <- function(x,
 
     # Generate the necessary scales
     main_scales <- prepare_scales(scale_order = scale_order, context = "gghm",
+                                  layout = layout,
                                   val_type = ifelse(is.character(x_long[["value"]]) | is.factor(x_long[["value"]]), "discrete", "continuous"),
                                   col_scale = col_scale, col_name = col_name,
                                   size_scale = size_scale, size_name = size_name,
                                   na_col = na_col, limits = limits, bins = bins)
+
     # Annotation scales
     annot_scales <- prepare_scales_annot(scale_order = scale_order, na_col = annot_na_col,
                                          annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
@@ -635,13 +646,18 @@ prepare_mixed_param <- function(param, param_name) {
       param_out <- list(param[[1]], param[[1]])
     }
 
-  } else if (is.null(param) && (grepl("_scale$", param_name) || grepl("_digits$", param_name))) {
+  } else if (is.null(param) && (grepl("_scale$", param_name) || grepl("_digits$", param_name) ||
+                                param_name %in% c("size_range", "limits", "bins"))) {
     # Return a list of NULLs if NULL
     param_out <- list(NULL, NULL)
 
   } else if (is.list(param) && length(param) == 1) {
     # If a list of length one, repeat its content
     param_out <- list(param[[1]], param[[1]])
+
+  } else if (!is.list(param) && param_name %in% c("size_range", "limits")) {
+    # Scale parameters that can be a vector
+    param_out <- list(param, param)
 
   } else if (length(param) == 1 || (param_name == "cell_labels" && (is.matrix(param) || is.data.frame(param)))) {
     # Recycle if length one, or if cell_labels is a data frame or matrix for cell labels
@@ -675,6 +691,7 @@ prepare_mixed_param <- function(param, param_name) {
 #'
 #' @param ... Should be a single named argument, where the name is the variable name displayed in the error message.
 #' The value is the (supposed) logical.
+#' @param list_allowed Logical indicating if the argument is allowed to be a list. If TRUE each element will be checked.
 #' @param call Call to use for the call in the error message (used in rlang::abort).
 #' Default is rlang::caller_env() resulting in the function that called check_logical().
 #'
@@ -737,13 +754,16 @@ check_logical <- function(..., list_allowed = FALSE, call = NULL) {
 #'
 #' @returns Error if not numeric, NULL when not allowed, or too long/too short.
 #'
-check_numeric <- function(..., allow_null = FALSE, allowed_lengths = 1, call = NULL) {
+check_numeric <- function(..., allow_null = FALSE, allowed_lengths = 1,
+                          list_allowed = FALSE, call = NULL) {
   arg <- list(...)
   name <- names(arg)
   val <- arg[[1]]
 
-  if (isTRUE(allow_null) && is.null(val)) {
-    return(NULL)
+  if (isFALSE(list_allowed)) {
+    if (isTRUE(allow_null) && is.null(val)) {
+      return(NULL)
+    }
   }
 
   if (is.null(call)) {
@@ -752,7 +772,8 @@ check_numeric <- function(..., allow_null = FALSE, allowed_lengths = 1, call = N
 
   # Error message, taking into consideration if NULL is allowed, multiple allowed
   # lengths, and min/max allowed lengths
-  err_msg <- paste0("{.var ", name, "} must be ",
+  err_msg <- paste0(ifelse(list_allowed, "Each element of ", ""),
+                    "{.var ", name, "} must be ",
                     ifelse(length(allowed_lengths) > 1,
                            paste0(min(allowed_lengths), " to ", max(allowed_lengths)),
                            ifelse(max(allowed_lengths) > 1,
@@ -762,25 +783,55 @@ check_numeric <- function(..., allow_null = FALSE, allowed_lengths = 1, call = N
                     ifelse(allow_null, " or NULL", ""),
                     ", not ")
 
-  # NULL but NULL not allowed
-  if (isFALSE(allow_null) && is.null(val)) {
-    cli::cli_abort(paste0(
-      err_msg, " NULL."
-    ), class = "numeric_error")
+  if (isFALSE(list_allowed)) {
+    # NULL but NULL not allowed
+    if (isFALSE(allow_null) && is.null(val)) {
+      cli::cli_abort(paste0(
+        err_msg, " NULL."
+      ), class = "numeric_error")
+    }
+
+    # Wrong class
+    if (!is.numeric(val)) {
+      cli::cli_abort(paste0(
+        err_msg, " {.cls {class(val)}}."
+      ), class = "numeric_error")
+    }
+
+    # Too long or too short
+    if (!(length(val) <= max(allowed_lengths) &&
+          length(val) >= min(allowed_lengths))) {
+      cli::cli_abort(paste0(
+        err_msg, " {length(val)} value", ifelse(length(val) > 1, "s", ""), "."
+      ), class = "numeric_error")
+    }
+  } else {
+
+    # Per element
+    sapply(val, function(v) {
+      if (isTRUE(allow_null) && is.null(v)) {
+        return(NULL)
+      }
+
+      if (isFALSE(allow_null) && is.null(v)) {
+        cli::cli_abort(paste0(
+          err_msg, " NULL."
+        ), class = "numeric_error")
+      }
+
+      if (!is.numeric(v)) {
+        cli::cli_abort(paste0(
+          err_msg, " {.cls {class(v)}}."
+        ), class = "numeric_error")
+      }
+
+      if (!(length(v) <= max(allowed_lengths) &&
+            length(v) >= min(allowed_lengths))) {
+        cli::cli_abort(paste0(
+          err_msg, " {length(v)} value", ifelse(length(v) > 1, "s", ""), "."
+        ), class = "numeric_error")
+      }
+    })
   }
 
-  # Wrong class
-  if (!is.numeric(val)) {
-    cli::cli_abort(paste0(
-      err_msg, " {.cls {class(val)}}."
-    ), class = "numeric_error")
-  }
-
-  # Too long or too short
-  if (!(length(val) <= max(allowed_lengths) &&
-        length(val) >= min(allowed_lengths))) {
-    cli::cli_abort(paste0(
-      err_msg, " {length(val)} value", ifelse(length(val) > 1, "s", ""), "."
-    ), class = "numeric_error")
-  }
 }

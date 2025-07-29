@@ -29,6 +29,8 @@ get_colour_scale(
 \item{leg_order}{Order of legend.}
 
 \item{title}{Legend title.}
+
+\item{na_col}{Colour of NA cells.}
 }
 \value{
 ggplot2 scale using Brewer or Viridis.

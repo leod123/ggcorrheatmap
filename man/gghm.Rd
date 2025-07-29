@@ -254,6 +254,9 @@ logicals and matrices/data frames.
 
 It is also possible to provide two scales for filling or colouring the triangles differently.
 In this case the \code{col_scale} must be one character value (scale used for both triangles) or NULL or a list of length two
+containing the scales to use (character or scale object, or NULL for default). \code{size_scale} works in the same way (but takes no character values).
+In addition, the scale-modifying arguments \code{bins}, \code{na_col} and \code{limits} can also be specified per triangle. \code{limits} must be a list of length two (or one) where each
+element is a numeric vector of length two.
 
 The annotation parameter arguments \code{annot_rows_params} and \code{annot_cols_params} should be named lists, where the possible options correspond to
 the different \verb{annot_*} arguments. The possible options are "dist" (distance between heatmap and annotation), "gap" (distance between annotations),

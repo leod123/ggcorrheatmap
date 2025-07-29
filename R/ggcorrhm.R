@@ -68,13 +68,16 @@
 #'
 #' Row and column names are displayed in the diagonal by default if the correlation matrix is symmetric (only `x` is provided or `x` and `y` are identical).
 #'
-#' The colour scale is set to be a diverging gradient around 0, with options to change the low, mid, and high colours, the midpoint, and the limits.
-#' The `bins` argument converts the scale to a discrete scale divided into `bins` equally distributed bins.
+#' The colour scale is set to be a diverging gradient around 0, with options to change the `low`, `mid`, and `high` colours, the `midpoint`, and the `limits` (using the arguments
+#' of the same names). The `bins` argument converts the scale to a discrete scale divided into `bins` equally distributed bins (if an integer the breaks may be at strange numbers,
+#' if a double the number of bins may be different but the breaks are at nicer numbers). These arguments can be of length two (`limits` a list of length two) two apply
+#' to each triangle in a mixed layout (detailed more in the details section of `gghm()`). The `size_range` argument (for size scales) can also be a list of length two like `limits`.
 #'
 #' The size scale, used when a numeric cell shape is specified, is set to vary the shape size between 4 and 10 (can be changed with the `size_range` argument)
 #' and to transform the values to absolute values (so that both positive and negative correlations are treated equally).
 #' This behaviour can be overwritten by setting `size_scale` to another `ggplot2::scale_size_*` function with the desired
-#' arguments, or `ggplot2::scale_size()` for no special behaviour.
+#' arguments, or `ggplot2::scale_size()` for no special behaviour. `ggplot2::scale_size_area()` also scales with the absolute value,
+#' but only the upper size limit can be set.
 #' When the absolute value transformation is used the legend for sizes loses its meaning (only displaying positive values)
 #' and is therefore set to not be shown if `legend_order` is NULL.
 #'
@@ -247,10 +250,22 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   scale_order <- make_legend_order(mode = mode,
                                    col_scale = col_scale,
                                    size_scale = size_scale, annot_rows_df = annot_rows_df,
-                                   annot_cols_df = annot_cols_df, legend_order = legend_order)
+                                   annot_cols_df = annot_cols_df,
+                                   bins = bins, limits = limits,
+                                   high = high, mid = mid, low = low, na_col = na_col,
+                                   midpoint = midpoint, size_range = size_range,
+                                   legend_order = legend_order)
 
   # Prepare scales for mixed layouts
   if (length(layout) == 2) {
+    bins <- prepare_mixed_param(bins, "bins")
+    limits <- prepare_mixed_param(limits, "limits")
+    midpoint <- prepare_mixed_param(midpoint, "midpoint")
+    size_range <- prepare_mixed_param(size_range, "size_range")
+    high <- prepare_mixed_param(high, "high")
+    mid <- prepare_mixed_param(mid, "mid")
+    low <- prepare_mixed_param(low, "low")
+    na_col <- prepare_mixed_param(na_col, "na_col")
     col_name <- prepare_mixed_param(col_name, "col_name")
     col_scale <- prepare_mixed_param(col_scale, "col_scale")
     size_name <- prepare_mixed_param(size_name, "size_name")
@@ -279,7 +294,9 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   }
 
   # Generate the necessary scales
-  main_scales <- prepare_scales(scale_order = scale_order, context = "ggcorrhm", val_type = "continuous",
+  main_scales <- prepare_scales(scale_order = scale_order, context = "ggcorrhm",
+                                layout = layout,
+                                val_type = "continuous",
                                 col_scale = col_scale, col_name = col_name,
                                 size_scale = size_scale, size_name = size_name,
                                 bins = bins, limits = limits,

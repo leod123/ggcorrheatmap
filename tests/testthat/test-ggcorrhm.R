@@ -9,7 +9,10 @@ test_that("it runs without error", {
   expect_no_error(ggcorrhm(mtcars, iris[1:32, -5], p_values = TRUE))
   expect_no_error(ggcorrhm(iris[1:32, -5], mtcars, p_values = TRUE, p_adjust = "bonferroni"))
   expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "18")))
+  # Number of rows in returned data
   expect_equal(nrow(ggcorrhm(mtcars, return_data = TRUE)$plot_data), ncol(mtcars) * ncol(mtcars))
+  expect_equal(nrow(ggcorrhm(mtcars, return_data = TRUE, layout = c("tl", "br"))$plot_data),
+               ncol(mtcars) * ncol(mtcars))
 })
 
 test_that("class errors", {
@@ -134,4 +137,26 @@ test_that("snapshots are ok", {
                                                         ),
                                                         # Both names are ignored
                                                         col_name = c("default", "gradient")))
+  vdiffr::expect_doppelganger("mixed_scale_param1", {
+    a <- cor(mtcars)
+    a[c(2, 12, 14, 24, 26, 36)] <- NA
+    ggcorrhm(a, cor_in = TRUE, layout = c("tr", "bl"), mode = c("hm", "hm"),
+             high = c("pink", "green"),
+             mid = c("white", "yellow"),
+             low = c("lightblue", "red"),
+             limits = list(c(-1, 1), c(-.75, .75)),
+             bins = c(4L, 5L),
+             na_col = c("beige", "magenta"))
+  })
+  vdiffr::expect_doppelganger("mixed_scale_param2", {
+    ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("21", "18"),
+             high = c("pink", "green"),
+             mid = c("white", "yellow"),
+             low = c("lightblue", "red"),
+             limits = list(c(-1, 1), c(-.75, .75)),
+             bins = c(4L, 5L),
+             na_col = c("beige", "magenta"),
+             size_range = list(c(6), c(7, 14)),
+             legend_order = 1:10)
+  })
 })

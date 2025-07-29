@@ -10,6 +10,14 @@ make_legend_order(
   size_scale = NULL,
   annot_rows_df = NULL,
   annot_cols_df = NULL,
+  bins = NULL,
+  limits = NULL,
+  high = NULL,
+  mid = NULL,
+  low = NULL,
+  na_col = "grey50",
+  midpoint = 0,
+  size_range = NULL,
   legend_order = NULL
 )
 }
@@ -23,6 +31,22 @@ make_legend_order(
 \item{annot_rows_df}{Annotation data frame for rows.}
 
 \item{annot_cols_df}{Annotation data frame for columns.}
+
+\item{bins}{Numeric for number of bins to determine if multiple scales are needed (if multiple bins values).}
+
+\item{limits}{Limits of scale (list of limits if two scales).}
+
+\item{high}{Colours at high values (correlation heatmap).}
+
+\item{mid}{Colours at medium values (correlation heatmap).}
+
+\item{low}{Colours at low values (correlation heatmap).}
+
+\item{na_col}{Colour if NA.}
+
+\item{midpoint}{Midpoint of divergent scale (correlation heatmap).}
+
+\item{size_range}{Size range (list of ranges if two scales).}
 
 \item{legend_order}{Numeric vector with legend order. NULL for default.}
 }

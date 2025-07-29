@@ -4,7 +4,13 @@
 \alias{check_numeric}
 \title{Check input numeric arguments for class and length.}
 \usage{
-check_numeric(..., allow_null = FALSE, allowed_lengths = 1, call = NULL)
+check_numeric(
+  ...,
+  allow_null = FALSE,
+  allowed_lengths = 1,
+  list_allowed = FALSE,
+  call = NULL
+)
 }
 \arguments{
 \item{...}{Should be a single named argument, where the name is the variable name displayed in the error message.
@@ -13,6 +19,8 @@ The value is the (supposed) logical.}
 \item{allow_null}{Logical indicating if NULL is allowed as input for the argument.}
 
 \item{allowed_lengths}{The allowed lengths of the argument.}
+
+\item{list_allowed}{Logical indicating if the argument is allowed to be a list. If TRUE each element will be checked.}
 
 \item{call}{Call to use for the call in the error message (used in rlang::abort).
 Default is rlang::caller_env() resulting in the function that called check_logical().}
