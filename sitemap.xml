@@ -22,8 +22,10 @@
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/check_logical.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/check_numeric.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/cluster_data.html</loc></url>
-<url><loc>https://leod123.github.io/ggcorrheatmap/reference/default_scale.html</loc></url>
-<url><loc>https://leod123.github.io/ggcorrheatmap/reference/default_scale_corr.html</loc></url>
+<url><loc>https://leod123.github.io/ggcorrheatmap/reference/default_col_scale.html</loc></url>
+<url><loc>https://leod123.github.io/ggcorrheatmap/reference/default_col_scale_corr.html</loc></url>
+<url><loc>https://leod123.github.io/ggcorrheatmap/reference/default_size_scale.html</loc></url>
+<url><loc>https://leod123.github.io/ggcorrheatmap/reference/default_size_scale_corr.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/extract_scales.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/get_annotation_pos.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/get_colour_scale.html</loc></url>

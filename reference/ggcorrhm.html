@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggcorrheatmap</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Make a correlation heatmap with ggplot2.</h1>
-      <small class="dont-index">Source: <a href="https://github.com/leod123/ggcorrheatmap/blob/v0.1.2/R/ggcorrhm.R" class="external-link"><code>R/ggcorrhm.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/leod123/ggcorrheatmap/blob/main/R/ggcorrhm.R" class="external-link"><code>R/ggcorrhm.R</code></a></small>
       <div class="d-none name"><code>ggcorrhm.Rd</code></div>
     </div>
 
@@ -502,12 +502,15 @@ matrices or data frames with columns to correlate between the matrices. No rowna
 if two matrices are provided they should have the same number of rows and the rows should be ordered in a meaningful way
 (i.e. same sample/individual/etc in the same row in both).</p>
 <p>Row and column names are displayed in the diagonal by default if the correlation matrix is symmetric (only <code>x</code> is provided or <code>x</code> and <code>y</code> are identical).</p>
-<p>The colour scale is set to be a diverging gradient around 0, with options to change the low, mid, and high colours, the midpoint, and the limits.
-The <code>bins</code> argument converts the scale to a discrete scale divided into <code>bins</code> equally distributed bins.</p>
+<p>The colour scale is set to be a diverging gradient around 0, with options to change the <code>low</code>, <code>mid</code>, and <code>high</code> colours, the <code>midpoint</code>, and the <code>limits</code> (using the arguments
+of the same names). The <code>bins</code> argument converts the scale to a discrete scale divided into <code>bins</code> equally distributed bins (if an integer the breaks may be at strange numbers,
+if a double the number of bins may be different but the breaks are at nicer numbers). These arguments can be of length two (<code>limits</code> a list of length two) two apply
+to each triangle in a mixed layout (detailed more in the details section of <code><a href="gghm.html">gghm()</a></code>). The <code>size_range</code> argument (for size scales) can also be a list of length two like <code>limits</code>.</p>
 <p>The size scale, used when a numeric cell shape is specified, is set to vary the shape size between 4 and 10 (can be changed with the <code>size_range</code> argument)
 and to transform the values to absolute values (so that both positive and negative correlations are treated equally).
 This behaviour can be overwritten by setting <code>size_scale</code> to another <code>ggplot2::scale_size_*</code> function with the desired
-arguments, or <code><a href="https://ggplot2.tidyverse.org/reference/scale_size.html" class="external-link">ggplot2::scale_size()</a></code> for no special behaviour.
+arguments, or <code><a href="https://ggplot2.tidyverse.org/reference/scale_size.html" class="external-link">ggplot2::scale_size()</a></code> for no special behaviour. <code><a href="https://ggplot2.tidyverse.org/reference/scale_size.html" class="external-link">ggplot2::scale_size_area()</a></code> also scales with the absolute value,
+but only the upper size limit can be set.
 When the absolute value transformation is used the legend for sizes loses its meaning (only displaying positive values)
 and is therefore set to not be shown if <code>legend_order</code> is NULL.</p>
 <p>For symmetric correlation matrices, the dendrogram customisation arguments <code>dend_rows_extend</code> and <code>dend_cols_extend</code> work best with functions that only change the dendrogram

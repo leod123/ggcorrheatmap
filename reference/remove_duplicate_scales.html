@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggcorrheatmap</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Remove duplicate scales.</h1>
-      <small class="dont-index">Source: <a href="https://github.com/leod123/ggcorrheatmap/blob/v0.1.2/R/prepare_scales.R" class="external-link"><code>R/prepare_scales.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/leod123/ggcorrheatmap/blob/main/R/prepare_scales.R" class="external-link"><code>R/prepare_scales.R</code></a></small>
       <div class="d-none name"><code>remove_duplicate_scales.Rd</code></div>
     </div>
 
@@ -48,7 +48,19 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">remove_duplicate_scales</span><span class="op">(</span><span class="va">scale_vec</span>, col_scale <span class="op">=</span> <span class="cn">NULL</span>, size_scale <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">remove_duplicate_scales</span><span class="op">(</span></span>
+<span>  <span class="va">scale_vec</span>,</span>
+<span>  col_scale <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  size_scale <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">bins</span>,</span>
+<span>  <span class="va">limits</span>,</span>
+<span>  <span class="va">high</span>,</span>
+<span>  <span class="va">mid</span>,</span>
+<span>  <span class="va">low</span>,</span>
+<span>  <span class="va">na_col</span>,</span>
+<span>  <span class="va">midpoint</span>,</span>
+<span>  <span class="va">size_range</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -65,6 +77,38 @@
 
 <dt id="arg-size-scale">size_scale<a class="anchor" aria-label="anchor" href="#arg-size-scale"></a></dt>
 <dd><p>Input size scales.</p></dd>
+
+
+<dt id="arg-bins">bins<a class="anchor" aria-label="anchor" href="#arg-bins"></a></dt>
+<dd><p>Numeric for number of bins to determine if multiple scales are needed (if multiple bins values).</p></dd>
+
+
+<dt id="arg-limits">limits<a class="anchor" aria-label="anchor" href="#arg-limits"></a></dt>
+<dd><p>Limits of scale (list of limits if two scales).</p></dd>
+
+
+<dt id="arg-high">high<a class="anchor" aria-label="anchor" href="#arg-high"></a></dt>
+<dd><p>Colours at high values (correlation heatmap).</p></dd>
+
+
+<dt id="arg-mid">mid<a class="anchor" aria-label="anchor" href="#arg-mid"></a></dt>
+<dd><p>Colours at medium values (correlation heatmap).</p></dd>
+
+
+<dt id="arg-low">low<a class="anchor" aria-label="anchor" href="#arg-low"></a></dt>
+<dd><p>Colours at low values (correlation heatmap).</p></dd>
+
+
+<dt id="arg-na-col">na_col<a class="anchor" aria-label="anchor" href="#arg-na-col"></a></dt>
+<dd><p>Colour if NA.</p></dd>
+
+
+<dt id="arg-midpoint">midpoint<a class="anchor" aria-label="anchor" href="#arg-midpoint"></a></dt>
+<dd><p>Midpoint of divergent scale (correlation heatmap).</p></dd>
+
+
+<dt id="arg-size-range">size_range<a class="anchor" aria-label="anchor" href="#arg-size-range"></a></dt>
+<dd><p>Size range (list of ranges if two scales).</p></dd>
 
 </dl></div>
     <div class="section level2">

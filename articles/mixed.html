@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggcorrheatmap</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,7 +64,7 @@
       <h1>Mixed layouts</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/leod123/ggcorrheatmap/blob/v0.1.2/vignettes/articles/mixed.Rmd" class="external-link"><code>vignettes/articles/mixed.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/leod123/ggcorrheatmap/blob/main/vignettes/articles/mixed.Rmd" class="external-link"><code>vignettes/articles/mixed.Rmd</code></a></small>
       <div class="d-none name"><code>mixed.Rmd</code></div>
     </div>
 
@@ -198,7 +198,42 @@ colours by using the <code>col_scale</code> argument.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tr"</span>, <span class="st">"bl"</span><span class="op">)</span>,</span>
 <span>         col_scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"G"</span>, <span class="st">"H"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="mixed_files/figure-html/unnamed-chunk-8-1.png" alt="mtcars correlation heatmap with normal cells in the top right and coloured text in the bottom left triangle. The cells in the top right triangle use the viridis mako scale while the text in the bottom left use the viridis turbo scale. Each scale has a legend on the right (with the same name: Pearson r)." width="700"></p>
+<p>Just like the cell border and cell label arguments above, some
+scale-related arguments can also be applied in a triangle-wise manner.
+These arguments are <code>bins</code>, <code>na_col</code>, and
+<code>limits</code> and also, for <code><a href="../reference/ggcorrhm.html">ggcorrhm()</a></code>,
+<code>high</code>, <code>mid</code>, <code>low</code>,
+<code>midpoint</code>, and <code>size_range</code>. Since
+<code>limits</code> and <code>size_range</code> are usually vectors of
+length two, so these must be in lists to apply different values to the
+two triangles.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Make correlation data to plot (100x100)</span></span>
+<span><span class="va">plt_dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, length.out <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">x</span> <span class="op">+</span> <span class="fl">1</span>, length.out <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Using high, mid, low which only work if the default ggcorrhm scale is used</span></span>
+<span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">plt_dat</span>, cor_in <span class="op">=</span> <span class="cn">TRUE</span>, show_names_diag <span class="op">=</span> <span class="cn">FALSE</span>, border_col <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>         layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hm"</span>, <span class="st">"hm"</span><span class="op">)</span>,</span>
+<span>         <span class="co"># Some arguments can be NULL to use the default</span></span>
+<span>         <span class="co"># If using NULL, use a list as it disappears in atomic vectors</span></span>
+<span>         limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="cn">NULL</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.75</span>, <span class="fl">0.75</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>         bins <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="cn">NULL</span>, <span class="fl">5L</span><span class="op">)</span>,</span>
+<span>         high <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"pink"</span>, <span class="cn">NULL</span><span class="op">)</span>,</span>
+<span>         mid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="cn">NULL</span>, <span class="cn">NULL</span><span class="op">)</span>,</span>
+<span>         low <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cyan"</span>, <span class="st">"purple"</span><span class="op">)</span>,</span>
+<span>         <span class="co"># midpoint cannot take NULL</span></span>
+<span>         midpoint <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.25</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="mixed_files/figure-html/unnamed-chunk-9-1.png" alt="A 100x100 heatmap with values in a gradient going from -1 in the bottom left to 1 in the top right. The top left triangle has a smooth gradient with cyan at -1, white at 0.25 and pink at 1. The bottom right triangle is purple at low values and red at high values and is divided into five discrete bins with the breaks at -0.45, -0.15, 0, 0.15, and -0.45 and the limits at -0.75 and 0.75. Values outside the limits take the colours at the extremes (purple, red)." width="700"></p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Different size ranges</span></span>
+<span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">21</span>, <span class="fl">23</span><span class="op">)</span>,</span>
+<span>         size_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="mixed_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<p><code>col_scale</code> can also take a mix of NULL, character values,
+and scale objects in mixed layouts.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Two fill scales</span></span>
 <span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"br"</span>, <span class="st">"tl"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"21"</span>, <span class="st">"hm"</span><span class="op">)</span>,</span>
 <span>         show_names_diag <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -212,11 +247,11 @@ colours by using the <code>col_scale</code> argument.</p>
 <span>         <span class="op">)</span>,</span>
 <span>         <span class="co"># col_name can also take two values</span></span>
 <span>         col_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"This name will be ignored"</span>, <span class="st">"Top left"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="mixed_files/figure-html/unnamed-chunk-9-1.png" alt="mtcars correlation heatmap with cells in the top left and circles in the bottom right. The cells use the Brewer RdYlGn palette (going from green (low) to yellow to red (high)), while the circles use a custom scale with light blue for low values, white for middle values and pink for high values. The two legends on the right are named Bottom right (blue-pink) and Top left (RdYlGn)." width="700"></p>
+<p><img src="mixed_files/figure-html/unnamed-chunk-11-1.png" alt="mtcars correlation heatmap with cells in the top left and circles in the bottom right. The cells use the Brewer RdYlGn palette (going from green (low) to yellow to red (high)), while the circles use a custom scale with light blue for low values, white for middle values and pink for high values. The two legends on the right are named Bottom right (blue-pink) and Top left (RdYlGn)." width="700"></p>
 <p>Use the <code>guide</code> argument in the <code>ggplot2</code> scale
 functions to set the order or hide legends if a scale object is passed
 in the <code>col_scale</code> argument.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Two colour scales</span></span>
 <span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tr"</span>, <span class="st">"bl"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"19"</span>, <span class="st">"text"</span><span class="op">)</span>,</span>
 <span>         col_scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -229,22 +264,22 @@ in the <code>col_scale</code> argument.</p>
 <span>                                  name <span class="op">=</span> <span class="st">"Second legend"</span><span class="op">)</span></span>
 <span>         <span class="op">)</span>, cell_label_size <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>         col_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Names that will"</span>, <span class="st">"be ignored"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="mixed_files/figure-html/unnamed-chunk-10-1.png" alt="mtcars correlation heatmap with circles in the top right and text labels in empty cells in the bottom left. The circles use a scale going from white at low values to brown at high values while the text in the cells uses the Brewer Spectral palette. The legends are named First legend (brown) and Second legend (Spectral)." width="700"></p>
+<p><img src="mixed_files/figure-html/unnamed-chunk-12-1.png" alt="mtcars correlation heatmap with circles in the top right and text labels in empty cells in the bottom left. The circles use a scale going from white at low values to brown at high values while the text in the cells uses the Brewer Spectral palette. The legends are named First legend (brown) and Second legend (Spectral)." width="700"></p>
 <p>If one of the scales is <code>NULL</code>, the default scale is used
 instead (and can be customised with the <code>high</code>,
 <code>mid</code>, <code>low</code> etc arguments).</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># NULL uses the default that changes with high, mid, low etc</span></span>
 <span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hm"</span>, <span class="st">"hm"</span><span class="op">)</span>,</span>
 <span>         col_scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>           <span class="cn">NULL</span>,</span>
-<span>           <span class="co"># Give a scale object to not be affected by the default scale arguments</span></span>
+<span>           <span class="co"># Scale object will not be affected by the default scale arguments</span></span>
 <span>           <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_fill_distiller</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"PRGn"</span>, limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span>         <span class="op">)</span>, bins <span class="op">=</span> <span class="fl">5L</span>, high <span class="op">=</span> <span class="st">"pink"</span>, mid <span class="op">=</span> <span class="st">"beige"</span>, low <span class="op">=</span> <span class="st">"lightblue"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="mixed_files/figure-html/unnamed-chunk-11-1.png" alt="mtcars correlation heatmap. The cells in the top left triangle use a divergent colour scale going from light blue to beige to pink, while the bottom right cells use a binned scale with the Brewer PrGn palette, going from green to white to purple." width="700"></p>
+<p><img src="mixed_files/figure-html/unnamed-chunk-13-1.png" alt="mtcars correlation heatmap. The cells in the top left triangle use a divergent colour scale going from light blue to beige to pink, while the bottom right cells use a binned scale with the Brewer PrGn palette, going from green to white to purple." width="700"></p>
 <p>It’s also possible to use different scales for the sizes with the
 <code>size_scale</code> argument.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tr"</span>, <span class="st">"bl"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">23</span>, <span class="fl">23</span><span class="op">)</span>,</span>
 <span>         size_scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>           <span class="co"># Can make a binned size scale</span></span>
@@ -254,7 +289,7 @@ instead (and can be customised with the <code>high</code>,
 <span>                             name <span class="op">=</span> <span class="st">"scale_size_binned"</span>, guide <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_bins.html" class="external-link">guide_bins</a></span><span class="op">(</span>order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>           <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_size.html" class="external-link">scale_size_continuous</a></span><span class="op">(</span>range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span>, name <span class="op">=</span> <span class="st">"scale_size_continuous"</span><span class="op">)</span></span>
 <span>         <span class="op">)</span>, border_lwd <span class="op">=</span> <span class="fl">1</span>, legend_order <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span></code></pre></div>
-<p><img src="mixed_files/figure-html/unnamed-chunk-12-1.png" alt="mtcars correlation heatmap with diamonds instead of cells in both triangles. The diamonds in the top right are smaller than those in the bottom left. Two legends can be seen to the right, one called scale_size_binned with a binned scale with breaks from 0.2 to 0.8 and the other called scale_size_continuous with breaks from -0.5 to 0.5." width="700"></p>
+<p><img src="mixed_files/figure-html/unnamed-chunk-14-1.png" alt="mtcars correlation heatmap with diamonds instead of cells in both triangles. The diamonds in the top right are smaller than those in the bottom left. Two legends can be seen to the right, one called scale_size_binned with a binned scale with breaks from 0.2 to 0.8 and the other called scale_size_continuous with breaks from -0.5 to 0.5." width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="some-extra-plots">Some extra plots<a class="anchor" aria-label="anchor" href="#some-extra-plots"></a>
@@ -263,25 +298,25 @@ instead (and can be customised with the <code>high</code>,
 to the non-empty sides of the heatmap for convenience. Using mixed
 layouts with mode “none” it is possible to “hack” annotations and
 dendrograms onto the empty sides of triangular layouts.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">annot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span>, a <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">11</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hm"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
 <span>         annot_rows_df <span class="op">=</span> <span class="va">annot</span>, annot_cols_df <span class="op">=</span> <span class="va">annot</span>,</span>
 <span>         cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>, cluster_cols <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>         <span class="co"># Hide cell borders only in the 'none' triangle</span></span>
 <span>         border_lwd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="mixed_files/figure-html/unnamed-chunk-13-1.png" alt="A mtcars correlation heatmap showing only the top left triangle. On the right and below are row and column annotations, leaving a large triangular gap in the bottom right." width="700"></p>
+<p><img src="mixed_files/figure-html/unnamed-chunk-15-1.png" alt="A mtcars correlation heatmap showing only the top left triangle. On the right and below are row and column annotations, leaving a large triangular gap in the bottom right." width="700"></p>
 <p>Finally, the default full layout reverses the y axis levels so that
 the rows are in the same order as in the input and the diagonal runs
 from top left to bottom right. If the opposite layout is desired it can
 be made using a mixed layout of a top left and a bottom right triangle,
 like the plot below.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plt1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="st">"f"</span><span class="op">)</span></span>
 <span><span class="va">plt2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hm"</span>, <span class="st">"hm"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plt1</span> <span class="op">+</span> <span class="va">plt2</span></span></code></pre></div>
-<p><img src="mixed_files/figure-html/unnamed-chunk-14-1.png" alt="Two mtcars correlation heatmaps, both showing the whole heatmap with names along the diagonal. The first one has the diagonal running from top left to bottom right, while the second one has the diagonal between the bottom left and top right (the row order is reversed)." width="960"></p>
+<p><img src="mixed_files/figure-html/unnamed-chunk-16-1.png" alt="Two mtcars correlation heatmaps, both showing the whole heatmap with names along the diagonal. The first one has the diagonal running from top left to bottom right, while the second one has the diagonal between the bottom left and top right (the row order is reversed)." width="960"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

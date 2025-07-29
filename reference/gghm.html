@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggcorrheatmap</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Make a heatmap with ggplot2.</h1>
-      <small class="dont-index">Source: <a href="https://github.com/leod123/ggcorrheatmap/blob/v0.1.2/R/gghm.R" class="external-link"><code>R/gghm.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/leod123/ggcorrheatmap/blob/main/R/gghm.R" class="external-link"><code>R/gghm.R</code></a></small>
       <div class="d-none name"><code>gghm.Rd</code></div>
     </div>
 
@@ -435,7 +435,10 @@ or lists of length two, each element containing one value (apply to whole triang
 <code>cell_labels</code> can also be specified per triangle, either as a logical vector of length two, or a list of length two containing a mix of
 logicals and matrices/data frames.</p>
 <p>It is also possible to provide two scales for filling or colouring the triangles differently.
-In this case the <code>col_scale</code> must be one character value (scale used for both triangles) or NULL or a list of length two</p>
+In this case the <code>col_scale</code> must be one character value (scale used for both triangles) or NULL or a list of length two
+containing the scales to use (character or scale object, or NULL for default). <code>size_scale</code> works in the same way (but takes no character values).
+In addition, the scale-modifying arguments <code>bins</code>, <code>na_col</code> and <code>limits</code> can also be specified per triangle. <code>limits</code> must be a list of length two (or one) where each
+element is a numeric vector of length two.</p>
 <p>The annotation parameter arguments <code>annot_rows_params</code> and <code>annot_cols_params</code> should be named lists, where the possible options correspond to
 the different <code>annot_*</code> arguments. The possible options are "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
 "size" (cell size), "show_names" (logical, if the annotation names should be displayed), "border_col" (colour of border) and "border_lwd" (border line width).
