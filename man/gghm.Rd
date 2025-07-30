@@ -25,7 +25,7 @@ gghm(
   na_col = "grey50",
   na_remove = FALSE,
   return_data = FALSE,
-  cell_labels = F,
+  cell_labels = FALSE,
   cell_label_col = "black",
   cell_label_size = 3,
   cell_label_digits = 2,
@@ -254,6 +254,9 @@ logicals and matrices/data frames.
 
 It is also possible to provide two scales for filling or colouring the triangles differently.
 In this case the \code{col_scale} must be one character value (scale used for both triangles) or NULL or a list of length two
+containing the scales to use (character or scale object, or NULL for default). \code{size_scale} works in the same way (but takes no character values).
+In addition, the scale-modifying arguments \code{bins}, \code{na_col} and \code{limits} can also be specified per triangle. \code{limits} must be a list of length two (or one) where each
+element is a numeric vector of length two.
 
 The annotation parameter arguments \code{annot_rows_params} and \code{annot_cols_params} should be named lists, where the possible options correspond to
 the different \verb{annot_*} arguments. The possible options are "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
@@ -306,6 +309,12 @@ annot_rows <- data.frame(.names = rownames(hm_in),
 # Specify colour scale for one of the annotations (viridis mako)
 annot_fill <- list(annot1 = "G")
 
+gghm(scale(hm_in),
+     # Change colours of heatmap (Brewer Purples)
+     col_scale = "Purples",
+     annot_rows_df = annot_rows, annot_rows_col = annot_fill) +
+     # Use ggplot2::theme to adjust margins to fit the annotation names
+     theme(plot.margin = margin(30, 10, 60, 20))
 
 # Using the dend_*_extend arguments
 gghm(scale(hm_in), cluster_rows = TRUE, dend_rows_extend =

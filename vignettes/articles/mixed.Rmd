@@ -105,20 +105,52 @@ plt1 + plt2
 
 # Mixed scales
 
-In mixed layouts the two triangles can use different scales for colours and sizes by using the `col_scale` argument.
+In mixed layouts the two triangles can use different scales for colours by using the `col_scale` argument.
 
-```{r, fig.alt='mtcars correlation heatmap with normal cells in the top right and coloured text in the bottom left triangle. The cells in the top right triangle use the viridis "mako" scale while the text in the bottom left use the viridis "turbo" scale. Each scale has a legend on the right (with the same name: "Pearson r").'}
+```{r, fig.alt='mtcars correlation heatmap with normal cells in the top right and coloured text in the bottom left triangle. The cells in the top right triangle use the viridis mako scale while the text in the bottom left use the viridis turbo scale. Each scale has a legend on the right (with the same name: Pearson r).'}
 ggcorrhm(mtcars, layout = c("tr", "bl"),
          col_scale = c("G", "H"))
 ```
 
-```{r, fig.alt='mtcars correlation heatmap with cells in the top left and circles in the bottom right. The cells use the Brewer "RdYlGn" palette (going from green (low) to yellow to red (high)), while the circles use a custom scale with light blue for low values, white for middle values and pink for high values. The two legends on the right are named "Bottom right" (blue-pink) and "Top left" (RdYlGn).'}
+Just like the cell border and cell label arguments above, some scale-related arguments can also be applied in a triangle-wise manner. These arguments are `bins`, `na_col`, and `limits` and also, for `ggcorrhm()`, `high`, `mid`, `low`, `midpoint`, and `size_range`. Since `limits` and `size_range` are usually vectors of length two, so these must be in lists to apply different values to the two triangles.
+
+```{r, fig.alt='A 100x100 heatmap with values in a gradient going from -1 in the bottom left to 1 in the top right. The top left triangle has a smooth gradient with cyan at -1, white at 0.25 and pink at 1. The bottom right triangle is purple at low values and red at high values and is divided into five discrete bins with the breaks at -0.45, -0.15, 0, 0.15, and -0.45 and the limits at -0.75 and 0.75. Values outside the limits take the colours at the extremes (purple, red).'}
+# Make correlation data to plot (100x100)
+plt_dat <- sapply(seq(-1, 0, length.out = 100), function(x) {
+  seq(x, x + 1, length.out = 100)
+})
+
+# Using high, mid, low which only work if the default ggcorrhm scale is used
+ggcorrhm(plt_dat, cor_in = TRUE, show_names_diag = FALSE, border_col = 0,
+         layout = c("tl", "br"), mode = c("hm", "hm"),
+         # Some arguments can be NULL to use the default
+         # If using NULL, use a list as it disappears in atomic vectors
+         limits = list(NULL, c(-0.75, 0.75)),
+         bins = list(NULL, 5L),
+         high = list("pink", NULL),
+         mid = list(NULL, NULL),
+         low = c("cyan", "purple"),
+         # midpoint cannot take NULL
+         midpoint = c(-0.25, 0))
+
+```
+
+```{r}
+# Different size ranges
+ggcorrhm(mtcars, layout = c("tl", "br"), mode = c(21, 23),
+         size_range = list(c(5, 10), c(1, 5)))
+```
+
+`col_scale` can also take a mix of NULL, character values, and scale objects in mixed layouts.
+
+```{r, fig.alt='mtcars correlation heatmap with cells in the top left and circles in the bottom right. The cells use the Brewer RdYlGn palette (going from green (low) to yellow to red (high)), while the circles use a custom scale with light blue for low values, white for middle values and pink for high values. The two legends on the right are named Bottom right (blue-pink) and Top left (RdYlGn).'}
 # Two fill scales
 ggcorrhm(mtcars, layout = c("br", "tl"), mode = c("21", "hm"),
          show_names_diag = FALSE,
          col_scale = list(
            # When a scale object is passed, arguments of gghm/ggcorrhm
-           # that modify legends will be ignored
+           # that modify legends will be ignored.
+           # 'heatmap' mode and modes 20-25 use the fill aesthetic
            scale_fill_gradient2(high = "pink", mid = "white", low = "lightblue",
                                 limits = c(-1, 1), name = "Bottom right"),
            "RdYlGn"
@@ -129,10 +161,11 @@ ggcorrhm(mtcars, layout = c("br", "tl"), mode = c("21", "hm"),
 
 Use the `guide` argument in the `ggplot2` scale functions to set the order or hide legends if a scale object is passed in the `col_scale` argument.
 
-```{r, fig.alt='mtcars correlation heatmap with circles in the top right and text labels in empty cells in the bottom left. The circles use a scale going from white at low values to brown at high values while the text in the cells uses the Brewer "Spectral" palette. The legends are named "First legend" (brown) and "Second legend" (Spectral).'}
+```{r, fig.alt='mtcars correlation heatmap with circles in the top right and text labels in empty cells in the bottom left. The circles use a scale going from white at low values to brown at high values while the text in the cells uses the Brewer Spectral palette. The legends are named First legend (brown) and Second legend (Spectral).'}
 # Two colour scales
 ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("19", "text"),
          col_scale = list(
+           # 'text' mode and modes 1-20 use the colour aesthetic and need colour scales
            scale_colour_gradient(high = "lightsalmon4", low = "white", limits = c(-1, 1),
                                  # Can use the guide argument to change order of legends (or hide them)
                                  guide = guide_colourbar(order = 1),
@@ -145,14 +178,28 @@ ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("19", "text"),
 
 If one of the scales is `NULL`, the default scale is used instead (and can be customised with the `high`, `mid`, `low` etc arguments).
 
-```{r, fig.alt='mtcars correlation heatmap. The cells in the top left triangle use a divergent colour scale going from light blue to beige to pink, while the bottom right cells use a binned scale with the Brewer "PrGn" palette, going from green to white to purple.'}
+```{r, fig.alt='mtcars correlation heatmap. The cells in the top left triangle use a divergent colour scale going from light blue to beige to pink, while the bottom right cells use a binned scale with the Brewer PrGn palette, going from green to white to purple.'}
 # NULL uses the default that changes with high, mid, low etc
 ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "hm"),
          col_scale = list(
            NULL,
-           # Give a scale object to not be affected by the default scale arguments
+           # Scale object will not be affected by the default scale arguments
            scale_fill_distiller(palette = "PRGn", limits = c(-1, 1))
          ), bins = 5L, high = "pink", mid = "beige", low = "lightblue")
+```
+
+It's also possible to use different scales for the sizes with the `size_scale` argument. 
+
+```{r, fig.alt='mtcars correlation heatmap with diamonds instead of cells in both triangles. The diamonds in the top right are smaller than those in the bottom left. Two legends can be seen to the right, one called scale_size_binned with a binned scale with breaks from 0.2 to 0.8 and the other called scale_size_continuous with breaks from -0.5 to 0.5.'}
+ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c(23, 23),
+         size_scale = list(
+           # Can make a binned size scale
+           scale_size_binned(n.breaks = 6, range = c(1, 5),
+                             # Absolute value transform but legend loses meaning
+                             transform = scales::trans_new("abs", abs, abs),
+                             name = "scale_size_binned", guide = guide_bins(order = 1)),
+           scale_size_continuous(range = c(5, 10), name = "scale_size_continuous")
+         ), border_lwd = 1, legend_order = NA)
 ```
 
 

@@ -23,6 +23,8 @@ prepare_scales_annot(
 \item{annot_rows_col}{List with colour scales for rows.}
 
 \item{annot_cols_col}{List with colour scales for columns.}
+
+\item{na_col}{Colour of NA cells.}
 }
 \value{
 List of length two containing lists of row annotation and column annotation.

@@ -295,13 +295,16 @@ if two matrices are provided they should have the same number of rows and the ro
 
 Row and column names are displayed in the diagonal by default if the correlation matrix is symmetric (only \code{x} is provided or \code{x} and \code{y} are identical).
 
-The colour scale is set to be a diverging gradient around 0, with options to change the low, mid, and high colours, the midpoint, and the limits.
-The \code{bins} argument converts the scale to a discrete scale divided into \code{bins} equally distributed bins.
+The colour scale is set to be a diverging gradient around 0, with options to change the \code{low}, \code{mid}, and \code{high} colours, the \code{midpoint}, and the \code{limits} (using the arguments
+of the same names). The \code{bins} argument converts the scale to a discrete scale divided into \code{bins} equally distributed bins (if an integer the breaks may be at strange numbers,
+if a double the number of bins may be different but the breaks are at nicer numbers). These arguments can be of length two (\code{limits} a list of length two) two apply
+to each triangle in a mixed layout (detailed more in the details section of \code{gghm()}). The \code{size_range} argument (for size scales) can also be a list of length two like \code{limits}.
 
 The size scale, used when a numeric cell shape is specified, is set to vary the shape size between 4 and 10 (can be changed with the \code{size_range} argument)
 and to transform the values to absolute values (so that both positive and negative correlations are treated equally).
 This behaviour can be overwritten by setting \code{size_scale} to another \verb{ggplot2::scale_size_*} function with the desired
-arguments, or \code{ggplot2::scale_size()} for no special behaviour.
+arguments, or \code{ggplot2::scale_size()} for no special behaviour. \code{ggplot2::scale_size_area()} also scales with the absolute value,
+but only the upper size limit can be set.
 When the absolute value transformation is used the legend for sizes loses its meaning (only displaying positive values)
 and is therefore set to not be shown if \code{legend_order} is NULL.
 
@@ -330,4 +333,12 @@ annot <- data.frame(.names = colnames(mtcars),
                     annot1 = rnorm(ncol(mtcars)),
                     annot2 = sample(letters[1:3], ncol(mtcars), TRUE))
 ggcorrhm(mtcars, layout = "tr", annot_cols_df = annot)
+
+# Both
+ggcorrhm(mtcars, layout = "full", cluster_rows = TRUE, cluster_cols = TRUE,
+         annot_rows_df = annot[, -3], annot_cols_df = annot[, -2])
+
+# Mixed layout
+ggcorrhm(mtcars, layout = c("tl", "br"))
+
 }

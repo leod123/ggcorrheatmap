@@ -1,9 +1,8 @@
-url: ~
+url: https://leod123.github.io/ggcorrheatmap/
 template:
   bootstrap: 5
   bslib:
     bootswatch: united
-
 articles:
 - title: Heatmaps
   navbar: ~
@@ -14,3 +13,4 @@ articles:
   - articles/clustering
   - articles/mixed
   - articles/legends
+

@@ -7,6 +7,7 @@
 prepare_scales(
   scale_order,
   context = c("gghm", "ggcorrhm"),
+  layout,
   val_type,
   col_scale = NULL,
   col_name = "value",
@@ -26,6 +27,8 @@ prepare_scales(
 \item{scale_order}{List of necessary scales and their orders, as obtained make_legend_order.}
 
 \item{context}{Scale context (gghm or ggcorrhm) for deciding which defaults to use.}
+
+\item{layout}{Layout of plot to treat parameters depending on length.}
 
 \item{val_type}{String with type of value ('continuous' or 'discrete').}
 

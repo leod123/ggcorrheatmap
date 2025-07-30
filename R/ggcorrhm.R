@@ -68,13 +68,16 @@
 #'
 #' Row and column names are displayed in the diagonal by default if the correlation matrix is symmetric (only `x` is provided or `x` and `y` are identical).
 #'
-#' The colour scale is set to be a diverging gradient around 0, with options to change the low, mid, and high colours, the midpoint, and the limits.
-#' The `bins` argument converts the scale to a discrete scale divided into `bins` equally distributed bins.
+#' The colour scale is set to be a diverging gradient around 0, with options to change the `low`, `mid`, and `high` colours, the `midpoint`, and the `limits` (using the arguments
+#' of the same names). The `bins` argument converts the scale to a discrete scale divided into `bins` equally distributed bins (if an integer the breaks may be at strange numbers,
+#' if a double the number of bins may be different but the breaks are at nicer numbers). These arguments can be of length two (`limits` a list of length two) two apply
+#' to each triangle in a mixed layout (detailed more in the details section of `gghm()`). The `size_range` argument (for size scales) can also be a list of length two like `limits`.
 #'
 #' The size scale, used when a numeric cell shape is specified, is set to vary the shape size between 4 and 10 (can be changed with the `size_range` argument)
 #' and to transform the values to absolute values (so that both positive and negative correlations are treated equally).
 #' This behaviour can be overwritten by setting `size_scale` to another `ggplot2::scale_size_*` function with the desired
-#' arguments, or `ggplot2::scale_size()` for no special behaviour.
+#' arguments, or `ggplot2::scale_size()` for no special behaviour. `ggplot2::scale_size_area()` also scales with the absolute value,
+#' but only the upper size limit can be set.
 #' When the absolute value transformation is used the legend for sizes loses its meaning (only displaying positive values)
 #' and is therefore set to not be shown if `legend_order` is NULL.
 #'
@@ -103,6 +106,14 @@
 #'                     annot1 = rnorm(ncol(mtcars)),
 #'                     annot2 = sample(letters[1:3], ncol(mtcars), TRUE))
 #' ggcorrhm(mtcars, layout = "tr", annot_cols_df = annot)
+#'
+#' # Both
+#' ggcorrhm(mtcars, layout = "full", cluster_rows = TRUE, cluster_cols = TRUE,
+#'          annot_rows_df = annot[, -3], annot_cols_df = annot[, -2])
+#'
+#' # Mixed layout
+#' ggcorrhm(mtcars, layout = c("tl", "br"))
+#'
 ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything", cor_in = FALSE,
                      high = "sienna2", mid = "white", low = "skyblue2", midpoint = 0, limits = c(-1, 1), bins = NULL,
                      layout = "full", mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
@@ -140,17 +151,18 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   check_layout(layout, mode)
 
   if (length(mode) > 1) {
-    check_logical(p_values = p_values, list_allowed = T)
-    check_logical(cell_label_p = cell_label_p, list_allowed = T)
+    check_logical(p_values = p_values, list_allowed = TRUE)
+    check_logical(cell_label_p = cell_label_p, list_allowed = TRUE)
   } else {
-    check_logical(p_values = p_values, list_allowed = F)
-    check_logical(cell_label_p = cell_label_p, list_allowed = F)
+    check_logical(p_values = p_values, list_allowed = FALSE)
+    check_logical(cell_label_p = cell_label_p, list_allowed = FALSE)
   }
 
   if (any(unlist(p_values))) {
     if (!is.numeric(p_thresholds) && !is.null(p_thresholds)) {
-      cli::cli_abort("{.var p_thresholds} must be a named {.cls numeric} vector or NULL.")
-    } else {
+      cli::cli_abort("{.var p_thresholds} must be a named {.cls numeric} vector or NULL.",
+                     class = "p_thr_class_error")
+    } else if (!is.null(p_thresholds)) {
       if (any(is.na(p_thresholds))) cli::cli_abort("{.var p_thresholds} should not contain any missing values.")
       if (any(p_thresholds <= 0)) cli::cli_abort("Values in {.var p_thresholds} must be above 0.", class = "p_thr_error")
       if (p_thresholds[length(p_thresholds)] < 1) cli::cli_abort("The last value of {.var p_thresholds} must be 1 or larger.", class = "p_thr_error")
@@ -165,8 +177,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   if (isTRUE(cor_in)) {
     cor_mat <- x
     cor_mat_dat <- NULL
-    p_values <- F
-    cell_label_p <- F
+    p_values <- FALSE
+    cell_label_p <- FALSE
 
   } else {
     cor_mat <- if (is.null(y)) {
@@ -228,20 +240,32 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   # Don't display names on the diagonal if the plot is non-symmetric as it will cause
   # new ghost columns to be added to draw the names where row == col
   if (!isSymmetric(as.matrix(cor_mat))) {
-    show_names_diag <- F
+    show_names_diag <- FALSE
     # Also display x and y names by default, but remove if specified as FALSE (when specified as a named argument)
-    show_names_x <- eval(replace_default(list("show_names_x" = T), as.list(sys.call()))$show_names_x)
-    show_names_y <- eval(replace_default(list("show_names_y" = T), as.list(sys.call()))$show_names_y)
+    show_names_x <- eval(replace_default(list("show_names_x" = TRUE), as.list(sys.call()))$show_names_x)
+    show_names_y <- eval(replace_default(list("show_names_y" = TRUE), as.list(sys.call()))$show_names_y)
   }
 
   # Get scales and their orders
   scale_order <- make_legend_order(mode = mode,
                                    col_scale = col_scale,
                                    size_scale = size_scale, annot_rows_df = annot_rows_df,
-                                   annot_cols_df = annot_cols_df, legend_order = legend_order)
+                                   annot_cols_df = annot_cols_df,
+                                   bins = bins, limits = limits,
+                                   high = high, mid = mid, low = low, na_col = na_col,
+                                   midpoint = midpoint, size_range = size_range,
+                                   legend_order = legend_order)
 
   # Prepare scales for mixed layouts
   if (length(layout) == 2) {
+    bins <- prepare_mixed_param(bins, "bins")
+    limits <- prepare_mixed_param(limits, "limits")
+    midpoint <- prepare_mixed_param(midpoint, "midpoint")
+    size_range <- prepare_mixed_param(size_range, "size_range")
+    high <- prepare_mixed_param(high, "high")
+    mid <- prepare_mixed_param(mid, "mid")
+    low <- prepare_mixed_param(low, "low")
+    na_col <- prepare_mixed_param(na_col, "na_col")
     col_name <- prepare_mixed_param(col_name, "col_name")
     col_scale <- prepare_mixed_param(col_scale, "col_scale")
     size_name <- prepare_mixed_param(size_name, "size_name")
@@ -270,7 +294,9 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   }
 
   # Generate the necessary scales
-  main_scales <- prepare_scales(scale_order = scale_order, context = "ggcorrhm", val_type = "continuous",
+  main_scales <- prepare_scales(scale_order = scale_order, context = "ggcorrhm",
+                                layout = layout,
+                                val_type = "continuous",
                                 col_scale = col_scale, col_name = col_name,
                                 size_scale = size_scale, size_name = size_name,
                                 bins = bins, limits = limits,
@@ -288,7 +314,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   # Call with all arguments to get the tooltips when calling ggcorrhm
   cor_plt <- gghm(cor_mat,
                   na_remove = na_remove,
-                  mode = mode, layout = layout, include_diag = include_diag, return_data = T,
+                  mode = mode, layout = layout, include_diag = include_diag, return_data = TRUE,
                   col_scale = col_scale, col_name = col_name,
                   size_scale = size_scale, size_name = size_name,
                   border_col = border_col, border_lwd = border_lwd, border_lty = border_lty,
@@ -412,7 +438,7 @@ prepare_cell_labels <- function(mode, cell_labels, p_values, cell_label_p, cell_
         }
         cell_labels_long <- dplyr::mutate(cell_labels_long,
                                           # Replace NAs with "" to not get "NA" written in the cells
-                                          value = dplyr::case_when(is.na(value) ~ "", T ~ as.character(value)),
+                                          value = dplyr::case_when(is.na(value) ~ "", TRUE ~ as.character(value)),
                                           value = paste0(value, p_sym))
         cell_labels_wide <- shape_mat_wide(dplyr::select(cell_labels_long, row, col, value))
 
@@ -434,7 +460,7 @@ prepare_cell_labels <- function(mode, cell_labels, p_values, cell_label_p, cell_
       }
     }
 
-  }, mode, cell_labels, p_values, cell_label_p, cell_label_digits, SIMPLIFY = F)
+  }, mode, cell_labels, p_values, cell_label_p, cell_label_digits, SIMPLIFY = FALSE)
 
   # If only one element, unlist it
   if (length(cell_labels) == 1) {cell_labels <- cell_labels[[1]]}

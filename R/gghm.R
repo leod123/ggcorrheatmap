@@ -110,7 +110,9 @@
 #'
 #' It is also possible to provide two scales for filling or colouring the triangles differently.
 #' In this case the `col_scale` must be one character value (scale used for both triangles) or NULL or a list of length two
-# containing the scales to use (character or scale object, or NULL for default). `size_scale` works in the same way (but takes no character values).
+#' containing the scales to use (character or scale object, or NULL for default). `size_scale` works in the same way (but takes no character values).
+#' In addition, the scale-modifying arguments `bins`, `na_col` and `limits` can also be specified per triangle. `limits` must be a list of length two (or one) where each
+#' element is a numeric vector of length two.
 #'
 #' The annotation parameter arguments `annot_rows_params` and `annot_cols_params` should be named lists, where the possible options correspond to
 #' the different `annot_*` arguments. The possible options are "dist" (distance between heatmap and annotation), "gap" (distance between annotations),
@@ -163,12 +165,12 @@
 #' # Specify colour scale for one of the annotations (viridis mako)
 #' annot_fill <- list(annot1 = "G")
 #'
-# gghm(scale(hm_in),
-#      # Change colours of heatmap (Brewer Purples)
-#      col_scale = "Purples",
-#      annot_rows_df = annot_rows, annot_rows_col = annot_fill) +
-#      # Use ggplot2::theme to adjust margins to fit the annotation names
-#      theme(plot.margin = margin(20, 10, 60, 20))
+#' gghm(scale(hm_in),
+#'      # Change colours of heatmap (Brewer Purples)
+#'      col_scale = "Purples",
+#'      annot_rows_df = annot_rows, annot_rows_col = annot_fill) +
+#'      # Use ggplot2::theme to adjust margins to fit the annotation names
+#'      theme(plot.margin = margin(30, 10, 60, 20))
 #'
 #' # Using the dend_*_extend arguments
 #' gghm(scale(hm_in), cluster_rows = TRUE, dend_rows_extend =
@@ -184,7 +186,7 @@ gghm <- function(x,
                  include_diag = TRUE, show_names_diag = FALSE, names_diag_params = NULL,
                  show_names_x = TRUE, names_x_side = "top", show_names_y = TRUE, names_y_side = "left",
                  na_col = "grey50", na_remove = FALSE, return_data = FALSE,
-                 cell_labels = F, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
+                 cell_labels = FALSE, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
                  border_col = "grey", border_lwd = 0.1, border_lty = 1,
                  cell_bg_col = "white", cell_bg_alpha = 0,
                  annot_rows_df = NULL, annot_cols_df = NULL,
@@ -248,7 +250,7 @@ gghm <- function(x,
   if (!x_sym & (!full_plt | length(layout) == 2)) {
     cli::cli_warn("Triangular layouts are not supported for asymmetric matrices, plotting the full matrix instead.",
                   class = "force_full_warn")
-    full_plt <- T
+    full_plt <- TRUE
     layout <- "f"
     mode <- mode[1]
   }
@@ -258,7 +260,7 @@ gghm <- function(x,
   # This does not prevent diag names in initially symmetric matrices that become asymmetric as a result
   # of unequal clustering of rows and columns, the result will look a bit strange but no new columns are created
   if (!x_sym) {
-    show_names_diag <- F
+    show_names_diag <- FALSE
   }
 
   # If clustering a symmetric matrix with a triangular layout, both rows and columns must be clustered. Automatically cluster both and throw a warning
@@ -274,22 +276,22 @@ gghm <- function(x,
 
   # Make dendrograms
   # To allow for providing a hclust or dendrogram object when clustering, make a separate logical clustering variable
-  lclust_rows <- F
+  lclust_rows <- FALSE
   if (!isFALSE(cluster_rows)) {
     row_clustering <- cluster_data(cluster_rows, x, cluster_distance, cluster_method, dend_rows_extend)
 
     # Reorder matrix to fit clustering
     x <- x[row_clustering$dendro$labels$label, ]
-    lclust_rows <- T
+    lclust_rows <- TRUE
   }
 
-  lclust_cols <- F
+  lclust_cols <- FALSE
   if (!isFALSE(cluster_cols)) {
     col_clustering <- cluster_data(cluster_cols, t(x), cluster_distance, cluster_method, dend_cols_extend)
 
     # Reorder matrix to fit clustering
     x <- x[, col_clustering$dendro$labels$label]
-    lclust_cols <- T
+    lclust_cols <- TRUE
   }
 
   # Throw a warning if clustering caused a symmetric input to become asymmetric. Plot the full matrix if not already the case
@@ -299,7 +301,7 @@ gghm <- function(x,
                          " The diagonal may be scrambled due to the unequal row and column orders."),
                   class = "unequal_clust_warn")
     layout <- "f"
-    full_plt <- T
+    full_plt <- TRUE
     mode <- mode[1]
   }
 
@@ -344,7 +346,10 @@ gghm <- function(x,
     # Mixed layout, generate one per half and mark by layout. The first one gets the diagonal
     x_long <- dplyr::bind_rows(
       dplyr::mutate(layout_hm(x, layout = layout[1], na_remove = na_remove), layout = layout[1]),
-      dplyr::mutate(layout_hm(x, layout = layout[2], na_remove = na_remove), layout = layout[2])
+      dplyr::filter(
+        dplyr::mutate(layout_hm(x, layout = layout[2], na_remove = na_remove), layout = layout[2]),
+        as.character(row) != as.character(col)
+        )
     )
     # Convert layout to a factor vector
     x_long[["layout"]] <- factor(x_long[["layout"]], levels = layout)
@@ -422,10 +427,15 @@ gghm <- function(x,
     scale_order <- make_legend_order(mode = mode,
                                      col_scale = col_scale,
                                      size_scale = size_scale, annot_rows_df = annot_rows_df,
-                                     annot_cols_df = annot_cols_df, legend_order = legend_order)
+                                     annot_cols_df = annot_cols_df,
+                                     bins = bins, limits = limits, na_col = na_col,
+                                     legend_order = legend_order)
 
     # Prepare scales for mixed layouts
     if (length(layout) == 2) {
+      bins <- prepare_mixed_param(bins, "bins")
+      limits <- prepare_mixed_param(limits, "limits")
+      na_col <- prepare_mixed_param(na_col, "na_col")
       col_name <- prepare_mixed_param(col_name, "col_name")
       col_scale <- prepare_mixed_param(col_scale, "col_scale")
       size_name <- prepare_mixed_param(size_name, "size_name")
@@ -434,10 +444,12 @@ gghm <- function(x,
 
     # Generate the necessary scales
     main_scales <- prepare_scales(scale_order = scale_order, context = "gghm",
+                                  layout = layout,
                                   val_type = ifelse(is.character(x_long[["value"]]) | is.factor(x_long[["value"]]), "discrete", "continuous"),
                                   col_scale = col_scale, col_name = col_name,
                                   size_scale = size_scale, size_name = size_name,
                                   na_col = na_col, limits = limits, bins = bins)
+
     # Annotation scales
     annot_scales <- prepare_scales_annot(scale_order = scale_order, na_col = annot_na_col,
                                          annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
@@ -472,7 +484,7 @@ gghm <- function(x,
     lt <- layout
     # First half of the plot
     plt <- make_heatmap(x_long = dplyr::filter(x_long, layout == lt[1]), plt = NULL,
-                        mode = mode[1], include_diag = include_diag, invisible_diag = T,
+                        mode = mode[1], include_diag = include_diag, invisible_diag = TRUE,
                         border_lwd = border_lwd[[1]], border_col = border_col[[1]], border_lty = border_lty[[1]],
                         show_names_diag = show_names_diag, show_names_x = show_names_x, show_names_y = show_names_y,
                         names_x_side = names_x_side, names_y_side = names_y_side,
@@ -488,9 +500,9 @@ gghm <- function(x,
     if (!is.null(size_scale[[2]])) {plt <- plt + ggnewscale::new_scale(new_aes = "size")}
 
     plt <- make_heatmap(x_long = dplyr::filter(x_long, layout == lt[2]), plt = plt,
-                        mode = mode[2], include_diag = F, invisible_diag = F,
+                        mode = mode[2], include_diag = FALSE, invisible_diag = FALSE,
                         border_lwd = border_lwd[[2]], border_col = border_col[[2]], border_lty = border_lty[[2]],
-                        show_names_diag = F, show_names_x = show_names_x, show_names_y = show_names_y,
+                        show_names_diag = FALSE, show_names_x = show_names_x, show_names_y = show_names_y,
                         names_x_side = names_x_side, names_y_side = names_y_side,
                         col_scale = col_scale[[2]], size_scale = size_scale[[2]],
                         cell_labels = cell_labels[[2]], cell_label_col = cell_label_col[[2]],
@@ -634,13 +646,18 @@ prepare_mixed_param <- function(param, param_name) {
       param_out <- list(param[[1]], param[[1]])
     }
 
-  } else if (is.null(param) && (grepl("_scale$", param_name) || grepl("_digits$", param_name))) {
+  } else if (is.null(param) && (grepl("_scale$", param_name) || grepl("_digits$", param_name) ||
+                                param_name %in% c("size_range", "limits", "bins"))) {
     # Return a list of NULLs if NULL
     param_out <- list(NULL, NULL)
 
   } else if (is.list(param) && length(param) == 1) {
     # If a list of length one, repeat its content
     param_out <- list(param[[1]], param[[1]])
+
+  } else if (!is.list(param) && param_name %in% c("size_range", "limits")) {
+    # Scale parameters that can be a vector
+    param_out <- list(param, param)
 
   } else if (length(param) == 1 || (param_name == "cell_labels" && (is.matrix(param) || is.data.frame(param)))) {
     # Recycle if length one, or if cell_labels is a data frame or matrix for cell labels
@@ -674,12 +691,13 @@ prepare_mixed_param <- function(param, param_name) {
 #'
 #' @param ... Should be a single named argument, where the name is the variable name displayed in the error message.
 #' The value is the (supposed) logical.
+#' @param list_allowed Logical indicating if the argument is allowed to be a list. If TRUE each element will be checked.
 #' @param call Call to use for the call in the error message (used in rlang::abort).
 #' Default is rlang::caller_env() resulting in the function that called check_logical().
 #'
 #' @returns Error if not logical or longer than 1, otherwise nothing.
 #'
-check_logical <- function(..., list_allowed = F, call = NULL) {
+check_logical <- function(..., list_allowed = FALSE, call = NULL) {
   arg <- list(...)
   name <- names(arg)
   val <- arg[[1]]
@@ -736,13 +754,16 @@ check_logical <- function(..., list_allowed = F, call = NULL) {
 #'
 #' @returns Error if not numeric, NULL when not allowed, or too long/too short.
 #'
-check_numeric <- function(..., allow_null = F, allowed_lengths = 1, call = NULL) {
+check_numeric <- function(..., allow_null = FALSE, allowed_lengths = 1,
+                          list_allowed = FALSE, call = NULL) {
   arg <- list(...)
   name <- names(arg)
   val <- arg[[1]]
 
-  if (isTRUE(allow_null) && is.null(val)) {
-    return(NULL)
+  if (isFALSE(list_allowed)) {
+    if (isTRUE(allow_null) && is.null(val)) {
+      return(NULL)
+    }
   }
 
   if (is.null(call)) {
@@ -751,7 +772,8 @@ check_numeric <- function(..., allow_null = F, allowed_lengths = 1, call = NULL)
 
   # Error message, taking into consideration if NULL is allowed, multiple allowed
   # lengths, and min/max allowed lengths
-  err_msg <- paste0("{.var ", name, "} must be ",
+  err_msg <- paste0(ifelse(list_allowed, "Each element of ", ""),
+                    "{.var ", name, "} must be ",
                     ifelse(length(allowed_lengths) > 1,
                            paste0(min(allowed_lengths), " to ", max(allowed_lengths)),
                            ifelse(max(allowed_lengths) > 1,
@@ -761,25 +783,55 @@ check_numeric <- function(..., allow_null = F, allowed_lengths = 1, call = NULL)
                     ifelse(allow_null, " or NULL", ""),
                     ", not ")
 
-  # NULL but NULL not allowed
-  if (isFALSE(allow_null) && is.null(val)) {
-    cli::cli_abort(paste0(
-      err_msg, " NULL."
-    ), class = "numeric_error")
+  if (isFALSE(list_allowed)) {
+    # NULL but NULL not allowed
+    if (isFALSE(allow_null) && is.null(val)) {
+      cli::cli_abort(paste0(
+        err_msg, " NULL."
+      ), class = "numeric_error")
+    }
+
+    # Wrong class
+    if (!is.numeric(val)) {
+      cli::cli_abort(paste0(
+        err_msg, " {.cls {class(val)}}."
+      ), class = "numeric_error")
+    }
+
+    # Too long or too short
+    if (!(length(val) <= max(allowed_lengths) &&
+          length(val) >= min(allowed_lengths))) {
+      cli::cli_abort(paste0(
+        err_msg, " {length(val)} value", ifelse(length(val) > 1, "s", ""), "."
+      ), class = "numeric_error")
+    }
+  } else {
+
+    # Per element
+    sapply(val, function(v) {
+      if (isTRUE(allow_null) && is.null(v)) {
+        return(NULL)
+      }
+
+      if (isFALSE(allow_null) && is.null(v)) {
+        cli::cli_abort(paste0(
+          err_msg, " NULL."
+        ), class = "numeric_error")
+      }
+
+      if (!is.numeric(v)) {
+        cli::cli_abort(paste0(
+          err_msg, " {.cls {class(v)}}."
+        ), class = "numeric_error")
+      }
+
+      if (!(length(v) <= max(allowed_lengths) &&
+            length(v) >= min(allowed_lengths))) {
+        cli::cli_abort(paste0(
+          err_msg, " {length(v)} value", ifelse(length(v) > 1, "s", ""), "."
+        ), class = "numeric_error")
+      }
+    })
   }
 
-  # Wrong class
-  if (!is.numeric(val)) {
-    cli::cli_abort(paste0(
-      err_msg, " {.cls {class(val)}}."
-    ), class = "numeric_error")
-  }
-
-  # Too long or too short
-  if (!(length(val) <= max(allowed_lengths) &&
-        length(val) >= min(allowed_lengths))) {
-    cli::cli_abort(paste0(
-      err_msg, " {length(val)} value", ifelse(length(val) > 1, "s", ""), "."
-    ), class = "numeric_error")
-  }
 }

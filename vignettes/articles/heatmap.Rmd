@@ -52,7 +52,7 @@ plt1 + plt2
 
 If the values in the input matrix are discrete a discrete scale will be used. If the input is a data frame with mixed types (e.g. some columns are character vectors and some numeric), the resulting heatmap will be discrete.
 
-```{r, fig.alt='A heatmap of a 15 by 15 matrix filled randomly with "a", "b", and "c". The Brewer Pastel2 palette is used for filling cells and the cell border colours have been changed to "thistle1".'}
+```{r, fig.alt='A heatmap of a 15 by 15 matrix filled randomly with a, b, and c. The Brewer Pastel2 palette is used for filling cells and the cell border colours have been changed to thistle1.'}
 # Heatmap with discrete values
 # Border colour and linewidth can be changed using the `border_col` and `border_lwd` arguments
 set.seed(123)
@@ -95,7 +95,7 @@ gghm(mtcars[1:15, ], mode = "none")
 
 Cell borders are by default grey, but can be removed by setting `border_col` (border colour) or `border_lwd` (border linewidth) to NA or `border_lty` (border linetype) to 0 (if `mode` is not a number) or `border_lwd` to 0 (if `mode` is a number).
 
-```{r, fig.alt='A heatmap of the "volcano" R dataset using the viridis colour scale for filling cells. The cell borders have been removed.'}
+```{r, fig.alt='A heatmap of the volcano R dataset using the viridis colour scale for filling cells. The cell borders have been removed.'}
 # Use the volcano data
 # It contains many rows and columns making the axes hard to read.
 # Can either turn off labels with `show_names_x` and `show_names_y`, or use
@@ -108,7 +108,7 @@ gghm(volcano, col_scale = "H",
 
 `border_col`, `border_lwd`, and `border_lty` can take either values of length 1 or the same length as the input data. Using the `return_data` argument to get the plotting data makes it easier to implement conditional customisation of borders.
 
-```{r, fig.height=5, figh.width=10, fig.alt='Two correlation heatmaps of the mtcars data. Both use the viridis mako scale for filling cells. In the first plot the cell borders are thick, orange and dashed. In the second one, all cells where the row is "hp" are red and thick, cells wherer the column is "vs" are yellow and thick, and the rest are grey and thin. All cell borders are dashed.'}
+```{r, fig.height=5, figh.width=10, fig.alt='Two correlation heatmaps of the mtcars data. Both use the viridis mako scale for filling cells. In the first plot the cell borders are thick, orange and dashed. In the second one, all cells where the row is hp are red and thick, cells wherer the column is vs are yellow and thick, and the rest are grey and thin. All cell borders are dashed.'}
 # Single values as input
 plt1 <- gghm(cor(mtcars), col_scale = "G",
              border_col = "orange", border_lwd = 1, border_lty = 2)
@@ -142,13 +142,19 @@ set.seed(123)
 df_na[sample(length(df_na), 100)] <- NA
 
 # With NAs and the default colour
-na_plt1 <- gghm(df_na, legend_order = NA) + labs(title = "NAs default")
+na_plt1 <- gghm(df_na, legend_order = NA,
+                # Darker borders for demonstration
+                border_col = "black", border_lwd = .3) +
+  labs(title = "NAs default")
 # Colour NAs using scale function
 na_plt2 <- gghm(df_na, legend_order = NA, show_names_y = FALSE,
+                border_col = "black", border_lwd = .3,
                 na_col = "white") +
   labs(title = "Change NA colour")
 # Remove NAs, removes the border as well
-na_plt3 <- gghm(df_na, legend_order = NA, show_names_y = FALSE, na_remove = TRUE) +
+na_plt3 <- gghm(df_na, legend_order = NA, show_names_y = FALSE,
+                border_col = "black", border_lwd = .3,
+                na_remove = TRUE) +
   labs(title = "NAs removed")
 
 na_plt1 + na_plt2 + na_plt3 & theme(plot.title = element_text(hjust = 0.5))

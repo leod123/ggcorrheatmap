@@ -1,16 +1,20 @@
 Package: ggcorrheatmap
-Title: Flexible 'ggplot' Correlation Heatmaps
-Version: 0.0.0.9000
+Title: Make Flexible 'ggplot2' Correlation Heatmaps
+Version: 0.1.2.9000
 Authors@R: 
     person(given = "Leo", family = "Dahl",
            email = "leokosdah@gmail.com",
            role = c("aut", "cre", "cph"))
-Description: Create flexible 'ggplot2' heatmaps and correlation heatmaps with clustering and annotation.
+Description: Create correlation heatmaps with 'ggplot2' and customise them
+    with flexible annotation and clustering. Symmetric heatmaps can use
+    triangular or mixed layouts, removing redundant information or displaying
+    complementary information in the two halves. There is also support for
+    general heatmaps not displaying correlations.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-URL: https://github.com/leod123/ggcorrheatmap
+URL: https://github.com/leod123/ggcorrheatmap, https://leod123.github.io/ggcorrheatmap/
 BugReports: https://github.com/leod123/ggcorrheatmap/issues
 Imports: 
     ggplot2,

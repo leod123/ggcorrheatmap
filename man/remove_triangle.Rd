@@ -4,7 +4,7 @@
 \alias{remove_triangle}
 \title{Remove triangle from symmetric matrix and return long format data.}
 \usage{
-remove_triangle(x, tri_remove = "upper", na_remove = F)
+remove_triangle(x, tri_remove = "upper", na_remove = FALSE)
 }
 \arguments{
 \item{x}{Matrix to remove triangle from (and make long).}

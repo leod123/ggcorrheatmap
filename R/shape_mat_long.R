@@ -8,7 +8,7 @@
 #'
 #' @returns A data frame with the columns 'row', 'column' (indicating combinations), and 'value'
 #'
-shape_mat_long <- function(x, unique_pairs = F, na_remove = F) {
+shape_mat_long <- function(x, unique_pairs = FALSE, na_remove = FALSE) {
   rowcol <- value <- NULL
 
   check_logical(na_remove = na_remove)
@@ -25,7 +25,7 @@ shape_mat_long <- function(x, unique_pairs = F, na_remove = F) {
   if (unique_pairs) {
     # Make a new column with sorted row-col combinations and filter out unique rows
     mat_long$rowcol <- apply(mat_long, 1, function(i) paste(sort(c(i[".row"], i[".col"])), collapse = "_"))
-    mat_long <- dplyr::distinct(mat_long, rowcol, .keep_all = T)
+    mat_long <- dplyr::distinct(mat_long, rowcol, .keep_all = TRUE)
   }
 
   # Remove NAs if desired (makes for completely empty cells and a cleaner look) (also removes NaN)
@@ -41,7 +41,7 @@ shape_mat_long <- function(x, unique_pairs = F, na_remove = F) {
 }
 
 
-#' Convert long formt matrix to wide.
+#' Convert long format matrix to wide.
 #'
 #' @keywords internal
 #'

@@ -6,13 +6,24 @@
 #' @param col_scale One or two colour scales (shared for fill and colour). NULL for default, string for Brewer or Viridis, or a scale.
 #' @param size_scale Size scales (NULL or ggplot2 scales).
 #' @param annot_rows_df Annotation data frame for rows.
-#' @param annot_cols_df Annotation data frame for columnss.
+#' @param annot_cols_df Annotation data frame for columns.
 #' @param legend_order Numeric vector with legend order. NULL for default.
+#' @param bins Numeric for number of bins to determine if multiple scales are needed (if multiple bins values).
+#' @param limits Limits of scale (list of limits if two scales).
+#' @param high Colours at high values (correlation heatmap).
+#' @param mid Colours at medium values (correlation heatmap).
+#' @param low Colours at low values (correlation heatmap).
+#' @param na_col Colour if NA.
+#' @param midpoint Midpoint of divergent scale (correlation heatmap).
+#' @param size_range Size range (list of ranges if two scales).
 #'
 #' @returns A list with aesthetics for the main plot and orders of all legends.
 #'
 make_legend_order <- function(mode, col_scale = NULL, size_scale = NULL,
-                              annot_rows_df = NULL, annot_cols_df = NULL, legend_order = NULL) {
+                              annot_rows_df = NULL, annot_cols_df = NULL,
+                              bins = NULL, limits = NULL, high = NULL, mid = NULL, low = NULL,
+                              na_col = "grey50", midpoint = 0, size_range = NULL,
+                              legend_order = NULL) {
 
   scales_to_use <- dplyr::case_when(mode %in% c("heatmap", "hm") ~ "fill",
                                     mode %in% c("text") ~ "col",
@@ -28,7 +39,10 @@ make_legend_order <- function(mode, col_scale = NULL, size_scale = NULL,
   scale_vec <- unlist(scale_list)
 
   # Remove scales if only one is needed (e.g. two fill modes but only one scale (or none) provided
-  scale_vec <- remove_duplicate_scales(scale_vec, col_scale, size_scale)
+  # But don't remove if there are two values for a parameter like bins, high. low, etc
+  scale_vec <- remove_duplicate_scales(scale_vec, col_scale, size_scale,
+                                       bins, limits, high, mid, low, na_col,
+                                       midpoint, size_range)
 
   # Assign scales a legend order
   if (!is.null(legend_order) && !all(is.na(legend_order)) && !is.numeric(legend_order)) {
@@ -78,11 +92,14 @@ make_legend_order <- function(mode, col_scale = NULL, size_scale = NULL,
 
 }
 
+
 #' Remove duplicate scales.
 #'
 #' If a mixed layout uses the same aesthetic for both triangles and only one (or no) colour or size scale has been specified, remove redundant scales.
 #'
 #' @keywords internal
+#'
+#' @inheritParams make_legend_order
 #'
 #' @param scale_vec Vector of scale aesthetics.
 #' @param col_scale Input colour scales (NULL, string or scale object).
@@ -90,8 +107,22 @@ make_legend_order <- function(mode, col_scale = NULL, size_scale = NULL,
 #'
 #' @returns Vector of aesthetics with duplicates removed if appropriate.
 #'
-remove_duplicate_scales <- function(scale_vec, col_scale = NULL, size_scale = NULL) {
+remove_duplicate_scales <- function(scale_vec, col_scale = NULL, size_scale = NULL,
+                                    bins, limits, high, mid, low, na_col,
+                                    midpoint, size_range) {
   for (i in c("fill", "col", "size", "none")) {
+    # Skip if some parameter has multiple values
+    if (i %in% c("fill", "col")) {
+      if (any(lengths(list(bins, high, mid, low, na_col, midpoint)) > 1) ||
+          (is.list(limits) && length(limits) > 1)) {
+        next
+      }
+    } else if (i == "size") {
+      if (is.list(size_range) && length(size_range) > 1) {
+        next
+      }
+    }
+
     input_scale <- switch(i, "fill" = , "col" = col_scale, "size" = size_scale, "none" = NULL)
     if (sum(scale_vec == i) == 2 &&                                         # Only remove if two of the same name and
         ((length(input_scale) < 2 || all(is.null(unlist(input_scale)))) ||  # input scales not a list with two scales or strings, or
@@ -111,6 +142,7 @@ remove_duplicate_scales <- function(scale_vec, col_scale = NULL, size_scale = NU
 #'
 #' @param scale_order List of necessary scales and their orders, as obtained make_legend_order.
 #' @param context Scale context (gghm or ggcorrhm) for deciding which defaults to use.
+#' @param layout Layout of plot to treat parameters depending on length.
 #' @param val_type String with type of value ('continuous' or 'discrete').
 #' @param col_scale Colour scales input.
 #' @param col_name Colour scale names.
@@ -127,7 +159,8 @@ remove_duplicate_scales <- function(scale_vec, col_scale = NULL, size_scale = NU
 #'
 #' @returns ggplot2 scales for the plot.
 #'
-prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_type,
+prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"),
+                           layout, val_type,
                            col_scale = NULL, col_name = "value",
                            size_scale = NULL, size_name = "value",
                            bins = NULL, limits = c(-1, 1),
@@ -135,10 +168,29 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
                            size_range = NULL, na_col = "grey50") {
 
   # Input class checks
-  check_numeric(bins = bins, allow_null = T, allowed_lengths = 1)
-  check_numeric(limits = limits, allow_null = T, allowed_lengths = 2)
-  check_numeric(midpoint = midpoint, allow_null = F, allowed_lengths = 1)
-  check_numeric(size_range = size_range, allow_null = T, allowed_lengths = c(1, 2))
+  if (length(layout) == 2) {
+    if (!is.list(bins)) {bins <- as.list(bins)}
+    if (!is.list(midpoint)) {midpoint <- as.list(midpoint)}
+
+    check_numeric(bins = bins, allow_null = TRUE, allowed_lengths = 1, list_allowed = TRUE)
+    check_numeric(limits = limits, allow_null = TRUE, allowed_lengths = 2, list_allowed = TRUE)
+    check_numeric(midpoint = midpoint, allow_null = FALSE, allowed_lengths = 1, list_allowed = TRUE)
+    check_numeric(size_range = size_range, allow_null = TRUE, allowed_lengths = c(1, 2), list_allowed = TRUE)
+  } else {
+    check_numeric(bins = bins, allow_null = TRUE, allowed_lengths = 1)
+    check_numeric(limits = limits, allow_null = TRUE, allowed_lengths = 2)
+    check_numeric(midpoint = midpoint, allow_null = FALSE, allowed_lengths = 1)
+    check_numeric(size_range = size_range, allow_null = TRUE, allowed_lengths = c(1, 2))
+
+    bins <- list(bins)
+    limits <- list(limits)
+    midpoint <- list(midpoint)
+    size_range <- list(size_range)
+    high <- list(high)
+    mid <- list(mid)
+    low <- list(low)
+    na_col <- list(na_col)
+  }
 
   # Put scales into lists
   if (is.vector(col_scale)) {
@@ -179,13 +231,15 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
     } else if (is.character(input_scale) && scl != "size") {
       # If a character, check that it's a valid brewer or viridis scale and if so use that
       scl_temp <- get_colour_scale(input_scale, val_type = val_type[1], aes_type = scl, title = scale_title,
-                                   limits = limits, bins = bins, leg_order = legend_order, na_col = na_col)
+                                   limits = limits[[colr_id]], bins = bins[[colr_id]],
+                                   leg_order = legend_order, na_col = na_col[[colr_id]])
 
       if (is.null(scl_temp)) {
         # If it didn't work, use default
         main_scales_out[[i]] <- switch(context,
-                                       "gghm" = default_scale(val_type[1], scl, legend_order, scale_title, na_col, bins, limits),
-                                       "ggcorrhm" = default_scale_corr(scl, bins, limits, size_range, high, mid, low, midpoint, na_col, legend_order, scale_title))
+                                       "gghm" = default_col_scale(val_type[1], scl, legend_order, scale_title, na_col[[colr_id]], bins[[colr_id]], limits[[colr_id]]),
+                                       "ggcorrhm" = default_col_scale_corr(scl, bins[[colr_id]], limits[[colr_id]], high[[colr_id]], mid[[colr_id]],
+                                                                           low[[colr_id]], midpoint[[colr_id]], na_col[[colr_id]], legend_order, scale_title))
       } else {
         main_scales_out[[i]] <- scl_temp
       }
@@ -202,10 +256,18 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
                         class = "scale_class_warn")
         }
       }
+
       # Otherwise make the default scale
-      main_scales_out[[i]] <- switch(context,
-                                     "gghm" = default_scale(val_type[1], scl, legend_order, scale_title, na_col, bins, limits),
-                                     "ggcorrhm" = default_scale_corr(scl, bins, limits, size_range, high, mid, low, midpoint, na_col, legend_order, scale_title))
+      if (scl == "size") {
+        main_scales_out[[i]] <- switch(context,
+                                       "gghm" = default_size_scale(val_type[1], legend_order, scale_title),
+                                       "ggcorrhm" = default_size_scale_corr(size_range[[size_id]], legend_order, scale_title))
+      } else {
+        main_scales_out[[i]] <- switch(context,
+                                       "gghm" = default_col_scale(val_type[1], scl, legend_order, scale_title, na_col[[colr_id]], bins[[colr_id]], limits[[colr_id]]),
+                                       "ggcorrhm" = default_col_scale_corr(scl, bins[[colr_id]], limits[[colr_id]], high[[colr_id]], mid[[colr_id]],
+                                                                           low[[colr_id]], midpoint[[colr_id]], na_col[[colr_id]], legend_order, scale_title))
+      }
 
     }
 
@@ -228,6 +290,7 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"), val_typ
 #' @param bins Number of bins if binned scale.
 #' @param leg_order Order of legend.
 #' @param title Legend title.
+#' @param na_col Colour of NA cells.
 #'
 #' @returns ggplot2 scale using Brewer or Viridis.
 #'
@@ -241,8 +304,8 @@ get_colour_scale <- function(name, val_type, aes_type, limits = NULL, bins = NUL
   # Set direction of scale
   scl_dir <- 1
   # If the name contains "rev_" or "_rev", reverse the scale
-  if (grepl("^rev_|_rev$", name, ignore.case = T)) {
-    name <- gsub("^rev_|_rev$", "", name, ignore.case = T)
+  if (grepl("^rev_|_rev$", name, ignore.case = TRUE)) {
+    name <- gsub("^rev_|_rev$", "", name, ignore.case = TRUE)
     scl_dir <- -1
   }
 
@@ -287,7 +350,7 @@ get_colour_scale <- function(name, val_type, aes_type, limits = NULL, bins = NUL
   # Make an option for binned continuous scales and add input argument for scale
   if (is.numeric(bins) && val_type == "continuous") {
     aes_type <- paste0(aes_type, "_bin")
-    scl_inputs <- append(scl_inputs, list(n.breaks = bins - 1, nice.breaks = ifelse(is.integer(bins), F, T)))
+    scl_inputs <- append(scl_inputs, list(n.breaks = bins - 1, nice.breaks = ifelse(is.integer(bins), FALSE, TRUE)))
   }
 
   scl_fun <- if (name %in% brw_pal) {
@@ -323,14 +386,13 @@ get_colour_scale <- function(name, val_type, aes_type, limits = NULL, bins = NUL
 }
 
 
-#' Get a default scale for correlation heatmaps.
+#' Get a default colour scale for correlation heatmaps.
 #'
 #' @keywords internal
 #'
 #' @param aes_type Type of aesthetic ('fill', 'col', or 'size').
 #' @param bins Number of bins (for fill and colour scales).
 #' @param limits Scale limits (fill and colour).
-#' @param size_range Range of sizes (size).
 #' @param high Colours at higher end of fill or colour scale.
 #' @param mid Colours at middle point of fill or colour scale.
 #' @param low Colours at lower end of fill or colour scale.
@@ -341,30 +403,27 @@ get_colour_scale <- function(name, val_type, aes_type, limits = NULL, bins = NUL
 #'
 #' @returns ggplot2 scale for correlation heatmap.
 #'
-default_scale_corr <- function(aes_type, bins = NULL, limits = c(-1, 1), size_range = NULL,
-                               high = "sienna2", mid = "white", low = "skyblue2", midpoint = 0,
-                               na_col = "grey50", leg_order = 1, title = ggplot2::waiver()) {
+default_col_scale_corr <- function(aes_type, bins = NULL, limits = c(-1, 1),
+                                   high = "sienna2", mid = "white", low = "skyblue2", midpoint = 0,
+                                   na_col = "grey50", leg_order = 1, title = ggplot2::waiver()) {
 
-  if (aes_type == "size") {
-    guide_arg <- if (is.na(leg_order)) {"none"} else {ggplot2::guide_legend(order = leg_order)}
-    scale_args <- list(range = size_range, transform = scales::trans_new("abs", abs, abs),
-                       guide = guide_arg, name = title)
-    scale_fun <- ggplot2::scale_size_continuous
+  # Replace NULL with default colours
+  if (is.null(high)) high <- "sienna2"
+  if (is.null(mid)) mid <- "white"
+  if (is.null(low)) low <- "skyblue2"
 
+  guide_arg <- if (is.na(leg_order)) {"none"} else {ggplot2::guide_colourbar(order = leg_order)}
+  scale_args <- list(limits = limits, high = high, mid = mid, low = low, midpoint = midpoint,
+                     na.value = na_col, name = title, guide = guide_arg)
+  if (is.numeric(bins)) {
+    scale_args <- append(scale_args, list(n.breaks = bins - 1, nice.breaks = ifelse(is.integer(bins), FALSE, TRUE)))
+    scale_fun <- switch(aes_type,
+                        "fill" = ggplot2::scale_fill_steps2,
+                        "col" = ggplot2::scale_colour_steps2)
   } else {
-    guide_arg <- if (is.na(leg_order)) {"none"} else {ggplot2::guide_colourbar(order = leg_order)}
-    scale_args <- list(limits = limits, high = high, mid = mid, low = low, midpoint = midpoint,
-                       na.value = na_col, name = title, guide = guide_arg)
-    if (is.numeric(bins)) {
-      scale_args <- append(scale_args, list(n.breaks = bins - 1, nice.breaks = ifelse(is.integer(bins), F, T)))
-      scale_fun <- switch(aes_type,
-                          "fill" = ggplot2::scale_fill_steps2,
-                          "col" = ggplot2::scale_colour_steps2)
-    } else {
-      scale_fun <- switch(aes_type,
-                          "fill" = ggplot2::scale_fill_gradient2,
-                          "col" = ggplot2::scale_colour_gradient2)
-    }
+    scale_fun <- switch(aes_type,
+                        "fill" = ggplot2::scale_fill_gradient2,
+                        "col" = ggplot2::scale_colour_gradient2)
   }
 
   scale_out <- do.call(scale_fun, scale_args)
@@ -373,7 +432,30 @@ default_scale_corr <- function(aes_type, bins = NULL, limits = c(-1, 1), size_ra
 }
 
 
-#' Get default scale for non-correlation heatmaps.
+#' Get a default size scale for correlation heatmaps.
+#'
+#' @keywords internal
+#'
+#' @param size_range Numeric vector of length 1 or 2 for size limits.
+#' @param leg_order Order of legend.
+#' @param title Title of legend.
+#'
+#' @returns ggplot2 size scale for correlation heatmap (absolute value transform).
+#'
+default_size_scale_corr <- function(size_range = NULL, leg_order = 1, title = ggplot2::waiver()) {
+
+  guide_arg <- if (is.na(leg_order)) {"none"} else {ggplot2::guide_legend(order = leg_order)}
+  scale_args <- list(range = size_range, transform = scales::trans_new("abs", abs, abs),
+                     guide = guide_arg, name = title)
+  scale_fun <- ggplot2::scale_size_continuous
+
+  scale_out <- do.call(ggplot2::scale_size_continuous, scale_args)
+
+  return(scale_out)
+}
+
+
+#' Get default colour scale for non-correlation heatmaps.
 #'
 #' @keywords internal
 #'
@@ -381,13 +463,16 @@ default_scale_corr <- function(aes_type, bins = NULL, limits = c(-1, 1), size_ra
 #' @param aes_type Aesthetic type ('fill', 'col' or 'size).
 #' @param leg_order Order of legend.
 #' @param title Legend title.
+#' @param na_col Colour of NA values.
+#' @param bins Number of bins in scale(s).
+#' @param limits Limits of scales.
 #'
-#' @returns ggplot2 scale for non-correlation heatmaps.
+#' @returns ggplot2 colour scale for non-correlation heatmaps.
 #'
-default_scale <- function(val_type, aes_type, leg_order = 1, title = ggplot2::waiver(),
-                          na_col = "grey50", bins = NULL, limits = NULL) {
+default_col_scale <- function(val_type, aes_type, leg_order = 1, title = ggplot2::waiver(),
+                              na_col = "grey50", bins = NULL, limits = NULL) {
 
-  if (is.numeric(bins) && aes_type != "size" && val_type == "continuous") {
+  if (is.numeric(bins) && val_type == "continuous") {
     aes_type <- paste0(aes_type, "_bins")
   }
 
@@ -398,40 +483,32 @@ default_scale <- function(val_type, aes_type, leg_order = 1, title = ggplot2::wa
       aes_type,
       "fill" = ggplot2::scale_fill_continuous,
       "col" = ggplot2::scale_colour_continuous,
-      "size" = ggplot2::scale_size_continuous,
       "fill_bins" = ggplot2::scale_fill_binned,
       "col_bins" = ggplot2::scale_colour_binned
     ),
     "discrete" = switch(
       aes_type,
       "fill" = ggplot2::scale_fill_discrete,
-      "col" = ggplot2::scale_colour_discrete,
-      "size" = ggplot2::scale_size_discrete
+      "col" = ggplot2::scale_colour_discrete
     )
   )
 
   scale_args <- list(
-    name = title,
+    name = title, na.value = na_col,
     guide = if (is.na(leg_order)) {
       "none"
     } else {
-      if (aes_type == "size") {ggplot2::guide_legend(order = leg_order)}
-      else if (val_type == "continuous") {ggplot2::guide_colourbar(order = leg_order)}
+      if (val_type == "continuous") {ggplot2::guide_colourbar(order = leg_order)}
       else if (val_type == "discrete") {ggplot2::guide_legend(order = leg_order)}
     }
   )
-  if (aes_type != "size") {
-    # Add NA colour if not a size scale
-    scale_args[["na.value"]] <- na_col
+  if (val_type == "continuous") {
+    # Add limits if not discrete
+    scale_args[["limits"]] <- limits
 
-    if (val_type == "continuous") {
-      # Add limits if not discrete
-      scale_args[["limits"]] <- limits
-
-      if (grepl("_bins", aes_type)) {
-        # Finally add bins if binned
-        scale_args <- append(scale_args, list(n.breaks = bins - 1, nice.breaks = ifelse(is.integer(bins), F, T)))
-      }
+    if (grepl("_bins", aes_type)) {
+      # Also add bins if binned
+      scale_args <- append(scale_args, list(n.breaks = bins - 1, nice.breaks = ifelse(is.integer(bins), FALSE, TRUE)))
     }
   }
 
@@ -440,6 +517,33 @@ default_scale <- function(val_type, aes_type, leg_order = 1, title = ggplot2::wa
   return(scale_out)
 }
 
+
+#' Get default size scale for non-correlation heatmaps.
+#'
+#' @keywords internal
+#'
+#' @inheritParams default_col_scale
+#'
+#' @returns ggplot2 size scale for non-correlation heatmaps.
+#'
+default_size_scale <- function(val_type, leg_order = 1, title = ggplot2::waiver()) {
+
+  # Use the default ggplot2 scale but set the order
+  scale_fun <- switch(
+    val_type,
+    "continuous" = ggplot2::scale_size_continuous,
+    "discrete" = ggplot2::scale_size_discrete
+  )
+
+  scale_args <- list(
+    name = title,
+    guide = if (is.na(leg_order)) {"none"} else {ggplot2::guide_legend(order = leg_order)}
+  )
+
+  scale_out <- do.call(scale_fun, scale_args)
+
+  return(scale_out)
+}
 
 #' Pick out relevant scales and format for mixed layout.
 #'
@@ -481,6 +585,7 @@ extract_scales <- function(main_scales, scale_order, aes_type, layout) {
 #' @param annot_cols_df Data frame with annotation for columns.
 #' @param annot_rows_col List with colour scales for rows.
 #' @param annot_cols_col List with colour scales for columns.
+#' @param na_col Colour of NA cells.
 #'
 #' @returns List of length two containing lists of row annotation and column annotation.
 #'
@@ -621,7 +726,7 @@ get_default_annot_scale <- function(num, type) {
   name <- if (type == "discrete") {
     c("Pastel1", "Pastel2", "Set1", "Set2", "Set3", "Paired", "Dark2", "Accent")[num]
   } else if (type == "continuous") {
-    c("D", "A", "G", "C", "E", "B", "F", "H")[num]
+    c("viridis", "magma", "mako", "plasma", "cividis", "inferno", "rocket", "turbo")[num]
   }
 
   return(name)

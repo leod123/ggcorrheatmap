@@ -27,12 +27,12 @@
 #' @returns ggplot object with heatmap component.
 #'
 make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
-                         include_diag = T, invisible_diag = F,
+                         include_diag = TRUE, invisible_diag = FALSE,
                          border_lwd = 0.1, border_col = "grey", border_lty = 1,
-                         show_names_diag = T, show_names_x = F, show_names_y = F,
+                         show_names_diag = TRUE, show_names_x = FALSE, show_names_y = FALSE,
                          names_x_side = "top", names_y_side = "left",
                          col_scale = NULL, size_scale = NULL,
-                         cell_labels = F, cell_label_col = "black",
+                         cell_labels = FALSE, cell_label_col = "black",
                          cell_label_size = 3, cell_label_digits = 2,
                          cell_bg_col = "white", cell_bg_alpha = 0) {
   value <- .data <- label <- NULL

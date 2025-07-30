@@ -24,7 +24,7 @@
 #'
 add_annotation <- function(plt, context = c("rows", "cols"), annot_df, annot_pos, annot_size,
                            annot_border_lwd = 0.5, annot_border_col = "grey", annot_border_lty = 1,
-                           show_annot_names = T, na_remove = F, col_scale = NULL, names_side, name_params = NULL) {
+                           show_annot_names = TRUE, na_remove = FALSE, col_scale = NULL, names_side, name_params = NULL) {
   .names <- .data <- NULL
 
   check_logical(annot_na_remove = na_remove)
@@ -33,13 +33,13 @@ add_annotation <- function(plt, context = c("rows", "cols"), annot_df, annot_pos
   annot_names <- colnames(annot_df)[-which(colnames(annot_df) == ".names")]
 
   plt_out <- plt +
-    lapply(annot_names, \(nm) {
+    lapply(annot_names, function(nm) {
       list(
         # Add separate colour scale for each annotation
         ggnewscale::new_scale_fill(),
 
         # Draw annotation
-        ggplot2::geom_tile(data = dplyr::filter(dplyr::select(annot_df, .names, dplyr::all_of(nm)), if (na_remove) !is.na(get(nm)) else T),
+        ggplot2::geom_tile(data = dplyr::filter(dplyr::select(annot_df, .names, dplyr::all_of(nm)), if (na_remove) !is.na(get(nm)) else TRUE),
                            mapping = ggplot2::aes(x = if (context[1] == "rows") {annot_pos[nm]}
                                                   else {.data[[".names"]]},
                                                   y = if (context[1] == "rows") {.data[[".names"]]}
@@ -110,17 +110,17 @@ prepare_annotation <- function(annot_df, annot_defaults, annot_params, annot_sid
   # Logical for annotation position
   if ((annot_side == "left" && context[1] == "rows") ||
       (annot_side == "bottom" && context[1] == "cols")) {
-    lannot_side <- T
+    lannot_side <- TRUE
   } else if ((annot_side == "right" && context[1] == "rows") ||
              (annot_side == "top" && context[1] == "cols")) {
-    lannot_side <- F
+    lannot_side <- FALSE
   } else {
     var_name <- paste0("annot_", context[1], "_side")
     val_name <- switch(context[1], "rows" = c("left", "right"), "cols" = c("top", "bottom"))
     cli::cli_warn("{.var {var_name}} should be {.val {val_name[1]}} or {.val {val_name[2]}},
                   not {.val {annot_side}}.",
                   class = "annot_side_warn")
-    lannot_side <- switch(context[1], "rows" = F, "cols" = T)
+    lannot_side <- switch(context[1], "rows" = FALSE, "cols" = TRUE)
   }
 
   annot_names <- colnames(annot_df)[-which(colnames(annot_df) == ".names")]
@@ -160,11 +160,12 @@ prepare_annotation <- function(annot_df, annot_defaults, annot_params, annot_sid
                                just = switch(annot_names_side, "bottom" = "right", "top" = "left",
                                              "left" = "right", "right" = "left"))
   # Also defaults for the gp parameter
+  check_numeric(annot_names_size = annot_names_size, allow_null = FALSE, allowed_lengths = 1)
   annot_gp_defaults <- grid::gpar(fontsize = annot_names_size)
-  annot_gp_params <- replace_default(annot_gp_defaults, annot_name_params[["gp"]], add_new = T)
+  annot_gp_params <- replace_default(annot_gp_defaults, annot_name_params[["gp"]], add_new = TRUE)
   annot_name_params[["gp"]] <- annot_gp_params
   # Replace defaults and allow for new parameters to be added
-  annot_name_params <- replace_default(annot_names_defaults, annot_name_params, add_new = T)
+  annot_name_params <- replace_default(annot_names_defaults, annot_name_params, add_new = TRUE)
 
   return(list(annot_df, annot_params, annot_pos, annot_name_params, annot_names_side))
 }
@@ -185,15 +186,15 @@ prepare_annotation <- function(annot_df, annot_defaults, annot_params, annot_sid
 #'
 #' @return Numeric vector of annotation cell positions
 #'
-get_annotation_pos <- function(annot_side = T, annot_names, annot_size, annot_dist, annot_gap, data_size) {
-  positions <- sapply(seq_along(annot_names), \(id) {
+get_annotation_pos <- function(annot_side = TRUE, annot_names, annot_size, annot_dist, annot_gap, data_size) {
+  positions <- sapply(seq_along(annot_names), function(id) {
     ifelse(annot_side, 1, data_size) +            # To middle of first or last column/row
       (0.5 + annot_dist +                         # Add half of cell width + specified distance to heatmap
          0.5 * annot_size +                       # Add half of annotation width (cell middle point is the coordinate for the cell)
          annot_size * (id - 1) +                  # Add width of previous annotations
          annot_gap * (id - 1)) *                  # Add gap between annotations
       ifelse(annot_side, -1, 1)                   # Subtract if left side, add if right side
-  }, simplify = T)
+  }, simplify = TRUE)
 
   names(positions) <- annot_names
 
