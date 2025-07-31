@@ -1,12 +1,16 @@
 # ggcorrheatmap (development version)
 
-## Updated arguments
+## New features
 
 * The scale-modifying arguments `bins`, `limits`, `high`, `mid`, `low`, and `size_range` can now take two inputs in mixed layouts.
 
-## Patches
+* The new `gghm_tidy()` and `ggcorrhm_tidy()` functions can make heatmaps from long format data using tidy input.
 
-* Fix default continuous colour scale nr 7.
+## Minor fixes
+
+* The default continuous colour scale nr 7 now works.
+
+* The `bins` argument will no longer take non-integer values below 3 as they don't work. Negative numbers are also not accepted.
 
 # ggcorrheatmap 0.1.2
 

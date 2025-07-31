@@ -14,7 +14,7 @@ shape_mat_long(x, unique_pairs = FALSE, na_remove = FALSE)
 \item{na_remove}{Logical indicating if NAs should be excluded (removes NaNs too).}
 }
 \value{
-A data frame with the columns 'row', 'column' (indicating combinations), and 'value'
+A data frame with the columns 'row', 'col' (indicating combinations), and 'value'.
 }
 \description{
 Convert a matrix to long format using row names and column names.

@@ -6,7 +6,7 @@
 #' @param unique_pairs Whether only unique combinations should be included in the output (for symmetric matrices).
 #' @param na_remove Logical indicating if NAs should be excluded (removes NaNs too).
 #'
-#' @returns A data frame with the columns 'row', 'column' (indicating combinations), and 'value'
+#' @returns A data frame with the columns 'row', 'col' (indicating combinations), and 'value'.
 #'
 shape_mat_long <- function(x, unique_pairs = FALSE, na_remove = FALSE) {
   rowcol <- value <- NULL
