@@ -286,6 +286,13 @@ test_that("warnings and errors", {
   expect_error(gghm(mtcars, limits = "a"), class = "numeric_error")
   expect_error(gghm(iris[1:20, -5], bins = TRUE), class = "numeric_error")
   expect_error(gghm(iris[1:20, -5], bins = c(1, 2)), class = "numeric_error")
+  # Too few bins in when float numbers
+  # (if 2 there is an error, if 1 or lower it keeps running without finising)
+  expect_error(gghm(mtcars, bins = 1), class = "float_bin_error")
+  # coercion to double vector
+  expect_error(gghm(cor(mtcars), layout = c("tl", "br"), bins = c(2, 4L)), class = "float_bin_error")
+  # also in a list
+  expect_error(gghm(cor(mtcars), layout = c("tl", "br"), bins = list(2, 4L)), class = "float_bin_error")
 })
 
 test_that("annotation names must exist in the data", {

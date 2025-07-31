@@ -176,11 +176,32 @@ prepare_scales <- function(scale_order, context = c("gghm", "ggcorrhm"),
     check_numeric(limits = limits, allow_null = TRUE, allowed_lengths = 2, list_allowed = TRUE)
     check_numeric(midpoint = midpoint, allow_null = FALSE, allowed_lengths = 1, list_allowed = TRUE)
     check_numeric(size_range = size_range, allow_null = TRUE, allowed_lengths = c(1, 2), list_allowed = TRUE)
+
+    # Additionally, check if bins is positive, or is float and <3 as those don't work with nice.breaks
+    sapply(bins, function(bin) {
+      if (!is.null(bin) && bin < 0) {
+        cli::cli_abort("{.var bins} must be positive.",
+                       class = "small_bin_error")
+      }
+      if (is.double(bin) && bin < 3) {
+        cli::cli_abort("If {.var bins} is of class {.cls double} it must be 3 or higher.",
+                       class = "float_bin_error")
+      }
+    })
+
   } else {
     check_numeric(bins = bins, allow_null = TRUE, allowed_lengths = 1)
     check_numeric(limits = limits, allow_null = TRUE, allowed_lengths = 2)
     check_numeric(midpoint = midpoint, allow_null = FALSE, allowed_lengths = 1)
     check_numeric(size_range = size_range, allow_null = TRUE, allowed_lengths = c(1, 2))
+    if (!is.null(bins) && bins < 0) {
+      cli::cli_abort("{.var bins} must be positive.",
+                     class = "small_bin_error")
+    }
+    if (is.double(bins) && bins < 3) {
+      cli::cli_abort("If {.var bins} is of class {.cls double} it must be 3 or higher.",
+                     class = "float_bin_error")
+    }
 
     bins <- list(bins)
     limits <- list(limits)
