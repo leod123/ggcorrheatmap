@@ -181,27 +181,21 @@ Not supported for numeric \code{mode}.}
 
 \item{names_diag_params}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
 
-\item{show_names_x}{Logical indicating if names should be written on the x axis. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
+\item{show_names_x, show_names_y}{Logical indicating if names should be written on the x and y axes. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
 
 \item{names_x_side}{String specifying position of the x axis names ("top" or "bottom").}
 
-\item{show_names_y}{Logical indicating if names should be written on the y axis.}
-
 \item{names_y_side}{String specifying position of the y axis names ("left" or "right").}
 
-\item{annot_rows_df}{Data frame for row annotations. The names of the columns in the data must be included,
+\item{annot_rows_df, annot_cols_df}{Data frame for row and column annotations. The names of the columns in the data must be included,
 either as row names or in a column named \code{.names}. Each other column specifies an annotation where the column name
 will be used as the annotation name (in the legend and next to the annotation). Numeric columns will use a continuous
 colour scale while factor or character columns use discrete scales.}
 
-\item{annot_cols_df}{Same usage as \code{annot_rows_df} but for column annotation.}
-
-\item{annot_rows_col}{Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
+\item{annot_rows_col, annot_cols_col}{Named list for row and column annotation colour scales. The names should specify which annotation each scale applies to.
 Elements can be strings or ggplot2 "Scale" class objects. If a string, it is used as the brewer palette or viridis option.
 If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
 specify order using the \code{guide} argument in the \code{ggplot2} scale function.}
-
-\item{annot_cols_col}{Named list used for column annotation colour scales, used like \code{annot_rows_col}.}
 
 \item{annot_rows_side}{String specifying which side row annotation should be drawn ('left' or 'right', defaults to 'left').}
 
@@ -224,10 +218,8 @@ the \verb{annot_*_fill} arguments.}
 
 \item{annot_na_remove}{Logical indicating if NAs in the annotations should be removed (producing empty spaces).}
 
-\item{annot_rows_params}{Named list with parameters for row annotations to overwrite the defaults set by the \verb{annot_*} arguments, each name corresponding to the \code{*} part
+\item{annot_rows_params, annot_cols_params}{Named list with parameters for row or column annotations to overwrite the defaults set by the \verb{annot_*} arguments, each name corresponding to the \code{*} part
 (see details of \code{gghm()} for more information).}
-
-\item{annot_cols_params}{Named list with parameters for column annotations, used like \code{annot_rows_params}.}
 
 \item{show_annot_names}{Logical controlling if names of annotations should be shown in the drawing area.}
 
@@ -237,21 +229,15 @@ the \verb{annot_*_fill} arguments.}
 
 \item{annot_cols_names_side}{String specifying which side the column annotation names should be on. Either "left" or "right".}
 
-\item{annot_rows_name_params}{Named list of parameters for row annotation names. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
+\item{annot_rows_name_params, annot_cols_name_params}{Named list of parameters for row and column annotation names. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
 
-\item{annot_cols_name_params}{Named list of parameters for column annotation names. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
-
-\item{cluster_rows}{Logical indicating if rows should be clustered. Can also be a \code{hclust} or \code{dendrogram} object.}
-
-\item{cluster_cols}{Logical indicating if columns should be clustered. Can also be a \code{hclust} or \code{dendrogram} object.}
+\item{cluster_rows, cluster_cols}{Logical indicating if rows or columns should be clustered. Can also be \code{hclust} or \code{dendrogram} objects.}
 
 \item{cluster_distance}{String with the distance metric to use for clustering, given to \code{stats::dist()}.}
 
 \item{cluster_method}{String with the clustering method to use, given to \code{stats::hclust()}.}
 
-\item{show_dend_rows}{Logical indicating if a dendrogram should be drawn for the rows.}
-
-\item{show_dend_cols}{Logical indicating if a dendrogram should be drawn for the columns.}
+\item{show_dend_rows, show_dend_cols}{Logical indicating if a dendrogram should be drawn for the rows or columns.}
 
 \item{dend_rows_side}{Which side to draw the row dendrogram on ('left' or 'right', defaults to 'left').}
 
@@ -267,13 +253,9 @@ the \verb{annot_*_fill} arguments.}
 
 \item{dend_lty}{Dendrogram line type, applied to both row and column dendrograms.}
 
-\item{dend_rows_params}{Named list for row dendrogram parameters. See details of \code{gghm()} for more information.}
+\item{dend_rows_params, dend_cols_params}{Named list for row or column dendrogram parameters. See details of \code{gghm()} for more information.}
 
-\item{dend_cols_params}{Named list for column dendrogram parameters. See details of \code{gghm()} for more information.}
-
-\item{dend_rows_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the row dendrogram. See details of \code{gghm()} and \code{ggcorrhm()} for usage.}
-
-\item{dend_cols_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the column dendrogram. See details of \code{gghm()} and \code{ggcorrhm()} for usage.}
+\item{dend_rows_extend, dend_cols_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the row or column dendrogram. See details of \code{gghm()} and \code{ggcorrhm()} for usage.}
 }
 \value{
 The correlation heatmap as a \code{ggplot} object.

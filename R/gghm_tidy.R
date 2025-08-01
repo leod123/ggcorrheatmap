@@ -1,17 +1,14 @@
-#' `gghm()` for long format data using 'tidy' input.
+#' `gghm()` for long format data.
 #'
 #' @param x Data frame containing data to plot.
-#' @param rows Name of column to use as rows.
-#' @param cols Name of column to use as columns.
-#' @param values Name of column to use for cell values.
-#' @param labels Name of column to use for cell labels. NULL (default) for no labels.
-#' @param annot_rows Names of columns to use for row annotations.
-#' @param annot_cols Names of columns to use for column annotations.
+#' @param rows,cols,values Columns to use as rows, columns, and cell values.
+#' @param labels Column to use for cell labels. NULL (default) for no labels.
+#' @param annot_rows Columns to use for row annotations.
+#' @param annot_cols Columns to use for column annotations.
 #' @param ... Additional arguments for `gghm()`.
 #'
-#' @export
-#'
 #' @return A ggplot2 object with the heatmap. If `return_data` is `TRUE`, plotting data is returned as well.
+#' @export
 #'
 #' @examples
 #' # Basic example
@@ -26,6 +23,8 @@
 #' hm_in$row_annot1 <- rep(1:10, each = 5)
 #' hm_in$row_annot2 <- rep(10:1, each = 5)
 #' hm_in$col_annot <- rep(letters[1:5], 10)
+#' # Columns are given using 'tidy' selection
+#' # so they can be unquoted, quoted, from variables (with !! notation) or indices
 #' gghm_tidy(hm_in, row, col, val,
 #'           annot_rows = c(row_annot1, row_annot2),
 #'           annot_cols = col_annot,
@@ -39,10 +38,14 @@
 #'
 gghm_tidy <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, annot_cols = NULL, ...) {
 
-  if (missing(x)) cli::cli_abort("Argument {.var x} is missing. It needs to be a data frame.")
-  if (missing(rows)) cli::cli_abort("Argument {.var rows} is missing. Provide the name of the column that contains the heatmap rownames.")
-  if (missing(cols)) cli::cli_abort("Argument {.var cols} is missing. Provide the name of the column that contains the heatmap colnames.")
-  if (missing(values)) cli::cli_abort("Argument {.var values} is missing. Provide the name of the column that contains the heatmap values.")
+  if (missing(x)) cli::cli_abort("Argument {.var x} is missing. It needs to be a data frame.",
+                                 class = "tidy_missing_error")
+  if (missing(rows)) cli::cli_abort("Argument {.var rows} is missing. Provide the name of the column that contains the heatmap rownames.",
+                                    class = "tidy_missing_error")
+  if (missing(cols)) cli::cli_abort("Argument {.var cols} is missing. Provide the name of the column that contains the heatmap colnames.",
+                                    class = "tidy_missing_error")
+  if (missing(values)) cli::cli_abort("Argument {.var values} is missing. Provide the name of the column that contains the heatmap values.",
+                                      class = "tidy_missing_error")
 
   if (!is.data.frame(x)) {
     cli::cli_abort("{.var x} must be a {.cls data.frame}, not a {.cls {class(x)}}.",
@@ -107,15 +110,12 @@ gghm_tidy <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, a
   return(plt)
 }
 
-#' `ggcorrhm()` for long format data using 'tidy' input.
+#' `ggcorrhm()` for long format data.
 #'
 #' @param x Data containing data to plot or to correlate.
-#' @param rows Name of column to use as rows in the plotted matrix (if `cor_in` is TRUE) or the matrix to compute correlations from (`cor_in` is FALSE).
-#' @param cols Name of column to use as columns in the plotted matrix (if `cor_in` is TRUE) or the matrix to compute correlations from (`cor_in` is FALSE).
-#' @param values Name of column to use as correlation values (if `cor_in` is TRUE) or values in the matrix to compute correlations from (`cor_in` is FALSE).
-#' @param annot_rows Names of columns containing values for row annotations.
-#' @param annot_cols Names of columns containing values for column annotations.
-#' @param labels Name of column to use for cell labels, NULL for no labels, or TRUE to use the cell values. If `cor_in` is FALSE, only NULL, TRUE or FALSE is supported.
+#' @param rows,cols,values Columns to use as rows, columns, and values in the plotted matrix (if `cor_in` is TRUE) or the matrix to compute correlations from (`cor_in` is FALSE).
+#' @param annot_rows,annot_cols Columns containing values for row and column annotations.
+#' @param labels Column to use for cell labels, NULL for no labels, or TRUE to use the cell values. If `cor_in` is FALSE, only NULL, TRUE or FALSE is supported.
 #' @param cor_in Logical indicating if the values are correlation values (TRUE, default) or values to be correlated. See details for more information.
 #' @param ... Additional arguments for `ggcorrhm()`.
 #'
@@ -127,6 +127,9 @@ gghm_tidy <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, a
 #' This means that if asymmetric correlation matrices are to be plotted the correlations have to be computed
 #' in advance and plotted with `cor_in` as TRUE. Additionally, `annot_rows` and `annot_cols` will both use
 #' the `cols` column for names, and `labels` can only take TRUE or FALSE.
+#'
+#' On the other hand, if `cor_in` is TRUE any computation of correlations is skipped, meaning that p-values
+#' cannot be computed and would have to be generated in advance and passed as cell labels.
 #'
 #' @returns A ggplot2 object with the heatmap. If `return_data` is `TRUE`, plotting data is returned as well.
 #' @export
@@ -154,10 +157,14 @@ gghm_tidy <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, a
 ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols = NULL,
                           labels = NULL, cor_in = TRUE, ...) {
 
-  if (missing(x)) cli::cli_abort("Argument {.var x} is missing. It needs to be a data frame.")
-  if (missing(rows)) cli::cli_abort("Argument {.var rows} is missing. Provide the name of the column that contains the heatmap rownames.")
-  if (missing(cols)) cli::cli_abort("Argument {.var cols} is missing. Provide the name of the column that contains the heatmap colnames.")
-  if (missing(values)) cli::cli_abort("Argument {.var values} is missing. Provide the name of the column that contains the heatmap values.")
+  if (missing(x)) cli::cli_abort("Argument {.var x} is missing. It needs to be a data frame.",
+                                 class = "tidy_missing_error")
+  if (missing(rows)) cli::cli_abort("Argument {.var rows} is missing. Provide the name of the column that contains the heatmap rownames.",
+                                    class = "tidy_missing_error")
+  if (missing(cols)) cli::cli_abort("Argument {.var cols} is missing. Provide the name of the column that contains the heatmap colnames.",
+                                    class = "tidy_missing_error")
+  if (missing(values)) cli::cli_abort("Argument {.var values} is missing. Provide the name of the column that contains the heatmap values.",
+                                      class = "tidy_missing_error")
 
   if (!is.data.frame(x)) {
     cli::cli_abort("{.var x} must be a {.cls data.frame}, not a {.cls {class(x)}}.",
@@ -262,39 +269,105 @@ ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols =
 }
 
 
-cor_long <- function(x, row1, col1, value1,
-                     y = NULL, row2 = NULL, col2 = NULL, value2 = NULL,
+#' Make a correlation matrix from long format data.
+#'
+#' @param x A long format data frame containing the data to correlate.
+#' @param rows1,cols1,values1 The columns in `x` containing the values that should be in the rows and columns of the correlation matrix.
+#' @param values1 Name of the column in `x` containing the values of the correlation matrix.
+#' @param y Optional second data frame for correlating with the data frame from `x`.
+#' @param rows2,cols2 Optional names of columns with values for the rows and columns of a second matrix. If `y` is a data frame, `rows2` is taken from `y`.
+#' Otherwise it is taken from `x`.
+#' @param values2 Optional column for the values of a second matrix.
+#' @param out_format Format of output correlation matrix ("long" or "wide").
+#' @param method Correlation method given to `stats::cor()`.
+#' @param use Missing value strategy of `stats::cor()`.
+#'
+#' @details
+#' If there is only one input data frame (`x`) and `rows2`, `cols2` and `values2` are NULL (the default),
+#' a wide matrix is constructed from `x` and passed to `stats::cor()`, resulting in a correlation matrix
+#' with the column-column correlations.
+#'
+#' If `y` is a data frame and `rows2`, `cols2` and `values2` are specified, the wide versions of `x` and `y` are
+#' correlated (`stats::cor(wide_x, wide_y)`) resulting in a correlation matrix with the columns of `x` in the
+#' rows and the columns of `y` in the columns.
+#'
+#' If `y` is NULL but `rows2`, `cols2` and `values2` are specified, the columns are taken from `x`,
+#' creating two matrices to correlate from `x`.
+#'
+#' @returns A correlation matrix (if wide format) or a long format data frame with the columns
+#' 'row', 'col', and 'value' (containing correlations).
+#'
+#' @export
+#'
+#' @examples
+#' set.seed(123)
+#' cor_in <- data.frame(row = rep(letters[1:10], each = 5),
+#'                      col = rep(LETTERS[1:5], 10),
+#'                      val = rnorm(50))
+#' # Wide format output (default)
+#' corr_wide <- cor_long(cor_in, row, col, val)
+#'
+#' # Long format output
+#' corr_long <- cor_long(cor_in, row, col, val,
+#'                       out_format = "long")
+#'
+#' # Correlation between two matrices
+#' cor_in2 <- data.frame(rows = rep(letters[1:10], each = 10),
+#'                       cols = rep(letters[1:10], 10),
+#'                       values = rnorm(100))
+#' corr2 <- cor_long(cor_in, row, col, val,
+#'                   cor_in2, rows, cols, values)
+#'
+cor_long <- function(x, rows1, cols1, values1,
+                     y = NULL, rows2 = NULL, cols2 = NULL, values2 = NULL,
                      out_format = c("wide", "long"),
-                     method = "spearman", use = "everything") {
-  x_long <- dplyr::select(x, {{row1}}, {{col1}}, {{value1}})
+                     method = "pearson", use = "everything") {
+
+  if (missing(x)) cli::cli_abort("Argument {.var x} is missing. It needs to be a data frame.")
+  if (missing(rows1)) cli::cli_abort("Argument {.var rows1} is missing. Provide the name of the column that contains the heatmap rownames.")
+  if (missing(cols1)) cli::cli_abort("Argument {.var cols1} is missing. Provide the name of the column that contains the heatmap colnames.")
+  if (missing(values1)) cli::cli_abort("Argument {.var values1} is missing. Provide the name of the column that contains the heatmap values.")
+
+  x_long <- dplyr::select(x, {{rows1}}, {{cols1}}, {{values1}})
+
+  if (ncol(x_long) > 3) {
+    cli::cli_abort("Too many columns, provide one column each for {.var rows1}, {.var cols1} and {.var values1}.",
+                   class = "tidy_too_many_cols_error")
+  }
+
   # shape_mat_wide needs specific colnames
   colnames(x_long) <- c("row", "col", "value")
   x_long <- as.data.frame(x_long)
   x_wide <- shape_mat_wide(x_long)
 
   # Check if there should be a y matrix
-  make_y <- !rlang::quo_is_null(rlang::enquo(row2)) &&
-    !rlang::quo_is_null(rlang::enquo(col2)) &&
-    !rlang::quo_is_null(rlang::enquo(value2))
+  make_y <- !rlang::quo_is_null(rlang::enquo(rows2)) &&
+    !rlang::quo_is_null(rlang::enquo(cols2)) &&
+    !rlang::quo_is_null(rlang::enquo(values2))
 
   not_all_y <- any(
-    !rlang::quo_is_null(rlang::enquo(row2)) ||
-      !rlang::quo_is_null(rlang::enquo(col2)) ||
-      !rlang::quo_is_null(rlang::enquo(value2))
+    !rlang::quo_is_null(rlang::enquo(rows2)) ||
+      !rlang::quo_is_null(rlang::enquo(cols2)) ||
+      !rlang::quo_is_null(rlang::enquo(values2))
   )
 
   if (not_all_y && !make_y) {
-    cli::cli_abort("{.var {c('row2', 'col2', 'value2')}} all need to be not NULL to correlate two matrices.",
+    cli::cli_abort("{.var {c('rows2', 'cols2', 'values2')}} all need to be not NULL to correlate two matrices.",
                    class = "too_few_args_error")
   }
 
   if (make_y) {
     # Either take columns for y from y input or use the x input
     y_long <- if (is.data.frame(y)) {
-      dplyr::select(y, {{row2}}, {{col2}}, {{value2}})
+      dplyr::select(y, {{rows2}}, {{cols2}}, {{values2}})
     } else {
-      dplyr::select(x, {{row2}}, {{col2}}, {{value2}})
+      dplyr::select(x, {{rows2}}, {{cols2}}, {{values2}})
     }
+    if (ncol(y_long) > 3) {
+      cli::cli_abort("Too many columns, provide one column each for {.var rows2}, {.var cols2} and {.var values2}.",
+                     class = "tidy_too_many_cols_error")
+    }
+
     colnames(y_long) <- c("row", "col", "value")
     y_long <- as.data.frame(y_long)
     y_wide <- shape_mat_wide(y_long)

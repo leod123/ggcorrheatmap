@@ -2,7 +2,7 @@
 % Please edit documentation in R/gghm_tidy.R
 \name{ggcorrhm_tidy}
 \alias{ggcorrhm_tidy}
-\title{\code{ggcorrhm()} for long format data using 'tidy' input.}
+\title{\code{ggcorrhm()} for long format data.}
 \usage{
 ggcorrhm_tidy(
   x,
@@ -19,17 +19,11 @@ ggcorrhm_tidy(
 \arguments{
 \item{x}{Data containing data to plot or to correlate.}
 
-\item{rows}{Name of column to use as rows in the plotted matrix (if \code{cor_in} is TRUE) or the matrix to compute correlations from (\code{cor_in} is FALSE).}
+\item{rows, cols, values}{Columns to use as rows, columns, and values in the plotted matrix (if \code{cor_in} is TRUE) or the matrix to compute correlations from (\code{cor_in} is FALSE).}
 
-\item{cols}{Name of column to use as columns in the plotted matrix (if \code{cor_in} is TRUE) or the matrix to compute correlations from (\code{cor_in} is FALSE).}
+\item{annot_rows, annot_cols}{Columns containing values for row and column annotations.}
 
-\item{values}{Name of column to use as correlation values (if \code{cor_in} is TRUE) or values in the matrix to compute correlations from (\code{cor_in} is FALSE).}
-
-\item{annot_rows}{Names of columns containing values for row annotations.}
-
-\item{annot_cols}{Names of columns containing values for column annotations.}
-
-\item{labels}{Name of column to use for cell labels, NULL for no labels, or TRUE to use the cell values. If \code{cor_in} is FALSE, only NULL, TRUE or FALSE is supported.}
+\item{labels}{Column to use for cell labels, NULL for no labels, or TRUE to use the cell values. If \code{cor_in} is FALSE, only NULL, TRUE or FALSE is supported.}
 
 \item{cor_in}{Logical indicating if the values are correlation values (TRUE, default) or values to be correlated. See details for more information.}
 
@@ -39,7 +33,7 @@ ggcorrhm_tidy(
 A ggplot2 object with the heatmap. If \code{return_data} is \code{TRUE}, plotting data is returned as well.
 }
 \description{
-\code{ggcorrhm()} for long format data using 'tidy' input.
+\code{ggcorrhm()} for long format data.
 }
 \details{
 If \code{cor_in} is TRUE (the default), \code{ggcorrhm_tidy()} behaves similarly to \code{gghm_tidy()} but with the colour
@@ -49,6 +43,9 @@ If \code{cor_in} FALSE, the data is converted to wide format and the column-colu
 This means that if asymmetric correlation matrices are to be plotted the correlations have to be computed
 in advance and plotted with \code{cor_in} as TRUE. Additionally, \code{annot_rows} and \code{annot_cols} will both use
 the \code{cols} column for names, and \code{labels} can only take TRUE or FALSE.
+
+On the other hand, if \code{cor_in} is TRUE any computation of correlations is skipped, meaning that p-values
+cannot be computed and would have to be generated in advance and passed as cell labels.
 }
 \examples{
 library(dplyr)

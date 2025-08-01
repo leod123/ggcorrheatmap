@@ -42,12 +42,10 @@
 #' @param cell_label_p Logical indicating if, when `cell_labels` is `TRUE`, p-values should be written instead of correlation values.
 #' @param cell_label_col Colour to use for cell labels, passed to `ggplot2::geom_text()`.
 #' @param cell_label_size Size of cell labels, used as the `size` argument in `ggplot2::geom_text()`.
-#' @param annot_rows_params Named list with parameters for row annotations to overwrite the defaults set by the `annot_*` arguments, each name corresponding to the `*` part
+#' @param annot_rows_params,annot_cols_params Named list with parameters for row or column annotations to overwrite the defaults set by the `annot_*` arguments, each name corresponding to the `*` part
 #' (see details of `gghm()` for more information).
-#' @param dend_rows_params Named list for row dendrogram parameters. See details of `gghm()` for more information.
-#' @param dend_cols_params Named list for column dendrogram parameters. See details of `gghm()` for more information.
-#' @param dend_rows_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row dendrogram. See details of `gghm()` and `ggcorrhm()` for usage.
-#' @param dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the column dendrogram. See details of `gghm()` and `ggcorrhm()` for usage.
+#' @param dend_rows_params,dend_cols_params Named list for row or column dendrogram parameters. See details of `gghm()` for more information.
+#' @param dend_rows_extend,dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row or column dendrogram. See details of `gghm()` and `ggcorrhm()` for usage.
 #'
 #' @return The correlation heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),

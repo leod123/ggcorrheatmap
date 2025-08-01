@@ -2,7 +2,7 @@
 % Please edit documentation in R/gghm_tidy.R
 \name{gghm_tidy}
 \alias{gghm_tidy}
-\title{\code{gghm()} for long format data using 'tidy' input.}
+\title{\code{gghm()} for long format data.}
 \usage{
 gghm_tidy(
   x,
@@ -18,17 +18,13 @@ gghm_tidy(
 \arguments{
 \item{x}{Data frame containing data to plot.}
 
-\item{rows}{Name of column to use as rows.}
+\item{rows, cols, values}{Columns to use as rows, columns, and cell values.}
 
-\item{cols}{Name of column to use as columns.}
+\item{labels}{Column to use for cell labels. NULL (default) for no labels.}
 
-\item{values}{Name of column to use for cell values.}
+\item{annot_rows}{Columns to use for row annotations.}
 
-\item{labels}{Name of column to use for cell labels. NULL (default) for no labels.}
-
-\item{annot_rows}{Names of columns to use for row annotations.}
-
-\item{annot_cols}{Names of columns to use for column annotations.}
+\item{annot_cols}{Columns to use for column annotations.}
 
 \item{...}{Additional arguments for \code{gghm()}.}
 }
@@ -36,7 +32,7 @@ gghm_tidy(
 A ggplot2 object with the heatmap. If \code{return_data} is \code{TRUE}, plotting data is returned as well.
 }
 \description{
-\code{gghm()} for long format data using 'tidy' input.
+\code{gghm()} for long format data.
 }
 \examples{
 # Basic example
@@ -51,6 +47,8 @@ gghm_tidy(hm_in, row, col, val)
 hm_in$row_annot1 <- rep(1:10, each = 5)
 hm_in$row_annot2 <- rep(10:1, each = 5)
 hm_in$col_annot <- rep(letters[1:5], 10)
+# Columns are given using 'tidy' selection
+# so they can be unquoted, quoted, from variables (with !! notation) or indices
 gghm_tidy(hm_in, row, col, val,
           annot_rows = c(row_annot1, row_annot2),
           annot_cols = col_annot,

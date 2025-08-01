@@ -40,20 +40,17 @@
 #' @param cell_bg_alpha Alpha for cell colours in modes 'text' and 'none'.
 #' @param show_names_diag Logical indicating if names should be written in the diagonal cells (for symmetric input).
 #' @param names_diag_params List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
-#' @param show_names_x Logical indicating if names should be written on the x axis. Labels can be customised using `ggplot2::theme()` on the output plot.
+#' @param show_names_x,show_names_y Logical indicating if names should be written on the x and y axes. Labels can be customised using `ggplot2::theme()` on the output plot.
 #' @param names_x_side String specifying position of the x axis names ("top" or "bottom").
-#' @param show_names_y Logical indicating if names should be written on the y axis.
 #' @param names_y_side String specifying position of the y axis names ("left" or "right").
-#' @param annot_rows_df Data frame for row annotations. The names of the columns in the data must be included,
+#' @param annot_rows_df,annot_cols_df Data frame for row and column annotations. The names of the columns in the data must be included,
 #' either as row names or in a column named `.names`. Each other column specifies an annotation where the column name
 #' will be used as the annotation name (in the legend and next to the annotation). Numeric columns will use a continuous
 #' colour scale while factor or character columns use discrete scales.
-#' @param annot_cols_df Same usage as `annot_rows_df` but for column annotation.
-#' @param annot_rows_col Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
+#' @param annot_rows_col,annot_cols_col Named list for row and column annotation colour scales. The names should specify which annotation each scale applies to.
 #' Elements can be strings or ggplot2 "Scale" class objects. If a string, it is used as the brewer palette or viridis option.
 #' If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
 #' specify order using the `guide` argument in the `ggplot2` scale function.
-#' @param annot_cols_col Named list used for column annotation colour scales, used like `annot_rows_col`.
 #' @param annot_rows_side String specifying which side row annotation should be drawn ('left' or 'right', defaults to 'left').
 #' @param annot_cols_side String specifying which side column annotation should be drawn ('bottom' or 'top', defaults to 'bottom').
 #' @param annot_dist Distance between heatmap and first annotation cell where 1 is the size of one heatmap cell. Used for both row and column annotation.
@@ -65,21 +62,17 @@
 #' @param annot_na_col Colour to use for NA values in annotations. Annotation-specific colour can be set in the ggplot2 scales in
 #' the `annot_*_fill` arguments.
 #' @param annot_na_remove Logical indicating if NAs in the annotations should be removed (producing empty spaces).
-#' @param annot_rows_params Named list with parameters for row annotations to overwrite the defaults set by the `annot_*` arguments, each name corresponding to the `*` part
+#' @param annot_rows_params,annot_cols_params Named list with parameters for row and column annotations to overwrite the defaults set by the `annot_*` arguments, each name corresponding to the `*` part
 #' (see details for more information).
-#' @param annot_cols_params Named list with parameters for column annotations, used like `annot_rows_params`.
 #' @param show_annot_names Logical controlling if names of annotations should be shown in the drawing area.
 #' @param annot_names_size Size of annotation names.
 #' @param annot_rows_names_side String specifying which side the row annotation names should be on. Either "top" or "bottom".
 #' @param annot_cols_names_side String specifying which side the column annotation names should be on. Either "left" or "right".
-#' @param annot_rows_name_params Named list of parameters for row annotation names. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
-#' @param annot_cols_name_params Named list of parameters for column annotation names. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
-#' @param cluster_rows Logical indicating if rows should be clustered. Can also be a `hclust` or `dendrogram` object.
-#' @param cluster_cols Logical indicating if columns should be clustered. Can also be a `hclust` or `dendrogram` object.
+#' @param annot_rows_name_params,annot_cols_name_params Named list of parameters for row and column annotation names. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
+#' @param cluster_rows,cluster_cols Logical indicating if rows or columns should be clustered. Can also be `hclust` or `dendrogram` objects.
 #' @param cluster_distance String with the distance metric to use for clustering, given to `stats::dist()`.
 #' @param cluster_method String with the clustering method to use, given to `stats::hclust()`.
-#' @param show_dend_rows Logical indicating if a dendrogram should be drawn for the rows.
-#' @param show_dend_cols Logical indicating if a dendrogram should be drawn for the columns.
+#' @param show_dend_rows,show_dend_cols Logical indicating if a dendrogram should be drawn for the rows or columns.
 #' @param dend_rows_side Which side to draw the row dendrogram on ('left' or 'right', defaults to 'left').
 #' @param dend_cols_side Which side to draw the column dendrogram on ('bottom' or 'top', defaults to 'bottom').
 #' @param dend_col Colour to use for dendrogram lines, applied to both row and column dendrograms.
@@ -87,10 +80,8 @@
 #' @param dend_height Number by which to scale dendrogram height, applied to both row and column dendrograms.
 #' @param dend_lwd Linewidth of dendrogram lines, applied to both row and column dendrograms.
 #' @param dend_lty Dendrogram line type, applied to both row and column dendrograms.
-#' @param dend_rows_params Named list for row dendrogram parameters to overwrite common parameter values. See details for more information.
-#' @param dend_cols_params Named list for column dendrogram parameters to overwrite common parameter values. See details for more information.
-#' @param dend_rows_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row dendrogram. See details for usage.
-#' @param dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the column dendrogram. See details for usage.
+#' @param dend_rows_params,dend_cols_params Named list for row or column dendrogram parameters to overwrite common parameter values. See details for more information.
+#' @param dend_rows_extend,dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row or column dendrogram. See details for usage.
 #'
 #' @return The heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),
