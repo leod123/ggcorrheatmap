@@ -57,9 +57,11 @@ test_that("basic functionality works", {
 
 test_that("snapshots", {
   vdiffr::expect_doppelganger("basic_plot", gghm(mtcars))
-  vdiffr::expect_doppelganger("w_options", gghm(scale(mtcars), cluster_rows = TRUE, cluster_cols = TRUE,
+  vdiffr::expect_doppelganger("w_options", gghm(mtcars, scale_data = "c", cluster_rows = TRUE, cluster_cols = TRUE,
                                                 annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:nrow(mtcars)),
                                                 annot_cols_df = data.frame(.names = colnames(mtcars), b = 1:ncol(mtcars))))
+  vdiffr::expect_doppelganger("scaling_rows", gghm(mtcars, scale_data = "row"))
+  vdiffr::expect_doppelganger("scaling_cols", gghm(mtcars, scale_data = "col", cluster_rows = T, cluster_cols = T))
   vdiffr::expect_doppelganger("cell_shape", gghm(mtcars, mode = "21"))
   vdiffr::expect_doppelganger("text_mode", gghm(mtcars, mode = "text"))
   vdiffr::expect_doppelganger("mixed_mode", gghm(cor(mtcars), layout = c("tl", "br")))
@@ -293,6 +295,8 @@ test_that("warnings and errors", {
   expect_error(gghm(cor(mtcars), layout = c("tl", "br"), bins = c(2, 4L)), class = "float_bin_error")
   # also in a list
   expect_error(gghm(cor(mtcars), layout = c("tl", "br"), bins = list(2, 4L)), class = "float_bin_error")
+  # Scaling of data
+  expect_error(gghm(mtcars, scale_data = "asdf"), class = "scale_data_error")
 })
 
 test_that("annotation names must exist in the data", {

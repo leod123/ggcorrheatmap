@@ -8,6 +8,7 @@ gghm(
   x,
   layout = "full",
   mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
+  scale_data = NULL,
   col_scale = NULL,
   col_name = "value",
   limits = NULL,
@@ -87,6 +88,9 @@ If layout is of length two with two opposing triangles, a mixed layout will be u
 
 \item{mode}{A string specifying plotting mode. Possible values are \code{heatmap}/\code{hm} for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
 \code{text} to write the cell values instead of filling cells (colour scaling with value), and \code{none} for blank cells.}
+
+\item{scale_data}{Character string specifying scaling of the matrix. NULL or "none" for no scaling, "rows" for rows, and "columns" for
+columns. Can also be a substring of the beginning of the words.}
 
 \item{col_scale}{Colour scale to use for cells. If NULL, the default ggplot2 scale is used. If a string, the corresponding Brewer or Viridis scale is used.
 A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale. Can also be a ggplot2 scale object to overwrite the scale.

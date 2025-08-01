@@ -9,6 +9,8 @@
 #' `mode` needs a vector of length two (applied in the same order as layout). See details for more information.
 #' @param mode A string specifying plotting mode. Possible values are `heatmap`/`hm` for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
 #' `text` to write the cell values instead of filling cells (colour scaling with value), and `none` for blank cells.
+#' @param scale_data Character string specifying scaling of the matrix. NULL or "none" for no scaling, "rows" for rows, and "columns" for
+#' columns. Can also be a substring of the beginning of the words.
 #' @param col_scale Colour scale to use for cells. If NULL, the default ggplot2 scale is used. If a string, the corresponding Brewer or Viridis scale is used.
 #' A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale. Can also be a ggplot2 scale object to overwrite the scale.
 #' In mixed layouts, a list of two scales can be provided.
@@ -171,7 +173,9 @@
 gghm <- function(x,
                  layout = "full",
                  mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
-                 col_scale = NULL, col_name = "value", limits = NULL, bins = NULL,
+                 scale_data = NULL,
+                 col_scale = NULL, col_name = "value",
+                 limits = NULL, bins = NULL,
                  size_scale = NULL, size_name = "value",
                  legend_order = NULL,
                  include_diag = TRUE, show_names_diag = FALSE, names_diag_params = NULL,
@@ -219,6 +223,9 @@ gghm <- function(x,
 
   # Check that there are rownames
   if (is.null(rownames(x))) {rownames(x) <- 1:nrow(x)}
+
+  # Scale data if specified
+  x <- scale_mat(x, scale_data)
 
   # Check if matrix becomes asymmetric after clustering to throw a warning
   x_sym <- isSymmetric(as.matrix(x))
@@ -614,6 +621,31 @@ check_layout <- function(layout, mode) {
     }
 
   }
+}
+
+
+#' Scale data rows or columns.
+#'
+#' @keywords internal
+#'
+#' @param x Matrix to scale.
+#' @param scl String of dimension to scale ("row", "column", "none" (or NULL), or a substring of the beginning).
+#'
+#' @returns Scaled (or not scaled) matrix.
+#'
+scale_mat <- function(x, scl = NULL) {
+  if (is.null(x) || grepl(paste0("^", scl), "none")) {
+    return(x)
+  } else if (grepl(paste0("^", scl), "rows")) {
+    x_out <- t(scale(t(x)))
+  } else if (grepl(paste0("^", scl), "columns")) {
+    x_out <- scale(x)
+  } else {
+    cli::cli_abort("{.var scale_data} must be NULL or 'none' (no scaling), 'rows' or 'columns' (or a substring of the beginning).",
+                   class = "scale_data_error")
+  }
+
+  return(x_out)
 }
 
 #' Prepare parameters for mixed layouts.

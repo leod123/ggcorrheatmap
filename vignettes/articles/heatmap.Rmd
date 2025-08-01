@@ -165,7 +165,11 @@ na_plt1 + na_plt2 + na_plt3 & theme(plot.title = element_text(hjust = 0.5))
 Clustering can be applied to the rows and columns using the `cluster_rows` and `cluster_cols` arguments. See the [clustering](cluster.html) article for more on clustering.
 
 ```{r clustering, fig.alt='A heatmap of mtcars, where rows and columns have been reordered according to hierarchical clustering results. Dendrograms are drawn to the right of and below the heatmap.'}
-gghm(scale(mtcars), cluster_rows = TRUE, cluster_cols = TRUE)
+gghm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
+     # The `scale_data` argument allows for scaling
+     # NULL or 'none' for no scaling, 'rows' or 'columns'
+     # (or a substring of the beginning) for scaling either dimension
+     scale_data = "col")
 ```
 
 Row and column annotation is added by providing data frames to the `annot_rows_df` and `annot_cols_df` arguments. More details on annotation can be found in the [annotation](annotation.html) article.
@@ -182,7 +186,7 @@ gghm(mtcars[1:15, ], annot_rows_df = row_annot, annot_rows_names_side = "top")
 Clustering and annotation can of course be added simultaneously.
 
 ```{r, fig.alt='Heatmap of mtcars. The rows have been clustered and along the right side is an annotation column with a dendrogram on its right.'}
-gghm(scale(mtcars)[1:15, ], cluster_rows = TRUE,
+gghm(mtcars[1:15, ], cluster_rows = TRUE, scale_data = "col",
      annot_rows_df = row_annot, annot_rows_names_side = "top")
 ```
 

@@ -77,9 +77,16 @@ gghm_tidy <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, a
   # Cell labels
   if (!rlang::quo_is_null(rlang::enquo(labels))) {
     cell_label_df <- dplyr::select(x, {{rows}}, {{cols}}, {{labels}})
-    colnames(cell_label_df) <- c("row", "col", "value")
-    cell_label_df <- as.data.frame(cell_label_df)
-    cell_label_df <- shape_mat_wide(cell_label_df)
+
+    # If values and labels use the same column, set cell_label_df to TRUE instead
+    # so that it can be affected by scaling
+    if (identical(rlang::as_name(rlang::enquo(values)), rlang::as_name(rlang::enquo(labels)))) {
+      cell_label_df <- TRUE
+    } else {
+      colnames(cell_label_df) <- c("row", "col", "value")
+      cell_label_df <- as.data.frame(cell_label_df)
+      cell_label_df <- shape_mat_wide(cell_label_df)
+    }
 
   } else {
     cell_label_df <- FALSE
@@ -272,7 +279,7 @@ ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols =
 #' Make a correlation matrix from long format data.
 #'
 #' @param x A long format data frame containing the data to correlate.
-#' @param rows1,cols1,values1 The columns in `x` containing the values that should be in the rows and columns of the correlation matrix.
+#' @param rows1,cols1 The columns in `x` containing the values that should be in the rows and columns of the correlation matrix.
 #' @param values1 Name of the column in `x` containing the values of the correlation matrix.
 #' @param y Optional second data frame for correlating with the data frame from `x`.
 #' @param rows2,cols2 Optional names of columns with values for the rows and columns of a second matrix. If `y` is a data frame, `rows2` is taken from `y`.
