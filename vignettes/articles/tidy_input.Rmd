@@ -1,0 +1,188 @@
+---
+title: "Using tidy data"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, results='hide', message=FALSE, warning=FALSE}
+library(ggcorrheatmap)
+library(dplyr)
+library(tidyr)    # For converting between long and wide formats
+library(tibble)
+```
+
+Data is often in long format when working with `ggplot2` and other functions in the `tidyverse`. The `gghm_tidy()` and `ggcorrhm_tidy()` functions provide a way to use the heatmap plotting functionality of `ggcorrheatmap` with long format data.
+
+## Heatmaps
+
+```{r}
+# Make some long format data using functions from
+# the dplyr, tidyr, tibble packages
+mtcars_long <- mtcars %>%
+  # Scale for nicer clustering
+  scale() %>%
+  as.data.frame() %>%
+  # Move rownames into a column for long format conversion
+  rownames_to_column("cars") %>%
+  pivot_longer(cols = -cars, names_to = "vars", values_to = "vals")
+
+head(mtcars_long)
+```
+
+When using `gghm_tidy()`, the names of the columns containing the rows, columns, and values must be provided. These can be unquoted, quoted, from variables, or indices.
+
+```{r}
+value_column <- "vals"
+
+# Provide column names unquoted, as index, and from variable
+gghm_tidy(mtcars_long, rows = cars, cols = 2, values = !!value_column,
+          # gghm arguments can be used (via ...)
+          col_scale = "A")
+```
+
+Columns containing annotations and cell labels can be specified in the same way.
+
+```{r, fig.height=7, fig.width=5}
+# Make sure the annotations are unique
+# (i.e. one row or column does not have two different annotation values)
+set.seed(123)
+row_key <- data.frame(cars = rownames(mtcars),
+                      a = 1:nrow(mtcars),
+                      b = sample(letters[1:3], nrow(mtcars), TRUE))
+col_key <- data.frame(vars = colnames(mtcars),
+                      c = 1:ncol(mtcars),
+                      d = sample(LETTERS[1:2], ncol(mtcars), TRUE))
+
+mtcars_long %>%
+  # Add the row and column annotations
+  left_join(row_key, by = "cars") %>%
+  left_join(col_key, by = "vars") %>%
+  gghm_tidy(cars, vars, vals, labels = vals,
+            annot_rows = c(a, b), annot_col = c(c, d),
+            # gghm arguments
+            legend_order = NA, cell_label_col = "white",
+            cell_label_digits = 0, col_scale = "A",
+            cluster_rows = TRUE, cluster_cols = TRUE)
+```
+
+
+## Correlation heatmaps
+
+`ggcorrhm_tidy()` is the tidy version of `ggcorrhm()`, although not all of the functionality is available. By default, the input is assumed to contain correlation coefficients (`cor_in` is `TRUE`).
+
+The `cor_long()` function can be used to calculate correlations from long format data. The output can be wide or long format. If long format it will contain the columns 'row', 'col', and 'value'.
+
+```{r}
+# Default output is a wide format correlation matrix
+# but use long here for demonstration
+mtcars_cor <- cor_long(mtcars_long, cars, vars, vals,
+                       out_format = "long")
+
+# Can also be done using tidyverse functions, something like
+# mtcars_long %>%
+#   pivot_wider(id_cols = "cars", names_from = "vars", values_from = "vals") %>%
+#   column_to_rownames("cars") %>%
+#   cor() %>%
+#   # This part only needed if output should be long format
+#   as.data.frame() %>%
+#   rownames_to_column("row") %>%
+#   pivot_longer(cols = -row, names_to = "col")
+
+head(mtcars_cor)
+```
+
+```{r}
+ggcorrhm_tidy(mtcars_cor, row, col, value)
+```
+
+It is also possible to correlate two different matrices.
+
+```{r}
+# Make another long format data
+iris_long <- iris %>%
+  # The dimensions of the two matrices must be compatible
+  slice(1:32) %>%
+  # Make unique names for the rows
+  mutate(Species = make.names(Species, unique = TRUE)) %>%
+  rename(species = Species) %>%
+  # Convert to long format
+  pivot_longer(cols = -species)
+
+head(iris_long)
+```
+
+```{r}
+# Correlate the two long format matrices
+mi_cor <- cor_long(iris_long, species, name, value,
+                   # The first one ends up in the rows and
+                   # the second in the columns
+                   mtcars_long, cars, vars, vals,
+                   out_format = "long")
+
+head(mi_cor)
+```
+
+```{r}
+ggcorrhm_tidy(mi_cor, row, col, value)
+```
+
+
+If the `cor_in` argument is `FALSE`, `ggcorrhm_tidy()` will calculate the correlations instead. Both options come with limitations.
+
+`cor_in` is `FALSE`:
+
+* Cannot correlate two different matrices.
+
+* Cell labels are limited to no labels or just the correlation values.
+
+* `annot_rows` and `annot_cols` require different thinking as both will use the names from the column specified as `cols`.
+
+`cor_in` is `TRUE`:
+
+* Requires the correlation values to be pre-computed.
+
+* As all correlation calculations are skipped, p-values will not be computed and will also need to be calculated in advance.
+
+```{r}
+# Give the non-correlation data
+ggcorrhm_tidy(mtcars_long, cars, vars, vals,
+              cor_in = FALSE, labels = TRUE)
+```
+
+Like with `gghm_tidy()`, `ggcorrhm_tidy()` can take arguments from `ggcorrhm()` for extra customisation.
+
+```{r}
+# Annotation
+cor_annot <- data.frame(.names = colnames(mtcars),
+                        annot1 = 1:11, annot2 = 11:1,
+                        annot3 = sample(letters[1:2], 11, TRUE),
+                        annot4 = sample(LETTERS[1:3], 11, TRUE))
+
+mtcars_cor_extra <- mtcars_cor %>%
+  # Add row annotations
+  left_join(select(cor_annot, .names, annot1, annot3),
+            by = c("row" = ".names")) %>%
+  # Add column annotations
+  left_join(select(cor_annot, .names, annot2, annot4),
+            by = c("col" = ".names")) %>%
+  # Add labels
+  mutate(labs = 1:nrow(.))
+head(mtcars_cor_extra)
+```
+
+```{r}
+ggcorrhm_tidy(mtcars_cor_extra, row, col, value,
+              annot_rows = c(annot1, annot3),
+              annot_cols = c(annot2, annot4),
+              labels = labs,
+              cluster_rows = TRUE, cluster_cols = TRUE,
+              layout = c("tl", "br"), mode = c("hm", "hm"),
+              col_scale = c("A", "G"), cell_label_col = "white",
+              legend_order = c(1, 2))
+```
+

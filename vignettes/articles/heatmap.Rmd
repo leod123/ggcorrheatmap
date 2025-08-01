@@ -253,7 +253,7 @@ plt2 <- plot_list$plot +
 plt1 + plt2
 ```
 
-There are many arguments, allowing for quite some flexibility in the heatmap layout. Most of the arguments are showcased in the articles, hopefully they can be of some help. They go more into making [correlation heatmaps](correlation.html), [clustering](clustering.html) and [annotation](annotation.html), making [mixed layout heatmaps](mixed.html), and ways to deal with [legends](legends.html).
+There are many arguments, allowing for quite some flexibility in the heatmap layout. Most of the arguments are showcased in the articles, hopefully they can be of some help. They go more into making [correlation heatmaps](correlation.html), [clustering](clustering.html) and [annotation](annotation.html), making [mixed layout heatmaps](mixed.html), ways to deal with [legends](legends.html), and how to use the package with [tidy data](tidy_input.html).
 
 # Other packages
 

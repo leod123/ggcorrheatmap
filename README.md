@@ -88,3 +88,5 @@ articles of the package:
   layouts](https://leod123.github.io/ggcorrheatmap/articles/mixed.html)
 - [Scales and
   legends](https://leod123.github.io/ggcorrheatmap/articles/legends.html)
+- [Using tidy
+  data](https://leod123.github.io/ggcorrheatmap/articles/tidy_input.html)

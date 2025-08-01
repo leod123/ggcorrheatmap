@@ -80,3 +80,4 @@ There are many more options for customisation, covered in the different articles
 - [Clustering](https://leod123.github.io/ggcorrheatmap/articles/clustering.html)
 - [Mixed layouts](https://leod123.github.io/ggcorrheatmap/articles/mixed.html)
 - [Scales and legends](https://leod123.github.io/ggcorrheatmap/articles/legends.html)
+- [Using tidy data](https://leod123.github.io/ggcorrheatmap/articles/tidy_input.html)

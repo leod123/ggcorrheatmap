@@ -3,6 +3,18 @@ template:
   bootstrap: 5
   bslib:
     bootswatch: united
+
+reference:
+- title: Correlation heatmaps
+- contents:
+  - ggcorrhm
+  - ggcorrhm_tidy
+  - cor_long
+- title: General heatmaps
+- contents:
+  - gghm
+  - gghm_tidy
+
 articles:
 - title: Heatmaps
   navbar: ~
@@ -13,4 +25,4 @@ articles:
   - articles/clustering
   - articles/mixed
   - articles/legends
-
+  - articles/tidy_input

@@ -69,7 +69,6 @@ gghm(mtcars[1:10, 1:5],
 When `col_scale` is a character, "rev_" or "_rev" can be added to the beginning or end, respectively, to reverse the scale. This also works for annotation scales.
 
 ```{r, fig.height=6, fig.width=5, fig.alt='A heatmap of the volcano data with cells coloured using the Viridis magma palette but reversed so that low values are light and high are dark. Two row annotations are seen to the right, both have the same values but one is using the default magma palette and the other the reversed one.'}
-
 row_annot <- data.frame("Default" = 1:nrow(volcano),
                         "Reversed" = 1:nrow(volcano))
 row_annot_colr <- list("Default" = "A", "Reversed" = "A_rev")
@@ -153,7 +152,6 @@ plt1 + plt2
 When binning scales with the `bins` argument, a number of the 'double' class will prioritise breaks at nice numbers while an integer will prioritise the number of bins. As a side note, out-of-bound values with binned scales also default to using the 'squish' strategy shown above.
 
 ```{r, fig.height=5, fig.width=10, fig.alt='Two 100x100 heatmaps with values from -1 to 1 in a gradient going from the bottom left to the top right. The heatmaps are using the Brewer Spectral colour scale in the top left triangle and the Viridis turbo scale in the bottom right. The first heatmap simply shows the gradient. The second heatmap has binned scales, with 11 bins in the top left triangle (with breaks at numbers with many decimals and limits at -0.5 and 0.5) and 10 bins in the bottom right triangle (evenly spaced at intervals of 0.2 going from -1 to 1).'}
-
 # Make plot data between -1 and 1 (like correlation data)
 plt_dat_cor <- sapply(seq(-1, 0, length.out = 100), function(x) {
   seq(x, x + 1, length.out = 100)
@@ -181,7 +179,6 @@ plt1 + plt2
 By using scale objects, breaks in both continuous and binned scales can be put wherever desired.
 
 ```{r, fig.height=5, fig.width=10, fig.alt='The same kind of gradient heatmaps as shown in the previous plots, but the values now range from -1 (top left) to 1 (bottom right). A diverging colour scale going from blue to white to red is used for the cell colours. The first plot simply shows off the gradient, while the second uses two binned scales ranging between -0.7 to 0.7. The scale in the top right triangle has five bins with breaks at 0.42, 0.14, -0.42, and -0.14, while the bottom left triangle has four bins with breaks at 0.4, 0, and -0.4.'}
-
 plt_dat_cor <- sapply(seq(-1, 0, length.out = 10), function(x) {
   seq(x, x + 1, length.out = 10)
 })
@@ -359,7 +356,6 @@ ggcorrhm(mtcars, layout = c("tl", "br"),
 When there are many legends, some of them may be cut off and it can be tricky to make them fit. One way is to change the positions, sizes or orientations of legends as shown in some of the plots above. Another way is to change the size of the figure until the legends fit. A more advanced way is to use packages like `cowplot` and `patchwork` to stitch together a legend-less version of the plot with the legends, which also makes it possible to arrange the legends in grids.
 
 ```{r, fig.alt='mtcars correlation heatmap with clustered rows and columns, as well as two row annotations and one column annotation. Four legends can be seen to the right, but they do not all fit and the first and last one cannot be seen fully.'}
-
 # Plot with legends
 p <- ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
               annot_rows_df = data.frame(.names = colnames(mtcars),
@@ -391,7 +387,6 @@ plot_grid(pl, lgd_grid, rel_widths = c(3, 1))
 ```
 
 ```{r, fig.width=7, fig.height=8, fig.alt='The same heatmap as the previous plot. The legends are now horizontal and split into two groups, the Pearson r legend above and the annotation legends below the heatmap.'}
-
 # Code for the same layout as above
 # # Arrange in a grid (patchwork)
 # lgd_grid <- wrap_plots(lgd)

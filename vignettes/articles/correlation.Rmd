@@ -32,7 +32,6 @@ ggcorrhm(iris[1:nrow(mtcars), -5], mtcars)
 
 ```{r changing colour, fig.alt='A heatmap of the mtcars correlation matrix. The colour scale is changed to consist of 4 bins and the colours go from magenta to green.'}
 ggcorrhm(mtcars, high = "green", low = "magenta", mid = "yellow", bins = 4L)
-
 ```
 
 If complete control is needed, the `col_scale` argument can be used to overwrite the default scale. This can be a string specifying a Brewer or Viridis scale, or a `ggplot2` scale object.
@@ -120,7 +119,6 @@ ggcorrhm(mtcars, layout = "tl",
 The `cell_labels` argument labels cells with their values or some user-supplied values, explained more in the [heatmap article](heatmap.html#cell-labels). If `cell_labels` is a matrix/data frame it should be in the shape of the matrix being plotted (using the same row and column names), which for `ggcorrhm` is the correlation matrix. To keep in mind for triangular layouts is that the top left or bottom right triangles will display the bottom left or top right triangles with the y axis order flipped, and this is reflected in the cell labels too.
 
 ```{r, fig.height=8, fig.width=8, fig.alt='Four triangulra mtcars correlation heatmaps arranged in a 2x2 grid (top left triangle in the top left, top right in the top right etc) so that a diamond-shaped gap is formed in the middle. The cells are labelled from 1 to 121, filling the matrix rowwise. The top left and bottom left heatmaps are the same but with the y-axes flipped. The same relationship is true for the top right and bottom right heatmaps. In the middle (in the gap between the four plots) is one legend.'}
-
 lab_mat <- matrix(1:121, nrow = 11, ncol = 11, byrow = TRUE,
                   dimnames = list(colnames(mtcars), colnames(mtcars)))
 
