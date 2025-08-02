@@ -135,7 +135,7 @@ ggcorrhm(plt_dat, cor_in = TRUE, show_names_diag = FALSE, border_col = 0,
 
 ```
 
-```{r}
+```{r, fig.alt='A mtcars correlation heatmap with the diagonal running from the bottom left to the top right, showing circles in the top left triangle (including the diagonal) and diamonds in the bottom right. Both the circles and the diamonds have sizes scaling with the correlations, but the diamonds are overall smaller than the circles.'}
 # Different size ranges
 ggcorrhm(mtcars, layout = c("tl", "br"), mode = c(21, 23),
          size_range = list(c(5, 10), c(1, 5)))
