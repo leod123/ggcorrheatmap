@@ -22,9 +22,7 @@ gghm_tidy(
 
 \item{labels}{Column to use for cell labels. NULL (default) for no labels.}
 
-\item{annot_rows}{Columns to use for row annotations.}
-
-\item{annot_cols}{Columns to use for column annotations.}
+\item{annot_rows, annot_cols}{Columns to use for row and column annotations.}
 
 \item{...}{Additional arguments for \code{gghm()}.}
 }

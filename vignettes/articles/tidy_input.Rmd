@@ -16,7 +16,7 @@ library(tidyr)    # For converting between long and wide formats
 library(tibble)
 ```
 
-Data is often in long format when working with `ggplot2` and other functions in the `tidyverse`. The `gghm_tidy()` and `ggcorrhm_tidy()` functions provide a way to use the heatmap plotting functionality of `ggcorrheatmap` with long format data.
+Data is often in long format when working with `ggplot2` and other functions in the `tidyverse`. The `gghm_tidy()` and `ggcorrhm_tidy()` functions provide a way to use the heatmap plotting functionality of `ggcorrheatmap` with long format data. These functions (and this article) assume that the user is familiar with the arguments of the non-tidy versions of the functions.
 
 ## Heatmaps
 

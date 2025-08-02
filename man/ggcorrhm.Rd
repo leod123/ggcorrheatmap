@@ -149,7 +149,7 @@ NAs hide the corresponding legends, a single NA hides all. Ignored for \code{ggp
 
 \item{p_values}{Logical indicating if p-values should be calculated. Use with \code{p_thresholds} to mark cells, and/or \code{return_data} to get the p-values in the output data.}
 
-\item{p_adjust}{String specifying the adjustment method to use for the p-values (default is "none").}
+\item{p_adjust}{String specifying the multiple testing adjustment method to use for the p-values (default is "none"). Passed to \code{stats::p.adjust()}.}
 
 \item{p_thresholds}{Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
 Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).

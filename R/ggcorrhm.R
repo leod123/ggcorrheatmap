@@ -19,7 +19,7 @@
 #' In mixed layouts, can also be a list of length two containing the two scales to use.
 #' @param col_name String to use for the correlation scale. If NULL (default) the text will depend on the correlation method. Can be two values in mixed layouts for dual scales.
 #' @param p_values Logical indicating if p-values should be calculated. Use with `p_thresholds` to mark cells, and/or `return_data` to get the p-values in the output data.
-#' @param p_adjust String specifying the adjustment method to use for the p-values (default is "none").
+#' @param p_adjust String specifying the multiple testing adjustment method to use for the p-values (default is "none"). Passed to `stats::p.adjust()`.
 #' @param p_thresholds Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
 #' Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).
 #' If NULL, no thresholding is done and p-value intervals are not marked with symbols.

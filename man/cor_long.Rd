@@ -15,7 +15,12 @@ cor_long(
   values2 = NULL,
   out_format = c("wide", "long"),
   method = "pearson",
-  use = "everything"
+  use = "everything",
+  p_values = FALSE,
+  p_adjust = "none",
+  p_thresholds = c(`***` = 0.001, `**` = 0.01, `*` = 0.05, 1),
+  p_sym_add = NULL,
+  p_sym_digits = 2
 )
 }
 \arguments{
@@ -27,8 +32,8 @@ cor_long(
 
 \item{y}{Optional second data frame for correlating with the data frame from \code{x}.}
 
-\item{rows2, cols2}{Optional names of columns with values for the rows and columns of a second matrix. If \code{y} is a data frame, \code{rows2} is taken from \code{y}.
-Otherwise it is taken from \code{x}.}
+\item{rows2, cols2}{Optional names of columns with values for the rows and columns of a second matrix. If \code{y} is a data frame, the columns are taken from \code{y}.
+Otherwise they are taken from \code{x}.}
 
 \item{values2}{Optional column for the values of a second matrix.}
 
@@ -37,6 +42,19 @@ Otherwise it is taken from \code{x}.}
 \item{method}{Correlation method given to \code{stats::cor()}.}
 
 \item{use}{Missing value strategy of \code{stats::cor()}.}
+
+\item{p_values}{Logical indicating if p-values should be calculated.}
+
+\item{p_adjust}{String specifying the multiple testing adjustment method to use for the p-values (default is "none"). Passed to \code{stats::p.adjust()}.}
+
+\item{p_thresholds}{Named numeric vector specifying p-value thresholds (in ascending order) to mark. The last element must be 1 or higher (to set the upper limit).
+Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).
+If NULL, no thresholding is done and p-value intervals are not marked with symbols.}
+
+\item{p_sym_add}{String with the name of the column to add to p-value symbols from \code{p_thresholds} (one of 'values', 'p_val', 'p_adj').
+NULL (default) results in just the symbols.}
+
+\item{p_sym_digits}{Number of digits to use for the column in \code{p_sym_add}.}
 }
 \value{
 A correlation matrix (if wide format) or a long format data frame with the columns

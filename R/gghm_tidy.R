@@ -3,8 +3,7 @@
 #' @param x Data frame containing data to plot.
 #' @param rows,cols,values Columns to use as rows, columns, and cell values.
 #' @param labels Column to use for cell labels. NULL (default) for no labels.
-#' @param annot_rows Columns to use for row annotations.
-#' @param annot_cols Columns to use for column annotations.
+#' @param annot_rows,annot_cols Columns to use for row and column annotations.
 #' @param ... Additional arguments for `gghm()`.
 #'
 #' @return A ggplot2 object with the heatmap. If `return_data` is `TRUE`, plotting data is returned as well.
@@ -278,16 +277,22 @@ ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols =
 
 #' Make a correlation matrix from long format data.
 #'
+#' @inheritParams ggcorrhm
+#'
 #' @param x A long format data frame containing the data to correlate.
 #' @param rows,cols The columns in `x` containing the values that should be in the rows and columns of the correlation matrix.
 #' @param values Name of the column in `x` containing the values of the correlation matrix.
 #' @param y Optional second data frame for correlating with the data frame from `x`.
-#' @param rows2,cols2 Optional names of columns with values for the rows and columns of a second matrix. If `y` is a data frame, `rows2` is taken from `y`.
-#' Otherwise it is taken from `x`.
+#' @param rows2,cols2 Optional names of columns with values for the rows and columns of a second matrix. If `y` is a data frame, the columns are taken from `y`.
+#' Otherwise they are taken from `x`.
 #' @param values2 Optional column for the values of a second matrix.
 #' @param out_format Format of output correlation matrix ("long" or "wide").
 #' @param method Correlation method given to `stats::cor()`.
 #' @param use Missing value strategy of `stats::cor()`.
+#' @param p_values Logical indicating if p-values should be calculated.
+#' @param p_sym_add String with the name of the column to add to p-value symbols from `p_thresholds` (one of 'values', 'p_val', 'p_adj').
+#' NULL (default) results in just the symbols.
+#' @param p_sym_digits Number of digits to use for the column in `p_sym_add`.
 #'
 #' @details
 #' If there is only one input data frame (`x`) and `rows2`, `cols2` and `values2` are NULL (the default),
@@ -328,12 +333,32 @@ ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols =
 cor_long <- function(x, rows, cols, values,
                      y = NULL, rows2 = NULL, cols2 = NULL, values2 = NULL,
                      out_format = c("wide", "long"),
-                     method = "pearson", use = "everything") {
+                     method = "pearson", use = "everything",
+                     p_values = FALSE, p_adjust = "none",
+                     p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, 1),
+                     p_sym_add = NULL, p_sym_digits = 2) {
 
   if (missing(x)) cli::cli_abort("Argument {.var x} is missing. It needs to be a data frame.")
   if (missing(rows)) cli::cli_abort("Argument {.var rows} is missing. Provide the name of the column that contains the heatmap rownames.")
   if (missing(cols)) cli::cli_abort("Argument {.var cols} is missing. Provide the name of the column that contains the heatmap colnames.")
   if (missing(values)) cli::cli_abort("Argument {.var values} is missing. Provide the name of the column that contains the heatmap values.")
+
+  # Check p-values and thresholds
+  check_logical(p_values = p_values)
+  if (any(unlist(p_values))) {
+    check_numeric(p_sym_digits = p_sym_digits)
+
+    if (!is.numeric(p_thresholds) && !is.null(p_thresholds)) {
+      cli::cli_abort("{.var p_thresholds} must be a named {.cls numeric} vector or NULL.",
+                     class = "p_thr_class_error")
+    } else if (!is.null(p_thresholds)) {
+      if (any(is.na(p_thresholds))) cli::cli_abort("{.var p_thresholds} should not contain any missing values.")
+      if (any(p_thresholds <= 0)) cli::cli_abort("Values in {.var p_thresholds} must be above 0.", class = "p_thr_error")
+      if (p_thresholds[length(p_thresholds)] < 1) cli::cli_abort("The last value of {.var p_thresholds} must be 1 or larger.", class = "p_thr_error")
+      if (is.null(names(p_thresholds))) cli::cli_abort("{.var p_thresholds} must have named elements to be used as symbols (up to one unnamed).", class = "p_thr_error")
+      if (any(duplicated(names(p_thresholds)))) cli::cli_abort("Symbols (the names) of {.var p_thresholds} must be unique.", class = "p_thr_error")
+    }
+  }
 
   x_long <- dplyr::select(x, {{rows}}, {{cols}}, {{values}})
 
@@ -379,15 +404,57 @@ cor_long <- function(x, rows, cols, values,
     y_long <- as.data.frame(y_long)
     y_wide <- shape_mat_wide(y_long)
 
-    cor_out <- cor(x_wide, y_wide, method = method, use = use)
+    # Make arguments list for correlation function
+    cor_args <- vector("list", 4)
+    names(cor_args) <- c("x", "y", "method", "use")
+    cor_args[["x"]] <- x_wide; cor_args[["y"]] <- y_wide
+
   } else {
-    cor_out <- cor(x_wide, method = method, use = use)
+    cor_args <- vector("list", 3)
+    names(cor_args) <- c("x", "method", "use")
+    cor_args[["x"]] <- x_wide
   }
 
-  # Convert to long format if desired
-  if (out_format[1] == "long") {
-    cor_out <- shape_mat_long(cor_out)
+  cor_args[["method"]] <- method; cor_args[["use"]] <- use
+
+  if (isTRUE(p_values)) {
+    cor_out <- do.call(test_cor, append(cor_args, list(p_adj_method = p_adjust)))
+
+    if (!is.null(p_thresholds)) {
+      # Add asterisks
+      cor_out[["p_sym"]] <- as.character(symnum(x = cor_out[["p_adj"]],
+                                                cutpoints = c(0, p_thresholds),
+                                                symbols = names(p_thresholds)))
+
+      if (!is.null(p_sym_add) && p_sym_add %in% c("value", "p_val", "p_adj")) {
+        cor_out[["p_sym"]] <- paste0(round(cor_out[[p_sym_add]], p_sym_digits),
+                                     cor_out[["p_sym"]])
+      } else if (!is.null(p_sym_add)) {
+        cli::cli_warn("{.var p_sym_add} should be one of {.val {c('value', 'p_val', 'p_adj')}} to
+                      specify which column to add to the p-value symbols, or NULL for just the symbols.",
+                      class = "p_sym_option_warn")
+      }
+
+    } else {
+      cor_out[["p_sym"]] <- NA
+    }
+
+    # test_cor gives the results as a long data frame, convert to wide if desired
+    # (one each for correlation, p-values, adj p, asterisks)
+    if (out_format[1] == "wide") {
+      cor_out <- sapply(c("value", "p_val", "p_adj", "p_sym"), function(column) {
+        shape_mat_wide(dplyr::select(cor_out, row, col, value = !!column))
+      }, simplify = FALSE, USE.NAMES = TRUE)
+    }
+
+  } else {
+    cor_out <- do.call(stats::cor, cor_args)
+    # Convert to long format if desired
+    if (out_format[1] == "long") {
+      cor_out <- shape_mat_long(cor_out)
+    }
   }
 
   return(cor_out)
 }
+
