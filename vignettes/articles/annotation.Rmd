@@ -176,4 +176,4 @@ plt2 <- ggcorrhm(mtcars, annot_rows_df = row_annot, annot_cols_df = col_annot,
 plt1 + plt2
 ```
 
-As can be seen in some plots in previous sections, the legends may be cut off if there are many annotations. Fitting the legends can be tricky and is covered in the [legends article](legends.html).
+As can be seen in some plots, the legends may be cut off if there are many annotations. Fitting the legends can be tricky and is covered in the [legends article](legends.html).

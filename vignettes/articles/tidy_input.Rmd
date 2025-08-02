@@ -34,7 +34,7 @@ head(mtcars_long)
 
 When using `gghm_tidy()`, the names of the columns containing the rows, columns, and values must be provided. These can be unquoted, quoted, from variables, or indices.
 
-```{r}
+```{r, fig.alt='A heatmap of the mtcars data. The columns have been scaled so values range between around -2 to 3. The Viridis magma scale is used for the cell colours.'}
 value_column <- "vals"
 
 # Provide column names unquoted, as index, and from variable
@@ -45,7 +45,7 @@ gghm_tidy(mtcars_long, rows = cars, cols = 2, values = !!value_column,
 
 Columns containing annotations and cell labels can be specified in the same way. If the values and labels use the same column the labels will be affected by scaling of the data.
 
-```{r, fig.height=7, fig.width=5}
+```{r, fig.height=7, fig.width=5, fig.alt='A heatmap of mtcars with scaled columns. Rows and columns are clustered and each dimension has one continuous and one discrete annotation. The cells are coloured with the Viridis magma scale and have their values written as labels, rounded to integers.'}
 # Make sure the annotations are unique
 # (i.e. one row or column does not have two different annotation values)
 set.seed(123)
@@ -95,7 +95,7 @@ mtcars_cor <- cor_long(mtcars_long, cars, vars, vals,
 head(mtcars_cor)
 ```
 
-```{r}
+```{r, fig.alt='A correlation heatmap of the mtcars data, with colours going from blue (-1) to white (0) to red (1). Names are written along the diagonal.'}
 ggcorrhm_tidy(mtcars_cor, row, col, value)
 ```
 
@@ -126,7 +126,7 @@ mi_cor <- cor_long(iris_long, species, name, value,
 head(mi_cor)
 ```
 
-```{r}
+```{r, fig.alt='A heatmap showing correlations between the columns in mtcars (in the columns) and the columns iris (in the rows, excluding the Species column).'}
 ggcorrhm_tidy(mi_cor, row, col, value)
 ```
 
@@ -147,7 +147,7 @@ If the `cor_in` argument is `FALSE`, `ggcorrhm_tidy()` will calculate the correl
 
 * As all correlation calculations are skipped, p-values will not be computed and will also need to be calculated in advance.
 
-```{r}
+```{r, fig.alt='mtcars correlation matrix, with the correlation values written in the cells (apart from the diagonal that has the column names).'}
 # Give the non-correlation data
 ggcorrhm_tidy(mtcars_long, cars, vars, vals,
               cor_in = FALSE, labels = TRUE)
@@ -174,7 +174,7 @@ mtcars_cor_extra <- mtcars_cor %>%
 head(mtcars_cor_extra)
 ```
 
-```{r}
+```{r, fig.alt='mtcars correlation matrix with clustered rows and columns. There are two row and two column annotations as well. The heatmap has the diagonal going from the bottom left to the top right. The top left triangle uses the Viridis magma colour scale and the bottom right triangle the mako scale. Cells are marked with integers between 2 and 120, with the diagonal showing column names instead. Only the two heatmap legends are shown (not the annotation legends).'}
 ggcorrhm_tidy(mtcars_cor_extra, row, col, value,
               annot_rows = c(annot1, annot3),
               annot_cols = c(annot2, annot4),
