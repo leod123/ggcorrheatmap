@@ -279,8 +279,8 @@ ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols =
 #' Make a correlation matrix from long format data.
 #'
 #' @param x A long format data frame containing the data to correlate.
-#' @param rows1,cols1 The columns in `x` containing the values that should be in the rows and columns of the correlation matrix.
-#' @param values1 Name of the column in `x` containing the values of the correlation matrix.
+#' @param rows,cols The columns in `x` containing the values that should be in the rows and columns of the correlation matrix.
+#' @param values Name of the column in `x` containing the values of the correlation matrix.
 #' @param y Optional second data frame for correlating with the data frame from `x`.
 #' @param rows2,cols2 Optional names of columns with values for the rows and columns of a second matrix. If `y` is a data frame, `rows2` is taken from `y`.
 #' Otherwise it is taken from `x`.
@@ -325,20 +325,20 @@ ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols =
 #' corr2 <- cor_long(cor_in, row, col, val,
 #'                   cor_in2, rows, cols, values)
 #'
-cor_long <- function(x, rows1, cols1, values1,
+cor_long <- function(x, rows, cols, values,
                      y = NULL, rows2 = NULL, cols2 = NULL, values2 = NULL,
                      out_format = c("wide", "long"),
                      method = "pearson", use = "everything") {
 
   if (missing(x)) cli::cli_abort("Argument {.var x} is missing. It needs to be a data frame.")
-  if (missing(rows1)) cli::cli_abort("Argument {.var rows1} is missing. Provide the name of the column that contains the heatmap rownames.")
-  if (missing(cols1)) cli::cli_abort("Argument {.var cols1} is missing. Provide the name of the column that contains the heatmap colnames.")
-  if (missing(values1)) cli::cli_abort("Argument {.var values1} is missing. Provide the name of the column that contains the heatmap values.")
+  if (missing(rows)) cli::cli_abort("Argument {.var rows} is missing. Provide the name of the column that contains the heatmap rownames.")
+  if (missing(cols)) cli::cli_abort("Argument {.var cols} is missing. Provide the name of the column that contains the heatmap colnames.")
+  if (missing(values)) cli::cli_abort("Argument {.var values} is missing. Provide the name of the column that contains the heatmap values.")
 
-  x_long <- dplyr::select(x, {{rows1}}, {{cols1}}, {{values1}})
+  x_long <- dplyr::select(x, {{rows}}, {{cols}}, {{values}})
 
   if (ncol(x_long) > 3) {
-    cli::cli_abort("Too many columns, provide one column each for {.var rows1}, {.var cols1} and {.var values1}.",
+    cli::cli_abort("Too many columns, provide one column each for {.var rows}, {.var cols} and {.var values}.",
                    class = "tidy_too_many_cols_error")
   }
 

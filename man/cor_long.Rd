@@ -6,9 +6,9 @@
 \usage{
 cor_long(
   x,
-  rows1,
-  cols1,
-  values1,
+  rows,
+  cols,
+  values,
   y = NULL,
   rows2 = NULL,
   cols2 = NULL,
@@ -21,9 +21,9 @@ cor_long(
 \arguments{
 \item{x}{A long format data frame containing the data to correlate.}
 
-\item{rows1, cols1}{The columns in \code{x} containing the values that should be in the rows and columns of the correlation matrix.}
+\item{rows, cols}{The columns in \code{x} containing the values that should be in the rows and columns of the correlation matrix.}
 
-\item{values1}{Name of the column in \code{x} containing the values of the correlation matrix.}
+\item{values}{Name of the column in \code{x} containing the values of the correlation matrix.}
 
 \item{y}{Optional second data frame for correlating with the data frame from \code{x}.}
 
