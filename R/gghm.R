@@ -867,16 +867,18 @@ check_numeric <- function(..., allow_null = FALSE, allowed_lengths = 1,
 }
 
 
-#' Title
+#' Check cell labels if they are ok.
 #'
 #' @keywords internal
 #'
-#' @param cell_labels
-#' @param x_long
+#' @param cell_labels The `cell_labels` input to `gghm()`.
+#' @param x_long Long format input data.
 #'
-#' @returns
+#' @returns Long format data frame containing cell labels.
 #'
 check_cell_labels <- function(cell_labels, x_long) {
+  value <- label <- NULL
+
   cell_data <- if (is.matrix(cell_labels) | is.data.frame(cell_labels)) {
     # Perform the same checks as for plotting data
     # Check that there are colnames

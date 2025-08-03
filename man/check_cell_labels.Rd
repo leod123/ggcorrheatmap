@@ -2,14 +2,19 @@
 % Please edit documentation in R/gghm.R
 \name{check_cell_labels}
 \alias{check_cell_labels}
-\title{Title}
+\title{Check cell labels if they are ok.}
 \usage{
 check_cell_labels(cell_labels, x_long)
 }
 \arguments{
-\item{x_long}{}
+\item{cell_labels}{The \code{cell_labels} input to \code{gghm()}.}
+
+\item{x_long}{Long format input data.}
+}
+\value{
+Long format data frame containing cell labels.
 }
 \description{
-Title
+Check cell labels if they are ok.
 }
 \keyword{internal}

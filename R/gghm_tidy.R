@@ -330,10 +330,14 @@ cor_long <- function(x, rows, cols, values,
                      p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, 1),
                      p_sym_add = NULL, p_sym_digits = 2) {
 
-  if (missing(x)) cli::cli_abort("Argument {.var x} is missing. It needs to be a data frame.")
-  if (missing(rows)) cli::cli_abort("Argument {.var rows} is missing. Provide the name of the column that contains the heatmap rownames.")
-  if (missing(cols)) cli::cli_abort("Argument {.var cols} is missing. Provide the name of the column that contains the heatmap colnames.")
-  if (missing(values)) cli::cli_abort("Argument {.var values} is missing. Provide the name of the column that contains the heatmap values.")
+  if (missing(x)) cli::cli_abort("Argument {.var x} is missing. It needs to be a data frame.",
+                                 class = "tidy_missing_error")
+  if (missing(rows)) cli::cli_abort("Argument {.var rows} is missing. Provide the name of the column that contains the heatmap rownames.",
+                                    class = "tidy_missing_error")
+  if (missing(cols)) cli::cli_abort("Argument {.var cols} is missing. Provide the name of the column that contains the heatmap colnames.",
+                                    class = "tidy_missing_error")
+  if (missing(values)) cli::cli_abort("Argument {.var values} is missing. Provide the name of the column that contains the heatmap values.",
+                                      class = "tidy_missing_error")
 
   # Check p-values and thresholds
   check_logical(p_values = p_values)

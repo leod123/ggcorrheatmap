@@ -2,7 +2,7 @@
 % Please edit documentation in R/gghm_tidy.R
 \name{add_mixed_layout}
 \alias{add_mixed_layout}
-\title{Add a column showing mixed layout to long format data.}
+\title{Add a layout column to long format data for mixed layouts.}
 \usage{
 add_mixed_layout(
   x,
@@ -26,7 +26,7 @@ add_mixed_layout(
 The input data frame with a new column added, showing in which triangle each value would be in a mixed layout.
 }
 \description{
-Add a column showing mixed layout to long format data.
+Add a layout column to long format data for mixed layouts.
 }
 \examples{
 # Make long format symmetric data
