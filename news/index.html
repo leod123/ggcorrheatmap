@@ -24,6 +24,7 @@
     <li><a class="dropdown-item" href="../articles/clustering.html">Clustering</a></li>
     <li><a class="dropdown-item" href="../articles/mixed.html">Mixed layouts</a></li>
     <li><a class="dropdown-item" href="../articles/legends.html">Scales and legends</a></li>
+    <li><a class="dropdown-item" href="../articles/tidy_input.html">Using tidy data</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -44,22 +45,26 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="ggcorrheatmap-development-version">ggcorrheatmap (development version)<a class="anchor" aria-label="anchor" href="#ggcorrheatmap-development-version"></a></h2>
 <div class="section level3">
-<h3 id="updated-arguments-development-version">Updated arguments<a class="anchor" aria-label="anchor" href="#updated-arguments-development-version"></a></h3>
-<ul><li>The scale-modifying arguments <code>bins</code>, <code>limits</code>, <code>high</code>, <code>mid</code>, <code>low</code>, and <code>size_range</code> can now take two inputs in mixed layouts.</li>
+<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li><p>The scale-modifying arguments <code>bins</code>, <code>limits</code>, <code>high</code>, <code>mid</code>, <code>low</code>, and <code>size_range</code> can now take two inputs in mixed layouts.</p></li>
+<li><p>The new <code><a href="../reference/gghm_tidy.html">gghm_tidy()</a></code> and <code><a href="../reference/ggcorrhm_tidy.html">ggcorrhm_tidy()</a></code> functions can make heatmaps from long format data using tidy input.</p></li>
+<li><p>The new <code><a href="../reference/cor_long.html">cor_long()</a></code> function makes it convenient to calculate correlations from long format data.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-fixes-development-version">Minor fixes<a class="anchor" aria-label="anchor" href="#minor-fixes-development-version"></a></h3>
+<ul><li><p>The default continuous colour scale nr 7 now works.</p></li>
+<li><p>The <code>bins</code> argument will no longer take non-integer values below 3 as they don’t work. Negative numbers are also not accepted (integer or not).</p></li>
 </ul></div>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.1.2" id="ggcorrheatmap-012">ggcorrheatmap 0.1.2<a class="anchor" aria-label="anchor" href="#ggcorrheatmap-012"></a></h2>
-<div class="section level3">
+<h2 class="pkg-version" data-toc-text="0.1.2" id="ggcorrheatmap-012">ggcorrheatmap 0.1.2<a class="anchor" aria-label="anchor" href="#ggcorrheatmap-012"></a></h2><p class="text-muted">CRAN release: 2025-07-28</p>
+<ul><li>Initial CRAN release.</li>
+</ul><div class="section level3">
 <h3 id="minor-fixes-0-1-2">Minor fixes<a class="anchor" aria-label="anchor" href="#minor-fixes-0-1-2"></a></h3>
 <ul><li>
 <code>return_data</code> now returns the correct number of rows in mixed layouts.</li>
 </ul></div>
 </div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.1.1" id="ggcorrheatmap-011">ggcorrheatmap 0.1.1<a class="anchor" aria-label="anchor" href="#ggcorrheatmap-011"></a></h2>
-<ul><li>Initial CRAN submission.</li>
-</ul></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

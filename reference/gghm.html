@@ -24,6 +24,7 @@
     <li><a class="dropdown-item" href="../articles/clustering.html">Clustering</a></li>
     <li><a class="dropdown-item" href="../articles/mixed.html">Mixed layouts</a></li>
     <li><a class="dropdown-item" href="../articles/legends.html">Scales and legends</a></li>
+    <li><a class="dropdown-item" href="../articles/tidy_input.html">Using tidy data</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -52,6 +53,7 @@
 <span>  <span class="va">x</span>,</span>
 <span>  layout <span class="op">=</span> <span class="st">"full"</span>,</span>
 <span>  mode <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">layout</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="st">"heatmap"</span> <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"heatmap"</span>, <span class="st">"text"</span><span class="op">)</span>,</span>
+<span>  scale_data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  col_scale <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  col_name <span class="op">=</span> <span class="st">"value"</span>,</span>
 <span>  limits <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -142,6 +144,11 @@ If layout is of length two with two opposing triangles, a mixed layout will be u
 <code>text</code> to write the cell values instead of filling cells (colour scaling with value), and <code>none</code> for blank cells.</p></dd>
 
 
+<dt id="arg-scale-data">scale_data<a class="anchor" aria-label="anchor" href="#arg-scale-data"></a></dt>
+<dd><p>Character string specifying scaling of the matrix. NULL or "none" for no scaling, "rows" for rows, and "columns" for
+columns. Can also be a substring of the beginning of the words.</p></dd>
+
+
 <dt id="arg-col-scale">col_scale<a class="anchor" aria-label="anchor" href="#arg-col-scale"></a></dt>
 <dd><p>Colour scale to use for cells. If NULL, the default ggplot2 scale is used. If a string, the corresponding Brewer or Viridis scale is used.
 A string with a scale name with "rev_" in the beginning or "_rev" at the end will result in the reversed scale. Can also be a ggplot2 scale object to overwrite the scale.
@@ -188,16 +195,12 @@ Mostly only useful for getting a cleaner look with symmetric correlation matrice
 <dd><p>List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.</p></dd>
 
 
-<dt id="arg-show-names-x">show_names_x<a class="anchor" aria-label="anchor" href="#arg-show-names-x"></a></dt>
-<dd><p>Logical indicating if names should be written on the x axis. Labels can be customised using <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">ggplot2::theme()</a></code> on the output plot.</p></dd>
+<dt id="arg-show-names-x-show-names-y">show_names_x, show_names_y<a class="anchor" aria-label="anchor" href="#arg-show-names-x-show-names-y"></a></dt>
+<dd><p>Logical indicating if names should be written on the x and y axes. Labels can be customised using <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">ggplot2::theme()</a></code> on the output plot.</p></dd>
 
 
 <dt id="arg-names-x-side">names_x_side<a class="anchor" aria-label="anchor" href="#arg-names-x-side"></a></dt>
 <dd><p>String specifying position of the x axis names ("top" or "bottom").</p></dd>
-
-
-<dt id="arg-show-names-y">show_names_y<a class="anchor" aria-label="anchor" href="#arg-show-names-y"></a></dt>
-<dd><p>Logical indicating if names should be written on the y axis.</p></dd>
 
 
 <dt id="arg-names-y-side">names_y_side<a class="anchor" aria-label="anchor" href="#arg-names-y-side"></a></dt>
@@ -255,26 +258,18 @@ Not supported for numeric <code>mode</code>.</p></dd>
 <dd><p>Alpha for cell colours in modes 'text' and 'none'.</p></dd>
 
 
-<dt id="arg-annot-rows-df">annot_rows_df<a class="anchor" aria-label="anchor" href="#arg-annot-rows-df"></a></dt>
-<dd><p>Data frame for row annotations. The names of the columns in the data must be included,
+<dt id="arg-annot-rows-df-annot-cols-df">annot_rows_df, annot_cols_df<a class="anchor" aria-label="anchor" href="#arg-annot-rows-df-annot-cols-df"></a></dt>
+<dd><p>Data frame for row and column annotations. The names of the columns in the data must be included,
 either as row names or in a column named <code>.names</code>. Each other column specifies an annotation where the column name
 will be used as the annotation name (in the legend and next to the annotation). Numeric columns will use a continuous
 colour scale while factor or character columns use discrete scales.</p></dd>
 
 
-<dt id="arg-annot-cols-df">annot_cols_df<a class="anchor" aria-label="anchor" href="#arg-annot-cols-df"></a></dt>
-<dd><p>Same usage as <code>annot_rows_df</code> but for column annotation.</p></dd>
-
-
-<dt id="arg-annot-rows-col">annot_rows_col<a class="anchor" aria-label="anchor" href="#arg-annot-rows-col"></a></dt>
-<dd><p>Named list for row annotation colour scales. The names should specify which annotation each scale applies to.
+<dt id="arg-annot-rows-col-annot-cols-col">annot_rows_col, annot_cols_col<a class="anchor" aria-label="anchor" href="#arg-annot-rows-col-annot-cols-col"></a></dt>
+<dd><p>Named list for row and column annotation colour scales. The names should specify which annotation each scale applies to.
 Elements can be strings or ggplot2 "Scale" class objects. If a string, it is used as the brewer palette or viridis option.
 If a scale object it is used as is, allowing more flexibility. This may change the order that legends are drawn in,
 specify order using the <code>guide</code> argument in the <code>ggplot2</code> scale function.</p></dd>
-
-
-<dt id="arg-annot-cols-col">annot_cols_col<a class="anchor" aria-label="anchor" href="#arg-annot-cols-col"></a></dt>
-<dd><p>Named list used for column annotation colour scales, used like <code>annot_rows_col</code>.</p></dd>
 
 
 <dt id="arg-annot-rows-side">annot_rows_side<a class="anchor" aria-label="anchor" href="#arg-annot-rows-side"></a></dt>
@@ -318,13 +313,9 @@ the <code>annot_*_fill</code> arguments.</p></dd>
 <dd><p>Logical indicating if NAs in the annotations should be removed (producing empty spaces).</p></dd>
 
 
-<dt id="arg-annot-rows-params">annot_rows_params<a class="anchor" aria-label="anchor" href="#arg-annot-rows-params"></a></dt>
-<dd><p>Named list with parameters for row annotations to overwrite the defaults set by the <code>annot_*</code> arguments, each name corresponding to the <code>*</code> part
+<dt id="arg-annot-rows-params-annot-cols-params">annot_rows_params, annot_cols_params<a class="anchor" aria-label="anchor" href="#arg-annot-rows-params-annot-cols-params"></a></dt>
+<dd><p>Named list with parameters for row and column annotations to overwrite the defaults set by the <code>annot_*</code> arguments, each name corresponding to the <code>*</code> part
 (see details for more information).</p></dd>
-
-
-<dt id="arg-annot-cols-params">annot_cols_params<a class="anchor" aria-label="anchor" href="#arg-annot-cols-params"></a></dt>
-<dd><p>Named list with parameters for column annotations, used like <code>annot_rows_params</code>.</p></dd>
 
 
 <dt id="arg-show-annot-names">show_annot_names<a class="anchor" aria-label="anchor" href="#arg-show-annot-names"></a></dt>
@@ -343,20 +334,12 @@ the <code>annot_*_fill</code> arguments.</p></dd>
 <dd><p>String specifying which side the column annotation names should be on. Either "left" or "right".</p></dd>
 
 
-<dt id="arg-annot-rows-name-params">annot_rows_name_params<a class="anchor" aria-label="anchor" href="#arg-annot-rows-name-params"></a></dt>
-<dd><p>Named list of parameters for row annotation names. Given to <code><a href="https://rdrr.io/r/grid/grid.text.html" class="external-link">grid::textGrob</a></code>, see <code><a href="https://rdrr.io/r/grid/grid.text.html" class="external-link">?grid::textGrob</a></code> for details. <code><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">?grid::gpar</a></code> is also helpful.</p></dd>
+<dt id="arg-annot-rows-name-params-annot-cols-name-params">annot_rows_name_params, annot_cols_name_params<a class="anchor" aria-label="anchor" href="#arg-annot-rows-name-params-annot-cols-name-params"></a></dt>
+<dd><p>Named list of parameters for row and column annotation names. Given to <code><a href="https://rdrr.io/r/grid/grid.text.html" class="external-link">grid::textGrob</a></code>, see <code><a href="https://rdrr.io/r/grid/grid.text.html" class="external-link">?grid::textGrob</a></code> for details. <code><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">?grid::gpar</a></code> is also helpful.</p></dd>
 
 
-<dt id="arg-annot-cols-name-params">annot_cols_name_params<a class="anchor" aria-label="anchor" href="#arg-annot-cols-name-params"></a></dt>
-<dd><p>Named list of parameters for column annotation names. Given to <code><a href="https://rdrr.io/r/grid/grid.text.html" class="external-link">grid::textGrob</a></code>, see <code><a href="https://rdrr.io/r/grid/grid.text.html" class="external-link">?grid::textGrob</a></code> for details. <code><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">?grid::gpar</a></code> is also helpful.</p></dd>
-
-
-<dt id="arg-cluster-rows">cluster_rows<a class="anchor" aria-label="anchor" href="#arg-cluster-rows"></a></dt>
-<dd><p>Logical indicating if rows should be clustered. Can also be a <code>hclust</code> or <code>dendrogram</code> object.</p></dd>
-
-
-<dt id="arg-cluster-cols">cluster_cols<a class="anchor" aria-label="anchor" href="#arg-cluster-cols"></a></dt>
-<dd><p>Logical indicating if columns should be clustered. Can also be a <code>hclust</code> or <code>dendrogram</code> object.</p></dd>
+<dt id="arg-cluster-rows-cluster-cols">cluster_rows, cluster_cols<a class="anchor" aria-label="anchor" href="#arg-cluster-rows-cluster-cols"></a></dt>
+<dd><p>Logical indicating if rows or columns should be clustered. Can also be <code>hclust</code> or <code>dendrogram</code> objects.</p></dd>
 
 
 <dt id="arg-cluster-distance">cluster_distance<a class="anchor" aria-label="anchor" href="#arg-cluster-distance"></a></dt>
@@ -367,12 +350,8 @@ the <code>annot_*_fill</code> arguments.</p></dd>
 <dd><p>String with the clustering method to use, given to <code><a href="https://rdrr.io/r/stats/hclust.html" class="external-link">stats::hclust()</a></code>.</p></dd>
 
 
-<dt id="arg-show-dend-rows">show_dend_rows<a class="anchor" aria-label="anchor" href="#arg-show-dend-rows"></a></dt>
-<dd><p>Logical indicating if a dendrogram should be drawn for the rows.</p></dd>
-
-
-<dt id="arg-show-dend-cols">show_dend_cols<a class="anchor" aria-label="anchor" href="#arg-show-dend-cols"></a></dt>
-<dd><p>Logical indicating if a dendrogram should be drawn for the columns.</p></dd>
+<dt id="arg-show-dend-rows-show-dend-cols">show_dend_rows, show_dend_cols<a class="anchor" aria-label="anchor" href="#arg-show-dend-rows-show-dend-cols"></a></dt>
+<dd><p>Logical indicating if a dendrogram should be drawn for the rows or columns.</p></dd>
 
 
 <dt id="arg-dend-rows-side">dend_rows_side<a class="anchor" aria-label="anchor" href="#arg-dend-rows-side"></a></dt>
@@ -403,20 +382,12 @@ the <code>annot_*_fill</code> arguments.</p></dd>
 <dd><p>Dendrogram line type, applied to both row and column dendrograms.</p></dd>
 
 
-<dt id="arg-dend-rows-params">dend_rows_params<a class="anchor" aria-label="anchor" href="#arg-dend-rows-params"></a></dt>
-<dd><p>Named list for row dendrogram parameters to overwrite common parameter values. See details for more information.</p></dd>
+<dt id="arg-dend-rows-params-dend-cols-params">dend_rows_params, dend_cols_params<a class="anchor" aria-label="anchor" href="#arg-dend-rows-params-dend-cols-params"></a></dt>
+<dd><p>Named list for row or column dendrogram parameters to overwrite common parameter values. See details for more information.</p></dd>
 
 
-<dt id="arg-dend-cols-params">dend_cols_params<a class="anchor" aria-label="anchor" href="#arg-dend-cols-params"></a></dt>
-<dd><p>Named list for column dendrogram parameters to overwrite common parameter values. See details for more information.</p></dd>
-
-
-<dt id="arg-dend-rows-extend">dend_rows_extend<a class="anchor" aria-label="anchor" href="#arg-dend-rows-extend"></a></dt>
-<dd><p>Named list or functional sequence for specifying <code>dendextend</code> functions to apply to the row dendrogram. See details for usage.</p></dd>
-
-
-<dt id="arg-dend-cols-extend">dend_cols_extend<a class="anchor" aria-label="anchor" href="#arg-dend-cols-extend"></a></dt>
-<dd><p>Named list or functional sequence for specifying <code>dendextend</code> functions to apply to the column dendrogram. See details for usage.</p></dd>
+<dt id="arg-dend-rows-extend-dend-cols-extend">dend_rows_extend, dend_cols_extend<a class="anchor" aria-label="anchor" href="#arg-dend-rows-extend-dend-cols-extend"></a></dt>
+<dd><p>Named list or functional sequence for specifying <code>dendextend</code> functions to apply to the row or column dendrogram. See details for usage.</p></dd>
 
 </dl></div>
     <div class="section level2">

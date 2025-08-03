@@ -39,6 +39,7 @@
     <li><a class="dropdown-item" href="../articles/clustering.html">Clustering</a></li>
     <li><a class="dropdown-item" href="../articles/mixed.html">Mixed layouts</a></li>
     <li><a class="dropdown-item" href="../articles/legends.html">Scales and legends</a></li>
+    <li><a class="dropdown-item" href="../articles/tidy_input.html">Using tidy data</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -97,14 +98,16 @@ brewer palettes (categorical annotations,
 starting again from the beginning if there are more than eight
 annotations.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mat_in</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">9</span>, nrow <span class="op">=</span> <span class="fl">3</span>, ncol <span class="op">=</span> <span class="fl">3</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Make 8x8 matrix as some colour scales have a maximum of 8 possible colours</span></span>
+<span><span class="va">mat_in</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">64</span>, nrow <span class="op">=</span> <span class="fl">8</span>, ncol <span class="op">=</span> <span class="fl">8</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co"># Works without rownames or '.names' column as they are by default set to the same numbers here</span></span>
-<span><span class="va">row_annot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">12</span>, <span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">col_annot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">12</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">row_annot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">12</span>, <span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">col_annot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">12</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">row_annot</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">col_annot</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">12</span></span>
 <span><span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">mat_in</span>, annot_rows_df <span class="op">=</span> <span class="va">row_annot</span>, annot_cols_df <span class="op">=</span> <span class="va">col_annot</span>,</span>
 <span>     <span class="co"># Hide the legends</span></span>
 <span>     legend_order <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span></code></pre></div>
-<p><img src="annotation_files/figure-html/unnamed-chunk-3-1.png" alt="A small 3x3 heatmap. Rows and columns are named 1, 2, 3, and the values in the heatmap go from 1 to 9. To the right are 12 categorical row annotation columns using different colours scales. After the eighth annotation the colour scale cycles back to the first one. Below the heatmap are 12 annotations using viridis colour scales for continuous data, also recycling scales after the eighth annotation." width="700"></p>
+<p><img src="annotation_files/figure-html/unnamed-chunk-3-1.png" alt="An 8x8 heatmap. Rows and columns are named 1 to 8, and the values in the heatmap go from 1 to 64, rowwise from the top left. To the right are 12 categorical row annotation columns using different Brewer colour scales. After the eighth annotation the colour scale cycles back to the first one. Below the heatmap are 12 annotations using viridis colour scales for continuous data, also recycling scales after the eighth annotation." width="700"></p>
 <p>The colours can be changed by passing a named list of
 <code>ggplot2</code> fill scales or strings specifying brewer palettes
 or viridis options to the <code>annot_rows_col</code> and
@@ -282,9 +285,9 @@ as <code>na_col</code>.</p>
 <span></span>
 <span><span class="va">plt1</span> <span class="op">+</span> <span class="va">plt2</span></span></code></pre></div>
 <p><img src="annotation_files/figure-html/unnamed-chunk-9-1.png" alt="Two mtcars correlation heatmaps with two row and two column annotations. In the first plot, there are holes in the annotations showing that there are NAs. In the second plot, the row annotation NAs have cells coloured green (first annotation) and blue (second annotation). The column annotation still has holes." width="960"></p>
-<p>As can be seen in some plots in previous sections, the legends may be
-cut off if there are many annotations. Fitting the legends can be tricky
-and is covered in the <a href="legends.html">legends article</a>.</p>
+<p>As can be seen in some plots, the legends may be cut off if there are
+many annotations. Fitting the legends can be tricky and is covered in
+the <a href="legends.html">legends article</a>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

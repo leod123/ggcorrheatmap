@@ -39,6 +39,7 @@
     <li><a class="dropdown-item" href="../articles/clustering.html">Clustering</a></li>
     <li><a class="dropdown-item" href="../articles/mixed.html">Mixed layouts</a></li>
     <li><a class="dropdown-item" href="../articles/legends.html">Scales and legends</a></li>
+    <li><a class="dropdown-item" href="../articles/tidy_input.html">Using tidy data</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -230,7 +231,7 @@ two triangles.</p>
 <code class="sourceCode R"><span><span class="co"># Different size ranges</span></span>
 <span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">21</span>, <span class="fl">23</span><span class="op">)</span>,</span>
 <span>         size_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="mixed_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<p><img src="mixed_files/figure-html/unnamed-chunk-10-1.png" alt="A mtcars correlation heatmap with the diagonal running from the bottom left to the top right, showing circles in the top left triangle (including the diagonal) and diamonds in the bottom right. Both the circles and the diamonds have sizes scaling with the correlations, but the diamonds are overall smaller than the circles." width="700"></p>
 <p><code>col_scale</code> can also take a mix of NULL, character values,
 and scale objects in mixed layouts.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">

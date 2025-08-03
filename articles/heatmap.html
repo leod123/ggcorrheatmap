@@ -39,6 +39,7 @@
     <li><a class="dropdown-item" href="../articles/clustering.html">Clustering</a></li>
     <li><a class="dropdown-item" href="../articles/mixed.html">Mixed layouts</a></li>
     <li><a class="dropdown-item" href="../articles/legends.html">Scales and legends</a></li>
+    <li><a class="dropdown-item" href="../articles/tidy_input.html">Using tidy data</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -256,7 +257,11 @@ interfere with clustering if a whole row or column is all NAs.</p>
 the <a href="cluster.html">clustering</a> article for more on
 clustering.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span>, cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>, cluster_cols <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">mtcars</span>, cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>, cluster_cols <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>     <span class="co"># The `scale_data` argument allows for scaling</span></span>
+<span>     <span class="co"># NULL or 'none' for no scaling, 'rows' or 'columns'</span></span>
+<span>     <span class="co"># (or a substring of the beginning) for scaling either dimension</span></span>
+<span>     scale_data <span class="op">=</span> <span class="st">"col"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="heatmap_files/figure-html/clustering-1.png" alt="A heatmap of mtcars, where rows and columns have been reordered according to hierarchical clustering results. Dendrograms are drawn to the right of and below the heatmap." width="700"></p>
 <p>Row and column annotation is added by providing data frames to the
 <code>annot_rows_df</code> and <code>annot_cols_df</code> arguments.
@@ -271,7 +276,7 @@ More details on annotation can be found in the <a href="annotation.html">annotat
 <p><img src="heatmap_files/figure-html/annotation-1.png" alt="Heatmap of mtcars with a thin column added to the right containing row annotation." width="700"></p>
 <p>Clustering and annotation can of course be added simultaneously.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">15</span>, <span class="op">]</span>, cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">15</span>, <span class="op">]</span>, cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>, scale_data <span class="op">=</span> <span class="st">"col"</span>,</span>
 <span>     annot_rows_df <span class="op">=</span> <span class="va">row_annot</span>, annot_rows_names_side <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="heatmap_files/figure-html/unnamed-chunk-11-1.png" alt="Heatmap of mtcars. The rows have been clustered and along the right side is an annotation column with a dendrogram on its right." width="700"></p>
 </div>
@@ -370,7 +375,7 @@ output plot is more robust.</p>
 <p>There are many arguments, allowing for quite some flexibility in the
 heatmap layout. Most of the arguments are showcased in the articles,
 hopefully they can be of some help. They go more into making <a href="correlation.html">correlation heatmaps</a>, <a href="clustering.html">clustering</a> and <a href="annotation.html">annotation</a>, making <a href="mixed.html">mixed
-layout heatmaps</a>, and ways to deal with <a href="legends.html">legends</a>.</p>
+layout heatmaps</a>, ways to deal with <a href="legends.html">legends</a>, and how to use the package with <a href="tidy_input.html">tidy data</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="other-packages">Other packages<a class="anchor" aria-label="anchor" href="#other-packages"></a>
