@@ -17,7 +17,7 @@
 #' @param names_y_side Y axis side.
 #' @param col_scale Scale for colour/fill aesthetic.
 #' @param size_scale Scale for size aesthetic.
-#' @param cell_labels Logical indicating if cell labels should be written or a matrix or data frame (same shape as x_long) with values to write.
+#' @param cell_labels Data frame of text to write on cells (processed by check_cell_labels).
 #' @param cell_label_col Colour of cell labels.
 #' @param cell_label_size Size of cell labels.
 #' @param cell_label_digits Number of digits for cell labels if numeric.
@@ -133,42 +133,15 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
   }
 
   # Cell labels
-  if (isTRUE(cell_labels) | is.matrix(cell_labels) | is.data.frame(cell_labels)) {
+  if (is.data.frame(cell_labels)) {
+    # Remove cells in cell_labels that don't exist in plot
+    # If input is a matrix, convert to long format
 
-    cell_data <- if (is.matrix(cell_labels) | is.data.frame(cell_labels)) {
-      # Perform the same checks as for plotting data
-      # Check that there are colnames
-      if (is.null(colnames(cell_labels))) {colnames(cell_labels) <- 1:ncol(cell_labels)}
-
-      if (".names" %in% colnames(cell_labels)) {
-        rownames(cell_labels) <- cell_labels[[".names"]]
-        cell_labels <- dplyr::select(cell_labels, -".names")
-      }
-      # Explicitly define the rownames to prevent ggplot2 error if x is a data frame without explicit rownames
-      rownames(cell_labels) <- rownames(cell_labels)
-
-      # Check that there are rownames
-      if (is.null(rownames(cell_labels))) {rownames(cell_labels) <- 1:nrow(cell_labels)}
-
-      cell_labels <- as.matrix(cell_labels)
-
-      # If input is a matrix, convert to long format
-      cell_data_temp <- dplyr::rename(layout_hm(as.matrix(cell_labels)), "label" = "value")
-
-      # Merge with input long matrix to throw away irrelevant rows
-      dplyr::left_join(x_long, cell_data_temp, by = c("row", "col"))
-    } else {
-      # If just a TRUE, use values as cell labels
-      dplyr::mutate(x_long, label = value)
-    }
+    # Merge with input long matrix to throw away irrelevant rows
+    cell_data <- dplyr::left_join(x_long, cell_labels, by = c("row", "col"))
 
     # Skip NA labels
-    cell_data <- subset(cell_data, !is.na(label))
-
-    if (nrow(cell_data) < 1) {
-      cli::cli_warn("There are no cells in {.var cell_labels} that correspond to cells in the plotted data.",
-                    class = "cell_labels_rowcol_warn")
-    }
+    cell_data <- dplyr::select(subset(cell_data, !is.na(label)), "row", "col", "value", "label")
 
     # skip diagonal if already occupied
     if (!(include_diag & !show_names_diag)) {cell_data <- subset(cell_data, as.character(row) != as.character(col))}
@@ -192,10 +165,6 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
         }
       )
 
-  } else if (!isFALSE(cell_labels)) {
-    cli::cli_warn("{.var cell_labels} should be a {.cls logical} to write the cell values, or
-                  a {.cls matrix} or {.cls data.frame} that shares row/colnames with the plotted matrix.",
-                  class = "cell_labels_class_warn")
   }
 
   return(plt)

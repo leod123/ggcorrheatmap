@@ -460,6 +460,13 @@ gghm <- function(x,
     annot_scales <- list("rows" = annot_rows_col, "cols" = annot_cols_col)
   }
 
+  # Check that rows and columns in cell label input exist (if matrix/data frame)
+  if (length(layout) == 2 && is.vector(cell_labels)) {
+    cell_labels <- lapply(cell_labels, function(x) check_cell_labels(x, x_long))
+  } else {
+    cell_labels <- check_cell_labels(cell_labels, x_long)
+  }
+
   # Build plot
   check_logical(show_names_diag = show_names_diag)
 
@@ -857,4 +864,62 @@ check_numeric <- function(..., allow_null = FALSE, allowed_lengths = 1,
     })
   }
 
+}
+
+
+#' Title
+#'
+#' @keywords internal
+#'
+#' @param cell_labels
+#' @param x_long
+#'
+#' @returns
+#'
+check_cell_labels <- function(cell_labels, x_long) {
+  cell_data <- if (is.matrix(cell_labels) | is.data.frame(cell_labels)) {
+    # Perform the same checks as for plotting data
+    # Check that there are colnames
+    if (is.null(colnames(cell_labels))) {colnames(cell_labels) <- 1:ncol(cell_labels)}
+
+    if (".names" %in% colnames(cell_labels)) {
+      rownames(cell_labels) <- cell_labels[[".names"]]
+      cell_labels <- dplyr::select(cell_labels, -".names")
+    }
+    # Explicitly define the rownames to prevent ggplot2 error if x is a data frame without explicit rownames
+    rownames(cell_labels) <- rownames(cell_labels)
+
+    # Check that there are rownames
+    if (is.null(rownames(cell_labels))) {rownames(cell_labels) <- 1:nrow(cell_labels)}
+
+    cell_labels <- as.matrix(cell_labels)
+
+    # If input is a matrix, convert to long format
+    cell_data_temp <- dplyr::rename(layout_hm(as.matrix(cell_labels)), "label" = "value")
+
+    # Merge with input long matrix to throw away irrelevant rows
+    dplyr::select(dplyr::left_join(x_long, cell_data_temp, by = c("row", "col")), "row", "col", "label")
+
+  } else if (isTRUE(cell_labels)) {
+    # If just a TRUE, use values as cell labels
+    dplyr::select(dplyr::mutate(x_long, label = value), "row", "col", "label")
+
+  } else if (isFALSE(cell_labels)) {
+    return(cell_labels)
+
+  } else {
+    cli::cli_abort("{.var cell_labels} should be TRUE to write the cell values, or
+                  a {.cls matrix} or {.cls data.frame} that shares row/colnames with the plotted matrix.",
+                   class = "cell_labels_class_error")
+  }
+
+  # Skip NA labels
+  cell_data <- subset(cell_data, !is.na(label))
+
+  if (nrow(cell_data) < 1) {
+    cli::cli_warn("There are no cells in {.var cell_labels} that correspond to cells in the plotted data.",
+                  class = "cell_labels_rowcol_warn")
+  }
+
+  return(cell_data)
 }
