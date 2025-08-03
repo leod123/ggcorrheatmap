@@ -14,6 +14,7 @@ library(ggcorrheatmap)
 library(dplyr)
 library(tidyr)    # For converting between long and wide formats
 library(tibble)
+library(patchwork)
 ```
 
 Data is often in long format when working with `ggplot2` and other functions in the `tidyverse`. The `gghm_tidy()` and `ggcorrhm_tidy()` functions provide a way to use the heatmap plotting functionality of `ggcorrheatmap` with long format data. These functions (and this article) assume that the user is familiar with the arguments of the non-tidy versions of the functions.
@@ -43,9 +44,9 @@ gghm_tidy(mtcars_long, rows = cars, cols = 2, values = !!value_column,
           col_scale = "A", scale_data = "col")
 ```
 
-Columns containing annotations and cell labels can be specified in the same way. If the values and labels use the same column the labels will be affected by scaling of the data.
+Columns containing annotations and cell labels can be specified in the same way.
 
-```{r, fig.height=7, fig.width=5, fig.alt='A heatmap of mtcars with scaled columns. Rows and columns are clustered and each dimension has one continuous and one discrete annotation. The cells are coloured with the Viridis magma scale and have their values written as labels, rounded to integers.'}
+```{r, fig.height=7, fig.width=5, fig.alt='A heatmap of mtcars with scaled columns. Rows and columns are clustered and each dimension has one continuous and one discrete annotation. The cells are coloured with the Viridis magma scale and are labelled by integers from 1 to 352.'}
 # Make sure the annotations are unique
 # (i.e. one row or column does not have two different annotation values)
 set.seed(123)
@@ -60,25 +61,35 @@ mtcars_long %>%
   # Add the row and column annotations
   left_join(row_key, by = "cars") %>%
   left_join(col_key, by = "vars") %>%
-  gghm_tidy(cars, vars, vals, labels = vals,
+  # Add labels
+  mutate(labs = 1:nrow(.)) %>%
+  gghm_tidy(cars, vars, vals, labels = labs,
             annot_rows = c(a, b), annot_col = c(c, d),
             # gghm arguments
-            legend_order = NA, cell_label_col = "white",
+            legend_order = 1, cell_label_col = "white",
             cell_label_digits = 0, col_scale = "A",
-            scale_data = "col",
+            scale_data = "col", cell_label_size = 2,
             cluster_rows = TRUE, cluster_cols = TRUE)
 ```
 
 
 ## Correlation heatmaps
 
-`ggcorrhm_tidy()` is the tidy version of `ggcorrhm()`, although not all of the functionality is available. By default, the input is assumed to contain correlation coefficients (`cor_in` is `TRUE`).
+`ggcorrhm_tidy()` is the tidy version of `ggcorrhm()`, although not all of the functionality is available. By default, the input is assumed to contain correlation coefficients (`cor_in` is `TRUE`). If `cor_in` is `FALSE` the behaviour changes and some arguments work differently.
 
-The `cor_long()` function can be used to calculate correlations from long format data. The output can be wide or long format. If long format it will contain the columns 'row', 'col', and 'value'.
+The `cor_long()` function can be used to calculate correlations from long format data. By default the output is in wide format and can be passed to `ggcorrhm()`.
 
 ```{r}
-# Default output is a wide format correlation matrix
-# but use long here for demonstration
+ggcorrhm(
+  cor_long(mtcars_long, cars, vars, vals),
+  # Specify that the input contains correlation values
+  cor_in = TRUE
+)
+```
+
+If desired, the correlation data can be returned in long format, which can be given to `ggcorrhm_tidy()` to make a heatmap.
+
+```{r}
 mtcars_cor <- cor_long(mtcars_long, cars, vars, vals,
                        out_format = "long")
 
@@ -137,15 +148,17 @@ If the `cor_in` argument is `FALSE`, `ggcorrhm_tidy()` will calculate the correl
 
 * Cannot correlate two different matrices.
 
-* Cell labels are limited to no labels or just the correlation values.
-
 * `annot_rows` and `annot_cols` require different thinking as both will use the names from the column specified as `cols`.
+
+* The `labels` argument works like in `gghm()`, taking a combination of TRUE and FALSE or a (wide format) matrix or data frame (and, additionally, NULL).
 
 `cor_in` is `TRUE`:
 
 * Requires the correlation values to be pre-computed.
 
-* As all correlation calculations are skipped, p-values will not be computed and will also need to be calculated in advance.
+* As all correlation calculations are skipped, p-values will not be computed and will also need to be calculated in advance. The `cor_long()` function can help with this.
+
+* The `labels` argument works like in `gghm_tidy()`, taking a column in the data.
 
 ```{r, fig.alt='mtcars correlation matrix, with the correlation values written in the cells (apart from the diagonal that has the column names).'}
 # Give the non-correlation data
@@ -185,3 +198,136 @@ ggcorrhm_tidy(mtcars_cor_extra, row, col, value,
               legend_order = c(1, 2))
 ```
 
+# Cell labels and mixed layouts
+
+When adding cell labels in `gghm_tidy()`, if the value column and cell label column are the same the cell labels will be affected by the `scale_data` argument.
+
+```{r}
+gghm_tidy(mtcars_long, cars, vars, vals,
+          labels = vals, scale_data = "col",
+          cell_label_digits = 0, cell_label_col = "white")
+```
+
+It is also convenient to make conditional cell labels when the data is in long format, such as using different labels depending on the cell values.
+
+```{r}
+iris_long %>%
+  mutate(labs = case_when(value < 1.5 ~ "-",
+                          value > 4 ~ "+",
+                          TRUE ~ "")) %>%
+  gghm_tidy(name, species, value, labels = labs,
+            col_scale = "A", cell_label_col = "white")
+```
+
+When working with mixed layouts, `gghm()` can take care of labelling only one half of the heatmap. Since the tidy version just uses the values in the specified `labels` column, a bit more work is required.
+
+For convenience, the `add_mixed_layout()` helper function can add a column showing which values will end up in which triangle of a mixed layout to help with labelling cells.
+
+```{r}
+# Get long format data
+df_long <- sapply(seq(-1, 0, length.out = 15), function(x) {
+  seq(x, x + 1, length.out = 15)
+}) %>% as.data.frame() %>%
+  `colnames<-`(1:15) %>%
+  rownames_to_column("a") %>%
+  pivot_longer(cols = -a, names_to = "b") %>%
+  # Add column saying which triangle each value is in
+  add_mixed_layout(rows = a, cols = b, values = value,
+                   layout = c("tl", "br"))
+
+head(df_long)
+```
+
+```{r}
+df_long %>%
+  # Add labels only for the top left part
+  mutate(label = if_else(layout == "tl", "+", "")) %>%
+  gghm_tidy(a, b, value, labels = label,
+            # Make sure to use the same layout as in add_mixed_layout
+            # to avoid confusion
+            layout = c("tl", "br"), mode = c("hm", "hm"),
+            col_scale = c("G", "A"), cell_label_col = "white")
+```
+
+`ggcorrhm_tidy()` works similarly if `cor_in` is `TRUE`. If `FALSE`, the `labels` argument works like in `ggcorrhm()`, taking a wide format matrix/data frame or a combination of `TRUE` and `FALSE`.
+
+```{r}
+# `cor_in` is `TRUE`
+mtcars_cor %>%
+  # Add layout column
+  add_mixed_layout(layout = c("bl", "tr")) %>%
+  # Add cell labels
+  mutate(lab = if_else(layout == "tr", value, NA)) %>%
+  ggcorrhm_tidy(row, col, value, labels = lab,
+                cor_in = TRUE,
+                layout = c("bl", "tr"), mode = c("hm", "hm"))
+```
+
+# P-values
+
+In `ggcorrhm_tidy()`, if `cor_in` is `FALSE`, the `p_values` argument works like in `ggcorrhm()` and can deal with mixed layouts.
+
+```{r}
+ggcorrhm_tidy(mtcars_long, cars, vars, vals, cor_in = FALSE,
+              layout = c("tl", "br"), mode = c("hm", "hm"),
+              labels = TRUE, p_values = c(TRUE, FALSE),
+              # P-values top left, correlation values bottom right
+              cell_label_p = c(TRUE, FALSE))
+```
+
+If `cor_in` is `TRUE`, the labels are drawn directly from a column in the data, which means that the labels have to be made in advance. To help with this, the `cor_long` function has some extra p-value functionality.
+
+```{r}
+mtcars_long %>%
+  cor_long(cars, vars, vals,
+           out_format = "long",
+           p_values = TRUE,
+           # Multiple testing adjustment
+           p_adjust = "bonferroni",
+           # Thresholds for symbols based on adjusted p-values
+           p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, 1),
+           # 'p_sym_add' takes a column and adds to the symbols
+           # One of 'values', 'p_val', and 'p_adj'
+           p_sym_add = "value",
+           # 'p_sym_digits' changes the number of decimals
+           # displayed in the p_sym
+           p_sym_digits = 1) %>%
+  # The output contains the columns 'row', 'col', 'value',
+  # 'p_val', 'p_adj', and 'p_sym'
+  ggcorrhm_tidy(row, col, value, labels = p_sym)
+```
+
+Combine this with `add_mixed_layout` for more control in mixed layouts.
+
+```{r, fig.height=5, fig.width=10}
+plt_dat <- mtcars_long %>%
+  # Add p-values
+  cor_long(cars, vars, vals, out_format = "long",
+           p_values = TRUE, p_adjust = "bonferroni") %>%
+  # Add layout
+  add_mixed_layout(layout = c("tr", "bl"))
+
+plt1 <- plt_dat %>%
+  # Make custom labels with adjusted p-values in the
+  # top right and unadjusted in the bottom left
+  # but only display if < 0.05
+  mutate(labs = case_when(layout == "tr" & p_adj < 0.05 ~ round(p_adj, 2),
+                          layout == "bl" & p_val < 0.05 ~ round(p_val, 2),
+                          TRUE ~ NA)) %>%
+  ggcorrhm_tidy(row, col, value, labels = labs,
+                cor_in = TRUE)
+
+plt2 <- plt_dat %>%
+  # Make asterisk labels instead
+  mutate(p_star = as.character(symnum(p_val, c(0, 0.001, 0.01, 0.05, 1),
+                                      c("***", "**", "*", ""))),
+         p_adj_star = as.character(symnum(p_adj, c(0, 0.001, 0.01, 0.05, 1),
+                                          c("+++", "++", "+", ""))),
+         labs = case_when(layout == "tr" & p_adj < 0.05 ~ p_adj_star,
+                          layout == "bl" & p_val < 0.05 ~ p_star,
+                          TRUE ~ "")) %>%
+  ggcorrhm_tidy(row, col, value, labels = labs,
+                cor_in = TRUE)
+
+plt1 + plt2
+```

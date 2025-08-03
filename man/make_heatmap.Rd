@@ -59,7 +59,7 @@ make_heatmap(
 
 \item{size_scale}{Scale for size aesthetic.}
 
-\item{cell_labels}{Logical indicating if cell labels should be written or a matrix or data frame (same shape as x_long) with values to write.}
+\item{cell_labels}{Data frame of text to write on cells (processed by check_cell_labels).}
 
 \item{cell_label_col}{Colour of cell labels.}
 

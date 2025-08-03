@@ -9,11 +9,14 @@ reference:
 - contents:
   - ggcorrhm
   - ggcorrhm_tidy
-  - cor_long
 - title: General heatmaps
 - contents:
   - gghm
   - gghm_tidy
+- title: Helper functions
+- contents:
+  - cor_long
+  - add_mixed_layout
 
 articles:
 - title: Heatmaps

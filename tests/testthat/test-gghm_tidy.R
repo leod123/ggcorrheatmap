@@ -1,3 +1,5 @@
+### ADD TESTS FOR THE NEW ERRORS AND WARNINGS!!!
+
 test_that("it runs", {
   dat <- data.frame(rows = rep(rownames(mtcars), ncol(mtcars)),
                     cols = rep(colnames(mtcars), each = nrow(mtcars)),

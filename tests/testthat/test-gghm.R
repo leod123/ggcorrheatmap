@@ -151,7 +151,7 @@ test_that("warnings and errors", {
   expect_warning(gghm(cor(mtcars), cluster_cols = TRUE), class = "unequal_clust_warn")
   expect_warning(gghm(mtcars, cluster_rows = TRUE, dend_rows_extend = "A"), class = "extend_class_warn")
   expect_warning(gghm(mtcars, legend_order = "A"), class = "lgd_order_class_warn")
-  expect_warning(gghm(mtcars, cell_labels = NULL), class = "cell_labels_class_warn")
+  expect_error(gghm(mtcars, cell_labels = NULL), class = "cell_labels_class_error")
   expect_warning(gghm(mtcars, cell_labels = iris), class = "cell_labels_rowcol_warn")
   # Diagonal names parameters
   expect_warning(gghm(cor(mtcars), show_names_diag = TRUE, names_diag_params = "a"),
@@ -322,7 +322,7 @@ test_that("annotation names must exist in the data", {
 })
 
 test_that("mixed_layout_errors", {
-  expect_warning(gghm(mtcars, layout = c("tl", "br")), "Triangular layouts are not supported for asymmetric matrices")
+  expect_warning(gghm(mtcars, layout = c("tl", "br")), class = "force_full_warn")
   expect_error(gghm(cor(mtcars), layout = c("tr", "br")), class = "nonsup_layout_error")
   expect_error(gghm(cor(mtcars), layout = c("tl", "br"), mode = "heatmap"), class = "layout_mode_len_error")
   expect_error(gghm(cor(mtcars), layout = c("too", "many", "layouts", "!")), class = "layout_mode_len_error")
