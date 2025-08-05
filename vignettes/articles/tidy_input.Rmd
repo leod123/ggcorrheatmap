@@ -79,7 +79,7 @@ mtcars_long %>%
 
 The `cor_long()` function can be used to calculate correlations from long format data. By default the output is in wide format and can be passed to `ggcorrhm()`.
 
-```{r}
+```{r, fig.alt='A correlation heatmap of the mtcars data, with colours going from blue (-1) to white (0) to red (1). Names are written along the diagonal.'}
 ggcorrhm(
   cor_long(mtcars_long, cars, vars, vals),
   # Specify that the input contains correlation values
@@ -137,7 +137,7 @@ mi_cor <- cor_long(iris_long, species, name, value,
 head(mi_cor)
 ```
 
-```{r, fig.alt='A heatmap showing correlations between the columns in mtcars (in the columns) and the columns iris (in the rows, excluding the Species column).'}
+```{r, fig.height=3, fig.width=7, fig.alt='A heatmap showing correlations between the columns in mtcars (in the columns) and the columns iris (in the rows, excluding the Species column).'}
 ggcorrhm_tidy(mi_cor, row, col, value)
 ```
 
@@ -202,7 +202,7 @@ ggcorrhm_tidy(mtcars_cor_extra, row, col, value,
 
 When adding cell labels in `gghm_tidy()`, if the value column and cell label column are the same the cell labels will be affected by the `scale_data` argument.
 
-```{r}
+```{r, fig.alt='A heatmap of the mtcars data with scaled columns. The cells are labelled with the cell values, rounded to integers.'}
 gghm_tidy(mtcars_long, cars, vars, vals,
           labels = vals, scale_data = "col",
           cell_label_digits = 0, cell_label_col = "white")
@@ -210,7 +210,7 @@ gghm_tidy(mtcars_long, cars, vars, vals,
 
 It is also convenient to make conditional cell labels when the data is in long format, such as using different labels depending on the cell values.
 
-```{r}
+```{r, fig.height=2.3, fig.width=7, fig.alt='A heatmap of the first 32 rows of the iris dataset, transposed to a 4x32 matrix. The cells are coloured with the Viridis magma colour scale and labelled with + at high values or - at low values, or nothing in-between.'}
 iris_long %>%
   mutate(labs = case_when(value < 1.5 ~ "-",
                           value > 4 ~ "+",
@@ -238,7 +238,7 @@ df_long <- sapply(seq(-1, 0, length.out = 15), function(x) {
 head(df_long)
 ```
 
-```{r}
+```{r, fig.alt='A heatmap of a symmetric 15x15 matrix with values ranging between -1 and 1 in a gradient from the bottom left to the top right along the diagonal. The top left triangle uses the Viridis mako colour scale with cells labelled with +. The bottom right triangle uses the magma colours and has no labels. '}
 df_long %>%
   # Add labels only for the top left part
   mutate(label = if_else(layout == "tl", "+", "")) %>%
@@ -251,7 +251,7 @@ df_long %>%
 
 `ggcorrhm_tidy()` works similarly if `cor_in` is `TRUE`. If `FALSE`, the `labels` argument works like in `ggcorrhm()`, taking a wide format matrix/data frame or a combination of `TRUE` and `FALSE`.
 
-```{r}
+```{r, fig.alt='mtcars correlation matrix. The top right triangle is marked with correlation values. The bottom left triangle has no labels.'}
 # `cor_in` is `TRUE`
 mtcars_cor %>%
   # Add layout column
@@ -267,7 +267,7 @@ mtcars_cor %>%
 
 In `ggcorrhm_tidy()`, if `cor_in` is `FALSE`, the `p_values` argument works like in `ggcorrhm()` and can deal with mixed layouts.
 
-```{r}
+```{r, fig.alt='mtcars correlation matrix with diagonal running from the bottom left to the top right. The cells in the top left triangle are labelled with p-values and asterisks while the cells in the bottom right triangle are marked with correlation values.'}
 ggcorrhm_tidy(mtcars_long, cars, vars, vals, cor_in = FALSE,
               layout = c("tl", "br"), mode = c("hm", "hm"),
               labels = TRUE, p_values = c(TRUE, FALSE),
@@ -277,7 +277,7 @@ ggcorrhm_tidy(mtcars_long, cars, vars, vals, cor_in = FALSE,
 
 If `cor_in` is `TRUE`, the labels are drawn directly from a column in the data, which means that the labels have to be made in advance. To help with this, the `cor_long` function has some extra p-value functionality.
 
-```{r}
+```{r, fig.alt='mtcars correlation matrix with p-value labels with asterisks in both triangles. '}
 mtcars_long %>%
   cor_long(cars, vars, vals,
            out_format = "long",
@@ -286,7 +286,7 @@ mtcars_long %>%
            p_adjust = "bonferroni",
            # Thresholds for symbols based on adjusted p-values
            p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, 1),
-           # 'p_sym_add' takes a column and adds to the symbols
+           # 'p_sym_add' takes a column and adds to the symbols for quick combining
            # One of 'values', 'p_val', and 'p_adj'
            p_sym_add = "value",
            # 'p_sym_digits' changes the number of decimals
@@ -299,7 +299,7 @@ mtcars_long %>%
 
 Combine this with `add_mixed_layout` for more control in mixed layouts.
 
-```{r, fig.height=5, fig.width=10}
+```{r, fig.height=5, fig.width=10, fig.alt='Two mtcars correlation heatmaps. The first one has p-values in the cells. Only p-values below 0.05 are shown, and the bottom left triangle shows unadjusted p-values while the top right triangle shows adjusted p-values (being slightly higher). The second plot has swapped the p-values for asterisks in the bottom left triangle and pluses in the top right triangle.'}
 plt_dat <- mtcars_long %>%
   # Add p-values
   cor_long(cars, vars, vals, out_format = "long",
@@ -318,7 +318,7 @@ plt1 <- plt_dat %>%
                 cor_in = TRUE)
 
 plt2 <- plt_dat %>%
-  # Make asterisk labels instead
+  # Make symbol labels instead
   mutate(p_star = as.character(symnum(p_val, c(0, 0.001, 0.01, 0.05, 1),
                                       c("***", "**", "*", ""))),
          p_adj_star = as.character(symnum(p_adj, c(0, 0.001, 0.01, 0.05, 1),

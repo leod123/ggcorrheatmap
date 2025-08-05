@@ -341,14 +341,14 @@ cor_long <- function(x, rows, cols, values,
 
   # Check p-values and thresholds
   check_logical(p_values = p_values)
-  if (any(unlist(p_values))) {
+  if (isTRUE(p_values)) {
     check_numeric(p_sym_digits = p_sym_digits)
 
     if (!is.numeric(p_thresholds) && !is.null(p_thresholds)) {
       cli::cli_abort("{.var p_thresholds} must be a named {.cls numeric} vector or NULL.",
                      class = "p_thr_class_error")
     } else if (!is.null(p_thresholds)) {
-      if (any(is.na(p_thresholds))) cli::cli_abort("{.var p_thresholds} should not contain any missing values.")
+      if (any(is.na(p_thresholds))) cli::cli_abort("{.var p_thresholds} should not contain any missing values.", class = "p_thr_error")
       if (any(p_thresholds <= 0)) cli::cli_abort("Values in {.var p_thresholds} must be above 0.", class = "p_thr_error")
       if (p_thresholds[length(p_thresholds)] < 1) cli::cli_abort("The last value of {.var p_thresholds} must be 1 or larger.", class = "p_thr_error")
       if (is.null(names(p_thresholds))) cli::cli_abort("{.var p_thresholds} must have named elements to be used as symbols (up to one unnamed).", class = "p_thr_error")
@@ -380,8 +380,8 @@ cor_long <- function(x, rows, cols, values,
   )
 
   if (not_all_y && !make_y) {
-    cli::cli_abort("{.var {c('rows2', 'cols2', 'values2')}} all need to be not NULL to correlate two matrices.",
-                   class = "too_few_args_error")
+    cli::cli_abort("{.var {c('rows2', 'cols2', 'values2')}} all need to be non-NULL to correlate two matrices.",
+                   class = "tidy_too_few_args_error")
   }
 
   if (make_y) {
@@ -481,6 +481,12 @@ add_mixed_layout <- function(x, rows = "row", cols = "col", values = "value",
 
   # Make a wide version of the input matrix
   x_wide <- dplyr::select(x, {{rows}}, {{cols}}, {{values}})
+
+  if (ncol(x_wide) > 3) {
+    cli::cli_abort("Too many columns, provide one column each for {.var rows}, {.var cols} and {.var values}.",
+                   class = "tidy_too_many_cols_error")
+  }
+
   # Keep the old colnames for later
   colnm <- colnames(x_wide)
 

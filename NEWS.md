@@ -8,6 +8,8 @@
 
 * The new `cor_long()` function makes it convenient to calculate correlations from long format data.
 
+* The new `add_mixed_layout()` function can add mixed layout labels to long format data to aid in cell label creation.
+
 ## Minor fixes
 
 * The default continuous colour scale nr 7 now works.

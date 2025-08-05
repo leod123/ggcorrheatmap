@@ -87,6 +87,8 @@ test_that("p-value errors work", {
                class = "p_thr_class_error")
   expect_error(ggcorrhm(mtcars, p_values = TRUE, p_thresholds = c("a" = -1, "b" = 0.5, "c" = 1)),
                class = "p_thr_error")
+  expect_error(ggcorrhm(mtcars, p_values = TRUE, p_thresholds = c("a" = 0.01, "b" = 0.05, "c" = NA, "d" = 1)),
+               class = "p_thr_error")
   expect_error(ggcorrhm(mtcars, p_values = TRUE, p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, .1)),
                class = "p_thr_error")
   expect_error(ggcorrhm(mtcars, p_values = TRUE, p_thresholds = c(0.001, 0.01, 0.05, 1)),
