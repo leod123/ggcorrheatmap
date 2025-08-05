@@ -32,8 +32,7 @@ cor_long(
 
 \item{y}{Optional second data frame for correlating with the data frame from \code{x}.}
 
-\item{rows2, cols2}{Optional names of columns with values for the rows and columns of a second matrix. If \code{y} is a data frame, the columns are taken from \code{y}.
-Otherwise they are taken from \code{x}.}
+\item{rows2, cols2}{Optional names of columns with values for the rows and columns of a second matrix (taken from \code{y}).}
 
 \item{values2}{Optional column for the values of a second matrix.}
 
@@ -71,9 +70,6 @@ with the column-column correlations.
 If \code{y} is a data frame and \code{rows2}, \code{cols2} and \code{values2} are specified, the wide versions of \code{x} and \code{y} are
 correlated (\code{stats::cor(wide_x, wide_y)}) resulting in a correlation matrix with the columns of \code{x} in the
 rows and the columns of \code{y} in the columns.
-
-If \code{y} is NULL but \code{rows2}, \code{cols2} and \code{values2} are specified, the columns are taken from \code{x},
-creating two matrices to correlate from \code{x}.
 }
 \examples{
 set.seed(123)

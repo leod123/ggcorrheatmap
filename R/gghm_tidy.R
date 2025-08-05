@@ -275,8 +275,7 @@ ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols =
 #' @param rows,cols The columns in `x` containing the values that should be in the rows and columns of the correlation matrix.
 #' @param values Name of the column in `x` containing the values of the correlation matrix.
 #' @param y Optional second data frame for correlating with the data frame from `x`.
-#' @param rows2,cols2 Optional names of columns with values for the rows and columns of a second matrix. If `y` is a data frame, the columns are taken from `y`.
-#' Otherwise they are taken from `x`.
+#' @param rows2,cols2 Optional names of columns with values for the rows and columns of a second matrix (taken from `y`).
 #' @param values2 Optional column for the values of a second matrix.
 #' @param out_format Format of output correlation matrix ("long" or "wide").
 #' @param method Correlation method given to `stats::cor()`.
@@ -287,16 +286,12 @@ ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols =
 #' @param p_sym_digits Number of digits to use for the column in `p_sym_add`.
 #'
 #' @details
-#' If there is only one input data frame (`x`) and `rows2`, `cols2` and `values2` are NULL (the default),
-#' a wide matrix is constructed from `x` and passed to `stats::cor()`, resulting in a correlation matrix
-#' with the column-column correlations.
+#' If there is only one input data frame (`x`), a wide matrix is constructed from `x` and passed to `stats::cor()`,
+#' resulting in a correlation matrix with the column-column correlations.
 #'
 #' If `y` is a data frame and `rows2`, `cols2` and `values2` are specified, the wide versions of `x` and `y` are
 #' correlated (`stats::cor(wide_x, wide_y)`) resulting in a correlation matrix with the columns of `x` in the
 #' rows and the columns of `y` in the columns.
-#'
-#' If `y` is NULL but `rows2`, `cols2` and `values2` are specified, the columns are taken from `x`,
-#' creating two matrices to correlate from `x`.
 #'
 #' @returns A correlation matrix (if wide format) or a long format data frame with the columns
 #' 'row', 'col', and 'value' (containing correlations).
@@ -369,28 +364,23 @@ cor_long <- function(x, rows, cols, values,
   x_wide <- shape_mat_wide(x_long)
 
   # Check if there should be a y matrix
-  make_y <- !rlang::quo_is_null(rlang::enquo(rows2)) &&
-    !rlang::quo_is_null(rlang::enquo(cols2)) &&
-    !rlang::quo_is_null(rlang::enquo(values2))
+  make_y <- is.data.frame(y)
 
   not_all_y <- any(
-    !rlang::quo_is_null(rlang::enquo(rows2)) ||
-      !rlang::quo_is_null(rlang::enquo(cols2)) ||
-      !rlang::quo_is_null(rlang::enquo(values2))
+    rlang::quo_is_null(rlang::enquo(rows2)) ||
+    rlang::quo_is_null(rlang::enquo(cols2)) ||
+    rlang::quo_is_null(rlang::enquo(values2))
   )
 
-  if (not_all_y && !make_y) {
-    cli::cli_abort("{.var {c('rows2', 'cols2', 'values2')}} all need to be non-NULL to correlate two matrices.",
+  if (not_all_y && make_y) {
+    cli::cli_abort("{.var {c('y', 'rows2', 'cols2', 'values2')}} all need to be non-NULL to correlate two matrices.",
                    class = "tidy_too_few_args_error")
   }
 
   if (make_y) {
     # Either take columns for y from y input or use the x input
-    y_long <- if (is.data.frame(y)) {
-      dplyr::select(y, {{rows2}}, {{cols2}}, {{values2}})
-    } else {
-      dplyr::select(x, {{rows2}}, {{cols2}}, {{values2}})
-    }
+    y_long <- dplyr::select(y, {{rows2}}, {{cols2}}, {{values2}})
+
     if (ncol(y_long) > 3) {
       cli::cli_abort("Too many columns, provide one column each for {.var rows2}, {.var cols2} and {.var values2}.",
                      class = "tidy_too_many_cols_error")
