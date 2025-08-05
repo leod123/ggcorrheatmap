@@ -90,8 +90,7 @@
 
 
 <dt id="arg-rows-cols-">rows2, cols2<a class="anchor" aria-label="anchor" href="#arg-rows-cols-"></a></dt>
-<dd><p>Optional names of columns with values for the rows and columns of a second matrix. If <code>y</code> is a data frame, the columns are taken from <code>y</code>.
-Otherwise they are taken from <code>x</code>.</p></dd>
+<dd><p>Optional names of columns with values for the rows and columns of a second matrix (taken from <code>y</code>).</p></dd>
 
 
 <dt id="arg-values-">values2<a class="anchor" aria-label="anchor" href="#arg-values-"></a></dt>
@@ -146,8 +145,6 @@ with the column-column correlations.</p>
 <p>If <code>y</code> is a data frame and <code>rows2</code>, <code>cols2</code> and <code>values2</code> are specified, the wide versions of <code>x</code> and <code>y</code> are
 correlated (<code>stats::cor(wide_x, wide_y)</code>) resulting in a correlation matrix with the columns of <code>x</code> in the
 rows and the columns of <code>y</code> in the columns.</p>
-<p>If <code>y</code> is NULL but <code>rows2</code>, <code>cols2</code> and <code>values2</code> are specified, the columns are taken from <code>x</code>,
-creating two matrices to correlate from <code>x</code>.</p>
     </div>
 
     <div class="section level2">
