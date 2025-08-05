@@ -1,5 +1,3 @@
-### ADD TESTS FOR THE NEW ERRORS AND WARNINGS!!!
-
 test_that("it runs", {
   dat <- data.frame(rows = rep(rownames(mtcars), ncol(mtcars)),
                     cols = rep(colnames(mtcars), each = nrow(mtcars)),
@@ -17,6 +15,7 @@ test_that("gghm_errors", {
                     cols = rep(colnames(mtcars), each = nrow(mtcars)),
                     vals = unlist(mtcars),
                     extra = seq(1, nrow(mtcars) * ncol(mtcars)))
+  expect_error(gghm_tidy(), class = "tidy_missing_error")
   expect_error(gghm_tidy(dat), class = "tidy_missing_error")
   expect_error(gghm_tidy(dat, rows), class = "tidy_missing_error")
   expect_error(gghm_tidy(dat, rows, cols), class = "tidy_missing_error")
@@ -43,9 +42,9 @@ test_that("other_errors", {
                     cols = rep(colnames(mtcars), each = nrow(mtcars)),
                     vals = unlist(mtcars),
                     extra = seq(1, nrow(mtcars) * ncol(mtcars)))
-  dat2 <- data.frame(rows = rep(1:32, 4),
-                     cols = rep(colnames(iris)[-5], each = 32),
-                     vals = unlist(iris[1:32, -5]),
+  dat2 <- data.frame(row = rep(1:32, 4),
+                     col = rep(colnames(iris)[-5], each = 32),
+                     val = unlist(iris[1:32, -5]),
                      extra = 1)
   # cor_long
   expect_error(cor_long(), class = "tidy_missing_error")
@@ -53,10 +52,11 @@ test_that("other_errors", {
   expect_error(cor_long(dat, rows), class = "tidy_missing_error")
   expect_error(cor_long(dat, rows, cols), class = "tidy_missing_error")
   expect_error(cor_long(dat, c(rows, extra), cols, vals), class = "tidy_too_many_cols_error")
-  expect_error(cor_long(dat, rows, cols, vals, dat2, rows), class = "tidy_too_few_args_error")
-  expect_error(cor_long(dat, rows, cols, vals, dat2, rows, cols), class = "tidy_too_few_args_error")
-  expect_error(cor_long(dat, rows, cols, vals, dat2, col, vals), class = "tidy_too_few_args_error")
-  expect_error(cor_long(dat, rows, cols, vals, dat2, rows, cols, c(vals, extra)), class = "tidy_too_many_cols_error")
+  expect_error(cor_long(dat, rows, cols, vals, dat2), class = "tidy_too_few_args_error")
+  expect_error(cor_long(dat, rows, cols, vals, dat2, row), class = "tidy_too_few_args_error")
+  expect_error(cor_long(dat, rows, cols, vals, dat2, row, col), class = "tidy_too_few_args_error")
+  expect_error(cor_long(dat, rows, cols, vals, dat2, col, val), class = "tidy_too_few_args_error")
+  expect_error(cor_long(dat, rows, cols, vals, dat2, row, col, c(val, extra)), class = "tidy_too_many_cols_error")
   expect_error(cor_long(dat, rows, cols, vals, p_values = "a"), class = "logical_error")
   expect_error(cor_long(dat, rows, cols, vals, p_values = TRUE, p_sym_digits = "asdf"),
                class = "numeric_error")
@@ -96,17 +96,51 @@ test_that("snapshots", {
   dat <- data.frame(rows = rep(rownames(mtcars), ncol(mtcars)),
                     cols = rep(colnames(mtcars), each = nrow(mtcars)),
                     vals = unlist(mtcars))
+  row_annot <- data.frame(rows = rownames(mtcars), a = 1:32)
+  col_annot <- data.frame(cols = colnames(mtcars), b = letters[c(1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2)])
+  dat$row_annot <- row_annot[match(dat$rows, row_annot$rows), "a", drop = TRUE]
+  dat$col_annot <- col_annot[match(dat$cols, col_annot$cols), "b", drop = TRUE]
+
   vdiffr::expect_doppelganger("gghm_tidy", gghm_tidy(dat, rows, cols, vals))
   vdiffr::expect_doppelganger("gghm_tidy_w_options", gghm_tidy(dat, rows, cols, vals,
                                                                col_scale = "A", cluster_rows = TRUE, cluster_cols = TRUE))
-
+  vdiffr::expect_doppelganger("gghm_tidy_w_extra_all", gghm_tidy(dat, rows, cols, vals,
+                                                                 labels = vals,
+                                                                 annot_rows = row_annot,
+                                                                 annot_cols = col_annot,
+                                                                 cluster_rows = TRUE, cluster_cols = TRUE,
+                                                                 col_scale = "Blues",
+                                                                 scale_data = "col",
+                                                                 cell_label_digits = 0))
   dat$rows2 <- factor(dat$rows, levels = rownames(mtcars)[32:1])
   dat$cols2 <- factor(dat$cols, levels = colnames(mtcars)[11:1])
   vdiffr::expect_doppelganger("gghm_tidy_factors", gghm_tidy(dat, rows2, cols2, vals))
 
   vdiffr::expect_doppelganger("ggcorrhm_tidy", ggcorrhm_tidy(dat, rows, cols, vals, cor_in = FALSE))
+  vdiffr::expect_doppelganger("ggcorrhm_tidy_w_more", ggcorrhm_tidy(dat, rows, cols, vals, cor_in = FALSE,
+                                                                    labels = TRUE, annot_rows = col_annot,
+                                                                    annot_cols = col_annot, cluster_rows = TRUE,
+                                                                    cluster_cols = TRUE, col_scale = c("A", "G"),
+                                                                    layout = c("tr", "bl"), mode = c("hm", "hm")))
   cor_dat <- cor_long(dat, rows, cols, vals, out_format = "long")
+  cor_annot <- data.frame(nm = colnames(mtcars),
+                          row_annot = LETTERS[c(rep(1, 5), rep(2, 4), rep(3, 2))],
+                          col_annot = 1:11)
+  cor_dat$row_annot <- cor_annot[match(cor_dat$row, cor_annot$nm), "row_annot", drop = TRUE]
+  cor_dat$col_annot <- cor_annot[match(cor_dat$col, cor_annot$nm), "col_annot", drop = TRUE]
+
   vdiffr::expect_doppelganger("ggcorrhm_tidy_cor_in", ggcorrhm_tidy(cor_dat, row, col, value))
+  vdiffr::expect_doppelganger("ggcorrhm_tidy_cor_in_more",
+                              ggcorrhm_tidy(cor_dat, row, col, value, labels = value,
+                                            annot_rows = row_annot, annot_cols = col_annot,
+                                            cluster_rows = TRUE, cluster_cols = TRUE,
+                                            layout = c("tl", "br"), high = c("pink", "red"),
+                                            mid = "white", low = c("lightblue", "blue"),
+                                            mode = c("hm", "hm")))
+  cor_dat2 <- cor_long(dat, rows, cols, vals,
+                       shape_mat_long(iris[1:32, -5]), row, col, value, out_format = "long")
+  vdiffr::expect_doppelganger("ggcorrhm_tidy_asymmetric",
+                              ggcorrhm_tidy(cor_dat2, row, col, value))
 
   dat$lab <- 1:nrow(dat)
   vdiffr::expect_doppelganger("gghm_labels", gghm_tidy(dat, rows, cols, vals, labels = lab, cell_label_col = "white"))

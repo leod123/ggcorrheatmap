@@ -61,7 +61,7 @@ test_that("snapshots", {
                                                 annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:nrow(mtcars)),
                                                 annot_cols_df = data.frame(.names = colnames(mtcars), b = 1:ncol(mtcars))))
   vdiffr::expect_doppelganger("scaling_rows", gghm(mtcars, scale_data = "row"))
-  vdiffr::expect_doppelganger("scaling_cols", gghm(mtcars, scale_data = "col", cluster_rows = T, cluster_cols = T))
+  vdiffr::expect_doppelganger("scaling_cols", gghm(mtcars, scale_data = "col", cluster_rows = TRUE, cluster_cols = TRUE))
   vdiffr::expect_doppelganger("cell_shape", gghm(mtcars, mode = "21"))
   vdiffr::expect_doppelganger("text_mode", gghm(mtcars, mode = "text"))
   vdiffr::expect_doppelganger("mixed_mode", gghm(cor(mtcars), layout = c("tl", "br")))

@@ -115,7 +115,7 @@ gghm(plt_dat, layout = c("tr", "bl"), mode = c("hm", "hm"),
 
 When using scale objects, arguments that change scales and legends such as `col_name` or `legend_order` and, for `ggcorrhm()`, `high`, `mid`, `low` etc will be ignored to instead give the user full control. This allows for more flexibility, such as changing the breaks, bin sizes, or changing how out of bounds values are treated.
 
-The default way `ggplot2` deals with values outside of the scale range (out of bound value) is to replace them with NAs. The `oob` argument of the scale functions can change the behaviour, e.g. so that OOB values use the extreme colours of the scale.
+The default way `ggplot2` deals with values outside of the scale range (out of bound values) is to replace them with NAs. The `oob` argument of the scale functions can change the behaviour, e.g. so that OOB values use the extreme colours of the scale.
 
 ```{r, fig.height=5, fig.width=10, fig.alt='Two figures of the gradient plot from before, now with low numbers in the top left and high numbers in the bottom right. The values are written in the cells with black text, showing that the gradient goes from 1 to 19. The first plot is simply coloured using the Brewer RdYlGn palette. The second plot uses the same palette, but the limits have been set to 7 and 13, narrowing the colour gradient that was visible in the first plot. Values outside the range are beige in the top right triangle, and green or red in the bottom left (corresponding to the lowest and highest ends of the scale).'}
 # Normal limits
@@ -149,7 +149,7 @@ plt2 <- gghm(plt_dat, layout = c("tr", "bl"),
 plt1 + plt2
 ```
 
-When binning scales with the `bins` argument, a number of the 'double' class will prioritise breaks at nice numbers while an integer will prioritise the number of bins. As a side note, out-of-bound values with binned scales also default to using the 'squish' strategy shown above.
+When binning scales with the `bins` argument, a number of the 'double' class will prioritise breaks at nice numbers while an integer will prioritise the number of bins. As a side note, out-of-bound values with binned scales use the 'squish' strategy shown above by default.
 
 ```{r, fig.height=5, fig.width=10, fig.alt='Two 100x100 heatmaps with values from -1 to 1 in a gradient going from the bottom left to the top right. The heatmaps are using the Brewer Spectral colour scale in the top left triangle and the Viridis turbo scale in the bottom right. The first heatmap simply shows the gradient. The second heatmap has binned scales, with 11 bins in the top left triangle (with breaks at numbers with many decimals and limits at -0.5 and 0.5) and 10 bins in the bottom right triangle (evenly spaced at intervals of 0.2 going from -1 to 1).'}
 # Make plot data between -1 and 1 (like correlation data)
@@ -166,7 +166,7 @@ plt1 <- ggcorrhm(plt_dat_cor, cor_in = TRUE, show_names_diag = FALSE,
 plt2 <- ggcorrhm(plt_dat_cor, cor_in = TRUE, show_names_diag = FALSE,
                  border_col = 0, layout = c("tl", "br"), mode = c("hm", "hm"),
                  col_scale = c("Spectral", "H"),
-                 # Provide a list as a mix of integer and float would be coerced if atomic vector
+                 # Provide a list as a mix of integer and double would be coerced if atomic vector
                  # Integer vs double, results in 11 and 10 bins
                  bins = list(11L, 11),
                  # NULL to use default limits (-1 to 1 in ggcorrhm)

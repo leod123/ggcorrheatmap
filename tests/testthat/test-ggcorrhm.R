@@ -34,7 +34,6 @@ test_that("class errors", {
   expect_error(ggcorrhm(mtcars, cell_labels = TRUE, cell_label_p = list(c(TRUE, TRUE), FALSE),
                         layout = c("tr", "bl"), mode = c("hm", "hm")),
                class = "logical_error")
-  expect_error(ggcorrhm(mtcars, p_values = TRUE, p_adjust = "asdf"), class = "p_adjust_error")
 })
 
 test_that("user-supplied scales", {
@@ -97,6 +96,7 @@ test_that("p-value errors work", {
                class = "p_thr_error")
   expect_warning(ggcorrhm(mtcars, p_values = FALSE, cell_labels = TRUE, cell_label_p = TRUE),
                  class = "cell_label_p_warn")
+  expect_error(ggcorrhm(mtcars, p_values = TRUE, p_adjust = "asdf"), class = "p_adjust_error")
 })
 
 test_that("snapshots are ok", {

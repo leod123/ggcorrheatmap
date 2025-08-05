@@ -112,7 +112,7 @@ ggcorrhm(mtcars, layout = c("tr", "bl"),
          col_scale = c("G", "H"))
 ```
 
-Just like the cell border and cell label arguments above, some scale-related arguments can also be applied in a triangle-wise manner. These arguments are `bins`, `na_col`, and `limits` and also, for `ggcorrhm()`, `high`, `mid`, `low`, `midpoint`, and `size_range`. Since `limits` and `size_range` are usually vectors of length two, so these must be in lists to apply different values to the two triangles.
+Just like the cell border and cell label arguments above, some scale-related arguments can also be applied in a triangle-wise manner. These arguments are `bins`, `na_col`, and `limits` and also, for `ggcorrhm()`, `high`, `mid`, `low`, `midpoint`, and `size_range`. Since `limits` and `size_range` are usually vectors of length two, these must be in lists to apply different values to the two triangles.
 
 ```{r, fig.alt='A 100x100 heatmap with values in a gradient going from -1 in the bottom left to 1 in the top right. The top left triangle has a smooth gradient with cyan at -1, white at 0.25 and pink at 1. The bottom right triangle is purple at low values and red at high values and is divided into five discrete bins with the breaks at -0.45, -0.15, 0, 0.15, and -0.45 and the limits at -0.75 and 0.75. Values outside the limits take the colours at the extremes (purple, red).'}
 # Make correlation data to plot (100x100)

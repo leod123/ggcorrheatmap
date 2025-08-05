@@ -46,7 +46,7 @@ gghm_tidy(mtcars_long, rows = cars, cols = 2, values = !!value_column,
 
 Columns containing annotations and cell labels can be specified in the same way.
 
-```{r, fig.height=7, fig.width=5, fig.alt='A heatmap of mtcars with scaled columns. Rows and columns are clustered and each dimension has one continuous and one discrete annotation. The cells are coloured with the Viridis magma scale and are labelled by integers from 1 to 352.'}
+```{r, fig.height=7, fig.width=8, fig.alt='A heatmap of mtcars with scaled columns. Rows and columns are clustered and each dimension has one continuous and one discrete annotation. The cells are coloured with the Viridis magma scale and are labelled by integers from 1 to 352.'}
 # Make sure the annotations are unique
 # (i.e. one row or column does not have two different annotation values)
 set.seed(123)
@@ -297,7 +297,7 @@ mtcars_long %>%
   ggcorrhm_tidy(row, col, value, labels = p_sym)
 ```
 
-Combine this with `add_mixed_layout` for more control in mixed layouts.
+Combine this with `add_mixed_layout` for more control in mixed layouts. Below is an example of showing unadjusted and adjusted p-values in different triangles of the heatmap.
 
 ```{r, fig.height=5, fig.width=10, fig.alt='Two mtcars correlation heatmaps. The first one has p-values in the cells. Only p-values below 0.05 are shown, and the bottom left triangle shows unadjusted p-values while the top right triangle shows adjusted p-values (being slightly higher). The second plot has swapped the p-values for asterisks in the bottom left triangle and pluses in the top right triangle.'}
 plt_dat <- mtcars_long %>%
