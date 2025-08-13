@@ -59,14 +59,19 @@ make_legend_order <- function(mode, col_scale = NULL, size_scale = NULL,
     round(legend_order[seq_along(scale_vec)])
   }
 
+  # Deal with special case: mode 'none' is used with annotation
+  # causing scale_vec to be NULL and scale_order to be integer(0)
+  scale_max <- ifelse(length(scale_order) < 1, 0, max(scale_order))
+  scale_len <- ifelse(length(scale_order) < 1, 0, length(scale_order))
+
   # All annotation scales are fill scales, generate or fetch their order
   if (!is.null(annot_rows_df)) {
     row_annot_order <- if (is.null(legend_order)) {
       # If no order is specified, put them in order
-      seq(max(scale_order) + 1, max(scale_order) + ncol(annot_rows_df) - 1)
+      seq(scale_max + 1, scale_max + ncol(annot_rows_df) - 1)
     } else {
       # Otherwise pick out the indices in order
-      legend_order[seq(1, ncol(annot_rows_df) - 1) + length(scale_vec)]
+      legend_order[seq(1, ncol(annot_rows_df) - 1) + scale_len]
     }
   } else {
     row_annot_order <- NULL
@@ -78,10 +83,10 @@ make_legend_order <- function(mode, col_scale = NULL, size_scale = NULL,
       if (!is.null(row_annot_order)) {
         seq(max(row_annot_order) + 1, max(row_annot_order) + ncol(annot_cols_df) - 1)
       } else {
-        seq(max(scale_order) + 1, max(scale_order) + ncol(annot_cols_df) - 1)
+        seq(scale_max + 1, scale_max + ncol(annot_cols_df) - 1)
       }
     } else {
-      legend_order[seq(1, ncol(annot_cols_df) - 1) + length(scale_vec) + length(row_annot_order)]
+      legend_order[seq(1, ncol(annot_cols_df) - 1) + scale_len + length(row_annot_order)]
     }
   } else {
     col_annot_order <- NULL

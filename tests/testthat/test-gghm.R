@@ -197,6 +197,31 @@ test_that("warnings and errors", {
                          dend_rows_side = "left", dend_cols_side = "top"))
   expect_no_warning(gghm(cor(mtcars), layout = c("tr", "bl"), cluster_rows = TRUE, cluster_cols = TRUE,
                          dend_rows_side = "left", dend_cols_side = "top"))
+
+  # Annotation does not error with different modes
+  adf <- data.frame(.names = colnames(mtcars), a = 1:11, b = 11:1)
+  expect_no_error(gghm(cor(mtcars), annot_rows_df = adf, annot_cols_df = adf))
+  expect_no_error(gghm(cor(mtcars), annot_rows_df = adf, annot_cols_df = adf, mode = "none"))
+  expect_no_error(gghm(cor(mtcars), annot_rows_df = adf, annot_cols_df = adf, mode = "text"))
+  expect_no_error(gghm(cor(mtcars), annot_rows_df = adf, annot_cols_df = adf, mode = "21"))
+  expect_no_error(gghm(cor(mtcars), annot_rows_df = adf, annot_cols_df = adf, mode = "10"))
+  expect_no_error(gghm(cor(mtcars), annot_rows_df = adf, annot_cols_df = adf,
+                       layout = c("tl", "br")))
+  expect_no_error(gghm(cor(mtcars), annot_rows_df = adf, annot_cols_df = adf,
+                       layout = c("tl", "br"), mode = c("hm", "none")))
+  expect_no_error(gghm(cor(mtcars), annot_rows_df = adf, annot_cols_df = adf,
+                       layout = c("tl", "br"), mode = c("none", "none")))
+  expect_no_error(gghm(cor(mtcars), annot_rows_df = adf, annot_cols_df = adf,
+                       layout = c("tl", "br"), mode = c("hm", "21")))
+  expect_no_error(gghm(cor(mtcars), annot_rows_df = adf, annot_cols_df = adf,
+                       layout = c("tl", "br"), mode = c("none", "21")))
+  expect_no_error(gghm(cor(mtcars), annot_rows_df = adf, annot_cols_df = adf,
+                       layout = c("tl", "br"), mode = c("10", "none")))
+  expect_no_error(gghm(cor(mtcars), annot_rows_df = adf, annot_cols_df = adf,
+                       layout = c("tl", "br"), mode = c("21", "10")))
+  expect_no_error(gghm(cor(mtcars), annot_rows_df = adf, annot_cols_df = adf,
+                       layout = c("tl", "br"), mode = c("10", "text")))
+
   # No warning even if non-identical clustering if the order is the same
   expect_no_warning(gghm(cor(mtcars), layout = "bl",
                          cluster_rows = hclust(dist(cor(mtcars))),

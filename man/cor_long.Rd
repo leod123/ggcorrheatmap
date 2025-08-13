@@ -63,9 +63,8 @@ A correlation matrix (if wide format) or a long format data frame with the colum
 Make a correlation matrix from long format data.
 }
 \details{
-If there is only one input data frame (\code{x}) and \code{rows2}, \code{cols2} and \code{values2} are NULL (the default),
-a wide matrix is constructed from \code{x} and passed to \code{stats::cor()}, resulting in a correlation matrix
-with the column-column correlations.
+If there is only one input data frame (\code{x}), a wide matrix is constructed from \code{x} and passed to \code{stats::cor()},
+resulting in a correlation matrix with the column-column correlations.
 
 If \code{y} is a data frame and \code{rows2}, \code{cols2} and \code{values2} are specified, the wide versions of \code{x} and \code{y} are
 correlated (\code{stats::cor(wide_x, wide_y)}) resulting in a correlation matrix with the columns of \code{x} in the
