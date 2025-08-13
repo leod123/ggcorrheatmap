@@ -139,9 +139,8 @@ NULL (default) results in just the symbols.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>If there is only one input data frame (<code>x</code>) and <code>rows2</code>, <code>cols2</code> and <code>values2</code> are NULL (the default),
-a wide matrix is constructed from <code>x</code> and passed to <code><a href="https://rdrr.io/r/stats/cor.html" class="external-link">stats::cor()</a></code>, resulting in a correlation matrix
-with the column-column correlations.</p>
+    <p>If there is only one input data frame (<code>x</code>), a wide matrix is constructed from <code>x</code> and passed to <code><a href="https://rdrr.io/r/stats/cor.html" class="external-link">stats::cor()</a></code>,
+resulting in a correlation matrix with the column-column correlations.</p>
 <p>If <code>y</code> is a data frame and <code>rows2</code>, <code>cols2</code> and <code>values2</code> are specified, the wide versions of <code>x</code> and <code>y</code> are
 correlated (<code>stats::cor(wide_x, wide_y)</code>) resulting in a correlation matrix with the columns of <code>x</code> in the
 rows and the columns of <code>y</code> in the columns.</p>
