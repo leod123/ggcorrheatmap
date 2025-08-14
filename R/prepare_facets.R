@@ -1,0 +1,109 @@
+#' Prepare facetting columns in the plotting data.
+#'
+#' @keywords internal
+#'
+#' @param x_long Long format plotting data.
+#' @param x Wide format plotting data.
+#' @param facet_in Facetting user input (vector or data frame).
+#' @param layout Plot layout vector.
+#' @param context Context of facetting (row or col).
+#'
+#' @returns Long format plotting data with facetting column added.
+#'
+prepare_facets <- function(x_long, x, facet_in, layout, context = c("row", "col")) {
+  nm <- switch(context[1], "row" = rownames(x), "col" = colnames(x))
+
+  if ((is.data.frame(facet_in) && ncol(facet_in) == 2) ||
+      (is.data.frame(facet_in) && ncol(facet_in) == 1 && !is.null(rownames(facet_in)))) {
+
+
+  } else {
+
+    if (is.numeric(facet_in) && is.atomic(facet_in) &&
+        length(facet_in) < length(unique(x_long[[context[1]]]))) {
+      # If a numeric vector shorter than number of unique rows or cols, use as indices to create facets
+      facet_df <- data.frame(nm, make_facet_vector(facet_in, length(nm)))
+
+    } else if (is.atomic(facet_in) && length(facet_in) == length(unique(x_long[[context[1]]]))) {
+      # If a vector the same length as rows or cols, use directly as facets
+      facet_df <- data.frame(nm, facet_in)
+
+    } else {
+      cli::cli_abort("{.var {paste0('facet_', context[1])}} must be either a vector with indices to split at,
+                     a vector of facet memberships, or a data frame with facet memberships.",
+                     class = "invalid_facet_input_error")
+    }
+
+    facet_name <- paste0(".", context[1], "_facets")
+    colnames(facet_df) <- c(context[1], facet_name)
+    # Turn matching variable into factor to not lose factor levels of x_long
+    facet_df[[context[1]]] <- factor(facet_df[[context[1]]], levels = levels(x_long[[context[1]]]))
+
+    x_long <- dplyr::left_join(x_long, facet_df, by = context[1])
+
+    # If facet variable is not a factor, turn it into one with levels in alphabetical order
+    # Reverse order of row facets if layout uses a top left and/or bottom right component
+    # (otherwise the reversed y axis will mess things up)
+    if (!is.factor(x_long[[facet_name]])) {
+      lvls <- sort(unique(x_long[[facet_name]]))
+    } else {
+      lvls <- levels(x_long[[facet_name]])
+    }
+
+    if (context[1] == "row" && any(c("tl", "topleft", "br", "bottomright") %in% layout)) {
+      lvls <- rev(lvls)
+    }
+
+    x_long[[facet_name]] <- factor(x_long[[facet_name]], levels = lvls)
+
+
+  }
+
+  return(x_long)
+}
+
+#' Make vector for facetting
+#'
+#' @keywords internal
+#'
+#' @param facet_in User input for facetting (facet_rows, facet_cols).
+#' @param len Length of output vector.
+#'
+#' @returns Vector of facet memberships.
+#'
+make_facet_vector <- function(facet_in, len) {
+  # Check that the indices are strictly increasing
+  if (!all(facet_in == cummax(facet_in))) {
+    cli::cli_abort("The facet indices must be increasing.",
+                   class = "facet_ind_error")
+  }
+
+  # Check that there are no negative values
+  if (any(facet_in < 0)) {
+    cli::cli_abort("The facet indices cannot be negative.",
+                   class = "facet_in_error")
+  }
+
+  vec_out <- vector("numeric", len)
+
+  # Value to use for facets (start at 1 and go up 1 for each facet)
+  # If there is a zero, start facet numbers at 0
+  facet_num <- ifelse(any(dplyr::near(facet_in, 0)), 0, 1)
+
+  # Index to go from
+  i_start <- 1
+
+  # If last index is not in the facet_in, add it to go to the end
+  if (!len %in% facet_in) {
+    facet_in[length(facet_in) + 1] <- len
+  }
+
+  # Make the vector
+  for (i_end in facet_in) {
+    vec_out[seq(i_start, i_end)] <- facet_num
+    facet_num <- facet_num + 1
+    i_start <- i_end + 1
+  }
+
+  return(vec_out)
+}

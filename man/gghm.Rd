@@ -73,7 +73,9 @@ gghm(
   dend_rows_params = NULL,
   dend_cols_params = NULL,
   dend_rows_extend = NULL,
-  dend_cols_extend = NULL
+  dend_cols_extend = NULL,
+  facet_rows = NULL,
+  facet_cols = NULL
 )
 }
 \arguments{

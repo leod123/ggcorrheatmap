@@ -114,8 +114,6 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
       # Remove extra space on axes (if drawing tiles) and place on specified sides
       ggplot2::scale_x_discrete(position = names_x_side) +
       ggplot2::scale_y_discrete(position = names_y_side) +
-      # Make cells square
-      ggplot2::coord_fixed(clip = "off") +
       ggplot2::theme_classic() +
       # Remove axis elements
       ggplot2::theme(axis.line = ggplot2::element_blank(),
@@ -165,6 +163,25 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
         }
       )
 
+  }
+
+  if (any(c(".row_facets", ".col_facets") %in% colnames(x_long))) {
+    facet_r <- if (".row_facets" %in% colnames(x_long)) {
+      ggplot2::vars(.row_facets)
+    } else {NULL}
+    facet_c <- if (".col_facets" %in% colnames(x_long)) {
+      ggplot2::vars(.col_facets)
+    } else {NULL}
+
+    plt <- plt +
+      ggplot2::facet_grid(rows = facet_r, cols = facet_c, space = "free", scales = "free") +
+      ggplot2::theme(strip.background = ggplot2::element_blank())
+  }
+
+  if (!plt_provided && !any(c(".row_facets", ".col_facets") %in% colnames(x_long))) {
+    plt <- plt +
+    # Make cells square
+    ggplot2::coord_fixed(clip = "off")
   }
 
   return(plt)

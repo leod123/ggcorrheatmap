@@ -201,7 +201,8 @@ gghm <- function(x,
                  show_dend_rows = TRUE, show_dend_cols = TRUE, dend_rows_side = "right", dend_cols_side = "bottom",
                  dend_col = "black", dend_dist = 0, dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
                  dend_rows_params = NULL, dend_cols_params = NULL,
-                 dend_rows_extend = NULL, dend_cols_extend = NULL) {
+                 dend_rows_extend = NULL, dend_cols_extend = NULL,
+                 facet_rows = NULL, facet_cols = NULL) {
 
   if (!is.matrix(x) & !is.data.frame(x)) cli::cli_abort("{.var x} must be a matrix or data frame.", class = "input_class_error")
 
@@ -360,6 +361,16 @@ gghm <- function(x,
   }
 
 
+  # Introduce facetting
+  if (!is.null(facet_rows)) {
+    x_long <- prepare_facets(x_long, x, facet_in = facet_rows, layout = layout, context = "row")
+
+  }
+  if (!is.null(facet_cols)) {
+    x_long <- prepare_facets(x_long, x, facet_in = facet_cols, layout = layout, context = "col")
+
+  }
+
   # Annotation for rows and columns
   # Default annotation parameters
   annot_default <- list(dist = annot_dist, gap = annot_gap, size = annot_size,
@@ -370,7 +381,8 @@ gghm <- function(x,
                                           annot_params = annot_rows_params, annot_side = annot_rows_side,
                                           context = "rows", annot_name_params = annot_rows_name_params,
                                           annot_names_size = annot_names_size,
-                                          annot_names_side = annot_rows_names_side, data_size = ncol(x))
+                                          annot_names_side = annot_rows_names_side, data_size = ncol(x),
+                                          x_long = x_long)
     annot_rows_df <- annot_rows_prep[[1]]; annot_rows_params <- annot_rows_prep[[2]];
     annot_rows_pos <- annot_rows_prep[[3]]; annot_rows_name_params <- annot_rows_prep[[4]]
     annot_rows_names_side <- annot_rows_prep[[5]]
@@ -381,7 +393,8 @@ gghm <- function(x,
                                           annot_params = annot_cols_params, annot_side = annot_cols_side,
                                           context = "cols", annot_name_params = annot_cols_name_params,
                                           annot_names_size = annot_names_size,
-                                          annot_names_side = annot_cols_names_side, data_size = nrow(x))
+                                          annot_names_side = annot_cols_names_side, data_size = nrow(x),
+                                          x_long = x_long)
     annot_cols_df <- annot_cols_prep[[1]]; annot_cols_params <- annot_cols_prep[[2]];
     annot_cols_pos <- annot_cols_prep[[3]]; annot_cols_name_params <- annot_cols_prep[[4]]
     annot_cols_names_side <- annot_cols_prep[[5]]
