@@ -16,6 +16,8 @@
 
 * The `bins` argument will no longer take non-integer values below 3 as they don't work. Negative numbers are also not accepted (integer or not).
 
+* The 'none' mode now works with annotation.
+
 # ggcorrheatmap 0.1.2
 
 * Initial CRAN release.
