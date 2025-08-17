@@ -13,51 +13,60 @@
 prepare_facets <- function(x_long, x, facet_in, layout, context = c("row", "col")) {
   nm <- switch(context[1], "row" = rownames(x), "col" = colnames(x))
 
-  if ((is.data.frame(facet_in) && ncol(facet_in) == 2) ||
-      (is.data.frame(facet_in) && ncol(facet_in) == 1 && !is.null(rownames(facet_in)))) {
+  if (is.numeric(facet_in) && is.atomic(facet_in) &&
+      length(facet_in) < length(unique(x_long[[context[1]]]))) {
+    # If a numeric vector shorter than number of unique rows or cols, use as indices to create facets
+    facet_df <- data.frame(nm, make_facet_vector(facet_in, length(nm)))
 
+  } else if (is.atomic(facet_in) && length(facet_in) == length(unique(x_long[[context[1]]]))) {
+
+    # If a vector the same length as rows or cols, use directly as facets if they are not named
+    # If named, match with the rows/cols
+    if (!is.null(names(facet_in))) {
+      # If all names are there, match them with the facets
+      if (all(nm %in% names(facet_in))) {
+        facet_df <- data.frame(nm, facet_in[match(nm, names(facet_in))])
+
+      } else {
+        # Otherwise throw a warning and use facets without matching names
+        cli::cli_warn("All names must be present if {.var {paste0('facet_', context[1], 's')}} has names.
+                      The {paste0(context[1], ifelse(context[1] == 'col', 'umn', ''), 's')} will be facetted directly without matching names.",
+                      class = "facet_names_warn")
+        facet_df <- data.frame(nm, facet_in)
+      }
+
+    } else {
+      # If no names, use as is
+      facet_df <- data.frame(nm, facet_in)
+    }
 
   } else {
-
-    if (is.numeric(facet_in) && is.atomic(facet_in) &&
-        length(facet_in) < length(unique(x_long[[context[1]]]))) {
-      # If a numeric vector shorter than number of unique rows or cols, use as indices to create facets
-      facet_df <- data.frame(nm, make_facet_vector(facet_in, length(nm)))
-
-    } else if (is.atomic(facet_in) && length(facet_in) == length(unique(x_long[[context[1]]]))) {
-      # If a vector the same length as rows or cols, use directly as facets
-      facet_df <- data.frame(nm, facet_in)
-
-    } else {
-      cli::cli_abort("{.var {paste0('facet_', context[1])}} must be either a vector with indices to split at,
+    cli::cli_abort("{.var {paste0('facet_', context[1], 's')}} must be either a vector with indices to split at,
                      a vector of facet memberships, or a data frame with facet memberships.",
-                     class = "invalid_facet_input_error")
-    }
-
-    facet_name <- paste0(".", context[1], "_facets")
-    colnames(facet_df) <- c(context[1], facet_name)
-    # Turn matching variable into factor to not lose factor levels of x_long
-    facet_df[[context[1]]] <- factor(facet_df[[context[1]]], levels = levels(x_long[[context[1]]]))
-
-    x_long <- dplyr::left_join(x_long, facet_df, by = context[1])
-
-    # If facet variable is not a factor, turn it into one with levels in alphabetical order
-    # Reverse order of row facets if layout uses a top left and/or bottom right component
-    # (otherwise the reversed y axis will mess things up)
-    if (!is.factor(x_long[[facet_name]])) {
-      lvls <- sort(unique(x_long[[facet_name]]))
-    } else {
-      lvls <- levels(x_long[[facet_name]])
-    }
-
-    if (context[1] == "row" && any(c("tl", "topleft", "br", "bottomright") %in% layout)) {
-      lvls <- rev(lvls)
-    }
-
-    x_long[[facet_name]] <- factor(x_long[[facet_name]], levels = lvls)
-
-
+                   class = "invalid_facet_input_error")
   }
+
+  facet_name <- paste0(".", context[1], "_facets")
+  colnames(facet_df) <- c(context[1], facet_name)
+  # Turn matching variable into factor to not lose factor levels of x_long
+  facet_df[[context[1]]] <- factor(facet_df[[context[1]]], levels = levels(x_long[[context[1]]]))
+
+  x_long <- dplyr::left_join(x_long, facet_df, by = context[1])
+
+  # If facet variable is not a factor, turn it into one with levels in order of appearance
+  # Reverse order of row facets if layout uses a top left and/or bottom right component
+  # (otherwise the reversed y axis will mess things up)
+  if (!is.factor(x_long[[facet_name]])) {
+    lvls <- unique(x_long[[facet_name]])
+  } else {
+    lvls <- levels(x_long[[facet_name]])
+  }
+
+  if (context[1] == "row" && any(c("tl", "topleft", "br", "bottomright") %in% layout)) {
+    lvls <- rev(lvls)
+  }
+
+  x_long[[facet_name]] <- factor(x_long[[facet_name]], levels = lvls)
 
   return(x_long)
 }

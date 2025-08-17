@@ -134,7 +134,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      annot_border_lty = if (length(border_lty) == 1) border_lty else 1,
                      annot_na_col = na_col, annot_na_remove = na_remove,
                      annot_rows_params = NULL, annot_cols_params = NULL,
-                     show_annot_names = TRUE, annot_names_size = 9,
+                     show_annot_names = TRUE, annot_names_size = 3,
                      annot_rows_names_side = "bottom", annot_cols_names_side = "left",
                      annot_rows_name_params = NULL, annot_cols_name_params = NULL,
                      cluster_rows = FALSE, cluster_cols = FALSE,
@@ -142,7 +142,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      show_dend_rows = TRUE, show_dend_cols = TRUE, dend_rows_side = "right", dend_cols_side = "bottom",
                      dend_col = "black", dend_dist = 0, dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
                      dend_rows_params = NULL, dend_cols_params = NULL,
-                     dend_rows_extend = NULL, dend_cols_extend = NULL) {
+                     dend_rows_extend = NULL, dend_cols_extend = NULL,
+                     facet_rows = NULL, facet_cols = NULL) {
 
   # Perform some input argument checks
   check_logical(return_data = return_data)
@@ -339,7 +340,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                   dend_rows_side = dend_rows_side, dend_cols_side = dend_cols_side,
                   dend_col = dend_col, dend_dist = dend_dist, dend_height = dend_height, dend_lwd = dend_lwd, dend_lty = dend_lty,
                   dend_rows_params = dend_rows_params, dend_cols_params = dend_cols_params,
-                  dend_rows_extend = dend_rows_extend, dend_cols_extend = dend_cols_extend)
+                  dend_rows_extend = dend_rows_extend, dend_cols_extend = dend_cols_extend,
+                  facet_rows = facet_rows, facet_cols = facet_cols)
 
   if (return_data & any(unlist(p_values))) {
     # Add p-values to output data

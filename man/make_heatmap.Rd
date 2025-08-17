@@ -25,7 +25,9 @@ make_heatmap(
   cell_label_size = 3,
   cell_label_digits = 2,
   cell_bg_col = "white",
-  cell_bg_alpha = 0
+  cell_bg_alpha = 0,
+  facet_rows = NULL,
+  facet_cols = NULL
 )
 }
 \arguments{
@@ -70,6 +72,8 @@ make_heatmap(
 \item{cell_bg_col}{Cell background colour (fill).}
 
 \item{cell_bg_alpha}{Cell background alpha.}
+
+\item{facet_rows, facet_cols}{User input for facetting to decide if strips should be automatically hidden.}
 }
 \value{
 ggplot object with heatmap component.

@@ -23,6 +23,7 @@
 #' @param cell_label_digits Number of digits for cell labels if numeric.
 #' @param cell_bg_col Cell background colour (fill).
 #' @param cell_bg_alpha Cell background alpha.
+#' @param facet_rows,facet_cols User input for facetting to decide if strips should be automatically hidden.
 #'
 #' @returns ggplot object with heatmap component.
 #'
@@ -34,7 +35,8 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                          col_scale = NULL, size_scale = NULL,
                          cell_labels = FALSE, cell_label_col = "black",
                          cell_label_size = 3, cell_label_digits = 2,
-                         cell_bg_col = "white", cell_bg_alpha = 0) {
+                         cell_bg_col = "white", cell_bg_alpha = 0,
+                         facet_rows = NULL, facet_cols = NULL) {
   value <- .data <- label <- NULL
 
   # show_names_diag checked earlier
@@ -180,8 +182,24 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
 
   if (!plt_provided && !any(c(".row_facets", ".col_facets") %in% colnames(x_long))) {
     plt <- plt +
-    # Make cells square
-    ggplot2::coord_fixed(clip = "off")
+      # Make cells square
+      ggplot2::coord_fixed(clip = "off")
+  } else if (!plt_provided) {
+    plt <- plt +
+      # Keep normal coordinates but turn of clipping
+      ggplot2::coord_cartesian(clip = "off")
+  }
+
+  # Hide facet label strips if facet input argument is shorter than number of rows/cols
+  if (!plt_provided && !is.null(facet_rows) && length(facet_rows) < length(unique(x_long[["row"]]))) {
+    plt <- plt + ggplot2::theme(strip.background.y = ggplot2::element_blank(),
+                                strip.text.y.left = ggplot2::element_blank(),
+                                strip.text.y.right = ggplot2::element_blank())
+  }
+  if (!plt_provided && !is.null(facet_cols) && length(facet_cols) < length(unique(x_long[["col"]]))) {
+    plt <- plt + ggplot2::theme(strip.background.x = ggplot2::element_blank(),
+                                strip.text.x.bottom = ggplot2::element_blank(),
+                                strip.text.x.top = ggplot2::element_blank())
   }
 
   return(plt)
@@ -205,6 +223,18 @@ add_diag_names <- function(plt, x_long, names_diag_params = NULL) {
   # Order labels so they are from left to right
   axis_lab <- data.frame(label = factor(levels(x_long$col), levels = levels(x_long$col)))
   axis_lab <- dplyr::arrange(axis_lab, label)
+
+  # Add facetting columns
+  if (".row_facets" %in% colnames(x_long)) {
+    axis_lab <- dplyr::left_join(axis_lab,
+                                 dplyr::distinct(dplyr::select(x_long, "row", ".row_facets")),
+                                 by = c("label" = "row"))
+  }
+  if (".col_facets" %in% colnames(x_long)) {
+    axis_lab <- dplyr::left_join(axis_lab,
+                                 dplyr::distinct(dplyr::select(x_long, "col", ".col_facets")),
+                                 by = c("label" = "col"))
+  }
 
   # Construct call using optional parameters
   text_call_params <- list(data = axis_lab, mapping = ggplot2::aes(x = label, y = label, label = label))
