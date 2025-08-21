@@ -260,7 +260,8 @@ the \verb{annot_*_fill} arguments.}
 \item{dend_rows_extend, dend_cols_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the row or column dendrogram. See details of \code{gghm()} and \code{ggcorrhm()} for usage.}
 
 \item{facet_rows, facet_cols}{Vectors for dividing the rows and columns into facets. Can be a numeric vector shorter than the number of rows/columns to split the heatmap after those indices,
-or a vector of the same length as the number of rows/columns containing the facet memberships. In the latter case names can be used to match with rows/columns.}
+or a vector of the same length as the number of rows/columns containing the facet memberships. In the latter case names can be used to match with rows/columns.
+Alternatively, if clustering is applied a single numeric value is accepted for the number of clusters to divide the plot into.}
 }
 \value{
 The correlation heatmap as a \code{ggplot} object.

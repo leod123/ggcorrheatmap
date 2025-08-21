@@ -6,6 +6,7 @@
 #' @importFrom stats as.hclust
 #' @importFrom stats cor
 #' @importFrom stats cor.test
+#' @importFrom stats cutree
 #' @importFrom stats dist
 #' @importFrom stats hclust
 #' @importFrom stats p.adjust

@@ -4,7 +4,14 @@
 \alias{prepare_facets}
 \title{Prepare facetting columns in the plotting data.}
 \usage{
-prepare_facets(x_long, x, facet_in, layout, context = c("row", "col"))
+prepare_facets(
+  x_long,
+  x,
+  facet_in,
+  layout,
+  context = c("row", "col"),
+  dendro = NULL
+)
 }
 \arguments{
 \item{x_long}{Long format plotting data.}
@@ -16,6 +23,8 @@ prepare_facets(x_long, x, facet_in, layout, context = c("row", "col"))
 \item{layout}{Plot layout vector.}
 
 \item{context}{Context of facetting (row or col).}
+
+\item{dendro}{List containing clustering results (or NULL if no clustering).}
 }
 \value{
 Long format plotting data with facetting column added.
