@@ -393,6 +393,7 @@ orient_dendrogram <- function(dend, dim = c("rows", "cols"), full_plt, layout, d
 #'
 move_dendrogram <- function(dend_seg, x_long, context = c("rows", "cols"), dend_side, dend_dist,
                             annot_df, annot_side, annot_pos, annot_size) {
+  .row_facets <- .col_facets <- NULL
 
   if (context[1] == "rows") {
     # If plot has column facets, put in last facet (if on the right side)

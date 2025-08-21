@@ -23,7 +23,8 @@
 #' @param cell_label_digits Number of digits for cell labels if numeric.
 #' @param cell_bg_col Cell background colour (fill).
 #' @param cell_bg_alpha Cell background alpha.
-#' @param facet_rows,facet_cols User input for facetting to decide if strips should be automatically hidden.
+#' @param facet_rows_names,facet_cols_names Logicals indicating if the facet names should be shown (if plot is built from scratch).
+#' @param facet_rows_side,facet_cols_side Sides to put the facet strips.
 #'
 #' @returns ggplot object with heatmap component.
 #'
@@ -36,8 +37,9 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                          cell_labels = FALSE, cell_label_col = "black",
                          cell_label_size = 3, cell_label_digits = 2,
                          cell_bg_col = "white", cell_bg_alpha = 0,
-                         facet_rows = NULL, facet_cols = NULL) {
-  value <- .data <- label <- NULL
+                         facet_rows_names = FALSE, facet_cols_names = FALSE,
+                         facet_rows_side = "right", facet_cols_side = "bottom") {
+  value <- .data <- label <- .row_facets <- .col_facets <- NULL
 
   # show_names_diag checked earlier
   check_logical(show_names_x = show_names_x)
@@ -141,7 +143,8 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
     cell_data <- dplyr::left_join(x_long, cell_labels, by = c("row", "col"))
 
     # Skip NA labels
-    cell_data <- dplyr::select(subset(cell_data, !is.na(label)), "row", "col", "value", "label")
+    cell_data <- dplyr::select(subset(cell_data, !is.na(label)), "row", "col", "value", "label",
+                               dplyr::contains("_facets"))
 
     # skip diagonal if already occupied
     if (!(include_diag & !show_names_diag)) {cell_data <- subset(cell_data, as.character(row) != as.character(col))}
@@ -169,14 +172,39 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
 
   if (any(c(".row_facets", ".col_facets") %in% colnames(x_long))) {
     facet_r <- if (".row_facets" %in% colnames(x_long)) {
-      ggplot2::vars(.row_facets)
+      # Explicitly set factor levels when making the facets to prevent unintentional changes in facet order
+      ggplot2::vars(factor(.row_facets, levels = levels(x_long[[".row_facets"]])))
     } else {NULL}
     facet_c <- if (".col_facets" %in% colnames(x_long)) {
-      ggplot2::vars(.col_facets)
+      ggplot2::vars(factor(.col_facets, levels = levels(x_long[[".col_facets"]])))
     } else {NULL}
 
+    # Make input for the 'switch' argument for strip placement
+    # Check that the inputs are valid
+    if (!facet_rows_side %in% c("left", "right")) {
+      cli::cli_warn("{.var facet_rows_side} should be {.val left} or {.val right}, not
+                     {.val {facet_rows_side}}. Placing at default (right).",
+                     class = "facet_side_warn")
+      facet_rows_side <- "right"
+    }
+    if (!facet_cols_side %in% c("top", "bottom")) {
+      cli::cli_warn("{.var facet_cols_side} should be {.val top} or {.val bottom}, not
+                     {.val {facet_cols_side}}. Placing at default (bottom).",
+                     class = "facet_side_warn")
+      facet_cols_side <- "bottom"
+    }
+
+    # Default is top and right, switch different axes depending on input
+    sw_in <- switch(paste0(facet_rows_side, facet_cols_side),
+                    "righttop" = NULL,
+                    "rightbottom" = "x",
+                    "lefttop" = "y",
+                    "leftbottom" = "both")
+
     plt <- plt +
-      ggplot2::facet_grid(rows = facet_r, cols = facet_c, space = "free", scales = "free") +
+      ggplot2::facet_grid(rows = facet_r, cols = facet_c,
+                          space = "free", scales = "free",
+                          switch = sw_in) +
       ggplot2::theme(strip.background = ggplot2::element_blank())
   }
 
@@ -185,18 +213,19 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
       # Make cells square
       ggplot2::coord_fixed(clip = "off")
   } else if (!plt_provided) {
+    # coord_fixed does not work with facets and free scales
     plt <- plt +
       # Keep normal coordinates but turn of clipping
       ggplot2::coord_cartesian(clip = "off")
   }
 
   # Hide facet label strips if facet input argument is shorter than number of rows/cols
-  if (!plt_provided && !is.null(facet_rows) && length(facet_rows) < length(unique(x_long[["row"]]))) {
+  if (!plt_provided && isFALSE(facet_rows_names)) {
     plt <- plt + ggplot2::theme(strip.background.y = ggplot2::element_blank(),
                                 strip.text.y.left = ggplot2::element_blank(),
                                 strip.text.y.right = ggplot2::element_blank())
   }
-  if (!plt_provided && !is.null(facet_cols) && length(facet_cols) < length(unique(x_long[["col"]]))) {
+  if (!plt_provided && isFALSE(facet_cols_names)) {
     plt <- plt + ggplot2::theme(strip.background.x = ggplot2::element_blank(),
                                 strip.text.x.bottom = ggplot2::element_blank(),
                                 strip.text.x.top = ggplot2::element_blank())

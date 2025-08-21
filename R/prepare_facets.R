@@ -7,11 +7,27 @@
 #' @param facet_in Facetting user input (vector or data frame).
 #' @param layout Plot layout vector.
 #' @param context Context of facetting (row or col).
+#' @param dendro List containing clustering results (or NULL if no clustering).
 #'
 #' @returns Long format plotting data with facetting column added.
 #'
-prepare_facets <- function(x_long, x, facet_in, layout, context = c("row", "col")) {
+prepare_facets <- function(x_long, x, facet_in, layout, context = c("row", "col"), dendro = NULL) {
   nm <- switch(context[1], "row" = rownames(x), "col" = colnames(x))
+
+  # If data has been clustered, use the cluster labels as facetting memberships
+  # and only accept a single numeric value (k) for the facet input
+  if (!is.null(dendro)) {
+    if (length(facet_in) > 1 || !is.numeric(facet_in)) {
+      cli::cli_abort("If {paste0(context, ifelse(context[1] == 'col', 'umns', 's'))} are clustered,
+                     {.var {paste0('facet_', context[1], 's')}} must be a single numeric value (for
+                     the number of clusters to split into).",
+                     class = "facet_clust_error")
+    }
+
+    # Get named cluster labels
+    facet_in <- cutree(dendro$clust, facet_in)
+
+  }
 
   if (is.numeric(facet_in) && is.atomic(facet_in) &&
       length(facet_in) < length(unique(x_long[[context[1]]]))) {

@@ -25,7 +25,7 @@
 add_annotation <- function(plt, context = c("rows", "cols"), annot_df, annot_pos, annot_size,
                            annot_border_lwd = 0.5, annot_border_col = "grey", annot_border_lty = 1,
                            show_annot_names = TRUE, na_remove = FALSE, col_scale = NULL, names_side, name_params = NULL) {
-  .names <- .data <- NULL
+  .names <- .data <- name <- x <- y <- NULL
 
   check_logical(annot_na_remove = na_remove)
   check_logical(show_annot_names = show_annot_names)
@@ -92,6 +92,7 @@ add_annotation <- function(plt, context = c("rows", "cols"), annot_df, annot_pos
 #'
 prepare_annotation <- function(annot_df, annot_defaults, annot_params, annot_side, context = c("rows", "cols"),
                                annot_names_size, annot_name_params, annot_names_side, data_size, x_long) {
+  .row_facets <- .col_facets <- NULL
 
   # Get data size for annotation positions (will depend on facetting)
   if (context[1] == "rows") {
