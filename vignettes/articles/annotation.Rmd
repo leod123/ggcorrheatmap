@@ -125,7 +125,7 @@ gghm(df_in, annot_rows_df = row_annot, annot_cols_df = col_annot,
 
 # Annotation labels
 
-The sizes of the names can be changed using the `annot_names_size` argument. Further customisation is possible by passing named lists to the `annot_rows_name_params` and `annot_cols_name_params` arguments. These lists are passed on to `grid::textGrob()`, see its help page (and the example below) for more on what arguments are supported.
+The sizes of the names can be changed using the `annot_names_size` argument. Further customisation is possible by passing named lists of static aesthetics to the `annot_rows_name_params` and `annot_cols_name_params` arguments. These lists are passed on to `ggplot2::geom_text()`.
 
 ```{r, fig.alt='A 3x3 heatmap with two each of row and column annotations. The row annotation has vertical, large, magenta labels below showing the names. The column annotations have labels to the left, angled at 45 degrees.'}
 df_in <- matrix(1:9, nrow = 3, ncol = 3, byrow = TRUE)
@@ -135,12 +135,10 @@ col_annot <- data.frame(annot3 = letters[1:3], annot4 = letters[4:6])
 gghm(df_in, annot_rows_df = row_annot, annot_cols_df = col_annot,
      legend_order = NA,
      annot_rows_name_params = list(
-       # Use 'grid::gpar' for the 'gp' argument for a number of text-related parameters
-       gp = grid::gpar(col = "magenta", alpha = 0.5, fontsize = 20, fontface = "bold")
+       colour = "magenta", alpha = 0.5, size = 7, fontface = "bold"
      ),
      annot_cols_name_params = list(
-       # 'rot' instead of 'angle' to change the angle
-       rot = -45, hjust = 0.7, vjust = 0
+       angle = -45, hjust = 0.7, vjust = 0
      ))
 ```
 
