@@ -181,15 +181,15 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
 
     # Make input for the 'switch' argument for strip placement
     # Check that the inputs are valid
-    if (!facet_rows_side %in% c("left", "right")) {
+    if (!facet_rows_side %in% c("left", "right") && !is.null(facet_r)) {
       cli::cli_warn("{.var facet_rows_side} should be {.val left} or {.val right}, not
-                     {.val {facet_rows_side}}. Placing at default (right).",
+                     {.val {facet_rows_side}}. Using default (right).",
                      class = "facet_side_warn")
       facet_rows_side <- "right"
     }
-    if (!facet_cols_side %in% c("top", "bottom")) {
+    if (!facet_cols_side %in% c("top", "bottom") && !is.null(facet_c)) {
       cli::cli_warn("{.var facet_cols_side} should be {.val top} or {.val bottom}, not
-                     {.val {facet_cols_side}}. Placing at default (bottom).",
+                     {.val {facet_cols_side}}. Using default (bottom).",
                      class = "facet_side_warn")
       facet_cols_side <- "bottom"
     }

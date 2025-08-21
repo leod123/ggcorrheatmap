@@ -31,6 +31,13 @@ prepare_facets <- function(x_long, x, facet_in, layout, context = c("row", "col"
 
   if (is.numeric(facet_in) && is.atomic(facet_in) &&
       length(facet_in) < length(unique(x_long[[context[1]]]))) {
+    # If named, ignore with a warning
+    if (!is.null(names(facet_in))) {
+      cli::cli_warn("To match names, {.var {paste0('facet_', context[1], 's')}} must be the same length
+                    as the number of {paste0(context[1], ifelse(context[1] == 'col', 'umn', ''), 's')}.
+                    Using the numbers as indices for the gaps.", class = "facet_names_warn")
+    }
+
     # If a numeric vector shorter than number of unique rows or cols, use as indices to create facets
     facet_df <- data.frame(nm, make_facet_vector(facet_in, length(nm)))
 
@@ -58,7 +65,7 @@ prepare_facets <- function(x_long, x, facet_in, layout, context = c("row", "col"
 
   } else {
     cli::cli_abort("{.var {paste0('facet_', context[1], 's')}} must be either a vector with indices to split at,
-                     a vector of facet memberships, or a data frame with facet memberships.",
+                     or a vector of facet memberships (may be named for matching).",
                    class = "invalid_facet_input_error")
   }
 
@@ -106,7 +113,7 @@ make_facet_vector <- function(facet_in, len) {
   # Check that there are no negative values
   if (any(facet_in < 0)) {
     cli::cli_abort("The facet indices cannot be negative.",
-                   class = "facet_in_error")
+                   class = "facet_ind_error")
   }
 
   vec_out <- vector("numeric", len)
