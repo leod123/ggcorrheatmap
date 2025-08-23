@@ -29,7 +29,8 @@ add_dendrogram <- function(plt, dendro, dend_col = "black", dend_lwd = 0.3, dend
 
   plt <- plt +
     ggnewscale::new_scale_colour() +
-    ggplot2::geom_segment(ggplot2::aes(x = x, y = y, xend = xend, yend = yend, colour = col), seg,
+    ggplot2::geom_segment(mapping = ggplot2::aes(x = x, y = y, xend = xend, yend = yend, colour = col),
+                          data = seg,
                           linewidth = if (all(is.na(seg$lwd))) {dend_lwd}
                           else {seg$lwd},
                           linetype = if (all(is.na(seg$lty))) {dend_lty}

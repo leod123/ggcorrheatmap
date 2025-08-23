@@ -45,7 +45,7 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
   # Base plot
   plt_provided <- !is.null(plt)
   if (is.null(plt)) {
-    plt <- ggplot2::ggplot(mapping = ggplot2::aes(x = col, y = row))
+    plt <- ggplot2::ggplot()
   }
 
   shape_mode_fill <- mode %in% as.character(21:25)
@@ -57,6 +57,7 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
     plt <- plt +
       # Subset after converting to character as error occurs during rendering if factor levels are different
       ggplot2::geom_tile(data = subset(x_long, as.character(row) == as.character(col)),
+                         mapping = ggplot2::aes(x = col, y = row),
                          fill = "white", linewidth = 0, alpha = 0)
   }
 
@@ -72,28 +73,29 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
     # Add empty cells as a grid for text and none modes
     list(
       if (mode %in% c("text", "none")) {
-        ggplot2::geom_tile(data = x_long, linewidth = border_lwd, colour = border_col,
+        ggplot2::geom_tile(data = x_long, mapping = ggplot2::aes(x = col, y = row),
+                           linewidth = border_lwd, colour = border_col,
                            fill = cell_bg_col, linetype = border_lty, alpha = cell_bg_alpha)
       }
     ) +
     # Plot tiles or points depending on cell shape
     list(
       if (mode %in% c("heatmap", "hm")) {
-        ggplot2::geom_tile(ggplot2::aes(fill = value),
+        ggplot2::geom_tile(ggplot2::aes(x = col, y = row, fill = value),
                            data = x_long,
                            linewidth = border_lwd, colour = border_col, linetype = border_lty)
       } else if (shape_mode_fill) {
-        ggplot2::geom_point(ggplot2::aes(fill = value, size = value),
+        ggplot2::geom_point(ggplot2::aes(x = col, y = row, fill = value, size = value),
                             data = x_long,
                             stroke = border_lwd, colour = border_col, shape = as.numeric(mode))
       } else if (shape_mode_col) {
-        ggplot2::geom_point(ggplot2::aes(colour = value, size = value),
+        ggplot2::geom_point(ggplot2::aes(x = col, y = row, colour = value, size = value),
                             data = x_long,
                             stroke = border_lwd, shape = as.numeric(mode))
       } else if (mode == "text" & isFALSE(cell_labels)) {
         ggplot2::geom_text(
           # Round values if value are numeric and cell_label_digits is numeric
-          ggplot2::aes(label = if (is.numeric(.data[["value"]]) & is.numeric(cell_label_digits)) {
+          ggplot2::aes(x = col, y = row, label = if (is.numeric(.data[["value"]]) & is.numeric(cell_label_digits)) {
             round(value, cell_label_digits)
           } else {value}, colour = value),
           # For text, skip diagonals if names are written there
