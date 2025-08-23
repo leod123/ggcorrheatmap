@@ -12,6 +12,8 @@ gghm_tidy(
   labels = NULL,
   annot_rows = NULL,
   annot_cols = NULL,
+  facet_rows = NULL,
+  facet_cols = NULL,
   ...
 )
 }
@@ -23,6 +25,8 @@ gghm_tidy(
 \item{labels}{Column to use for cell labels. NULL (default) for no labels.}
 
 \item{annot_rows, annot_cols}{Columns to use for row and column annotations.}
+
+\item{facet_rows, facet_cols}{Columns to use for row/column facet memberships.}
 
 \item{...}{Additional arguments for \code{gghm()}.}
 }

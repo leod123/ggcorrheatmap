@@ -7,7 +7,7 @@
 make_facet_vector(facet_in, len)
 }
 \arguments{
-\item{facet_in}{User input for facetting (facet_rows, facet_cols).}
+\item{facet_in}{User input for facetting (split_rows, split_cols).}
 
 \item{len}{Length of output vector.}
 }

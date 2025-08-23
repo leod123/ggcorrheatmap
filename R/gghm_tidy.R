@@ -4,6 +4,7 @@
 #' @param rows,cols,values Columns to use as rows, columns, and cell values.
 #' @param labels Column to use for cell labels. NULL (default) for no labels.
 #' @param annot_rows,annot_cols Columns to use for row and column annotations.
+#' @param facet_rows,facet_cols Columns to use for row/column facet memberships.
 #' @param ... Additional arguments for `gghm()`.
 #'
 #' @return A ggplot2 object with the heatmap. If `return_data` is `TRUE`, plotting data is returned as well.
@@ -35,7 +36,8 @@
 #' gghm_tidy(hm_in, row, col, val,
 #'           labels = lab, cell_label_col = "white")
 #'
-gghm_tidy <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, annot_cols = NULL, ...) {
+gghm_tidy <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, annot_cols = NULL,
+                      facet_rows = NULL, facet_cols = NULL, ...) {
 
   if (missing(x)) cli::cli_abort("Argument {.var x} is missing. It needs to be a data frame.",
                                  class = "tidy_missing_error")
@@ -59,6 +61,9 @@ gghm_tidy <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, a
     cli::cli_abort("Too many columns, provide one column each for {.var rows}, {.var cols} and {.var values}.",
                    class = "tidy_too_many_cols_error")
   }
+
+  # The input parameters for possibly overwriting some
+  gghm_in <- list(...)
 
   # Convert to wide format
   colnames(x_long)[1:3] <- c("row", "col", "value")
@@ -108,10 +113,18 @@ gghm_tidy <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, a
     annot_cols_df <- NULL
   }
 
-  plt <- gghm(x_wide,
-              cell_labels = cell_label_df,
-              annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
-              ...)
+  # Make facet vectors
+  row_facet_vec <- prepare_facets_tidy(x, {{rows}}, {{facet_rows}}, gghm_in, "row")
+  col_facet_vec <- prepare_facets_tidy(x, {{cols}}, {{facet_cols}}, gghm_in, "column")
+
+  gghm_in[["split_rows"]] <- row_facet_vec
+  gghm_in[["split_cols"]] <- col_facet_vec
+
+  plt <- do.call(gghm, append(
+    gghm_in,
+    list(x = x_wide, cell_labels = cell_label_df,
+         annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df)
+  ))
 
   return(plt)
 }
@@ -122,6 +135,7 @@ gghm_tidy <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, a
 #' @param rows,cols,values Columns to use as rows, columns, and values in the plotted matrix (if `cor_in` is TRUE) or the matrix to compute correlations from (`cor_in` is FALSE).
 #' @param annot_rows,annot_cols Columns containing values for row and column annotations.
 #' @param labels Column to use for cell labels, NULL for no labels, or TRUE to use the cell values. If `cor_in` is FALSE, only NULL, TRUE or FALSE is supported.
+#' @param facet_rows,facet_cols Columns to use for row/column facets.
 #' @param cor_in Logical indicating if the values are correlation values (TRUE, default) or values to be correlated. See details for more information.
 #' @param ... Additional arguments for `ggcorrhm()`.
 #'
@@ -161,7 +175,7 @@ gghm_tidy <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, a
 #' ggcorrhm_tidy(raw_dat, row, col, val, cor_in = FALSE)
 #'
 ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols = NULL,
-                          labels = NULL, cor_in = TRUE, ...) {
+                          labels = NULL, facet_rows = NULL, facet_cols = NULL, cor_in = TRUE, ...) {
 
   if (missing(x)) cli::cli_abort("Argument {.var x} is missing. It needs to be a data frame.",
                                  class = "tidy_missing_error")
@@ -176,6 +190,9 @@ ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols =
     cli::cli_abort("{.var x} must be a {.cls data.frame}, not a {.cls {class(x)}}.",
                    class = "tidy_input_class_error")
   }
+
+  # The input parameters for possibly overwriting some
+  ggcorrhm_in <- list(...)
 
   # Move this to a separate function and reuse in ggcorrhm_long
   x_long <- dplyr::select(x, {{rows}}, {{cols}}, {{values}})
@@ -219,6 +236,13 @@ ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols =
       annot_cols_df <- NULL
     }
 
+    # Fix facet input
+    row_facet_vec <- prepare_facets_tidy(x, {{rows}}, {{facet_rows}}, ggcorrhm_in, "rows")
+    col_facet_vec <- prepare_facets_tidy(x, {{cols}}, {{facet_cols}}, ggcorrhm_in, "columns")
+
+    ggcorrhm_in[["split_rows"]] <- row_facet_vec
+    ggcorrhm_in[["split_cols"]] <- col_facet_vec
+
     # Reorder rows and columns if input data has factor levels
     if (is.factor(x_long[["row"]])) {
       x_wide <- x_wide[levels(x_long[["row"]]), ]
@@ -252,6 +276,12 @@ ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols =
       annot_cols_df <- NULL
     }
 
+    row_facet_vec <- prepare_facets_tidy(x, {{cols}}, {{facet_rows}}, ggcorrhm_in, "rows")
+    col_facet_vec <- prepare_facets_tidy(x, {{cols}}, {{facet_cols}}, ggcorrhm_in, "columns")
+
+    ggcorrhm_in[["split_rows"]] <- row_facet_vec
+    ggcorrhm_in[["split_cols"]] <- col_facet_vec
+
     if (is.factor(x_long[["row"]])) {
       x_wide <- x_wide[levels(x_long[["col"]]), ]
     }
@@ -260,8 +290,11 @@ ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols =
     }
   }
 
-  plt <- ggcorrhm(x_wide, annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
-                  cell_labels = cell_label_df, cor_in = cor_in, ...)
+  plt <- do.call(ggcorrhm, append(
+    ggcorrhm_in,
+    list(x = x_wide, annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
+         cell_labels = cell_label_df, cor_in = cor_in)
+  ))
 
   return(plt)
 }

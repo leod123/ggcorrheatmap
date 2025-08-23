@@ -23,8 +23,8 @@
 #' @param cell_label_digits Number of digits for cell labels if numeric.
 #' @param cell_bg_col Cell background colour (fill).
 #' @param cell_bg_alpha Cell background alpha.
-#' @param facet_rows_names,facet_cols_names Logicals indicating if the facet names should be shown (if plot is built from scratch).
-#' @param facet_rows_side,facet_cols_side Sides to put the facet strips.
+#' @param split_rows_names,split_cols_names Logicals indicating if the facet names should be shown (if plot is built from scratch).
+#' @param split_rows_side,split_cols_side Sides to put the facet strips.
 #'
 #' @returns ggplot object with heatmap component.
 #'
@@ -37,8 +37,8 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                          cell_labels = FALSE, cell_label_col = "black",
                          cell_label_size = 3, cell_label_digits = 2,
                          cell_bg_col = "white", cell_bg_alpha = 0,
-                         facet_rows_names = FALSE, facet_cols_names = FALSE,
-                         facet_rows_side = "right", facet_cols_side = "bottom") {
+                         split_rows_names = FALSE, split_cols_names = FALSE,
+                         split_rows_side = "right", split_cols_side = "bottom") {
   value <- .data <- label <- .row_facets <- .col_facets <- NULL
 
   # show_names_diag checked earlier
@@ -181,21 +181,21 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
 
     # Make input for the 'switch' argument for strip placement
     # Check that the inputs are valid
-    if (!facet_rows_side %in% c("left", "right") && !is.null(facet_r)) {
-      cli::cli_warn("{.var facet_rows_side} should be {.val left} or {.val right}, not
-                     {.val {facet_rows_side}}. Using default (right).",
+    if (!split_rows_side %in% c("left", "right") && !is.null(facet_r)) {
+      cli::cli_warn("{.var split_rows_side} should be {.val left} or {.val right}, not
+                     {.val {split_rows_side}}. Using default (right).",
                      class = "facet_side_warn")
-      facet_rows_side <- "right"
+      split_rows_side <- "right"
     }
-    if (!facet_cols_side %in% c("top", "bottom") && !is.null(facet_c)) {
-      cli::cli_warn("{.var facet_cols_side} should be {.val top} or {.val bottom}, not
-                     {.val {facet_cols_side}}. Using default (bottom).",
+    if (!split_cols_side %in% c("top", "bottom") && !is.null(facet_c)) {
+      cli::cli_warn("{.var split_cols_side} should be {.val top} or {.val bottom}, not
+                     {.val {split_cols_side}}. Using default (bottom).",
                      class = "facet_side_warn")
-      facet_cols_side <- "bottom"
+      split_cols_side <- "bottom"
     }
 
     # Default is top and right, switch different axes depending on input
-    sw_in <- switch(paste0(facet_rows_side, facet_cols_side),
+    sw_in <- switch(paste0(split_rows_side, split_cols_side),
                     "righttop" = NULL,
                     "rightbottom" = "x",
                     "lefttop" = "y",
@@ -220,12 +220,12 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
   }
 
   # Hide facet label strips if facet input argument is shorter than number of rows/cols
-  if (!plt_provided && isFALSE(facet_rows_names)) {
+  if (!plt_provided && isFALSE(split_rows_names)) {
     plt <- plt + ggplot2::theme(strip.background.y = ggplot2::element_blank(),
                                 strip.text.y.left = ggplot2::element_blank(),
                                 strip.text.y.right = ggplot2::element_blank())
   }
-  if (!plt_provided && isFALSE(facet_cols_names)) {
+  if (!plt_provided && isFALSE(split_cols_names)) {
     plt <- plt + ggplot2::theme(strip.background.x = ggplot2::element_blank(),
                                 strip.text.x.bottom = ggplot2::element_blank(),
                                 strip.text.x.top = ggplot2::element_blank())

@@ -19,7 +19,7 @@ prepare_facets <- function(x_long, x, facet_in, layout, context = c("row", "col"
   if (!is.null(dendro)) {
     if (length(facet_in) > 1 || !is.numeric(facet_in)) {
       cli::cli_abort("If {paste0(context, ifelse(context[1] == 'col', 'umns', 's'))} are clustered,
-                     {.var {paste0('facet_', context[1], 's')}} must be a single numeric value (for
+                     {.var {paste0('split_', context[1], 's')}} must be a single numeric value (for
                      the number of clusters to split into).",
                      class = "facet_clust_error")
     }
@@ -33,7 +33,7 @@ prepare_facets <- function(x_long, x, facet_in, layout, context = c("row", "col"
       length(facet_in) < length(unique(x_long[[context[1]]]))) {
     # If named, ignore with a warning
     if (!is.null(names(facet_in))) {
-      cli::cli_warn("To match names, {.var {paste0('facet_', context[1], 's')}} must be the same length
+      cli::cli_warn("To match names, {.var {paste0('split_', context[1], 's')}} must be the same length
                     as the number of {paste0(context[1], ifelse(context[1] == 'col', 'umn', ''), 's')}.
                     Using the numbers as indices for the gaps.", class = "facet_names_warn")
     }
@@ -52,7 +52,7 @@ prepare_facets <- function(x_long, x, facet_in, layout, context = c("row", "col"
 
       } else {
         # Otherwise throw a warning and use facets without matching names
-        cli::cli_warn("All names must be present if {.var {paste0('facet_', context[1], 's')}} has names.
+        cli::cli_warn("All names must be present if {.var {paste0('split_', context[1], 's')}} has names.
                       The {paste0(context[1], ifelse(context[1] == 'col', 'umn', ''), 's')} will be facetted directly without matching names.",
                       class = "facet_names_warn")
         facet_df <- data.frame(nm, facet_in)
@@ -64,7 +64,7 @@ prepare_facets <- function(x_long, x, facet_in, layout, context = c("row", "col"
     }
 
   } else {
-    cli::cli_abort("{.var {paste0('facet_', context[1], 's')}} must be either a vector with indices to split at,
+    cli::cli_abort("{.var {paste0('split_', context[1], 's')}} must be either a vector with indices to split at,
                      or a vector of facet memberships (may be named for matching).",
                    class = "invalid_facet_input_error")
   }
@@ -98,15 +98,15 @@ prepare_facets <- function(x_long, x, facet_in, layout, context = c("row", "col"
 #'
 #' @keywords internal
 #'
-#' @param facet_in User input for facetting (facet_rows, facet_cols).
+#' @param facet_in User input for facetting (split_rows, split_cols).
 #' @param len Length of output vector.
 #'
 #' @returns Vector of facet memberships.
 #'
 make_facet_vector <- function(facet_in, len) {
-  # Check that the indices are strictly increasing
-  if (!all(facet_in == cummax(facet_in))) {
-    cli::cli_abort("The facet indices must be increasing.",
+  # Check that the indices contain no duplicates (after rounding to get integers)
+  if (any(duplicated(round(facet_in)))) {
+    cli::cli_abort("The facet indices must be unique",
                    class = "facet_ind_error")
   }
 
@@ -116,6 +116,7 @@ make_facet_vector <- function(facet_in, len) {
                    class = "facet_ind_error")
   }
 
+  facet_in <- sort(facet_in)
   vec_out <- vector("numeric", len)
 
   # Value to use for facets (start at 1 and go up 1 for each facet)
@@ -138,4 +139,39 @@ make_facet_vector <- function(facet_in, len) {
   }
 
   return(vec_out)
+}
+
+prepare_facets_tidy <- function(x, id_col, facet_col, params, context = c("row", "column")) {
+  # Short context to use in conjunction with full context
+  ctx <- substr(context[1], 1, 3)
+  # Name of the corresponding split variable of the non-tidy function
+  split_var <- paste0("split_", ctx, "s")
+
+  if (!rlang::quo_is_null(rlang::enquo(facet_col))) {
+    # If splits are specified using the split_* arguments at the same time, throw an error
+    if (split_var %in% names(params)) {
+      cli::cli_abort("Specify {context[1]} splits using either {.var {paste0('facet_', ctx, 's')}} (a column to use for facets) or
+                     {.var paste0('split_', ctx, 's')} (for gghm behaviour), not both.",
+                     class = "tidy_split_error")
+    }
+
+    facet_vec <- dplyr::distinct(dplyr::select(x, {{id_col}}, {{facet_col}}))
+
+    # Can only have one variable for facets
+    if (ncol(facet_vec) > 2) {
+      cli::cli_abort("{.var {paste0('facet_', ctx, 's')}} can be at most one column.",
+                     class = "tidy_facet_too_many")
+    }
+
+    facet_vec <- facet_vec[[2]]
+
+  } else if (split_var %in% names(params)) {
+    # If split_* is specified but not facet_*, use as is
+    facet_vec <- params[[split_var]]
+
+  } else {
+    facet_vec <- NULL
+  }
+
+  return(facet_vec)
 }

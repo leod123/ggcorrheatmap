@@ -84,10 +84,10 @@
 #' @param dend_lty Dendrogram line type, applied to both row and column dendrograms.
 #' @param dend_rows_params,dend_cols_params Named list for row or column dendrogram parameters to overwrite common parameter values. See details for more information.
 #' @param dend_rows_extend,dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row or column dendrogram. See details for usage.
-#' @param facet_rows,facet_cols Vectors for dividing the rows and columns into facets. Can be a numeric vector shorter than the number of rows/columns to split the heatmap after those indices,
+#' @param split_rows,split_cols Vectors for splitting the rows and columns into facets. Can be a numeric vector shorter than the number of rows/columns to split the heatmap after those indices,
 #' or a vector of the same length as the number of rows/columns containing the facet memberships. In the latter case names can be used to match with rows/columns.
 #' Alternatively, if clustering is applied a single numeric value is accepted for the number of clusters to divide the plot into.
-#' @param facet_rows_side,facet_cols_side Which side the row/column facet strips should be drawn on ('left'/'right', 'top'/'bottom').
+#' @param split_rows_side,split_cols_side Which side the row/column facet strips should be drawn on ('left'/'right', 'top'/'bottom').
 #'
 #' @return The heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),
@@ -206,8 +206,8 @@ gghm <- function(x,
                  dend_col = "black", dend_dist = 0, dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
                  dend_rows_params = NULL, dend_cols_params = NULL,
                  dend_rows_extend = NULL, dend_cols_extend = NULL,
-                 facet_rows = NULL, facet_cols = NULL,
-                 facet_rows_side = "right", facet_cols_side = "bottom") {
+                 split_rows = NULL, split_cols = NULL,
+                 split_rows_side = "right", split_cols_side = "bottom") {
 
   if (!is.matrix(x) & !is.data.frame(x)) cli::cli_abort("{.var x} must be a matrix or data frame.", class = "input_class_error")
 
@@ -369,25 +369,25 @@ gghm <- function(x,
 
   # If clustering and facetting the same dimension, cannot show dendrogram
   facet_already_warned <- FALSE
-  if (!isFALSE(cluster_rows) && !is.null(facet_rows)) {
+  if (!isFALSE(cluster_rows) && !is.null(split_rows)) {
     show_dend_rows <- FALSE
   }
-  if (!isFALSE(cluster_cols) && !is.null(facet_cols)) {
+  if (!isFALSE(cluster_cols) && !is.null(split_cols)) {
     show_dend_cols <- FALSE
   }
 
   # Introduce facetting
-  facet_rows_names <- facet_cols_names <- FALSE
-  if (!is.null(facet_rows)) {
-    x_long <- prepare_facets(x_long, x, facet_in = facet_rows, layout = layout,
+  split_rows_names <- split_cols_names <- FALSE
+  if (!is.null(split_rows)) {
+    x_long <- prepare_facets(x_long, x, facet_in = split_rows, layout = layout,
                              context = "row", dendro = row_clustering)
     # Hide facet names if facet input is shorter than number of rows, unless data is clustered
-    facet_rows_names <- ifelse(length(facet_rows) < nrow(x) && isFALSE(cluster_rows), FALSE, TRUE)
+    split_rows_names <- ifelse(length(split_rows) < nrow(x) && isFALSE(cluster_rows), FALSE, TRUE)
   }
-  if (!is.null(facet_cols)) {
-    x_long <- prepare_facets(x_long, x, facet_in = facet_cols, layout = layout,
+  if (!is.null(split_cols)) {
+    x_long <- prepare_facets(x_long, x, facet_in = split_cols, layout = layout,
                              context = "col", dendro = col_clustering)
-    facet_cols_names <- ifelse(length(facet_cols) < ncol(x) && isFALSE(cluster_cols), FALSE, TRUE)
+    split_cols_names <- ifelse(length(split_cols) < ncol(x) && isFALSE(cluster_cols), FALSE, TRUE)
   }
 
   # Annotation for rows and columns
@@ -512,8 +512,8 @@ gghm <- function(x,
                         cell_labels = cell_labels, cell_label_col = cell_label_col,
                         cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
                         cell_bg_col = cell_bg_col, cell_bg_alpha = cell_bg_alpha,
-                        facet_rows_names = facet_rows_names, facet_cols_names = facet_cols_names,
-                        facet_rows_side = facet_rows_side, facet_cols_side = facet_cols_side)
+                        split_rows_names = split_rows_names, split_cols_names = split_cols_names,
+                        split_rows_side = split_rows_side, split_cols_side = split_cols_side)
     if (isTRUE(show_names_diag)) {
       plt <- add_diag_names(plt = plt, x_long = x_long, names_diag_params = names_diag_params)
     }
@@ -531,8 +531,8 @@ gghm <- function(x,
                         cell_labels = cell_labels[[1]], cell_label_col = cell_label_col[[1]],
                         cell_label_size = cell_label_size[[1]], cell_label_digits = cell_label_digits[[1]],
                         cell_bg_col = cell_bg_col[[1]], cell_bg_alpha = cell_bg_alpha[[1]],
-                        facet_rows_names = facet_rows_names, facet_cols_names = facet_cols_names,
-                        facet_rows_side = facet_rows_side, facet_cols_side = facet_cols_side)
+                        split_rows_names = split_rows_names, split_cols_names = split_cols_names,
+                        split_rows_side = split_rows_side, split_cols_side = split_cols_side)
     # Remaining half
     # Add new scales if multiple are provided
     if (isTRUE(col_scale[[1]][["aesthetics"]] == col_scale[[2]][["aesthetics"]])) {

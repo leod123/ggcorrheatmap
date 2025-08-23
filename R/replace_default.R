@@ -42,19 +42,3 @@ replace_default.list <- function(default_param, new_param, add_new = FALSE, warn
 
   return(default_param)
 }
-
-#' @export
-replace_default.gpar <- function(default_param, new_param, add_new = FALSE, warning_context = NULL) {
-  # Special treatment for gpar objects as their indexing works differently
-  # Convert to lists
-  new_param <- lapply(new_param, function(x) x)
-  default_param <- lapply(default_param, function(x) x)
-
-  # Pass the lists to replace_default
-  default_param <- replace_default(default_param, new_param, add_new = TRUE)
-
-  # Convert back to gpar class
-  default_param <- do.call(grid::gpar, default_param)
-
-  return(default_param)
-}

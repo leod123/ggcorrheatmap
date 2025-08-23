@@ -74,10 +74,10 @@ gghm(
   dend_cols_params = NULL,
   dend_rows_extend = NULL,
   dend_cols_extend = NULL,
-  facet_rows = NULL,
-  facet_cols = NULL,
-  facet_rows_side = "right",
-  facet_cols_side = "bottom"
+  split_rows = NULL,
+  split_cols = NULL,
+  split_rows_side = "right",
+  split_cols_side = "bottom"
 )
 }
 \arguments{
@@ -225,11 +225,11 @@ the \verb{annot_*_fill} arguments.}
 
 \item{dend_rows_extend, dend_cols_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the row or column dendrogram. See details for usage.}
 
-\item{facet_rows, facet_cols}{Vectors for dividing the rows and columns into facets. Can be a numeric vector shorter than the number of rows/columns to split the heatmap after those indices,
+\item{split_rows, split_cols}{Vectors for splitting the rows and columns into facets. Can be a numeric vector shorter than the number of rows/columns to split the heatmap after those indices,
 or a vector of the same length as the number of rows/columns containing the facet memberships. In the latter case names can be used to match with rows/columns.
 Alternatively, if clustering is applied a single numeric value is accepted for the number of clusters to divide the plot into.}
 
-\item{facet_rows_side, facet_cols_side}{Which side the row/column facet strips should be drawn on ('left'/'right', 'top'/'bottom').}
+\item{split_rows_side, split_cols_side}{Which side the row/column facet strips should be drawn on ('left'/'right', 'top'/'bottom').}
 }
 \value{
 The heatmap as a \code{ggplot} object.
