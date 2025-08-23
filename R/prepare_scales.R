@@ -637,7 +637,8 @@ prepare_scales_annot <- function(scale_order, annot_rows_df = NULL, annot_cols_d
 
   for (i in seq_along(lst_in)) {
     # Get annotation names to compare if corresponding names are provided in colour scales list
-    annot_nm <- colnames(lst_in[[i]][[1]])[-which(colnames(lst_in[[i]][[1]]) == ".names")]
+    annot_nm <- setdiff(colnames(lst_in[[i]][[1]])[-which(colnames(lst_in[[i]][[1]]) == ".names")],
+                        c(".row_facets", ".col_facets"))
 
     # Skip ahead if no annotations
     if (is.null(annot_nm)) {next()}

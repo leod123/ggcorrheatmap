@@ -161,4 +161,7 @@ test_that("snapshots are ok", {
              size_range = list(c(6), c(7, 14)),
              legend_order = 1:10)
   })
+  vdiffr::expect_doppelganger("facets", ggcorrhm(mtcars, split_rows = 5, split_cols = 5))
+  vdiffr::expect_doppelganger("facets_layout1", ggcorrhm(mtcars, split_rows = 5, split_cols = 5, layout = "bl"))
+  vdiffr::expect_doppelganger("facets_layout2", ggcorrhm(mtcars, split_rows = 5, split_cols = 5, layout = c("tl", "br")))
 })

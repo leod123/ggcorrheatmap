@@ -12,6 +12,8 @@ ggcorrhm_tidy(
   annot_rows = NULL,
   annot_cols = NULL,
   labels = NULL,
+  facet_rows = NULL,
+  facet_cols = NULL,
   cor_in = TRUE,
   ...
 )
@@ -24,6 +26,8 @@ ggcorrhm_tidy(
 \item{annot_rows, annot_cols}{Columns containing values for row and column annotations.}
 
 \item{labels}{Column to use for cell labels, NULL for no labels, or TRUE to use the cell values. If \code{cor_in} is FALSE, only NULL, TRUE or FALSE is supported.}
+
+\item{facet_rows, facet_cols}{Columns to use for row/column facets.}
 
 \item{cor_in}{Logical indicating if the values are correlation values (TRUE, default) or values to be correlated. See details for more information.}
 

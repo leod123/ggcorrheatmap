@@ -70,7 +70,7 @@
 #' @param annot_names_size Size of annotation names.
 #' @param annot_rows_names_side String specifying which side the row annotation names should be on. Either "top" or "bottom".
 #' @param annot_cols_names_side String specifying which side the column annotation names should be on. Either "left" or "right".
-#' @param annot_rows_name_params,annot_cols_name_params Named list of parameters for row and column annotation names. Given to `grid::textGrob`, see `?grid::textGrob` for details. `?grid::gpar` is also helpful.
+#' @param annot_rows_name_params,annot_cols_name_params Named list of parameters for row and column annotation names. Given to `ggplot2::geom_text()`.
 #' @param cluster_rows,cluster_cols Logical indicating if rows or columns should be clustered. Can also be `hclust` or `dendrogram` objects.
 #' @param cluster_distance String with the distance metric to use for clustering, given to `stats::dist()`.
 #' @param cluster_method String with the clustering method to use, given to `stats::hclust()`.
@@ -84,6 +84,10 @@
 #' @param dend_lty Dendrogram line type, applied to both row and column dendrograms.
 #' @param dend_rows_params,dend_cols_params Named list for row or column dendrogram parameters to overwrite common parameter values. See details for more information.
 #' @param dend_rows_extend,dend_cols_extend Named list or functional sequence for specifying `dendextend` functions to apply to the row or column dendrogram. See details for usage.
+#' @param split_rows,split_cols Vectors for splitting the rows and columns into facets. Can be a numeric vector shorter than the number of rows/columns to split the heatmap after those indices,
+#' or a vector of the same length as the number of rows/columns containing the facet memberships. In the latter case names can be used to match with rows/columns.
+#' Alternatively, if clustering is applied a single numeric value is accepted for the number of clusters to divide the plot into.
+#' @param split_rows_side,split_cols_side Which side the row/column facet strips should be drawn on ('left'/'right', 'top'/'bottom').
 #'
 #' @return The heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),
@@ -193,7 +197,7 @@ gghm <- function(x,
                  annot_border_lty = if (length(border_lty) == 1) border_lty else 1,
                  annot_na_col = na_col, annot_na_remove = na_remove,
                  annot_rows_params = NULL, annot_cols_params = NULL,
-                 show_annot_names = TRUE, annot_names_size = 9,
+                 show_annot_names = TRUE, annot_names_size = 3,
                  annot_rows_names_side = "bottom", annot_cols_names_side = "left",
                  annot_rows_name_params = NULL, annot_cols_name_params = NULL,
                  cluster_rows = FALSE, cluster_cols = FALSE,
@@ -201,7 +205,9 @@ gghm <- function(x,
                  show_dend_rows = TRUE, show_dend_cols = TRUE, dend_rows_side = "right", dend_cols_side = "bottom",
                  dend_col = "black", dend_dist = 0, dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
                  dend_rows_params = NULL, dend_cols_params = NULL,
-                 dend_rows_extend = NULL, dend_cols_extend = NULL) {
+                 dend_rows_extend = NULL, dend_cols_extend = NULL,
+                 split_rows = NULL, split_cols = NULL,
+                 split_rows_side = "right", split_cols_side = "bottom") {
 
   if (!is.matrix(x) & !is.data.frame(x)) cli::cli_abort("{.var x} must be a matrix or data frame.", class = "input_class_error")
 
@@ -275,6 +281,7 @@ gghm <- function(x,
   # Make dendrograms
   # To allow for providing a hclust or dendrogram object when clustering, make a separate logical clustering variable
   lclust_rows <- FALSE
+  row_clustering <- NULL
   if (!isFALSE(cluster_rows)) {
     row_clustering <- cluster_data(cluster_rows, x, cluster_distance, cluster_method, dend_rows_extend)
 
@@ -284,6 +291,7 @@ gghm <- function(x,
   }
 
   lclust_cols <- FALSE
+  col_clustering <- NULL
   if (!isFALSE(cluster_cols)) {
     col_clustering <- cluster_data(cluster_cols, t(x), cluster_distance, cluster_method, dend_cols_extend)
 
@@ -359,6 +367,28 @@ gghm <- function(x,
     }
   }
 
+  # If clustering and facetting the same dimension, cannot show dendrogram
+  facet_already_warned <- FALSE
+  if (!isFALSE(cluster_rows) && !is.null(split_rows)) {
+    show_dend_rows <- FALSE
+  }
+  if (!isFALSE(cluster_cols) && !is.null(split_cols)) {
+    show_dend_cols <- FALSE
+  }
+
+  # Introduce facetting
+  split_rows_names <- split_cols_names <- FALSE
+  if (!is.null(split_rows)) {
+    x_long <- prepare_facets(x_long, x, facet_in = split_rows, layout = layout,
+                             context = "row", dendro = row_clustering)
+    # Hide facet names if facet input is shorter than number of rows, unless data is clustered
+    split_rows_names <- ifelse(length(split_rows) < nrow(x) && isFALSE(cluster_rows), FALSE, TRUE)
+  }
+  if (!is.null(split_cols)) {
+    x_long <- prepare_facets(x_long, x, facet_in = split_cols, layout = layout,
+                             context = "col", dendro = col_clustering)
+    split_cols_names <- ifelse(length(split_cols) < ncol(x) && isFALSE(cluster_cols), FALSE, TRUE)
+  }
 
   # Annotation for rows and columns
   # Default annotation parameters
@@ -370,7 +400,8 @@ gghm <- function(x,
                                           annot_params = annot_rows_params, annot_side = annot_rows_side,
                                           context = "rows", annot_name_params = annot_rows_name_params,
                                           annot_names_size = annot_names_size,
-                                          annot_names_side = annot_rows_names_side, data_size = ncol(x))
+                                          annot_names_side = annot_rows_names_side, data_size = ncol(x),
+                                          x_long = x_long)
     annot_rows_df <- annot_rows_prep[[1]]; annot_rows_params <- annot_rows_prep[[2]];
     annot_rows_pos <- annot_rows_prep[[3]]; annot_rows_name_params <- annot_rows_prep[[4]]
     annot_rows_names_side <- annot_rows_prep[[5]]
@@ -381,7 +412,8 @@ gghm <- function(x,
                                           annot_params = annot_cols_params, annot_side = annot_cols_side,
                                           context = "cols", annot_name_params = annot_cols_name_params,
                                           annot_names_size = annot_names_size,
-                                          annot_names_side = annot_cols_names_side, data_size = nrow(x))
+                                          annot_names_side = annot_cols_names_side, data_size = nrow(x),
+                                          x_long = x_long)
     annot_cols_df <- annot_cols_prep[[1]]; annot_cols_params <- annot_cols_prep[[2]];
     annot_cols_pos <- annot_cols_prep[[3]]; annot_cols_name_params <- annot_cols_prep[[4]]
     annot_cols_names_side <- annot_cols_prep[[5]]
@@ -479,7 +511,9 @@ gghm <- function(x,
                         col_scale = col_scale, size_scale = size_scale,
                         cell_labels = cell_labels, cell_label_col = cell_label_col,
                         cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
-                        cell_bg_col = cell_bg_col, cell_bg_alpha = cell_bg_alpha)
+                        cell_bg_col = cell_bg_col, cell_bg_alpha = cell_bg_alpha,
+                        split_rows_names = split_rows_names, split_cols_names = split_cols_names,
+                        split_rows_side = split_rows_side, split_cols_side = split_cols_side)
     if (isTRUE(show_names_diag)) {
       plt <- add_diag_names(plt = plt, x_long = x_long, names_diag_params = names_diag_params)
     }
@@ -496,7 +530,9 @@ gghm <- function(x,
                         col_scale = col_scale[[1]], size_scale = size_scale[[1]],
                         cell_labels = cell_labels[[1]], cell_label_col = cell_label_col[[1]],
                         cell_label_size = cell_label_size[[1]], cell_label_digits = cell_label_digits[[1]],
-                        cell_bg_col = cell_bg_col[[1]], cell_bg_alpha = cell_bg_alpha[[1]])
+                        cell_bg_col = cell_bg_col[[1]], cell_bg_alpha = cell_bg_alpha[[1]],
+                        split_rows_names = split_rows_names, split_cols_names = split_cols_names,
+                        split_rows_side = split_rows_side, split_cols_side = split_cols_side)
     # Remaining half
     # Add new scales if multiple are provided
     if (isTRUE(col_scale[[1]][["aesthetics"]] == col_scale[[2]][["aesthetics"]])) {

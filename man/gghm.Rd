@@ -52,7 +52,7 @@ gghm(
   annot_rows_params = NULL,
   annot_cols_params = NULL,
   show_annot_names = TRUE,
-  annot_names_size = 9,
+  annot_names_size = 3,
   annot_rows_names_side = "bottom",
   annot_cols_names_side = "left",
   annot_rows_name_params = NULL,
@@ -73,7 +73,11 @@ gghm(
   dend_rows_params = NULL,
   dend_cols_params = NULL,
   dend_rows_extend = NULL,
-  dend_cols_extend = NULL
+  dend_cols_extend = NULL,
+  split_rows = NULL,
+  split_cols = NULL,
+  split_rows_side = "right",
+  split_cols_side = "bottom"
 )
 }
 \arguments{
@@ -193,7 +197,7 @@ the \verb{annot_*_fill} arguments.}
 
 \item{annot_cols_names_side}{String specifying which side the column annotation names should be on. Either "left" or "right".}
 
-\item{annot_rows_name_params, annot_cols_name_params}{Named list of parameters for row and column annotation names. Given to \code{grid::textGrob}, see \code{?grid::textGrob} for details. \code{?grid::gpar} is also helpful.}
+\item{annot_rows_name_params, annot_cols_name_params}{Named list of parameters for row and column annotation names. Given to \code{ggplot2::geom_text()}.}
 
 \item{cluster_rows, cluster_cols}{Logical indicating if rows or columns should be clustered. Can also be \code{hclust} or \code{dendrogram} objects.}
 
@@ -220,6 +224,12 @@ the \verb{annot_*_fill} arguments.}
 \item{dend_rows_params, dend_cols_params}{Named list for row or column dendrogram parameters to overwrite common parameter values. See details for more information.}
 
 \item{dend_rows_extend, dend_cols_extend}{Named list or functional sequence for specifying \code{dendextend} functions to apply to the row or column dendrogram. See details for usage.}
+
+\item{split_rows, split_cols}{Vectors for splitting the rows and columns into facets. Can be a numeric vector shorter than the number of rows/columns to split the heatmap after those indices,
+or a vector of the same length as the number of rows/columns containing the facet memberships. In the latter case names can be used to match with rows/columns.
+Alternatively, if clustering is applied a single numeric value is accepted for the number of clusters to divide the plot into.}
+
+\item{split_rows_side, split_cols_side}{Which side the row/column facet strips should be drawn on ('left'/'right', 'top'/'bottom').}
 }
 \value{
 The heatmap as a \code{ggplot} object.

@@ -25,7 +25,11 @@ make_heatmap(
   cell_label_size = 3,
   cell_label_digits = 2,
   cell_bg_col = "white",
-  cell_bg_alpha = 0
+  cell_bg_alpha = 0,
+  split_rows_names = FALSE,
+  split_cols_names = FALSE,
+  split_rows_side = "right",
+  split_cols_side = "bottom"
 )
 }
 \arguments{
@@ -70,6 +74,10 @@ make_heatmap(
 \item{cell_bg_col}{Cell background colour (fill).}
 
 \item{cell_bg_alpha}{Cell background alpha.}
+
+\item{split_rows_names, split_cols_names}{Logicals indicating if the facet names should be shown (if plot is built from scratch).}
+
+\item{split_rows_side, split_cols_side}{Sides to put the facet strips.}
 }
 \value{
 ggplot object with heatmap component.

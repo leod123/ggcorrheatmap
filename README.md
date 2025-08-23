@@ -86,6 +86,7 @@ articles of the package:
   heatmaps](https://leod123.github.io/ggcorrheatmap/articles/correlation.html)
 - [Annotation](https://leod123.github.io/ggcorrheatmap/articles/annotation.html)
 - [Clustering](https://leod123.github.io/ggcorrheatmap/articles/clustering.html)
+- [Facets](https://leod123.github.io/ggcorrheatmap/articles/facets.html)
 - [Mixed
   layouts](https://leod123.github.io/ggcorrheatmap/articles/mixed.html)
 - [Scales and

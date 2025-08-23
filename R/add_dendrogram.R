@@ -168,6 +168,37 @@ prepare_dendrogram <- function(dendro_in, context = c("rows", "cols"), dend_side
   dend_nod[["cex"]][is.na(dend_nod[["cex"]])] <- 1
   dend_nod[["col"]][is.na(dend_nod[["col"]])] <- "black"
 
+  # Add facetting columns
+  if (context[1] == "rows") {
+    if (".col_facets" %in% colnames(x_long)) {
+      # First or last facet, depending on dendrogram side
+      facet_to_add <- if (ldend_side) {
+        levels(x_long[[".col_facets"]])[1]
+      } else {
+        levels(x_long[[".col_facets"]])[length(levels(x_long[[".col_facets"]]))]
+      }
+      dend_seg[[".col_facets"]] <- facet_to_add
+
+      if (nrow(dend_nod) > 0) {
+        dend_nod[[".col_facets"]] <- facet_to_add
+      }
+    }
+  } else {
+    # For column dendrogram, use the first facet instead
+    if (".row_facets" %in% colnames(x_long)) {
+      facet_to_add <- if (ldend_side) {
+        levels(x_long[[".row_facets"]])[length(levels(x_long[[".row_facets"]]))]
+      } else {
+        levels(x_long[[".row_facets"]])[1]
+      }
+      dend_seg[[".row_facets"]] <- facet_to_add
+
+      if (nrow(dend_nod) > 0) {
+        dend_nod[[".row_facets"]] <- facet_to_add
+      }
+    }
+  }
+
   return(list("seg" = dend_seg, "nod" = dend_nod, "params" = dend_params))
 }
 
@@ -363,8 +394,17 @@ orient_dendrogram <- function(dend, dim = c("rows", "cols"), full_plt, layout, d
 #'
 move_dendrogram <- function(dend_seg, x_long, context = c("rows", "cols"), dend_side, dend_dist,
                             annot_df, annot_side, annot_pos, annot_size) {
+  .row_facets <- .col_facets <- NULL
 
   if (context[1] == "rows") {
+    # If plot has column facets, put in last facet (if on the right side)
+    if (".col_facets" %in% colnames(x_long) && !dend_side) {
+      last_level <- levels(x_long[[".col_facets"]])[length(levels(x_long[[".col_facets"]]))]
+      data_size <- length(unique(dplyr::pull(dplyr::filter(x_long, .col_facets == last_level), "col")))
+    } else {
+      data_size <- length(unique(x_long[["col"]]))
+    }
+
     xmove <- ifelse(
       dend_side,
       # Dendrograms on the left. If there is no annotation start at 0.5 (center of leftmost cell is at 1, move half a cell left)
@@ -377,13 +417,22 @@ move_dendrogram <- function(dend_seg, x_long, context = c("rows", "cols"), dend_
       ifelse(    # Dendrograms on the right, annotation right of plot or not
         is.data.frame(annot_df) & !annot_side,
         max(annot_pos) + 0.5 * annot_size - min(c(dend_seg$x, dend_seg$xend)),
-        length(unique(x_long$col)) + 0.5 - min(c(dend_seg$x, dend_seg$xend))
+        data_size + 0.5 - min(c(dend_seg$x, dend_seg$xend))
       ) + dend_dist
     )
 
     ymove <- length(unique(x_long$row)) - max(c(dend_seg$y, dend_seg$yend))
 
   } else {
+
+    # Deal with row facets
+    if (".row_facets" %in% colnames(x_long) && !dend_side) {
+      # First facet instead as y axis is flipped
+      last_level <- levels(x_long[[".row_facets"]])[1]
+      data_size <- length(unique(dplyr::pull(dplyr::filter(x_long, .row_facets == last_level), "row")))
+    } else {
+      data_size <- length(unique(x_long[["row"]]))
+    }
 
     xmove <- 1 - min(c(dend_seg$x, dend_seg$xend))
 
@@ -398,7 +447,7 @@ move_dendrogram <- function(dend_seg, x_long, context = c("rows", "cols"), dend_
       ifelse(    # Dendrogram above heatmap, annotation or not
         is.data.frame(annot_df) & !annot_side,
         max(annot_pos) + 0.5 * annot_size - min(c(dend_seg$y, dend_seg$yend)),
-        length(unique(x_long$row)) + 0.5 - min(c(dend_seg$y, dend_seg$yend))
+        data_size + 0.5 - min(c(dend_seg$y, dend_seg$yend))
       ) + dend_dist
     )
   }

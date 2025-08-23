@@ -72,6 +72,26 @@ mtcars_long %>%
             cluster_rows = TRUE, cluster_cols = TRUE)
 ```
 
+When introducing gaps the `facet_rows` and `facet_cols` arguments allow for facet membership specification using columns in the input. It is still possible to specify the splits with the `split_rows` and `split_cols` arguments for the same behaviour as in `gghm()`.
+
+```{r, fig.alt='Two mtcars heatmaps. The first one has two row splits and one column split with facet labels, and the rows and column are in a different order from the raw data. The second heatmap has one row and one column split with no facet labels.'}
+plt1 <- mtcars_long %>%
+  # Use the annotations as facets
+  left_join(row_key, by = "cars") %>%
+  left_join(col_key, by = "vars") %>%
+  # Change facet order for rows
+  mutate(b = factor(b, levels = letters[1:3])) %>%
+  gghm_tidy(cars, vars, vals,
+            facet_rows = b, facet_cols = d)
+
+plt2 <- gghm_tidy(mtcars_long,
+                  cars, vars, vals,
+                  split_rows = 16,
+                  split_cols = 6)
+
+plt1 + plt2
+```
+
 
 ## Correlation heatmaps
 
@@ -81,7 +101,7 @@ The `cor_long()` function can be used to calculate correlations from long format
 
 ```{r, fig.alt='A correlation heatmap of the mtcars data, with colours going from blue (-1) to white (0) to red (1). Names are written along the diagonal.'}
 ggcorrhm(
-  cor_long(mtcars_long, cars, vars, vals),
+  cor_long(mtcars_long, cars, vars, vals, out_format = "wide"),
   # Specify that the input contains correlation values
   cor_in = TRUE
 )

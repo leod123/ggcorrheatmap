@@ -4,11 +4,19 @@
 
 * The scale-modifying arguments `bins`, `limits`, `high`, `mid`, `low`, and `size_range` can now take two inputs in mixed layouts.
 
+* The new `scale_data()` argument allows for scaling rows or columns.
+
 * The new `gghm_tidy()` and `ggcorrhm_tidy()` functions can make heatmaps from long format data using tidy input.
 
 * The new `cor_long()` function makes it convenient to calculate correlations from long format data.
 
 * The new `add_mixed_layout()` function can add mixed layout labels to long format data to aid in cell label creation.
+
+* The new `split_rows` and `split_cols` arguments can be used to add gaps to the heatmap via facetting.
+
+## Breaking changes
+
+* The `annot_rows_name_params` and `annot_cols_name_params` arguments now take lists of static aesthetics for `ggplot2::geom_text()` instead of `ggplot2::annotation_custom()`.
 
 ## Minor fixes
 

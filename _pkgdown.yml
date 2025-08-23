@@ -26,6 +26,7 @@ articles:
   - articles/correlation
   - articles/annotation
   - articles/clustering
+  - articles/facets
   - articles/mixed
   - articles/legends
   - articles/tidy_input

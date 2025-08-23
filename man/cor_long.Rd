@@ -13,7 +13,7 @@ cor_long(
   rows2 = NULL,
   cols2 = NULL,
   values2 = NULL,
-  out_format = c("wide", "long"),
+  out_format = c("long", "wide"),
   method = "pearson",
   use = "everything",
   p_values = FALSE,

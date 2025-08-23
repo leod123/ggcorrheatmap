@@ -190,6 +190,15 @@ gghm(mtcars[1:15, ], cluster_rows = TRUE, scale_data = "col",
      annot_rows_df = row_annot, annot_rows_names_side = "top")
 ```
 
+# Gaps
+
+Gaps can be added (via facets) to highlight specific groups in the data. The `split_rows` and `split_cols` arguments take facet specifications of different forms, explained more in the [facets](facets.html) article.
+
+```{r, fig.alt='A heatmap of the mtcars data. The rows are split into three groups after rows 10 and 20 and the columns are split into two groups after column 5.'}
+gghm(mtcars, split_rows = c(10, 20), split_cols = 5)
+```
+
+
 # Cell labels
 
 Cell labels can be displayed by using the `cell_labels` argument which takes either a logical or a matrix or data frame. If logical, the cell values are displayed. If a matrix/data frame, those values are used instead. The matrix should contain the same row and column names as the input, any rows or columns with different names or cells with NAs will be silently dropped.
