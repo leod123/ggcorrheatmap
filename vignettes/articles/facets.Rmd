@@ -17,7 +17,7 @@ library(patchwork)
 
 Gaps can be introduced into heatmaps with the `split_rows` and `split_cols` arguments (the gaps are made by adding facets to the plot). The simplest way to use these arguments is to provide numeric vectors with the indices of the positions to split at (counting from the top for rows and left for columns).
 
-```{r}
+```{r, fig.alt='Two heatmaps of the mtcars data. The second one has gaps after rows 10 and 20 and column 6.'}
 plt1 <- gghm(mtcars, legend_order = NA)
 
 plt2 <- gghm(mtcars, legend_order = NA,
@@ -30,7 +30,7 @@ Without facets, the heatmaps use `ggplot2::coord_fixed()` to make the cells squa
 
 When `split_rows` and `split_cols` are shorter than the number of rows or columns, respectively, they work as shown above. It is also possible to provide vectors of the same lengths as the corresponding dimensions. In this case they are treated as the facet memberships for the rows or columns and the facet names are displayed as well. `split_rows_side` and `split_cols_side` change the sides where the names are displayed.
 
-```{r}
+```{r, fig.alt='A heatmap of the mtcars data with gaps at rows 10 and 20 and column 6. The groups of rows created by the gaps are labelled AAA, BB, and C, while the column groups are labelled 123 and 456.'}
 gghm(mtcars,
      # Two facets '123' and '456' for columns
      split_cols = c(rep(123, 6), rep(456, 5)),
@@ -40,7 +40,7 @@ gghm(mtcars,
 
 Rows or columns may end up in a different order compared to the input depending on the facetting (e.g. disp is in the second facet in the first plot below even though it's the third column in the input). Within each facet the rows/columns will be ordered as they were in the input as far as possible. The facets themselves are ordered by the order of appearance in the `split_rows` and `split_cols` vectors. If they are factor vectors the levels will decide the order.
 
-```{r}
+```{r, fig.alt='Two mtcars heatmaps, the first one split at rows 12 and 23 and column 7. The column row groups are named C, BB, and AAA and the column groups 123 and 456. The second heatmap has the same splits but in a different order (BB, AAA, C in the rows and 456, 123 in the columns). The rows and columns are in a different order from the mtcars data due to being in different groups.'}
 # Make a more jumbled facet membership vector
 set.seed(123)
 row_facets <- sample(c("AAA", "BB", "C"), 32, TRUE)
@@ -63,7 +63,7 @@ plt1 + plt2
 
 It is also possible to provide a named facet membership vector (where the names are the row/column names of the input). The facet memberships are then matched with the names so that the order does not matter. Below is an example of facetting by clusters (which only bunches together the rows or columns by cluster but does not reorder according to the clustering within the clusters).
 
-```{r}
+```{r, fig.alt='mtcars correlation heatmap with the rows in three groups and columns in two, based on clustering. The row groups are labelled 1, 2, and 3 and the columns 1 and 2.'}
 # Perform hierarchical clustering and make clusters using the stats::cutree() function
 # Luckily the output is a named vector of cluster memberships
 row_clust <- cutree(hclust(dist(scale(mtcars))), 3)
@@ -76,7 +76,7 @@ gghm(mtcars, scale_data = "col",
 
 When the heatmap is symmetric (for example a correlation heatmap), it is recommended to specify facets using indices (or using the same facet membership vector) as the heatmap may become asymmetric if the rows and columns end up in a different order because of the facets.
 
-```{r, fig.height=7, fig.width=6.3}
+```{r, fig.height=7, fig.width=6.3, fig.alt='Three mtcars correlation heatmaps. The first one has gaps at row 5 and column 5. The second one has the same splits but the column groups have switched place, resulting in the diagonal running from the top left to the bottom right in the top right and bottom left groups. The third heatmap has the row and column orders all jumbled and the diagonal not along the diagonal anymore.'}
 # Just using indices
 plt1 <- ggcorrhm(mtcars, split_rows = 5, split_cols = 5, legend_order = NA) +
   labs(title = "Same facets")
@@ -101,7 +101,7 @@ plt1 + plt2 + plt3 + plot_layout(design = "#AA#\nBBCC")
 
 If the symmetric heatmap uses a layout where the y axis is flipped (top left or bottom right layouts), the rows are counted from the bottom.
 
-```{r, fig.height=3, fig.width=8}
+```{r, fig.height=3, fig.width=8, fig.alt='Two mtcars correlation heatmaps showing only the bottom left and bottom right triangle, respectively. The first one has a row split at row 2 and a column split at column 2. The second one has a column split at row 9 instead (2 from the bottom) with the columns in the opposite order compared to the first heatmap.'}
 # Two from the top
 plt1 <- ggcorrhm(mtcars, split_rows = 2, split_cols = 2,
                  layout = "bl")
@@ -116,7 +116,7 @@ plt1 + plt2
 
 `ggplot2` functions can be used to change the gap sizes and how the facet names look.
 
-```{r}
+```{r, fig.alt='A 20x20 heatmap with a gradient of values going from low in the top left to high in the bottom right. The rows and columns are each divided into 4 facets named a, b, c, and d (rows) and A, B, C, and D (columns). The column gaps are larger than the row gaps. The row facet labels on the right are grey with dashed outlines and the column group labels at the bottom are light blue.'}
 # Make gradient data for plotting
 plt_dat <- sapply(seq(1, 20), function(x) {
   seq(x, x + 19)
@@ -140,7 +140,7 @@ gghm(plt_dat,
 
 The `split_rows_side` and `split_cols_side` arguments control the sides of the facet strips.
 
-```{r}
+```{r, fig.alt='The same heatmap as in the previous figure. The row and column facets labels are moved to the left and top, respectively.'}
 gghm(plt_dat,
      split_rows_side = "left", split_cols_side = "top",
      split_rows = rep(letters[1:4], each = 5),
@@ -160,7 +160,7 @@ gghm(plt_dat,
 
 If clustering is applied, `split_rows` and `split_cols` work differently and only take single numeric values. The number is given to `stats::cutree()` to divide the data into clusters that then define the facets of the plot. In this case the dendrograms cannot be shown.
 
-```{r}
+```{r, fig.alt='Two mtcars heatmaps with scaled columns and clustered in both directions. The first plot has dendrograms for the row and column clusterings. The second heatmap has no dendrograms but the rows and columns are grouped into 3 and 2 groups, respectively, highlighting clusters.'}
 plt1 <- gghm(mtcars, scale_data = "col", col_scale = "A",
              cluster_rows = TRUE, cluster_cols = TRUE)
 
@@ -173,7 +173,7 @@ plt1 + plt2
 
 When annotation is added, the annotation will also be split into the facets.
 
-```{r, fig.height=7, fig.width=5.5}
+```{r, fig.height=7, fig.width=5.5, fig.alt='A heatmap of the volcano data with 1 row gap in the middle and 5 column gaps (at around 10 column intervals). There are two row and two column annotations, both with splits like in the heatmap (1 in the row and 5 in the column annotations).'}
 set.seed(123)
 gghm(volcano,
      split_rows = 45,
@@ -190,7 +190,7 @@ gghm(volcano,
 
 When annotations exist in the rows while the columns are facetted (or vice versa), the annotations are placed in the first or last facet depending on the side. Unfortunately this means that the facet strip will be stretched to fit the annotations too.
 
-```{r}
+```{r, fig.alt='A correlation heatmap of mtcars. The rows and columns are split at indices 3 and 7 and there are three row annotations. The facets are labelled with pink rectangles. The right-most column facet stretches to include the row annotations too.'}
 facet_mem <- c(rep("A", 3), rep("B", 4), rep("C", 4))
 ggcorrhm(mtcars, split_rows = facet_mem, split_cols = facet_mem,
          annot_rows_df = data.frame(.names = colnames(mtcars),

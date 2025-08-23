@@ -194,7 +194,7 @@ gghm(mtcars[1:15, ], cluster_rows = TRUE, scale_data = "col",
 
 Gaps can be added (via facets) to highlight specific groups in the data. The `split_rows` and `split_cols` arguments take facet specifications of different forms, explained more in the [facets](facets.html) article.
 
-```{r}
+```{r, fig.alt='A heatmap of the mtcars data. The rows are split into three groups after rows 10 and 20 and the columns are split into two groups after column 5.'}
 gghm(mtcars, split_rows = c(10, 20), split_cols = 5)
 ```
 
