@@ -102,14 +102,14 @@ test_that("snapshots", {
                                    annot_dist = 2, annot_size = 1, annot_gap = 1,
                                    annot_cols_params = list(dist = .3, size = .5, gap = .1),
                                    dend_dist = 1, dend_cols_params = list(dist = 0.1)))
-  vdiffr::expect_doppelganger("gaps", gghm(mtcars, facet_rows = 16, facet_cols = 5))
-  vdiffr::expect_doppelganger("more_gaps", gghm(mtcars, facet_rows = c(rep("A", 11), rep("B", 11), rep("C", 10)),
-                                                facet_cols = c(rep(1, 5), rep(2, 6))))
+  vdiffr::expect_doppelganger("gaps", gghm(mtcars, split_rows = 16, split_cols = 5))
+  vdiffr::expect_doppelganger("more_gaps", gghm(mtcars, split_rows = c(rep("A", 11), rep("B", 11), rep("C", 10)),
+                                                split_cols = c(rep(1, 5), rep(2, 6))))
   vdiffr::expect_doppelganger("gaps_with_clustering", gghm(mtcars, scale_data = "col",
-                                                           facet_rows = 3, facet_cols = 2,
+                                                           split_rows = 3, split_cols = 2,
                                                            cluster_rows = TRUE, cluster_cols = TRUE))
   vdiffr::expect_doppelganger("more_gaps_with_more_stuff",
-                              gghm(volcano, facet_rows = 45, facet_cols = 30,
+                              gghm(volcano, split_rows = 45, split_cols = 30,
                                    annot_rows_df = data.frame(a = 1:87, b = 87:1),
                                    annot_cols_df = data.frame(c = 1:61, d = 61:1),
                                    border_col = 0))
@@ -347,19 +347,21 @@ test_that("other_class_checks", {
 })
 
 test_that("facet_conditions", {
-  expect_warning(gghm(mtcars, facet_rows = 16, facet_rows_side = "a"), class = "facet_side_warn")
-  expect_warning(gghm(mtcars, facet_cols = 5, facet_cols_side = 1), class = "facet_side_warn")
-  expect_no_warning(gghm(mtcars, facet_rows = 16, facet_cols_side = "asdf"))
-  expect_error(gghm(mtcars, cluster_rows = TRUE, facet_rows = c(10, 20)), class = "facet_clust_error")
-  expect_warning(gghm(mtcars, facet_cols = c("mpg" = 3, "disp" = 5)), class = "facet_names_warn")
+  expect_warning(gghm(mtcars, split_rows = 16, split_rows_side = "a"), class = "facet_side_warn")
+  expect_warning(gghm(mtcars, split_cols = 5, split_cols_side = 1), class = "facet_side_warn")
+  expect_no_warning(gghm(mtcars, split_rows = 16, split_cols_side = "asdf"))
+  expect_error(gghm(mtcars, cluster_rows = TRUE, split_rows = c(10, 20)), class = "facet_clust_error")
+  expect_warning(gghm(mtcars, split_cols = c("mpg" = 3, "disp" = 5)), class = "facet_names_warn")
   fc <- rep(1:3, 4)[1:11] # make vector where names are the colnames, but one has been changed
   names(fc) <- colnames(mtcars)
   names(fc)[1] <- "a"
-  expect_warning(gghm(mtcars, facet_cols = fc), class = "facet_names_warn")
-  expect_error(gghm(mtcars, facet_rows = "asdf"), class = "invalid_facet_input_error")
-  expect_error(gghm(mtcars, facet_rows = data.frame()), class = "invalid_facet_input_error")
-  expect_error(gghm(mtcars, facet_cols = c(1, 4, 2)), class = "facet_ind_error")
-  expect_error(gghm(mtcars, facet_rows = c(-2, -1, 0)), class = "facet_ind_error")
+  expect_warning(gghm(mtcars, split_cols = fc), class = "facet_names_warn")
+  expect_error(gghm(mtcars, split_rows = "asdf"), class = "invalid_facet_input_error")
+  expect_error(gghm(mtcars, split_rows = data.frame()), class = "invalid_facet_input_error")
+  expect_no_error(gghm(mtcars, split_cols = c(1, 4, 2)))
+  expect_error(gghm(mtcars, split_cols = c(1, 2, 2)), class = "facet_ind_error")
+  expect_error(gghm(mtcars, split_cols = c(1, 1.4, 1.6, 1.9)), class = "facet_ind_error")
+  expect_error(gghm(mtcars, split_rows = c(-2, -1, 0)), class = "facet_ind_error")
 })
 
 test_that("annotation names must exist in the data", {
