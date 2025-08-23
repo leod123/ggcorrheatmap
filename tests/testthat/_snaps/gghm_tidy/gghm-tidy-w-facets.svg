@@ -471,7 +471,7 @@
 <text x='80.33' y='425.89' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='48.91px' lengthAdjust='spacingAndGlyphs'>Camaro Z28</text>
 <text x='80.33' y='410.66' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='49.40px' lengthAdjust='spacingAndGlyphs'>AMC Javelin</text>
 <rect x='666.12' y='243.74' width='48.40' height='112.69' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<text x='671.60' y='257.94' style='font-size: 11.00px; font-family: sans;' textLength='26.30px' lengthAdjust='spacingAndGlyphs'>value</text>
+<text x='671.60' y='257.94' style='font-size: 11.00px; font-family: sans;' textLength='19.57px' lengthAdjust='spacingAndGlyphs'>vals</text>
 <image width='17.28' height='86.40' x='671.60' y='264.56' preserveAspectRatio='none' xlink:href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAEsCAYAAAACUNnVAAAAmElEQVQ4ja2UQRLDMAgDd3hk/tnX5agcknFaCoa0vnkMCEnGsL12GQhDYDpPwoDrpBFlRDWi/9Wu6AHC9FkLYLrzlhD3oJ3mDvRHRYy7IC8A7bCK8gpWKYDzeQVArDcDyD2YAnSofZvzaOA6Q7Oahp/dmRuVTQ0xU5TGP2o8Waool1obVuv1q8qP9xPvg633XlGLDtfIhNUBcBeA5ss0BXMAAAAASUVORK5CYII='/>
 <polyline points='685.42,350.81 688.88,350.81 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
 <polyline points='685.42,332.57 688.88,332.57 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />

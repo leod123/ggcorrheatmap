@@ -65,6 +65,14 @@ gghm_tidy <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, a
   # The input parameters for possibly overwriting some
   gghm_in <- list(...)
 
+  # If col_name and size_name are not specified, use the name of the variable column
+  if (!"col_name" %in% names(gghm_in)) {
+    gghm_in[["col_name"]] <- colnames(x_long)[3]
+  }
+  if (!"size_name" %in% names(gghm_in)) {
+    gghm_in[["size_name"]] <- colnames(x_long)[3]
+  }
+
   # Convert to wide format
   colnames(x_long)[1:3] <- c("row", "col", "value")
   x_long <- as.data.frame(x_long)
@@ -352,7 +360,7 @@ ggcorrhm_tidy <- function(x, rows, cols, values, annot_rows = NULL, annot_cols =
 #'
 cor_long <- function(x, rows, cols, values,
                      y = NULL, rows2 = NULL, cols2 = NULL, values2 = NULL,
-                     out_format = c("wide", "long"),
+                     out_format = c("long", "wide"),
                      method = "pearson", use = "everything",
                      p_values = FALSE, p_adjust = "none",
                      p_thresholds = c("***" = 0.001, "**" = 0.01, "*" = 0.05, 1),

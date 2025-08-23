@@ -516,7 +516,7 @@
 <text x='80.33' y='494.08' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='45.99px' lengthAdjust='spacingAndGlyphs'>Mazda RX4</text>
 <text x='80.33' y='479.12' text-anchor='end' style='font-size: 8.80px; fill: #4D4D4D; font-family: sans;' textLength='46.45px' lengthAdjust='spacingAndGlyphs'>Ferrari Dino</text>
 <rect x='652.19' y='137.37' width='41.54' height='112.69' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<text x='657.67' y='151.57' style='font-size: 11.00px; font-family: sans;' textLength='26.30px' lengthAdjust='spacingAndGlyphs'>value</text>
+<text x='657.67' y='151.57' style='font-size: 11.00px; font-family: sans;' textLength='19.57px' lengthAdjust='spacingAndGlyphs'>vals</text>
 <image width='17.28' height='86.40' x='657.67' y='158.19' preserveAspectRatio='none' xlink:href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAEsCAYAAAACUNnVAAAAmElEQVQ4ja2UQRLDMAgDd3hk/tnX5agcknFaCoa0vnkMCEnGsL12GQhDYDpPwoDrpBFlRDWi/9Wu6AHC9FkLYLrzlhD3oJ3mDvRHRYy7IC8A7bCK8gpWKYDzeQVArDcDyD2YAnSofZvzaOA6Q7Oahp/dmRuVTQ0xU5TGP2o8Waool1obVuv1q8qP9xPvg633XlGLDtfIhNUBcBeA5ss0BXMAAAAASUVORK5CYII='/>
 <polyline points='671.49,229.64 674.95,229.64 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
 <polyline points='671.49,212.71 674.95,212.71 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
