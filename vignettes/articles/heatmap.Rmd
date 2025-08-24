@@ -255,13 +255,17 @@ plot_list <- gghm(scale(mtcars), return_data = TRUE, border_col = NA,
 plot_list$plot_data$lab <- ntile(plot_list$plot_data$value, 5)
 
 plt1 <- plot_list$plot +
-  geom_text(aes(label = lab), plot_list$plot_data, size = 3)
+  # Use col for x and row for y
+  geom_text(mapping = aes(x = col, y = row, label = lab),
+            data = plot_list$plot_data, size = 3)
 
 # Or maybe points (cell_labels uses `geom_text` so the asterisks would not be positioned in the middle of the cells)
 plot_list$plot_data$lab <- ifelse(plot_list$plot_data$value > 1 |
                                   plot_list$plot_data$value < -1, "*", NA)
 plt2 <- plot_list$plot +
-  geom_point(data = subset(plot_list$plot_data, !is.na(lab)), shape = "*", size = 4)
+  geom_point(data = subset(plot_list$plot_data, !is.na(lab)),
+             mapping = aes(x = col, y = row),
+             shape = "*", size = 4)
 
 plt1 + plt2
 ```

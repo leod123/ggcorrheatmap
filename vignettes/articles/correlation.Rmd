@@ -217,7 +217,7 @@ p$plot_data <- mutate(p$plot_data,
                       p_size = -log10(p_adj))
 ggcorrhm(mtcars, border_lty = p$plot_data$p_lty, border_lwd = p$plot_data$p_lwd,
          layout = "br", include_diag = FALSE) +
-  geom_point(aes(size = p_size), data = p$plot_data %>%
+  geom_point(aes(x = col, y = row, size = p_size), data = p$plot_data %>%
                filter(p_adj < 0.05, as.character(row) != as.character(col)),
              shape = "*") +
   scale_size(range = c(4, 8)) +
@@ -232,6 +232,7 @@ ggcorrhm(mtcars, layout = "tl", include_diag = FALSE) +
   geom_point(data = p$plot_data %>%
                # Mark cells above a threshold
                filter(p_adj >= 0.05, as.character(row) != as.character(col)),
+             mapping = aes(x = col, y = row),
              shape = 4, size = 8)
 ```
 
