@@ -141,6 +141,19 @@ make_facet_vector <- function(facet_in, len) {
   return(vec_out)
 }
 
+
+#' Prepare facets for gghm_tidy
+#'
+#' @keywords internal
+#'
+#' @param x Input long format data frame.
+#' @param id_col Column containing IDs (rows or column names).
+#' @param facet_col Column containing facet memberships.
+#' @param params Input arguments for gghm (passed to ...).
+#' @param context Context for facets (row or column).
+#'
+#' @returns Vector containing facet membersips.
+#'
 prepare_facets_tidy <- function(x, id_col, facet_col, params, context = c("row", "column")) {
   # Short context to use in conjunction with full context
   ctx <- substr(context[1], 1, 3)

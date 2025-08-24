@@ -55,6 +55,8 @@ gghm(
   annot_names_size = 3,
   annot_rows_names_side = "bottom",
   annot_cols_names_side = "left",
+  annot_rows_names_params = NULL,
+  annot_cols_names_params = NULL,
   annot_rows_name_params = NULL,
   annot_cols_name_params = NULL,
   cluster_rows = FALSE,
@@ -197,7 +199,9 @@ the \verb{annot_*_fill} arguments.}
 
 \item{annot_cols_names_side}{String specifying which side the column annotation names should be on. Either "left" or "right".}
 
-\item{annot_rows_name_params, annot_cols_name_params}{Named list of parameters for row and column annotation names. Given to \code{ggplot2::geom_text()}.}
+\item{annot_rows_names_params, annot_cols_names_params}{Named list of parameters for row and column annotation names. Given to \code{ggplot2::geom_text()}.}
+
+\item{annot_rows_name_params, annot_cols_name_params}{Deprecated, kept for backward compatibility. Named list of parameters given to \code{grid::textGrob()} for annotation names.}
 
 \item{cluster_rows, cluster_cols}{Logical indicating if rows or columns should be clustered. Can also be \code{hclust} or \code{dendrogram} objects.}
 

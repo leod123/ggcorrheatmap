@@ -17,7 +17,8 @@ add_annotation(
   na_remove = FALSE,
   col_scale = NULL,
   names_side,
-  name_params = NULL
+  name_params = NULL,
+  names_strategy = "geom"
 )
 }
 \arguments{
@@ -49,7 +50,9 @@ Each element should either be a \verb{scale_fill_*} object or a string specifyin
 
 \item{names_side}{String specifying which side the labels should be drawn on. "top" or "bottom" for row annotation, "left" or "right" for column annotation.}
 
-\item{name_params}{A named list of parameters to give \code{grid::textGrob} to modify annotation label appearance.}
+\item{name_params}{A named list of parameters to give to \code{ggplot2::geom_text} or \code{grid::textGrob} to modify annotation label appearance.}
+
+\item{names_strategy}{String stating which strategy to use for drawing names (geom, grid).}
 }
 \value{
 \code{ggplot} object with added annotations.

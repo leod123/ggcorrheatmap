@@ -69,7 +69,7 @@ test_that("snapshots", {
                                                         annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11, b = 11:1),
                                                         annot_rows_names_side = "top",
                                                         annot_names_size = 3,
-                                                        annot_rows_name_params = list(colour = "red", vjust = 0, angle = 45)) +
+                                                        annot_rows_names_params = list(colour = "red", vjust = 0, angle = 45)) +
                                 ggplot2::theme(axis.text.x.top = ggplot2::element_text(angle = 45, vjust = 0)))
   vdiffr::expect_doppelganger("clustering_extended",
                               gghm(scale(mtcars), cluster_rows = TRUE, cluster_cols = TRUE,
@@ -297,7 +297,7 @@ test_that("some_dendrogram_conditions", {
                     dend_rows_params = list(height = 1)),
                class = "dend_nonnum_error")
   expect_error(gghm(mtcars, annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:32, b = 32:1),
-                    annot_rows_name_params = 1),
+                    annot_rows_names_params = 1),
                class = "annot_name_params_class_error")
   # Annotation and dendrogram parameters, input class
   expect_warning(gghm(cor(mtcars), annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11, b = 5:15),
@@ -392,4 +392,34 @@ test_that("mixed_layout_errors", {
   expect_error(gghm(cor(mtcars), layout = c("tl", "br"), mode = "heatmap"), class = "layout_mode_len_error")
   expect_error(gghm(cor(mtcars), layout = c("too", "many", "layouts", "!")), class = "layout_mode_len_error")
   expect_error(gghm(cor(mtcars), layout = c("tl", "br"), border_col = c()), class = "param_len_error")
+})
+
+test_that("deprecated_annot_name_params", {
+  expect_no_warning(gghm(mtcars,
+                         annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:32, b = 32:1),
+                         annot_cols_df = data.frame(.names = colnames(mtcars), c = 1:11, d = 11:1),
+                         annot_rows_names_params = list(colour = "red"),
+                         annot_cols_names_params = list(angle = 300)))
+  expect_warning(gghm(mtcars,
+                      annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:32, b = 32:1),
+                      annot_cols_df = data.frame(.names = colnames(mtcars), c = 1:11, d = 11:1),
+                      annot_rows_name_params = list(rot = 100)),
+                 class = "annot_names_depr")
+  expect_warning(gghm(mtcars,
+                      annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:32, b = 32:1),
+                      annot_cols_df = data.frame(.names = colnames(mtcars), c = 1:11, d = 11:1),
+                      annot_cols_name_params = list(rot = 50)),
+                 class = "annot_names_depr")
+  expect_warning(gghm(mtcars,
+                      annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:32, b = 32:1),
+                      annot_cols_df = data.frame(.names = colnames(mtcars), c = 1:11, d = 11:1),
+                      annot_rows_name_params = list(rot = 100),
+                      annot_rows_names_params = list(colour = "green")),
+                 class = "annot_names_depr_both")
+  expect_warning(gghm(mtcars,
+                      annot_rows_df = data.frame(.names = rownames(mtcars), a = 1:32, b = 32:1),
+                      annot_cols_df = data.frame(.names = colnames(mtcars), c = 1:11, d = 11:1),
+                      annot_cols_name_params = list(rot = 100),
+                      annot_cols_names_params = list(colour = "green")),
+                 class = "annot_names_depr_both")
 })
