@@ -37,6 +37,7 @@
     <li><a class="dropdown-item" href="../articles/correlation.html">Correlation heatmaps</a></li>
     <li><a class="dropdown-item" href="../articles/annotation.html">Annotation</a></li>
     <li><a class="dropdown-item" href="../articles/clustering.html">Clustering</a></li>
+    <li><a class="dropdown-item" href="../articles/facets.html">Facets</a></li>
     <li><a class="dropdown-item" href="../articles/mixed.html">Mixed layouts</a></li>
     <li><a class="dropdown-item" href="../articles/legends.html">Scales and legends</a></li>
     <li><a class="dropdown-item" href="../articles/tidy_input.html">Using tidy data</a></li>
@@ -144,6 +145,29 @@ the same way.</p>
 <span>            scale_data <span class="op">=</span> <span class="st">"col"</span>, cell_label_size <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>            cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>, cluster_cols <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="tidy_input_files/figure-html/unnamed-chunk-4-1.png" alt="A heatmap of mtcars with scaled columns. Rows and columns are clustered and each dimension has one continuous and one discrete annotation. The cells are coloured with the Viridis magma scale and are labelled by integers from 1 to 352." width="768"></p>
+<p>When introducing gaps the <code>facet_rows</code> and
+<code>facet_cols</code> arguments allow for facet membership
+specification using columns in the input. It is still possible to
+specify the splits with the <code>split_rows</code> and
+<code>split_cols</code> arguments for the same behaviour as in
+<code><a href="../reference/gghm.html">gghm()</a></code>.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">plt1</span> <span class="op">&lt;-</span> <span class="va">mtcars_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="co"># Use the annotations as facets</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">row_key</span>, by <span class="op">=</span> <span class="st">"cars"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">col_key</span>, by <span class="op">=</span> <span class="st">"vars"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="co"># Change facet order for rows</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">b</span>, levels <span class="op">=</span> <span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/gghm_tidy.html">gghm_tidy</a></span><span class="op">(</span><span class="va">cars</span>, <span class="va">vars</span>, <span class="va">vals</span>,</span>
+<span>            facet_rows <span class="op">=</span> <span class="va">b</span>, facet_cols <span class="op">=</span> <span class="va">d</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">plt2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm_tidy.html">gghm_tidy</a></span><span class="op">(</span><span class="va">mtcars_long</span>,</span>
+<span>                  <span class="va">cars</span>, <span class="va">vars</span>, <span class="va">vals</span>,</span>
+<span>                  split_rows <span class="op">=</span> <span class="fl">16</span>,</span>
+<span>                  split_cols <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">plt1</span> <span class="op">+</span> <span class="va">plt2</span></span></code></pre></div>
+<p><img src="tidy_input_files/figure-html/unnamed-chunk-5-1.png" alt="Two mtcars heatmaps. The first one has two row splits and one column split with facet labels, and the rows and column are in a different order from the raw data. The second heatmap has one row and one column split with no facet labels." width="700"></p>
 </div>
 <div class="section level3">
 <h3 id="correlation-heatmaps">Correlation heatmaps<a class="anchor" aria-label="anchor" href="#correlation-heatmaps"></a>
@@ -157,17 +181,17 @@ arguments work differently.</p>
 <p>The <code><a href="../reference/cor_long.html">cor_long()</a></code> function can be used to calculate
 correlations from long format data. By default the output is in wide
 format and can be passed to <code><a href="../reference/ggcorrhm.html">ggcorrhm()</a></code>.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/cor_long.html">cor_long</a></span><span class="op">(</span><span class="va">mtcars_long</span>, <span class="va">cars</span>, <span class="va">vars</span>, <span class="va">vals</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="../reference/cor_long.html">cor_long</a></span><span class="op">(</span><span class="va">mtcars_long</span>, <span class="va">cars</span>, <span class="va">vars</span>, <span class="va">vals</span>, out_format <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span>,</span>
 <span>  <span class="co"># Specify that the input contains correlation values</span></span>
 <span>  cor_in <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="tidy_input_files/figure-html/unnamed-chunk-5-1.png" alt="A correlation heatmap of the mtcars data, with colours going from blue (-1) to white (0) to red (1). Names are written along the diagonal." width="700"></p>
+<p><img src="tidy_input_files/figure-html/unnamed-chunk-6-1.png" alt="A correlation heatmap of the mtcars data, with colours going from blue (-1) to white (0) to red (1). Names are written along the diagonal." width="700"></p>
 <p>If desired, the correlation data can be returned in long format,
 which can be given to <code><a href="../reference/ggcorrhm_tidy.html">ggcorrhm_tidy()</a></code> to make a
 heatmap.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mtcars_cor</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cor_long.html">cor_long</a></span><span class="op">(</span><span class="va">mtcars_long</span>, <span class="va">cars</span>, <span class="va">vars</span>, <span class="va">vals</span>,</span>
 <span>                       out_format <span class="op">=</span> <span class="st">"long"</span><span class="op">)</span></span>
 <span></span>
@@ -189,11 +213,11 @@ heatmap.</p>
 <span><span class="co">#&gt; 4   hp mpg -0.7761684</span></span>
 <span><span class="co">#&gt; 5 drat mpg  0.6811719</span></span>
 <span><span class="co">#&gt; 6   wt mpg -0.8676594</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/ggcorrhm_tidy.html">ggcorrhm_tidy</a></span><span class="op">(</span><span class="va">mtcars_cor</span>, <span class="va">row</span>, <span class="va">col</span>, <span class="va">value</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tidy_input_files/figure-html/unnamed-chunk-7-1.png" alt="A correlation heatmap of the mtcars data, with colours going from blue (-1) to white (0) to red (1). Names are written along the diagonal." width="700"></p>
-<p>It is also possible to correlate two different matrices.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/ggcorrhm_tidy.html">ggcorrhm_tidy</a></span><span class="op">(</span><span class="va">mtcars_cor</span>, <span class="va">row</span>, <span class="va">col</span>, <span class="va">value</span><span class="op">)</span></span></code></pre></div>
+<p><img src="tidy_input_files/figure-html/unnamed-chunk-8-1.png" alt="A correlation heatmap of the mtcars data, with colours going from blue (-1) to white (0) to red (1). Names are written along the diagonal." width="700"></p>
+<p>It is also possible to correlate two different matrices.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Make another long format data</span></span>
 <span><span class="va">iris_long</span> <span class="op">&lt;-</span> <span class="va">iris</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="co"># The dimensions of the two matrices must be compatible</span></span>
@@ -214,7 +238,7 @@ heatmap.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> setosa   Petal.Width    0.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> setosa.1 Sepal.Length   4.9</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> setosa.1 Sepal.Width    3</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Correlate the two long format matrices</span></span>
 <span><span class="va">mi_cor</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cor_long.html">cor_long</a></span><span class="op">(</span><span class="va">iris_long</span>, <span class="va">species</span>, <span class="va">name</span>, <span class="va">value</span>,</span>
 <span>                   <span class="co"># The first one ends up in the rows and</span></span>
@@ -230,9 +254,9 @@ heatmap.</p>
 <span><span class="co">#&gt; 4  Petal.Width mpg -0.052943516</span></span>
 <span><span class="co">#&gt; 5 Sepal.Length cyl -0.107232949</span></span>
 <span><span class="co">#&gt; 6  Sepal.Width cyl  0.166560421</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ggcorrhm_tidy.html">ggcorrhm_tidy</a></span><span class="op">(</span><span class="va">mi_cor</span>, <span class="va">row</span>, <span class="va">col</span>, <span class="va">value</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tidy_input_files/figure-html/unnamed-chunk-10-1.png" alt="A heatmap showing correlations between the columns in mtcars (in the columns) and the columns iris (in the rows, excluding the Species column)." width="672"></p>
+<p><img src="tidy_input_files/figure-html/unnamed-chunk-11-1.png" alt="A heatmap showing correlations between the columns in mtcars (in the columns) and the columns iris (in the rows, excluding the Species column)." width="672"></p>
 <p>If the <code>cor_in</code> argument is <code>FALSE</code>,
 <code><a href="../reference/ggcorrhm_tidy.html">ggcorrhm_tidy()</a></code> will calculate the correlations instead.
 Both options come with limitations.</p>
@@ -255,14 +279,14 @@ computed and will also need to be calculated in advance. The
 <li><p>The <code>labels</code> argument works like in
 <code><a href="../reference/gghm_tidy.html">gghm_tidy()</a></code>, taking a column in the data.</p></li>
 </ul>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Give the non-correlation data</span></span>
 <span><span class="fu"><a href="../reference/ggcorrhm_tidy.html">ggcorrhm_tidy</a></span><span class="op">(</span><span class="va">mtcars_long</span>, <span class="va">cars</span>, <span class="va">vars</span>, <span class="va">vals</span>,</span>
 <span>              cor_in <span class="op">=</span> <span class="cn">FALSE</span>, labels <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tidy_input_files/figure-html/unnamed-chunk-11-1.png" alt="mtcars correlation matrix, with the correlation values written in the cells (apart from the diagonal that has the column names)." width="700"></p>
+<p><img src="tidy_input_files/figure-html/unnamed-chunk-12-1.png" alt="mtcars correlation matrix, with the correlation values written in the cells (apart from the diagonal that has the column names)." width="700"></p>
 <p>Like with <code><a href="../reference/gghm_tidy.html">gghm_tidy()</a></code>, <code><a href="../reference/ggcorrhm_tidy.html">ggcorrhm_tidy()</a></code> can
 take arguments from <code><a href="../reference/ggcorrhm.html">ggcorrhm()</a></code> for extra customisation.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Annotation</span></span>
 <span><span class="va">cor_annot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span>,</span>
 <span>                        annot1 <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">11</span>, annot2 <span class="op">=</span> <span class="fl">11</span><span class="op">:</span><span class="fl">1</span>,</span>
@@ -286,7 +310,7 @@ take arguments from <code><a href="../reference/ggcorrhm.html">ggcorrhm()</a></c
 <span><span class="co">#&gt; 4   hp mpg -0.7761684      4      a     11      A    4</span></span>
 <span><span class="co">#&gt; 5 drat mpg  0.6811719      5      a     11      A    5</span></span>
 <span><span class="co">#&gt; 6   wt mpg -0.8676594      6      a     11      A    6</span></span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ggcorrhm_tidy.html">ggcorrhm_tidy</a></span><span class="op">(</span><span class="va">mtcars_cor_extra</span>, <span class="va">row</span>, <span class="va">col</span>, <span class="va">value</span>,</span>
 <span>              annot_rows <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">annot1</span>, <span class="va">annot3</span><span class="op">)</span>,</span>
 <span>              annot_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">annot2</span>, <span class="va">annot4</span><span class="op">)</span>,</span>
@@ -295,7 +319,7 @@ take arguments from <code><a href="../reference/ggcorrhm.html">ggcorrhm()</a></c
 <span>              layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hm"</span>, <span class="st">"hm"</span><span class="op">)</span>,</span>
 <span>              col_scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"G"</span><span class="op">)</span>, cell_label_col <span class="op">=</span> <span class="st">"white"</span>,</span>
 <span>              legend_order <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tidy_input_files/figure-html/unnamed-chunk-13-1.png" alt="mtcars correlation matrix with clustered rows and columns. There are two row and two column annotations as well. The heatmap has the diagonal going from the bottom left to the top right. The top left triangle uses the Viridis magma colour scale and the bottom right triangle the mako scale. Cells are marked with integers between 2 and 120, with the diagonal showing column names instead. Only the two heatmap legends are shown (not the annotation legends)." width="700"></p>
+<p><img src="tidy_input_files/figure-html/unnamed-chunk-14-1.png" alt="mtcars correlation matrix with clustered rows and columns. There are two row and two column annotations as well. The heatmap has the diagonal going from the bottom left to the top right. The top left triangle uses the Viridis magma colour scale and the bottom right triangle the mako scale. Cells are marked with integers between 2 and 120, with the diagonal showing column names instead. Only the two heatmap legends are shown (not the annotation legends)." width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="cell-labels-and-mixed-layouts">Cell labels and mixed layouts<a class="anchor" aria-label="anchor" href="#cell-labels-and-mixed-layouts"></a>
@@ -303,22 +327,22 @@ take arguments from <code><a href="../reference/ggcorrhm.html">ggcorrhm()</a></c
 <p>When adding cell labels in <code><a href="../reference/gghm_tidy.html">gghm_tidy()</a></code>, if the value
 column and cell label column are the same the cell labels will be
 affected by the <code>scale_data</code> argument.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gghm_tidy.html">gghm_tidy</a></span><span class="op">(</span><span class="va">mtcars_long</span>, <span class="va">cars</span>, <span class="va">vars</span>, <span class="va">vals</span>,</span>
 <span>          labels <span class="op">=</span> <span class="va">vals</span>, scale_data <span class="op">=</span> <span class="st">"col"</span>,</span>
 <span>          cell_label_digits <span class="op">=</span> <span class="fl">0</span>, cell_label_col <span class="op">=</span> <span class="st">"white"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tidy_input_files/figure-html/unnamed-chunk-14-1.png" alt="A heatmap of the mtcars data with scaled columns. The cells are labelled with the cell values, rounded to integers." width="700"></p>
+<p><img src="tidy_input_files/figure-html/unnamed-chunk-15-1.png" alt="A heatmap of the mtcars data with scaled columns. The cells are labelled with the cell values, rounded to integers." width="700"></p>
 <p>It is also convenient to make conditional cell labels when the data
 is in long format, such as using different labels depending on the cell
 values.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>labs <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span><span class="va">value</span> <span class="op">&lt;</span> <span class="fl">1.5</span> <span class="op">~</span> <span class="st">"-"</span>,</span>
 <span>                          <span class="va">value</span> <span class="op">&gt;</span> <span class="fl">4</span> <span class="op">~</span> <span class="st">"+"</span>,</span>
 <span>                          <span class="cn">TRUE</span> <span class="op">~</span> <span class="st">""</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../reference/gghm_tidy.html">gghm_tidy</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">species</span>, <span class="va">value</span>, labels <span class="op">=</span> <span class="va">labs</span>,</span>
 <span>            col_scale <span class="op">=</span> <span class="st">"A"</span>, cell_label_col <span class="op">=</span> <span class="st">"white"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tidy_input_files/figure-html/unnamed-chunk-15-1.png" alt="A heatmap of the first 32 rows of the iris dataset, transposed to a 4x32 matrix. The cells are coloured with the Viridis magma colour scale and labelled with + at high values or - at low values, or nothing in-between." width="672"></p>
+<p><img src="tidy_input_files/figure-html/unnamed-chunk-16-1.png" alt="A heatmap of the first 32 rows of the iris dataset, transposed to a 4x32 matrix. The cells are coloured with the Viridis magma colour scale and labelled with + at high values or - at low values, or nothing in-between." width="672"></p>
 <p>When working with mixed layouts, <code><a href="../reference/gghm.html">gghm()</a></code> can take care of
 labelling only one half of the heatmap. Since the tidy version just uses
 the values in the specified <code>labels</code> column, a bit more work
@@ -326,7 +350,7 @@ is required.</p>
 <p>For convenience, the <code><a href="../reference/add_mixed_layout.html">add_mixed_layout()</a></code> helper function
 can add a column showing which values will end up in which triangle of a
 mixed layout to help with labelling cells.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get long format data</span></span>
 <span><span class="va">df_long</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, length.out <span class="op">=</span> <span class="fl">15</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">x</span> <span class="op">+</span> <span class="fl">1</span>, length.out <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span>
@@ -348,7 +372,7 @@ mixed layout to help with labelling cells.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 1     4     -<span style="color: #BB0000;">0.786</span> br    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 1     5     -<span style="color: #BB0000;">0.714</span> br    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 1     6     -<span style="color: #BB0000;">0.643</span> br</span></span></code></pre></div>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="co"># Add labels only for the top left part</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>label <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span><span class="va">layout</span> <span class="op">==</span> <span class="st">"tl"</span>, <span class="st">"+"</span>, <span class="st">""</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -357,13 +381,13 @@ mixed layout to help with labelling cells.</p>
 <span>            <span class="co"># to avoid confusion</span></span>
 <span>            layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hm"</span>, <span class="st">"hm"</span><span class="op">)</span>,</span>
 <span>            col_scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"G"</span>, <span class="st">"A"</span><span class="op">)</span>, cell_label_col <span class="op">=</span> <span class="st">"white"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tidy_input_files/figure-html/unnamed-chunk-17-1.png" alt="A heatmap of a symmetric 15x15 matrix with values ranging between -1 and 1 in a gradient from the bottom left to the top right along the diagonal. The top left triangle uses the Viridis mako colour scale with cells labelled with +. The bottom right triangle uses the magma colours and has no labels. " width="700"></p>
+<p><img src="tidy_input_files/figure-html/unnamed-chunk-18-1.png" alt="A heatmap of a symmetric 15x15 matrix with values ranging between -1 and 1 in a gradient from the bottom left to the top right along the diagonal. The top left triangle uses the Viridis mako colour scale with cells labelled with +. The bottom right triangle uses the magma colours and has no labels. " width="700"></p>
 <p><code><a href="../reference/ggcorrhm_tidy.html">ggcorrhm_tidy()</a></code> works similarly if <code>cor_in</code>
 is <code>TRUE</code>. If <code>FALSE</code>, the <code>labels</code>
 argument works like in <code><a href="../reference/ggcorrhm.html">ggcorrhm()</a></code>, taking a wide format
 matrix/data frame or a combination of <code>TRUE</code> and
 <code>FALSE</code>.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># `cor_in` is `TRUE`</span></span>
 <span><span class="va">mtcars_cor</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="co"># Add layout column</span></span>
@@ -372,8 +396,10 @@ matrix/data frame or a combination of <code>TRUE</code> and
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>lab <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span><span class="va">layout</span> <span class="op">==</span> <span class="st">"tr"</span>, <span class="va">value</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../reference/ggcorrhm_tidy.html">ggcorrhm_tidy</a></span><span class="op">(</span><span class="va">row</span>, <span class="va">col</span>, <span class="va">value</span>, labels <span class="op">=</span> <span class="va">lab</span>,</span>
 <span>                cor_in <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bl"</span>, <span class="st">"tr"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hm"</span>, <span class="st">"hm"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tidy_input_files/figure-html/unnamed-chunk-18-1.png" alt="mtcars correlation matrix. The top right triangle is marked with correlation values. The bottom left triangle has no labels." width="700"></p>
+<span>                layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bl"</span>, <span class="st">"tr"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hm"</span>, <span class="st">"hm"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: `col_scale` should be NULL (default), a character value, or a ggplot2 scale</span></span>
+<span><span class="co">#&gt; object, or a combination of those if a mixed layout.</span></span></code></pre></div>
+<p><img src="tidy_input_files/figure-html/unnamed-chunk-19-1.png" alt="mtcars correlation matrix. The top right triangle is marked with correlation values. The bottom left triangle has no labels." width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="p-values">P-values<a class="anchor" aria-label="anchor" href="#p-values"></a>
@@ -381,18 +407,20 @@ matrix/data frame or a combination of <code>TRUE</code> and
 <p>In <code><a href="../reference/ggcorrhm_tidy.html">ggcorrhm_tidy()</a></code>, if <code>cor_in</code> is
 <code>FALSE</code>, the <code>p_values</code> argument works like in
 <code><a href="../reference/ggcorrhm.html">ggcorrhm()</a></code> and can deal with mixed layouts.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ggcorrhm_tidy.html">ggcorrhm_tidy</a></span><span class="op">(</span><span class="va">mtcars_long</span>, <span class="va">cars</span>, <span class="va">vars</span>, <span class="va">vals</span>, cor_in <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>              layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hm"</span>, <span class="st">"hm"</span><span class="op">)</span>,</span>
 <span>              labels <span class="op">=</span> <span class="cn">TRUE</span>, p_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>              <span class="co"># P-values top left, correlation values bottom right</span></span>
-<span>              cell_label_p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tidy_input_files/figure-html/unnamed-chunk-19-1.png" alt="mtcars correlation matrix with diagonal running from the bottom left to the top right. The cells in the top left triangle are labelled with p-values and asterisks while the cells in the bottom right triangle are marked with correlation values." width="700"></p>
+<span>              cell_label_p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: `col_scale` should be NULL (default), a character value, or a ggplot2 scale</span></span>
+<span><span class="co">#&gt; object, or a combination of those if a mixed layout.</span></span></code></pre></div>
+<p><img src="tidy_input_files/figure-html/unnamed-chunk-20-1.png" alt="mtcars correlation matrix with diagonal running from the bottom left to the top right. The cells in the top left triangle are labelled with p-values and asterisks while the cells in the bottom right triangle are marked with correlation values." width="700"></p>
 <p>If <code>cor_in</code> is <code>TRUE</code>, the labels are drawn
 directly from a column in the data, which means that the labels have to
 be made in advance. To help with this, the <code>cor_long</code>
 function has some extra p-value functionality.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mtcars_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../reference/cor_long.html">cor_long</a></span><span class="op">(</span><span class="va">cars</span>, <span class="va">vars</span>, <span class="va">vals</span>,</span>
 <span>           out_format <span class="op">=</span> <span class="st">"long"</span>,</span>
@@ -410,11 +438,11 @@ function has some extra p-value functionality.</p>
 <span>  <span class="co"># The output contains the columns 'row', 'col', 'value',</span></span>
 <span>  <span class="co"># 'p_val', 'p_adj', and 'p_sym'</span></span>
 <span>  <span class="fu"><a href="../reference/ggcorrhm_tidy.html">ggcorrhm_tidy</a></span><span class="op">(</span><span class="va">row</span>, <span class="va">col</span>, <span class="va">value</span>, labels <span class="op">=</span> <span class="va">p_sym</span><span class="op">)</span></span></code></pre></div>
-<p><img src="tidy_input_files/figure-html/unnamed-chunk-20-1.png" alt="mtcars correlation matrix with p-value labels with asterisks in both triangles. " width="700"></p>
+<p><img src="tidy_input_files/figure-html/unnamed-chunk-21-1.png" alt="mtcars correlation matrix with p-value labels with asterisks in both triangles. " width="700"></p>
 <p>Combine this with <code>add_mixed_layout</code> for more control in
 mixed layouts. Below is an example of showing unadjusted and adjusted
 p-values in different triangles of the heatmap.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plt_dat</span> <span class="op">&lt;-</span> <span class="va">mtcars_long</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="co"># Add p-values</span></span>
 <span>  <span class="fu"><a href="../reference/cor_long.html">cor_long</a></span><span class="op">(</span><span class="va">cars</span>, <span class="va">vars</span>, <span class="va">vals</span>, out_format <span class="op">=</span> <span class="st">"long"</span>,</span>
@@ -445,7 +473,7 @@ p-values in different triangles of the heatmap.</p>
 <span>                cor_in <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plt1</span> <span class="op">+</span> <span class="va">plt2</span></span></code></pre></div>
-<p><img src="tidy_input_files/figure-html/unnamed-chunk-21-1.png" alt="Two mtcars correlation heatmaps. The first one has p-values in the cells. Only p-values below 0.05 are shown, and the bottom left triangle shows unadjusted p-values while the top right triangle shows adjusted p-values (being slightly higher). The second plot has swapped the p-values for asterisks in the bottom left triangle and pluses in the top right triangle." width="960"></p>
+<p><img src="tidy_input_files/figure-html/unnamed-chunk-22-1.png" alt="Two mtcars correlation heatmaps. The first one has p-values in the cells. Only p-values below 0.05 are shown, and the bottom left triangle shows unadjusted p-values while the top right triangle shows adjusted p-values (being slightly higher). The second plot has swapped the p-values for asterisks in the bottom left triangle and pluses in the top right triangle." width="960"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

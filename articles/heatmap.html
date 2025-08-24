@@ -37,6 +37,7 @@
     <li><a class="dropdown-item" href="../articles/correlation.html">Correlation heatmaps</a></li>
     <li><a class="dropdown-item" href="../articles/annotation.html">Annotation</a></li>
     <li><a class="dropdown-item" href="../articles/clustering.html">Clustering</a></li>
+    <li><a class="dropdown-item" href="../articles/facets.html">Facets</a></li>
     <li><a class="dropdown-item" href="../articles/mixed.html">Mixed layouts</a></li>
     <li><a class="dropdown-item" href="../articles/legends.html">Scales and legends</a></li>
     <li><a class="dropdown-item" href="../articles/tidy_input.html">Using tidy data</a></li>
@@ -281,6 +282,16 @@ More details on annotation can be found in the <a href="annotation.html">annotat
 <p><img src="heatmap_files/figure-html/unnamed-chunk-11-1.png" alt="Heatmap of mtcars. The rows have been clustered and along the right side is an annotation column with a dendrogram on its right." width="700"></p>
 </div>
 <div class="section level2">
+<h2 id="gaps">Gaps<a class="anchor" aria-label="anchor" href="#gaps"></a>
+</h2>
+<p>Gaps can be added (via facets) to highlight specific groups in the
+data. The <code>split_rows</code> and <code>split_cols</code> arguments
+take facet specifications of different forms, explained more in the <a href="facets.html">facets</a> article.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">mtcars</span>, split_rows <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span><span class="op">)</span>, split_cols <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="heatmap_files/figure-html/unnamed-chunk-12-1.png" alt="A heatmap of the mtcars data. The rows are split into three groups after rows 10 and 20 and the columns are split into two groups after column 5." width="700"></p>
+</div>
+<div class="section level2">
 <h2 id="cell-labels">Cell labels<a class="anchor" aria-label="anchor" href="#cell-labels"></a>
 </h2>
 <p>Cell labels can be displayed by using the <code>cell_labels</code>
@@ -289,7 +300,7 @@ logical, the cell values are displayed. If a matrix/data frame, those
 values are used instead. The matrix should contain the same row and
 column names as the input, any rows or columns with different names or
 cells with NAs will be silently dropped.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="co"># Make 5x5 matrix to plot with values between 1 and 10</span></span>
 <span><span class="va">plot_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">5</span>, <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -306,7 +317,7 @@ cells with NAs will be silently dropped.</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Using external values"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plt1</span> <span class="op">+</span> <span class="va">plt2</span> <span class="op">&amp;</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">18</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="heatmap_files/figure-html/unnamed-chunk-12-1.png" alt="Two 5x5 heatmaps with cells coloured by their values, going from 2 (white) to 10 (pink). The first heatmap has the numbers written in black text in each cell, while the second one has cells with one letter each, gonig from a to y starting in the top left and moving down each column." width="960"></p>
+<p><img src="heatmap_files/figure-html/unnamed-chunk-13-1.png" alt="Two 5x5 heatmaps with cells coloured by their values, going from 2 (white) to 10 (pink). The first heatmap has the numbers written in black text in each cell, while the second one has cells with one letter each, gonig from a to y starting in the top left and moving down each column." width="960"></p>
 <p><code>cell_label_col</code>, <code>cell_label_size</code> and
 <code>cell_label_digits</code> control the colours, sizes and number of
 decimals (if numeric) of the labels. Keep in mind that data frames
@@ -321,7 +332,7 @@ instead, meaning that user-supplied cell labels can have use colour
 scale (also meaning that ‘text’ mode with <code>cell_labels</code> being
 <code>FALSE</code> is the same as ‘text’ mode with
 <code>cell_labels</code> as <code>TRUE</code>).</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plt1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">plot_data</span>, cell_labels <span class="op">=</span> <span class="cn">TRUE</span>, col_scale <span class="op">=</span> <span class="va">fill_scl</span>,</span>
 <span>             cell_label_size <span class="op">=</span> <span class="fl">5</span>, cell_label_col <span class="op">=</span> <span class="st">"#63B8FF"</span>, cell_label_digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"size, colours, decimals"</span><span class="op">)</span></span>
@@ -333,7 +344,7 @@ scale (also meaning that ‘text’ mode with <code>cell_labels</code> being
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"'text' mode"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plt1</span> <span class="op">+</span> <span class="va">plt2</span> <span class="op">&amp;</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">18</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="heatmap_files/figure-html/unnamed-chunk-13-1.png" alt="Two 5x5 heatmaps. The first one has coloured cells and a colour scale ranging from 2 (white) to 10 (pink). The values are written in the cells as blue numbers. The second heatmap has white cells, each with one letter written in pink (starting from a in the top right and going down each column, ending in y." width="960"></p>
+<p><img src="heatmap_files/figure-html/unnamed-chunk-14-1.png" alt="Two 5x5 heatmaps. The first one has coloured cells and a colour scale ranging from 2 (white) to 10 (pink). The values are written in the cells as blue numbers. The second heatmap has white cells, each with one letter written in pink (starting from a in the top right and going down each column, ending in y." width="960"></p>
 </div>
 <div class="section level2">
 <h2 id="external-customisation">External customisation<a class="anchor" aria-label="anchor" href="#external-customisation"></a>
@@ -354,7 +365,7 @@ rows are ordered in their drawing order in the data returned when
 reference. However, in general, passing vectors to static aesthetics in
 <code>ggplot2</code> can become tricky and adding another geom to the
 output plot is more robust.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span>, return_data <span class="op">=</span> <span class="cn">TRUE</span>, border_col <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>                  col_scale <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html" class="external-link">scale_fill_gradient2</a></span><span class="op">(</span>low <span class="op">=</span> <span class="st">"deepskyblue"</span>, mid <span class="op">=</span> <span class="st">"white"</span>, high <span class="op">=</span> <span class="st">"salmon"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -362,16 +373,20 @@ output plot is more robust.</p>
 <span><span class="va">plot_list</span><span class="op">$</span><span class="va">plot_data</span><span class="op">$</span><span class="va">lab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/ntile.html" class="external-link">ntile</a></span><span class="op">(</span><span class="va">plot_list</span><span class="op">$</span><span class="va">plot_data</span><span class="op">$</span><span class="va">value</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plt1</span> <span class="op">&lt;-</span> <span class="va">plot_list</span><span class="op">$</span><span class="va">plot</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>label <span class="op">=</span> <span class="va">lab</span><span class="op">)</span>, <span class="va">plot_list</span><span class="op">$</span><span class="va">plot_data</span>, size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span>  <span class="co"># Use col for x and row for y</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span>mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">col</span>, y <span class="op">=</span> <span class="va">row</span>, label <span class="op">=</span> <span class="va">lab</span><span class="op">)</span>,</span>
+<span>            data <span class="op">=</span> <span class="va">plot_list</span><span class="op">$</span><span class="va">plot_data</span>, size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Or maybe points (cell_labels uses `geom_text` so the asterisks would not be positioned in the middle of the cells)</span></span>
 <span><span class="va">plot_list</span><span class="op">$</span><span class="va">plot_data</span><span class="op">$</span><span class="va">lab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">plot_list</span><span class="op">$</span><span class="va">plot_data</span><span class="op">$</span><span class="va">value</span> <span class="op">&gt;</span> <span class="fl">1</span> <span class="op">|</span></span>
 <span>                                  <span class="va">plot_list</span><span class="op">$</span><span class="va">plot_data</span><span class="op">$</span><span class="va">value</span> <span class="op">&lt;</span> <span class="op">-</span><span class="fl">1</span>, <span class="st">"*"</span>, <span class="cn">NA</span><span class="op">)</span></span>
 <span><span class="va">plt2</span> <span class="op">&lt;-</span> <span class="va">plot_list</span><span class="op">$</span><span class="va">plot</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">plot_list</span><span class="op">$</span><span class="va">plot_data</span>, <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">lab</span><span class="op">)</span><span class="op">)</span>, shape <span class="op">=</span> <span class="st">"*"</span>, size <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">plot_list</span><span class="op">$</span><span class="va">plot_data</span>, <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">lab</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>             mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">col</span>, y <span class="op">=</span> <span class="va">row</span><span class="op">)</span>,</span>
+<span>             shape <span class="op">=</span> <span class="st">"*"</span>, size <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plt1</span> <span class="op">+</span> <span class="va">plt2</span></span></code></pre></div>
-<p><img src="heatmap_files/figure-html/unnamed-chunk-14-1.png" alt="Two heatmaps of z-scores of mtcars. The colours are changed to a divergent scale going from blue to red. The first plot has had its cells labelled with numbers ranging from 1 to 5 based the cell value (1 is low, 5 is high). The second plot has asterisks in cells where the z-score is above 1 or below -1." width="672"></p>
+<p><img src="heatmap_files/figure-html/unnamed-chunk-15-1.png" alt="Two heatmaps of z-scores of mtcars. The colours are changed to a divergent scale going from blue to red. The first plot has had its cells labelled with numbers ranging from 1 to 5 based the cell value (1 is low, 5 is high). The second plot has asterisks in cells where the z-score is above 1 or below -1." width="672"></p>
 <p>There are many arguments, allowing for quite some flexibility in the
 heatmap layout. Most of the arguments are showcased in the articles,
 hopefully they can be of some help. They go more into making <a href="correlation.html">correlation heatmaps</a>, <a href="clustering.html">clustering</a> and <a href="annotation.html">annotation</a>, making <a href="mixed.html">mixed

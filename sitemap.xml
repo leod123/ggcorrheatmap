@@ -5,6 +5,7 @@
 <url><loc>https://leod123.github.io/ggcorrheatmap/articles/annotation.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/articles/clustering.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/articles/correlation.html</loc></url>
+<url><loc>https://leod123.github.io/ggcorrheatmap/articles/facets.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/articles/heatmap.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/articles/index.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/articles/legends.html</loc></url>
@@ -19,6 +20,7 @@
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/add_mixed_layout.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/apply_dendextend.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/check_annot_df.html</loc></url>
+<url><loc>https://leod123.github.io/ggcorrheatmap/reference/check_annot_names_deprecated.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/check_cell_labels.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/check_dendrogram_pos.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/check_layout.html</loc></url>
@@ -42,6 +44,7 @@
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/increment1to8.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/index.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/layout_hm.html</loc></url>
+<url><loc>https://leod123.github.io/ggcorrheatmap/reference/make_facet_vector.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/make_heatmap.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/make_legend_order.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/move_dendrogram.html</loc></url>
@@ -49,6 +52,8 @@
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/prepare_annotation.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/prepare_cell_labels.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/prepare_dendrogram.html</loc></url>
+<url><loc>https://leod123.github.io/ggcorrheatmap/reference/prepare_facets.html</loc></url>
+<url><loc>https://leod123.github.io/ggcorrheatmap/reference/prepare_facets_tidy.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/prepare_mixed_param.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/prepare_scales.html</loc></url>
 <url><loc>https://leod123.github.io/ggcorrheatmap/reference/prepare_scales_annot.html</loc></url>

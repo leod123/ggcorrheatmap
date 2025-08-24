@@ -22,6 +22,7 @@
     <li><a class="dropdown-item" href="../articles/correlation.html">Correlation heatmaps</a></li>
     <li><a class="dropdown-item" href="../articles/annotation.html">Annotation</a></li>
     <li><a class="dropdown-item" href="../articles/clustering.html">Clustering</a></li>
+    <li><a class="dropdown-item" href="../articles/facets.html">Facets</a></li>
     <li><a class="dropdown-item" href="../articles/mixed.html">Mixed layouts</a></li>
     <li><a class="dropdown-item" href="../articles/legends.html">Scales and legends</a></li>
     <li><a class="dropdown-item" href="../articles/tidy_input.html">Using tidy data</a></li>
@@ -58,7 +59,9 @@
 <span>  <span class="va">annot_names_size</span>,</span>
 <span>  <span class="va">annot_name_params</span>,</span>
 <span>  <span class="va">annot_names_side</span>,</span>
-<span>  <span class="va">data_size</span></span>
+<span>  <span class="va">data_size</span>,</span>
+<span>  <span class="va">x_long</span>,</span>
+<span>  annot_names_strategy <span class="op">=</span> <span class="st">"geom"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -100,6 +103,14 @@
 
 <dt id="arg-data-size">data_size<a class="anchor" aria-label="anchor" href="#arg-data-size"></a></dt>
 <dd><p>Size of data (ncol if row annotations, nrow if column annotations).</p></dd>
+
+
+<dt id="arg-x-long">x_long<a class="anchor" aria-label="anchor" href="#arg-x-long"></a></dt>
+<dd><p>Long format plotting data, to see if there are any facets to take into account.</p></dd>
+
+
+<dt id="arg-annot-names-strategy">annot_names_strategy<a class="anchor" aria-label="anchor" href="#arg-annot-names-strategy"></a></dt>
+<dd><p>String stating how to draw names (geom, grid). To deal with deprecated argument.</p></dd>
 
 </dl></div>
     <div class="section level2">

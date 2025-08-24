@@ -37,6 +37,7 @@
     <li><a class="dropdown-item" href="../articles/correlation.html">Correlation heatmaps</a></li>
     <li><a class="dropdown-item" href="../articles/annotation.html">Annotation</a></li>
     <li><a class="dropdown-item" href="../articles/clustering.html">Clustering</a></li>
+    <li><a class="dropdown-item" href="../articles/facets.html">Facets</a></li>
     <li><a class="dropdown-item" href="../articles/mixed.html">Mixed layouts</a></li>
     <li><a class="dropdown-item" href="../articles/legends.html">Scales and legends</a></li>
     <li><a class="dropdown-item" href="../articles/tidy_input.html">Using tidy data</a></li>
@@ -215,11 +216,10 @@ arguments. These are named lists where the names specify what to change
 </h2>
 <p>The sizes of the names can be changed using the
 <code>annot_names_size</code> argument. Further customisation is
-possible by passing named lists to the
-<code>annot_rows_name_params</code> and
-<code>annot_cols_name_params</code> arguments. These lists are passed on
-to <code><a href="https://rdrr.io/r/grid/grid.text.html" class="external-link">grid::textGrob()</a></code>, see its help page (and the example
-below) for more on what arguments are supported.</p>
+possible by passing named lists of static aesthetics to the
+<code>annot_rows_names_params</code> and
+<code>annot_cols_names_params</code> arguments. These lists are passed
+on to <code><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">ggplot2::geom_text()</a></code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_in</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">9</span>, nrow <span class="op">=</span> <span class="fl">3</span>, ncol <span class="op">=</span> <span class="fl">3</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">row_annot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>annot1 <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, annot2 <span class="op">=</span> <span class="fl">4</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span></span>
@@ -227,13 +227,11 @@ below) for more on what arguments are supported.</p>
 <span></span>
 <span><span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">df_in</span>, annot_rows_df <span class="op">=</span> <span class="va">row_annot</span>, annot_cols_df <span class="op">=</span> <span class="va">col_annot</span>,</span>
 <span>     legend_order <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>     annot_rows_name_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>       <span class="co"># Use 'grid::gpar' for the 'gp' argument for a number of text-related parameters</span></span>
-<span>       gp <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">gpar</a></span><span class="op">(</span>col <span class="op">=</span> <span class="st">"magenta"</span>, alpha <span class="op">=</span> <span class="fl">0.5</span>, fontsize <span class="op">=</span> <span class="fl">20</span>, fontface <span class="op">=</span> <span class="st">"bold"</span><span class="op">)</span></span>
+<span>     annot_rows_names_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>       colour <span class="op">=</span> <span class="st">"magenta"</span>, alpha <span class="op">=</span> <span class="fl">0.5</span>, size <span class="op">=</span> <span class="fl">7</span>, fontface <span class="op">=</span> <span class="st">"bold"</span></span>
 <span>     <span class="op">)</span>,</span>
-<span>     annot_cols_name_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>       <span class="co"># 'rot' instead of 'angle' to change the angle</span></span>
-<span>       rot <span class="op">=</span> <span class="op">-</span><span class="fl">45</span>, hjust <span class="op">=</span> <span class="fl">0.7</span>, vjust <span class="op">=</span> <span class="fl">0</span></span>
+<span>     annot_cols_names_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>       angle <span class="op">=</span> <span class="op">-</span><span class="fl">45</span>, hjust <span class="op">=</span> <span class="fl">0.7</span>, vjust <span class="op">=</span> <span class="fl">0</span></span>
 <span>     <span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="annotation_files/figure-html/unnamed-chunk-8-1.png" alt="A 3x3 heatmap with two each of row and column annotations. The row annotation has vertical, large, magenta labels below showing the names. The column annotations have labels to the left, angled at 45 degrees." width="700"></p>
 <p>If the annotation labels are too long and are cut off, the plot

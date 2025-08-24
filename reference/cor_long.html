@@ -22,6 +22,7 @@
     <li><a class="dropdown-item" href="../articles/correlation.html">Correlation heatmaps</a></li>
     <li><a class="dropdown-item" href="../articles/annotation.html">Annotation</a></li>
     <li><a class="dropdown-item" href="../articles/clustering.html">Clustering</a></li>
+    <li><a class="dropdown-item" href="../articles/facets.html">Facets</a></li>
     <li><a class="dropdown-item" href="../articles/mixed.html">Mixed layouts</a></li>
     <li><a class="dropdown-item" href="../articles/legends.html">Scales and legends</a></li>
     <li><a class="dropdown-item" href="../articles/tidy_input.html">Using tidy data</a></li>
@@ -39,7 +40,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Make a correlation matrix from long format data.</h1>
-      <small class="dont-index">Source: <a href="https://github.com/leod123/ggcorrheatmap/blob/main/R/gghm_tidy.R" class="external-link"><code>R/gghm_tidy.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/leod123/ggcorrheatmap/blob/main/R/cor_long.R" class="external-link"><code>R/cor_long.R</code></a></small>
       <div class="d-none name"><code>cor_long.Rd</code></div>
     </div>
 
@@ -58,7 +59,7 @@
 <span>  rows2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cols2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  values2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  out_format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wide"</span>, <span class="st">"long"</span><span class="op">)</span>,</span>
+<span>  out_format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"long"</span>, <span class="st">"wide"</span><span class="op">)</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"pearson"</span>,</span>
 <span>  use <span class="op">=</span> <span class="st">"everything"</span>,</span>
 <span>  p_values <span class="op">=</span> <span class="cn">FALSE</span>,</span>

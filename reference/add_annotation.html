@@ -22,6 +22,7 @@
     <li><a class="dropdown-item" href="../articles/correlation.html">Correlation heatmaps</a></li>
     <li><a class="dropdown-item" href="../articles/annotation.html">Annotation</a></li>
     <li><a class="dropdown-item" href="../articles/clustering.html">Clustering</a></li>
+    <li><a class="dropdown-item" href="../articles/facets.html">Facets</a></li>
     <li><a class="dropdown-item" href="../articles/mixed.html">Mixed layouts</a></li>
     <li><a class="dropdown-item" href="../articles/legends.html">Scales and legends</a></li>
     <li><a class="dropdown-item" href="../articles/tidy_input.html">Using tidy data</a></li>
@@ -62,7 +63,8 @@
 <span>  na_remove <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  col_scale <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">names_side</span>,</span>
-<span>  name_params <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  name_params <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  names_strategy <span class="op">=</span> <span class="st">"geom"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -123,7 +125,11 @@ Each element should either be a <code>scale_fill_*</code> object or a string spe
 
 
 <dt id="arg-name-params">name_params<a class="anchor" aria-label="anchor" href="#arg-name-params"></a></dt>
-<dd><p>A named list of parameters to give <code><a href="https://rdrr.io/r/grid/grid.text.html" class="external-link">grid::textGrob</a></code> to modify annotation label appearance.</p></dd>
+<dd><p>A named list of parameters to give to <code><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">ggplot2::geom_text</a></code> or <code><a href="https://rdrr.io/r/grid/grid.text.html" class="external-link">grid::textGrob</a></code> to modify annotation label appearance.</p></dd>
+
+
+<dt id="arg-names-strategy">names_strategy<a class="anchor" aria-label="anchor" href="#arg-names-strategy"></a></dt>
+<dd><p>String stating which strategy to use for drawing names (geom, grid).</p></dd>
 
 </dl></div>
     <div class="section level2">
