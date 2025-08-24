@@ -201,7 +201,8 @@ the \verb{annot_*_fill} arguments.}
 
 \item{annot_rows_names_params, annot_cols_names_params}{Named list of parameters for row and column annotation names. Given to \code{ggplot2::geom_text()}.}
 
-\item{annot_rows_name_params, annot_cols_name_params}{Deprecated, kept for backward compatibility. Named list of parameters given to \code{grid::textGrob()} for annotation names.}
+\item{annot_rows_name_params, annot_cols_name_params}{Deprecated and kept for backward compatibility. Named list of parameters given to \code{grid::textGrob()} for annotation names.
+Does not work well with heatmap splits.}
 
 \item{cluster_rows, cluster_cols}{Logical indicating if rows or columns should be clustered. Can also be \code{hclust} or \code{dendrogram} objects.}
 

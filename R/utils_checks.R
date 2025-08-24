@@ -323,8 +323,8 @@ check_annot_names_deprecated <- function(new_params = NULL, old_params = NULL, c
   if (!is.null(old_params)) {
     old_name <- paste0('annot_', context[1], '_name_params')
     new_name <- paste0('annot_', context[1], '_names_params')
-    msg <- "The {.var {old_name}} argument is deprecated from ggcorrheatmap version 0.2.0.
-  Please use {.var {new_name}} which takes {.var ggplot2::geom_text()} parameters instead."
+    msg <- "The {.var {old_name}} argument is deprecated from ggcorrheatmap version 0.2.0 and does not work with heatmap gaps.
+            Please use {.var {new_name}} which takes {.var ggplot2::geom_text()} parameters instead."
   }
 
   if (!is.null(new_params) && !is.null(old_params)) {

@@ -71,7 +71,8 @@
 #' @param annot_rows_names_side String specifying which side the row annotation names should be on. Either "top" or "bottom".
 #' @param annot_cols_names_side String specifying which side the column annotation names should be on. Either "left" or "right".
 #' @param annot_rows_names_params,annot_cols_names_params Named list of parameters for row and column annotation names. Given to `ggplot2::geom_text()`.
-#' @param annot_rows_name_params,annot_cols_name_params Deprecated, kept for backward compatibility. Named list of parameters given to `grid::textGrob()` for annotation names.
+#' @param annot_rows_name_params,annot_cols_name_params Deprecated and kept for backward compatibility. Named list of parameters given to `grid::textGrob()` for annotation names.
+#' Does not work well with heatmap splits.
 #' @param cluster_rows,cluster_cols Logical indicating if rows or columns should be clustered. Can also be `hclust` or `dendrogram` objects.
 #' @param cluster_distance String with the distance metric to use for clustering, given to `stats::dist()`.
 #' @param cluster_method String with the clustering method to use, given to `stats::hclust()`.
