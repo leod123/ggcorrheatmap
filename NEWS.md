@@ -16,7 +16,7 @@
 
 ## Breaking changes
 
-* The `annot_rows_name_params` and `annot_cols_name_params` arguments now take lists of static aesthetics for `ggplot2::geom_text()` instead of `ggplot2::annotation_custom()`.
+* The `annot_rows_name_params` and `annot_cols_name_params` are deprecated in favour of `annot_rows_names_params` and `annot_cols_names_params` that take lists of static aesthetics for `ggplot2::geom_text()` instead of `ggplot2::annotation_custom()`.
 
 ## Minor fixes
 
