@@ -1,5 +1,9 @@
 # ggcorrheatmap (development version)
 
+## Minor fixes
+
+* Annotations in mixed layouts now work with ggplot2  version 4.0.0.
+
 # ggcorrheatmap 0.2.0
 
 ## New features
