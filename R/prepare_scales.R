@@ -624,6 +624,10 @@ prepare_scales_annot <- function(scale_order, annot_rows_df = NULL, annot_cols_d
                    class = "annot_na_col_length_error")
   }
 
+  # If mixed layout na_col becomes a list causing an error
+  # Use the first value (even if na_col is user-supplied, for finer control must supply scale object)
+  na_col <- na_col[[1]]
+
   # Go through row and then column annotations and assign a scale if not provided
   disc_num <- 1
   cont_num <- 1
