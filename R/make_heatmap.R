@@ -25,6 +25,7 @@
 #' @param cell_bg_alpha Cell background alpha.
 #' @param split_rows_names,split_cols_names Logicals indicating if the facet names should be shown (if plot is built from scratch).
 #' @param split_rows_side,split_cols_side Sides to put the facet strips.
+#' @param split_diag Logical indicating if the diagonal should be drawn as triangles (to split it between the two halves).
 #'
 #' @returns ggplot object with heatmap component.
 #'
@@ -38,13 +39,15 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                          cell_label_size = 3, cell_label_digits = 2,
                          cell_bg_col = "white", cell_bg_alpha = 0,
                          split_rows_names = FALSE, split_cols_names = FALSE,
-                         split_rows_side = "right", split_cols_side = "bottom") {
+                         split_rows_side = "right", split_cols_side = "bottom",
+                         split_diag = FALSE) {
   value <- .data <- label <- .row_facets <- .col_facets <- NULL
 
   # show_names_diag checked earlier
   check_logical(show_names_x = show_names_x)
   check_logical(show_names_y = show_names_y)
   check_logical(include_diag = include_diag)
+  check_logical(split_diag = split_diag)
 
   # Base plot
   plt_provided <- !is.null(plt)
@@ -67,10 +70,24 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
 
   # Use different input data depending on desired layout
   # If include_diag is FALSE, skip where row == col, otherwise use the whole data
-  x_long <- if (isFALSE(include_diag)) {
+  # Also skip diagonal if split_diag is TRUE to not draw the diagonal twice
+  draw_split_diag <- include_diag && split_diag && mode %in% c("heatmap", "hm") &&
+    !unique(x_long[["layout"]]) %in% c("full", "f", "whole", "w")
+
+  # Keep the diagonal of the original data if a split diag is to be drawn
+  if (draw_split_diag) {
+    diag_long <- subset(x_long, as.character(row) == as.character(col))
+  }
+
+  x_long <- if (!include_diag || draw_split_diag) {
     subset(x_long, as.character(row) != as.character(col))
-  } else if (isTRUE(include_diag)) {
+  } else if (include_diag) {
     x_long
+  }
+
+  # For split diagonals, add background elements to fill in gaps between the heatmap and its diagonal
+  if (draw_split_diag) {
+    plt <- add_split_diag(plt, diag_long, unique(x_long[["layout"]]), background = TRUE)
   }
 
   plt <- plt +
@@ -114,6 +131,12 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
     ) +
     col_scale + size_scale
 
+  # Add split diagonal if desired
+  if (draw_split_diag) {
+    plt <- add_split_diag(plt, diag_long, lt = unique(x_long[["layout"]]), background = FALSE,
+                          border_col = border_col, border_lwd = border_lwd, border_lty = border_lty)
+  }
+
   # Only add scales and coordinate systems once to avoid messages
   if (!plt_provided) {
     plt <- plt +
@@ -138,8 +161,6 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
 
   # Cell labels
   if (is.data.frame(cell_labels)) {
-    # Remove cells in cell_labels that don't exist in plot
-    # If input is a matrix, convert to long format
 
     # Merge with input long matrix to throw away irrelevant rows
     cell_data <- dplyr::left_join(x_long, cell_labels, by = c("row", "col"))
@@ -279,6 +300,102 @@ add_diag_names <- function(plt, x_long, names_diag_params = NULL) {
 
   plt <- plt +
     do.call(ggplot2::geom_text, text_call_params)
+
+  return(plt)
+}
+
+
+#' Draw triangles in the diagonal to split the it between the two triangles of a square matrix.
+#'
+#' @keywords internal
+#'
+#' @param plt Plot object to add to.
+#' @param x_long Plotting data for the diagonal.
+#' @param lt Layout of the heatmap.
+#' @param background Logical indicating if the triangles are for the background (to cover gaps
+#' between the heatmap and the diagonal).
+#' @param border_col Cell border colour.
+#' @param border_lwd Cell border linewidth.
+#' @param border_lty Cell border linetype.
+#'
+#' @returns ggplot object with added triangles in the diagonal.
+#'
+add_split_diag <- function(plt, x_long, lt, background = FALSE,
+                           border_col = "grey", border_lwd = 0.1, border_lty = 1) {
+  row_num <- col_num <- value <- id <- NULL
+
+  # Only use the diagonal
+  x_long <- dplyr::filter(x_long, as.character(row) == as.character(col))
+  nr <- nrow(x_long)
+
+  # Get coordinates of the cells
+  x_long[["row_num"]] <- as.integer(x_long[["row"]])
+  x_long[["col_num"]] <- as.integer(x_long[["col"]])
+  # IDs to group by so each polygon is for one cell (unusual separator to prevent accidents)
+  x_long[["id"]] <- paste0(x_long[["row"]], "._._._.", x_long[["col"]])
+
+  # If there are facets the coordinates restart in each facet, adjust accordingly
+  if (any(c(".row_facets", ".col_facets") %in% colnames(x_long))) {
+    facet_cols <- colnames(x_long)[which(colnames(x_long) %in% c(".row_facets", ".col_facets"))]
+    x_long <- dplyr::group_by(x_long, dplyr::across(dplyr::all_of(facet_cols)))
+    x_long <- dplyr::mutate(x_long,
+                            row_num = row_num - min(row_num) + 1,
+                            col_num = col_num - min(col_num) + 1)
+    x_long <- dplyr::ungroup(x_long)
+  }
+
+  # Calculate positions of polygon edges
+  # (three per triangle)
+  x_long <- rbind(x_long, x_long[rep(1:nrow(x_long), 2), ])
+  # If in the background, make them slightly larger to cover gaps
+  num <- ifelse(background, .6, .5)
+
+  row_add <- switch(as.character(lt),
+                    "topleft" = , "tl" = , "topright" = , "tr" = c(num, num, -num),
+                    "bottomright" = , "br" = , "bottomleft" = , "bl" = c(num, -num, -num))
+  col_add <- switch(as.character(lt),
+                    "topleft" = , "tl" = c(num, -num, -num),
+                    "bottomright" = , "br" = c(num, -num, num),
+                    "topright" = , "tr" = c(-num, num, num),
+                    "bottomleft" = , "bl" = c(-num, -num, num))
+
+  x_long[["row_num"]] <- x_long[["row_num"]] + rep(row_add, each = nr)
+  x_long[["col_num"]] <- x_long[["col_num"]] + rep(col_add, each = nr)
+
+  # If the triangles are for the background, subtract from the ends to not poke out from the heatmap
+  if (background) {
+    # In each facet if present
+    if (any(c(".row_facets", ".col_facets") %in% colnames(x_long))) {
+      x_long <- dplyr::group_by(x_long, dplyr::across(dplyr::all_of(facet_cols)))
+    }
+
+    x_long <- dplyr::mutate(x_long,
+                            row_num = dplyr::case_when(
+                              row_num == max(row_num) ~ row_num - .1,
+                              row_num == min(row_num) ~ row_num + .1,
+                              TRUE ~ row_num
+                            ),
+                            col_num = dplyr::case_when(
+                              col_num == max(col_num) ~ col_num - .1,
+                              col_num == min(col_num) ~ col_num + .1,
+                              TRUE ~ col_num
+                            ))
+
+    if (any(c(".row_facets", ".col_facets") %in% colnames(x_long))) {
+      x_long <- dplyr::ungroup(x_long)
+    }
+  }
+
+  # Add triangles
+  if (!background) {
+    plt <- plt +
+      ggplot2::geom_polygon(mapping = ggplot2::aes(x = col_num, y = row_num, fill = value, group = id),
+                            data = x_long, colour = border_col, linewidth = border_lwd, linetype = border_lty)
+  } else {
+    plt <- plt +
+      ggplot2::geom_polygon(mapping = ggplot2::aes(x = col_num, y = row_num, fill = value, group = id), data = x_long)
+  }
+
 
   return(plt)
 }

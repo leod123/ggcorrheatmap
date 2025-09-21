@@ -19,6 +19,7 @@ ggcorrhm(
   layout = "full",
   mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
   include_diag = TRUE,
+  split_diag = FALSE,
   na_col = "grey50",
   na_remove = FALSE,
   return_data = FALSE,
@@ -126,6 +127,8 @@ If layout is of length two with two opposing triangles, a mixed layout will be u
 \code{text} to write the cell values instead of filling cells (colour scaling with value), and \code{none} for blank cells.}
 
 \item{include_diag}{Logical indicating if the diagonal cells should be plotted (if the matrix is symmetric).}
+
+\item{split_diag}{Logical indicating if the diagonal cells (of a symmetric matrix) should be drawn as triangles, splitting the diagonal in two.}
 
 \item{na_col}{Colour to use for cells with NA (both main heatmap and annotation).}
 
@@ -271,10 +274,9 @@ Alternatively, if clustering is applied a single numeric value is accepted for t
 \value{
 The correlation heatmap as a \code{ggplot} object.
 If \code{return_data} is TRUE the output is a list containing the plot (named 'plot'),
-the correlations ('plot_data', with factor columns 'row' and 'col' and a column 'value' containing the cell values),
+the correlations ('plot_data', with factor columns 'row' and 'col' and a column 'value' containing the cell values, and 'layout' which part of the heatmap each cell belongs to),
 and the result of the clustering ('row_clustering' and 'col_clustering', if clustered).
 If p-values were calculated, two additional columns named 'p_val' and 'p_adj' are included in 'plot_data', containing nominal and adjusted p-values.
-If the layout is mixed, an extra factor column named 'layout' is included, showing which triangle each cell belongs to.
 }
 \description{
 Make a correlation heatmap from input matrices. Uses a diverging colour scale centered around 0.

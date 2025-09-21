@@ -25,6 +25,7 @@
 #' NAs hide the corresponding legends, a single NA hides all. Ignored for `ggplot2` scale objects in `col_scale` and `size_scale`.
 #' @param include_diag Logical indicating if the diagonal cells (of a symmetric matrix) should be plotted.
 #' Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.
+#' @param split_diag Logical indicating if the diagonal cells (of a symmetric matrix) should be drawn as triangles, splitting the diagonal in two.
 #' @param na_col Colour to use for cells with NA (both main heatmap and annotation).
 #' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
 #' If NAs are kept, the fill colour can be set in the `ggplot2` scale.
@@ -93,9 +94,8 @@
 #'
 #' @return The heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),
-#' the plotting data ('plot_data', with factor columns 'row' and 'col' and a column 'value' containing the cell values),
+#' the plotting data ('plot_data', with factor columns 'row' and 'col', a column 'value' containing the cell values, and 'layout' which part of the heatmap each cell belongs to),
 #' and the result of the clustering ('row_clustering' and/or 'col_clustering).
-#' If the layout is mixed, an extra factor column named 'layout' is included in 'plot_data', showing which triangle each cell belongs to.
 #'
 #' @export
 #'
@@ -184,7 +184,8 @@ gghm <- function(x,
                  limits = NULL, bins = NULL,
                  size_scale = NULL, size_name = "value",
                  legend_order = NULL,
-                 include_diag = TRUE, show_names_diag = FALSE, names_diag_params = NULL,
+                 include_diag = TRUE, split_diag = FALSE,
+                 show_names_diag = FALSE, names_diag_params = NULL,
                  show_names_x = TRUE, names_x_side = "top", show_names_y = TRUE, names_y_side = "left",
                  na_col = "grey50", na_remove = FALSE, return_data = FALSE,
                  cell_labels = FALSE, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
@@ -340,9 +341,12 @@ gghm <- function(x,
     annot_cols_side <- dend_cols_side <- ifelse(layout %in% c("bottomleft", "bl", "bottomright", "br"), "bottom", "top")
   }
 
+  check_logical(include_diag = include_diag)
+  check_logical(split_diag = split_diag)
+
   # Make long format data, ordering columns to fit layout
   if (length(layout) == 1) {
-    x_long <- layout_hm(x, layout = layout, na_remove = na_remove)
+    x_long <- dplyr::mutate(layout_hm(x, layout = layout, na_remove = na_remove), layout = layout)
 
     # Reorder data to ensure it is in the drawing order
     x_long <- if (any(c("topleft", "tl", "bottomright", "br") %in% layout)) {
@@ -353,11 +357,13 @@ gghm <- function(x,
 
   } else if (length(layout) == 2) {
     # Mixed layout, generate one per half and mark by layout. The first one gets the diagonal
+    # Unless the diagonal is split! then both they share it
     x_long <- dplyr::bind_rows(
       dplyr::mutate(layout_hm(x, layout = layout[1], na_remove = na_remove), layout = layout[1]),
       dplyr::filter(
         dplyr::mutate(layout_hm(x, layout = layout[2], na_remove = na_remove), layout = layout[2]),
-        as.character(row) != as.character(col)
+        if (include_diag && split_diag && mode[2] %in% c("heatmap", "hm")) {TRUE}
+        else {as.character(row) != as.character(col)}
         )
     )
     # Convert layout to a factor vector
@@ -520,7 +526,7 @@ gghm <- function(x,
 
   if (length(layout) == 1) {
     plt <- make_heatmap(x_long = x_long, plt = NULL, mode = mode, include_diag = include_diag,
-                        invisible_diag = isSymmetric(as.matrix(x)) && isTRUE(show_names_diag),
+                        invisible_diag = isSymmetric(as.matrix(x)),
                         border_lwd = border_lwd, border_col = border_col, border_lty = border_lty,
                         show_names_diag = show_names_diag, show_names_x = show_names_x, show_names_y = show_names_y,
                         names_x_side = names_x_side, names_y_side = names_y_side,
@@ -529,7 +535,8 @@ gghm <- function(x,
                         cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
                         cell_bg_col = cell_bg_col, cell_bg_alpha = cell_bg_alpha,
                         split_rows_names = split_rows_names, split_cols_names = split_cols_names,
-                        split_rows_side = split_rows_side, split_cols_side = split_cols_side)
+                        split_rows_side = split_rows_side, split_cols_side = split_cols_side,
+                        split_diag = split_diag)
     if (isTRUE(show_names_diag)) {
       plt <- add_diag_names(plt = plt, x_long = x_long, names_diag_params = names_diag_params)
     }
@@ -548,7 +555,8 @@ gghm <- function(x,
                         cell_label_size = cell_label_size[[1]], cell_label_digits = cell_label_digits[[1]],
                         cell_bg_col = cell_bg_col[[1]], cell_bg_alpha = cell_bg_alpha[[1]],
                         split_rows_names = split_rows_names, split_cols_names = split_cols_names,
-                        split_rows_side = split_rows_side, split_cols_side = split_cols_side)
+                        split_rows_side = split_rows_side, split_cols_side = split_cols_side,
+                        split_diag = split_diag)
     # Remaining half
     # Add new scales if multiple are provided
     if (isTRUE(col_scale[[1]][["aesthetics"]] == col_scale[[2]][["aesthetics"]])) {
@@ -556,15 +564,19 @@ gghm <- function(x,
     }
     if (!is.null(size_scale[[2]])) {plt <- plt + ggnewscale::new_scale(new_aes = "size")}
 
+    # Check if the diagonal should be drawn
+    incl_diag <- include_diag && split_diag && mode[2] %in% c("heatmap", "hm")
+
     plt <- make_heatmap(x_long = dplyr::filter(x_long, layout == lt[2]), plt = plt,
-                        mode = mode[2], include_diag = FALSE, invisible_diag = FALSE,
+                        mode = mode[2], include_diag = incl_diag, invisible_diag = FALSE,
                         border_lwd = border_lwd[[2]], border_col = border_col[[2]], border_lty = border_lty[[2]],
                         show_names_diag = FALSE, show_names_x = show_names_x, show_names_y = show_names_y,
                         names_x_side = names_x_side, names_y_side = names_y_side,
                         col_scale = col_scale[[2]], size_scale = size_scale[[2]],
                         cell_labels = cell_labels[[2]], cell_label_col = cell_label_col[[2]],
                         cell_label_size = cell_label_size[[2]], cell_label_digits = cell_label_digits[[2]],
-                        cell_bg_col = cell_bg_col[[2]], cell_bg_alpha = cell_bg_alpha[[2]])
+                        cell_bg_col = cell_bg_col[[2]], cell_bg_alpha = cell_bg_alpha[[2]],
+                        split_diag = split_diag)
     if (show_names_diag) {
       plt <- add_diag_names(plt = plt, x_long = x_long, names_diag_params = names_diag_params)
     }
@@ -605,9 +617,6 @@ gghm <- function(x,
   }
 
   if (return_data) {
-
-    # If layout is included (for mixed layouts), rename column
-    if ("lt" %in% colnames(x_long)) {x_long <- dplyr::rename(x_long, layout = lt)}
 
     # Data to return. If not drawing the diagonal, skip those values
     data_out <- if (!include_diag) {

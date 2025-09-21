@@ -29,7 +29,8 @@ make_heatmap(
   split_rows_names = FALSE,
   split_cols_names = FALSE,
   split_rows_side = "right",
-  split_cols_side = "bottom"
+  split_cols_side = "bottom",
+  split_diag = FALSE
 )
 }
 \arguments{
@@ -78,6 +79,8 @@ make_heatmap(
 \item{split_rows_names, split_cols_names}{Logicals indicating if the facet names should be shown (if plot is built from scratch).}
 
 \item{split_rows_side, split_cols_side}{Sides to put the facet strips.}
+
+\item{split_diag}{Logical indicating if the diagonal should be drawn as triangles (to split it between the two halves).}
 }
 \value{
 ggplot object with heatmap component.

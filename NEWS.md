@@ -1,8 +1,14 @@
 # ggcorrheatmap (development version)
 
-## Minor fixes
+## New features
+
+* The new `split_diag` argument allows for triangular cells in the diagonal.
+
+## Minor changes
 
 * Annotations in mixed layouts now work with ggplot2  version 4.0.0.
+
+* The output data frame from `return_data` now always contains a `layout` column.
 
 # ggcorrheatmap 0.2.0
 

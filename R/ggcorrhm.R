@@ -49,10 +49,9 @@
 #'
 #' @return The correlation heatmap as a `ggplot` object.
 #' If `return_data` is TRUE the output is a list containing the plot (named 'plot'),
-#' the correlations ('plot_data', with factor columns 'row' and 'col' and a column 'value' containing the cell values),
+#' the correlations ('plot_data', with factor columns 'row' and 'col' and a column 'value' containing the cell values, and 'layout' which part of the heatmap each cell belongs to),
 #' and the result of the clustering ('row_clustering' and 'col_clustering', if clustered).
 #' If p-values were calculated, two additional columns named 'p_val' and 'p_adj' are included in 'plot_data', containing nominal and adjusted p-values.
-#' If the layout is mixed, an extra factor column named 'layout' is included, showing which triangle each cell belongs to.
 #'
 #' @export
 #'
@@ -115,7 +114,8 @@
 ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything", cor_in = FALSE,
                      high = "sienna2", mid = "white", low = "skyblue2", midpoint = 0, limits = c(-1, 1), bins = NULL,
                      layout = "full", mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
-                     include_diag = TRUE, na_col = "grey50", na_remove = FALSE, return_data = FALSE,
+                     include_diag = TRUE, split_diag = FALSE,
+                     na_col = "grey50", na_remove = FALSE, return_data = FALSE,
                      col_scale = NULL, col_name = NULL,
                      size_range = c(4, 10), size_scale = NULL, size_name = NULL,
                      legend_order = NULL,
@@ -314,8 +314,9 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   # Call with all arguments to get the tooltips when calling ggcorrhm
   cor_plt <- gghm(cor_mat,
                   na_remove = na_remove,
-                  mode = mode, layout = layout, include_diag = include_diag, return_data = TRUE,
-                  col_scale = col_scale, col_name = col_name,
+                  mode = mode, layout = layout,
+                  include_diag = include_diag, split_diag = split_diag,
+                  return_data = TRUE, col_scale = col_scale, col_name = col_name,
                   size_scale = size_scale, size_name = size_name,
                   border_col = border_col, border_lwd = border_lwd, border_lty = border_lty,
                   show_names_diag = show_names_diag, names_diag_params = names_diag_params,

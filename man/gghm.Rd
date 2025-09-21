@@ -17,6 +17,7 @@ gghm(
   size_name = "value",
   legend_order = NULL,
   include_diag = TRUE,
+  split_diag = FALSE,
   show_names_diag = FALSE,
   names_diag_params = NULL,
   show_names_x = TRUE,
@@ -119,6 +120,8 @@ NAs hide the corresponding legends, a single NA hides all. Ignored for \code{ggp
 
 \item{include_diag}{Logical indicating if the diagonal cells (of a symmetric matrix) should be plotted.
 Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.}
+
+\item{split_diag}{Logical indicating if the diagonal cells (of a symmetric matrix) should be drawn as triangles, splitting the diagonal in two.}
 
 \item{show_names_diag}{Logical indicating if names should be written in the diagonal cells (for symmetric input).}
 
@@ -239,9 +242,8 @@ Alternatively, if clustering is applied a single numeric value is accepted for t
 \value{
 The heatmap as a \code{ggplot} object.
 If \code{return_data} is TRUE the output is a list containing the plot (named 'plot'),
-the plotting data ('plot_data', with factor columns 'row' and 'col' and a column 'value' containing the cell values),
+the plotting data ('plot_data', with factor columns 'row' and 'col', a column 'value' containing the cell values, and 'layout' which part of the heatmap each cell belongs to),
 and the result of the clustering ('row_clustering' and/or 'col_clustering).
-If the layout is mixed, an extra factor column named 'layout' is included in 'plot_data', showing which triangle each cell belongs to.
 }
 \description{
 Make a heatmap with ggplot2.
