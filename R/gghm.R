@@ -357,7 +357,7 @@ gghm <- function(x,
 
   } else if (length(layout) == 2) {
     # Mixed layout, generate one per half and mark by layout. The first one gets the diagonal
-    # Unless the diagonal is split! then both they share it
+    # Unless the diagonal is split! then they both share it
     x_long <- dplyr::bind_rows(
       dplyr::mutate(layout_hm(x, layout = layout[1], na_remove = na_remove), layout = layout[1]),
       dplyr::filter(
@@ -471,10 +471,9 @@ gghm <- function(x,
     dendro_cols <- check_dendrogram_pos(dat = x_long, context = "col", dendro = dendro_cols)
   }
 
-
   # Generate colour scales according to specifications
   # Skip this whole part if the function call comes directly from ggcorrhm, as it is already handled there
-  if (!grepl("^ggcorrhm\\(", deparse(sys.call(-1))[1])) {
+  if (!"yes!!" %in% attr(col_scale, "is_this_from_ggcorrhm?")) {
     # Get scales and their orders
     scale_order <- make_legend_order(mode = mode,
                                      col_scale = col_scale,
@@ -507,9 +506,10 @@ gghm <- function(x,
                                          annot_rows_df = annot_rows_df, annot_cols_df = annot_cols_df,
                                          annot_rows_col = annot_rows_col, annot_cols_col = annot_cols_col)
 
-    # Generate the scale lists to pass to gghm
+    # Generate the scale lists to pass to make_heatmap
     col_scale <- extract_scales(main_scales, scale_order, c("fill", "col"), layout)
     size_scale <- extract_scales(main_scales, scale_order, "size", layout)
+
   } else {
     annot_scales <- list("rows" = annot_rows_col, "cols" = annot_cols_col)
   }
@@ -680,10 +680,16 @@ prepare_mixed_param <- function(param, param_name) {
   if (grepl("_scale$", param_name) && is.list(param) && length(param) == 1) {
     # If a scale object, put it in a list but don't repeat it
     # If character, repeat
+    # If just a NULL, return two NULLs
+    # For anything else (invalid col_scale inputs), pass it on for downstream warning
     if (inherits(param[[1]], c("Scale", "ggproto", "gg"))) {
       param_out <- list(param[[1]], NULL)
     } else if (is.character(param[[1]])) {
       param_out <- list(param[[1]], param[[1]])
+    } else if (is.null(param[[1]])) {
+      param_out <- list(NULL, NULL)
+    } else {
+      param_out <- list(param, param)
     }
 
   } else if (is.null(param) && (grepl("_scale$", param_name) || grepl("_digits$", param_name) ||
@@ -705,7 +711,7 @@ prepare_mixed_param <- function(param, param_name) {
 
   } else if (length(param) != 2) {
     msg <- if (param_name == "col_scale") {
-      "In a mixed layout, {.var {param_name}} must be either one character specifying a scale (used for all),
+      "In a mixed layout, {.var {param_name}} must be either one character value specifying a scale (used for all),
        or a list with up to two scales (character, scale object or NULL). See the details of 'gghm' for more on usage."
     } else if (param_name == "size_scale") {
       "In a mixed layout, {.var {param_name}} must be either NULL (use default),

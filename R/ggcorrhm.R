@@ -311,6 +311,9 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   col_scale <- extract_scales(main_scales, scale_order, c("fill", "col"), layout)
   size_scale <- extract_scales(main_scales, scale_order, "size", layout)
 
+  # Leave a mark for gghm to detect that this is from ggcorrhm
+  attr(col_scale, "is_this_from_ggcorrhm?") <- "yes!!"
+
   # Call with all arguments to get the tooltips when calling ggcorrhm
   cor_plt <- gghm(cor_mat,
                   na_remove = na_remove,
