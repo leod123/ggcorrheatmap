@@ -32,6 +32,11 @@ test_that("basic functionality works", {
   lbl2[sample(1:length(lbl2), 100, FALSE)] <- "a"
   expect_no_error(gghm(mtcars, cell_labels = lbl1))
   expect_no_error(gghm(mtcars, cell_labels = lbl2))
+  expect_no_error(gghm(cor(mtcars), layout = "br", split_diag = T))
+  expect_no_error(gghm(cor(mtcars), layout = c("br", "tl"), split_diag = T,
+                       col_scale = c("A", "G"), annot_rows_df = data.frame(
+                         .names = colnames(mtcars), a = 1:11, b = 11:1
+                       ), cluster_rows = T, cluster_cols = T))
   # Mixed layout with multiple scales
   expect_no_error(gghm(cor(mtcars), layout = c("tr", "bl"), mode = c("hm", "hm"),
                        col_scale = list(
@@ -141,6 +146,13 @@ test_that("snapshots", {
          bins = c(4L, 6L), limits = list(c(-1, 1), c(-.5, .5)),
          col_scale = c("A", "D"), na_col = c("green", "blue"))
   })
+  vdiffr::expect_doppelganger("split_diag1", gghm(cor(mtcars), layout = "br", split_diag = T))
+  vdiffr::expect_doppelganger("split_diag2", gghm(cor(mtcars), layout = c("br", "tl"), mode = c("hm", "hm"),
+                                                  col_scale = c("A", "G"),
+                                                  split_diag = T, cluster_rows = T, cluster_cols = T,
+                                                  annot_rows_df = data.frame(
+                                                    .names = colnames(mtcars), a = 1:11, b = 11:1
+                                                  )))
 })
 
 test_that("correct input types", {
