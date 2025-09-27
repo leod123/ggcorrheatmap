@@ -205,6 +205,20 @@ ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c(23, 23),
 
 # Some extra plots
 
+As shown above, the first triangle gets the diagonal. If the `split_diag` argument is `TRUE` the diagonal of triangles using heatmap mode will be drawn as triangles, resulting in a diagonal split between the two halves. Note that arguments using static aesthetics like `border_col` will not work with vectors if `split_diag` is `TRUE`.
+
+```{r, fig.alt='Two mtcars correlation heatmaps. The first one shows the bottom right triangle and the diagonal cells are triangular (also bottom right triangles). The second heatmap shows the whole heatmap, with the bottom left and top right triangles using different colour scales (Viridis magma and mako options). The diagonal has triangular cells, splitting it between the two heatmap halves', fig.height=5, fig.width=10}
+plt1 <- ggcorrhm(mtcars, layout = "br", mode = "hm", split_diag = TRUE,
+                 names_diag_params = list(angle = -45, hjust = 1.2))
+
+plt2 <- ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("hm", "hm"),
+                 col_scale = c("A", "G_rev"), split_diag = TRUE,
+                 # Move the names for visibility
+                 show_names_diag = FALSE, show_names_x = TRUE, show_names_y = TRUE)
+
+plt1 + plt2
+```
+
 When using triangular layouts, annotations and dendrograms are moved to the non-empty sides of the heatmap for convenience. Using mixed layouts with mode "none" it is possible to "hack" annotations and dendrograms onto the empty sides of triangular layouts.
 
 ```{r, fig.alt='A mtcars correlation heatmap showing only the top left triangle. On the right and below are row and column annotations, leaving a large triangular gap in the bottom right.'}
