@@ -62,10 +62,47 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
   # (only needed if symmetric matrix with triangular layout)
   if (invisible_diag) {
     plt <- plt +
-      # Subset after converting to character as error occurs during rendering if factor levels are different
-      ggplot2::geom_tile(data = subset(x_long, as.character(row) == as.character(col)),
-                         mapping = ggplot2::aes(x = col, y = row),
-                         fill = "white", linewidth = 0, alpha = 0)
+        # Subset after converting to character as error occurs during rendering if factor levels are different
+        ggplot2::geom_text(data = subset(x_long, as.character(row) == as.character(col)),
+                           mapping = ggplot2::aes(x = col, y = row, label = col), alpha = 0)
+  }
+
+  # Add facetting
+  if (any(c(".row_facets", ".col_facets") %in% colnames(x_long))) {
+    facet_r <- if (".row_facets" %in% colnames(x_long)) {
+      # Explicitly set factor levels when making the facets to prevent unintentional changes in facet order
+      ggplot2::vars(factor(.row_facets, levels = levels(x_long[[".row_facets"]])))
+    } else {NULL}
+    facet_c <- if (".col_facets" %in% colnames(x_long)) {
+      ggplot2::vars(factor(.col_facets, levels = levels(x_long[[".col_facets"]])))
+    } else {NULL}
+
+    # Make input for the 'switch' argument for strip placement
+    # Check that the inputs are valid
+    if (!split_rows_side %in% c("left", "right") && !is.null(facet_r)) {
+      cli::cli_warn("{.var split_rows_side} should be {.val left} or {.val right}, not
+                     {.val {split_rows_side}}. Using default (right).",
+                    class = "facet_side_warn")
+      split_rows_side <- "right"
+    }
+    if (!split_cols_side %in% c("top", "bottom") && !is.null(facet_c)) {
+      cli::cli_warn("{.var split_cols_side} should be {.val top} or {.val bottom}, not
+                     {.val {split_cols_side}}. Using default (bottom).",
+                    class = "facet_side_warn")
+      split_cols_side <- "bottom"
+    }
+
+    # Default is top and right, switch different axes depending on input
+    sw_in <- switch(paste0(split_rows_side, split_cols_side),
+                    "righttop" = NULL,
+                    "rightbottom" = "x",
+                    "lefttop" = "y",
+                    "leftbottom" = "both")
+
+    plt <- plt +
+      ggplot2::facet_grid(rows = facet_r, cols = facet_c,
+                          space = "free", scales = "free",
+                          switch = sw_in)
   }
 
   # Use different input data depending on desired layout
@@ -74,20 +111,16 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
   draw_split_diag <- include_diag && split_diag && mode %in% c("heatmap", "hm") &&
     !unique(x_long[["layout"]]) %in% c("full", "f", "whole", "w")
 
-  # Keep the diagonal of the original data if a split diag is to be drawn
+  # For split diagonals, add background elements to fill in gaps between the heatmap and its diagonal
   if (draw_split_diag) {
-    diag_long <- subset(x_long, as.character(row) == as.character(col))
+    plt <- add_split_diag(plt, x_long, unique(x_long[["layout"]]), border_col = border_col,
+                          border_lwd = border_lwd, border_lty = border_lty)
   }
 
   x_long <- if (!include_diag || draw_split_diag) {
     subset(x_long, as.character(row) != as.character(col))
   } else if (include_diag) {
     x_long
-  }
-
-  # For split diagonals, add background elements to fill in gaps between the heatmap and its diagonal
-  if (draw_split_diag) {
-    plt <- add_split_diag(plt, diag_long, unique(x_long[["layout"]]), background = TRUE)
   }
 
   plt <- plt +
@@ -131,12 +164,6 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
     ) +
     col_scale + size_scale
 
-  # Add split diagonal if desired
-  if (draw_split_diag) {
-    plt <- add_split_diag(plt, diag_long, lt = unique(x_long[["layout"]]), background = FALSE,
-                          border_col = border_col, border_lwd = border_lwd, border_lty = border_lty)
-  }
-
   # Only add scales and coordinate systems once to avoid messages
   if (!plt_provided) {
     plt <- plt +
@@ -148,7 +175,8 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
       ggplot2::theme(axis.line = ggplot2::element_blank(),
                      axis.text.y = if (show_names_y) ggplot2::element_text() else ggplot2::element_blank(),
                      axis.ticks = ggplot2::element_blank(),
-                     axis.title = ggplot2::element_blank())
+                     axis.title = ggplot2::element_blank(),
+                     strip.background = ggplot2::element_blank())
     # Rotate x labels if names on x axis
     if (show_names_x) {
       plt <- plt +
@@ -191,44 +219,6 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
         }
       )
 
-  }
-
-  if (any(c(".row_facets", ".col_facets") %in% colnames(x_long))) {
-    facet_r <- if (".row_facets" %in% colnames(x_long)) {
-      # Explicitly set factor levels when making the facets to prevent unintentional changes in facet order
-      ggplot2::vars(factor(.row_facets, levels = levels(x_long[[".row_facets"]])))
-    } else {NULL}
-    facet_c <- if (".col_facets" %in% colnames(x_long)) {
-      ggplot2::vars(factor(.col_facets, levels = levels(x_long[[".col_facets"]])))
-    } else {NULL}
-
-    # Make input for the 'switch' argument for strip placement
-    # Check that the inputs are valid
-    if (!split_rows_side %in% c("left", "right") && !is.null(facet_r)) {
-      cli::cli_warn("{.var split_rows_side} should be {.val left} or {.val right}, not
-                     {.val {split_rows_side}}. Using default (right).",
-                     class = "facet_side_warn")
-      split_rows_side <- "right"
-    }
-    if (!split_cols_side %in% c("top", "bottom") && !is.null(facet_c)) {
-      cli::cli_warn("{.var split_cols_side} should be {.val top} or {.val bottom}, not
-                     {.val {split_cols_side}}. Using default (bottom).",
-                     class = "facet_side_warn")
-      split_cols_side <- "bottom"
-    }
-
-    # Default is top and right, switch different axes depending on input
-    sw_in <- switch(paste0(split_rows_side, split_cols_side),
-                    "righttop" = NULL,
-                    "rightbottom" = "x",
-                    "lefttop" = "y",
-                    "leftbottom" = "both")
-
-    plt <- plt +
-      ggplot2::facet_grid(rows = facet_r, cols = facet_c,
-                          space = "free", scales = "free",
-                          switch = sw_in) +
-      ggplot2::theme(strip.background = ggplot2::element_blank())
   }
 
   if (!plt_provided && !any(c(".row_facets", ".col_facets") %in% colnames(x_long))) {
@@ -312,90 +302,84 @@ add_diag_names <- function(plt, x_long, names_diag_params = NULL) {
 #' @param plt Plot object to add to.
 #' @param x_long Plotting data for the diagonal.
 #' @param lt Layout of the heatmap.
-#' @param background Logical indicating if the triangles are for the background (to cover gaps
-#' between the heatmap and the diagonal).
 #' @param border_col Cell border colour.
 #' @param border_lwd Cell border linewidth.
 #' @param border_lty Cell border linetype.
 #'
 #' @returns ggplot object with added triangles in the diagonal.
 #'
-add_split_diag <- function(plt, x_long, lt, background = FALSE,
+add_split_diag <- function(plt, x_long, lt,
                            border_col = "grey", border_lwd = 0.1, border_lty = 1) {
-  row_num <- col_num <- value <- id <- NULL
+  x <- y <- group <- value <- NULL
 
-  # Only use the diagonal
-  x_long <- dplyr::filter(x_long, as.character(row) == as.character(col))
-  nr <- nrow(x_long)
-
-  # Get coordinates of the cells
-  x_long[["row_num"]] <- as.integer(x_long[["row"]])
-  x_long[["col_num"]] <- as.integer(x_long[["col"]])
-  # IDs to group by so each polygon is for one cell (unusual separator to prevent accidents)
-  x_long[["id"]] <- paste0(x_long[["row"]], "._._._.", x_long[["col"]])
-
-  # If there are facets the coordinates restart in each facet, adjust accordingly
-  if (any(c(".row_facets", ".col_facets") %in% colnames(x_long))) {
-    facet_cols <- colnames(x_long)[which(colnames(x_long) %in% c(".row_facets", ".col_facets"))]
-    x_long <- dplyr::group_by(x_long, dplyr::across(dplyr::all_of(facet_cols)))
-    x_long <- dplyr::mutate(x_long,
-                            row_num = row_num - min(row_num) + 1,
-                            col_num = col_num - min(col_num) + 1)
-    x_long <- dplyr::ungroup(x_long)
-  }
+  # Get diagonal from the invisible diagonal to get the correct coordinates (even if facetted)
+  diag_dat <- ggplot2::ggplot_build(plt)$data[[1]][c("x", "y", "label", "group")]
+  diag_dat[["row"]] <- diag_dat[["label"]]
+  diag_dat[["col"]] <- diag_dat[["label"]]
+  # Add extra info from plotting data
+  diag_dat <- dplyr::left_join(diag_dat,
+                               dplyr::select(x_long, row, col, value, dplyr::contains("_facets")),
+                               by = c("row", "col"))
 
   # Calculate positions of polygon edges
-  # (three per triangle)
-  x_long <- rbind(x_long, x_long[rep(1:nrow(x_long), 2), ])
+  # For adding the correct number of times
+  nr <- nrow(diag_dat)
+  # (repeat twice for three corners per triangle)
+  diag_dat <- rbind(diag_dat, diag_dat[rep(1:nrow(diag_dat), 2), ])
+  # Make data for the background to cover gaps between geom_tile and geom_polygon
   # If in the background, make them slightly larger to cover gaps
-  num <- ifelse(background, .6, .5)
+  diag_dat <- list(diag_dat, diag_dat)
 
-  row_add <- switch(as.character(lt),
-                    "topleft" = , "tl" = , "topright" = , "tr" = c(num, num, -num),
-                    "bottomright" = , "br" = , "bottomleft" = , "bl" = c(num, -num, -num))
-  col_add <- switch(as.character(lt),
-                    "topleft" = , "tl" = c(num, -num, -num),
-                    "bottomright" = , "br" = c(num, -num, num),
-                    "topright" = , "tr" = c(-num, num, num),
-                    "bottomleft" = , "bl" = c(-num, -num, num))
+  diag_dat <- mapply(function(dd, i) {
+    # i = 1: background
+    num <- ifelse(i == 1, .6, .5)
 
-  x_long[["row_num"]] <- x_long[["row_num"]] + rep(row_add, each = nr)
-  x_long[["col_num"]] <- x_long[["col_num"]] + rep(col_add, each = nr)
+    row_add <- switch(as.character(lt),
+                      "topleft" = , "tl" = , "topright" = , "tr" = c(num, num, -num),
+                      "bottomright" = , "br" = , "bottomleft" = , "bl" = c(num, -num, -num))
+    col_add <- switch(as.character(lt),
+                      "topleft" = , "tl" = c(num, -num, -num),
+                      "bottomright" = , "br" = c(num, -num, num),
+                      "topright" = , "tr" = c(-num, num, num),
+                      "bottomleft" = , "bl" = c(-num, -num, num))
 
-  # If the triangles are for the background, subtract from the ends to not poke out from the heatmap
-  if (background) {
-    # In each facet if present
-    if (any(c(".row_facets", ".col_facets") %in% colnames(x_long))) {
-      x_long <- dplyr::group_by(x_long, dplyr::across(dplyr::all_of(facet_cols)))
+    dd[["y"]] <- dd[["y"]] + rep(row_add, each = nr)
+    dd[["x"]] <- dd[["x"]] + rep(col_add, each = nr)
+
+    # If the triangles are for the background, subtract from the ends to not poke out from the heatmap
+    if (i == 1) {
+      # In each facet if present
+      if (any(c(".row_facets", ".col_facets") %in% colnames(dd))) {
+        facet_cols <- colnames(dd)[which(colnames(dd) %in% c(".row_facets", ".col_facets"))]
+        dd <- dplyr::group_by(dd, dplyr::across(dplyr::all_of(facet_cols)))
+      }
+
+      dd <- dplyr::mutate(dd,
+                          y = dplyr::case_when(
+                            y == max(y) ~ y - .1,
+                            y == min(y) ~ y + .1,
+                            TRUE ~ y
+                          ),
+                          x = dplyr::case_when(
+                            x == max(x) ~ x - .1,
+                            x == min(x) ~ x + .1,
+                            TRUE ~ x
+                          ))
+
+      if (any(c(".row_facets", ".col_facets") %in% colnames(dd))) {
+        dd <- dplyr::ungroup(dd)
+      }
     }
 
-    x_long <- dplyr::mutate(x_long,
-                            row_num = dplyr::case_when(
-                              row_num == max(row_num) ~ row_num - .1,
-                              row_num == min(row_num) ~ row_num + .1,
-                              TRUE ~ row_num
-                            ),
-                            col_num = dplyr::case_when(
-                              col_num == max(col_num) ~ col_num - .1,
-                              col_num == min(col_num) ~ col_num + .1,
-                              TRUE ~ col_num
-                            ))
+    return(dd)
+  }, diag_dat, 1:2, SIMPLIFY = FALSE)
 
-    if (any(c(".row_facets", ".col_facets") %in% colnames(x_long))) {
-      x_long <- dplyr::ungroup(x_long)
-    }
-  }
 
-  # Add triangles
-  if (!background) {
-    plt <- plt +
-      ggplot2::geom_polygon(mapping = ggplot2::aes(x = col_num, y = row_num, fill = value, group = id),
-                            data = x_long, colour = border_col, linewidth = border_lwd, linetype = border_lty)
-  } else {
-    plt <- plt +
-      ggplot2::geom_polygon(mapping = ggplot2::aes(x = col_num, y = row_num, fill = value, group = id), data = x_long)
-  }
-
+  # Add triangles, background first
+  plt <- plt +
+    ggplot2::geom_polygon(mapping = ggplot2::aes(x = x, y = y, fill = value, group = group), data = diag_dat[[1]]) +
+    ggplot2::geom_polygon(mapping = ggplot2::aes(x = x, y = y, fill = value, group = group),
+                            data = diag_dat[[2]], colour = border_col, linewidth = border_lwd, linetype = border_lty)
 
   return(plt)
 }

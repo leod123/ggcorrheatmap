@@ -29,17 +29,17 @@
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
 <rect x='74.81' y='43.57' width='526.95' height='526.95' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<rect x='79.01' y='467.29' width='41.95' height='41.95' style='stroke-width: 0.00; stroke: none; stroke-linecap: butt; stroke-linejoin: miter;' />
-<rect x='120.96' y='425.34' width='41.95' height='41.95' style='stroke-width: 0.00; stroke: none; stroke-linecap: butt; stroke-linejoin: miter;' />
-<rect x='162.91' y='383.39' width='41.95' height='41.95' style='stroke-width: 0.00; stroke: none; stroke-linecap: butt; stroke-linejoin: miter;' />
-<rect x='204.87' y='341.43' width='41.95' height='41.95' style='stroke-width: 0.00; stroke: none; stroke-linecap: butt; stroke-linejoin: miter;' />
-<rect x='246.82' y='299.48' width='41.95' height='41.95' style='stroke-width: 0.00; stroke: none; stroke-linecap: butt; stroke-linejoin: miter;' />
-<rect x='288.77' y='257.53' width='41.95' height='41.95' style='stroke-width: 0.00; stroke: none; stroke-linecap: butt; stroke-linejoin: miter;' />
-<rect x='330.72' y='215.58' width='41.95' height='41.95' style='stroke-width: 0.00; stroke: none; stroke-linecap: butt; stroke-linejoin: miter;' />
-<rect x='372.68' y='173.62' width='41.95' height='41.95' style='stroke-width: 0.00; stroke: none; stroke-linecap: butt; stroke-linejoin: miter;' />
-<rect x='414.63' y='131.67' width='41.95' height='41.95' style='stroke-width: 0.00; stroke: none; stroke-linecap: butt; stroke-linejoin: miter;' />
-<rect x='456.58' y='89.72' width='41.95' height='41.95' style='stroke-width: 0.00; stroke: none; stroke-linecap: butt; stroke-linejoin: miter;' />
-<rect x='498.54' y='47.77' width='41.95' height='41.95' style='stroke-width: 0.00; stroke: none; stroke-linecap: butt; stroke-linejoin: miter;' />
+<text x='99.99' y='492.05' text-anchor='middle' style='font-size: 11.00px; fill: none; font-family: sans;' textLength='11.00px' lengthAdjust='spacingAndGlyphs'>wt</text>
+<text x='141.94' y='450.10' text-anchor='middle' style='font-size: 11.00px; fill: none; font-family: sans;' textLength='13.45px' lengthAdjust='spacingAndGlyphs'>cyl</text>
+<text x='183.89' y='408.15' text-anchor='middle' style='font-size: 11.00px; fill: none; font-family: sans;' textLength='20.18px' lengthAdjust='spacingAndGlyphs'>disp</text>
+<text x='225.84' y='366.20' text-anchor='middle' style='font-size: 11.00px; fill: none; font-family: sans;' textLength='12.24px' lengthAdjust='spacingAndGlyphs'>hp</text>
+<text x='267.80' y='324.24' text-anchor='middle' style='font-size: 11.00px; fill: none; font-family: sans;' textLength='21.40px' lengthAdjust='spacingAndGlyphs'>carb</text>
+<text x='309.75' y='282.29' text-anchor='middle' style='font-size: 11.00px; fill: none; font-family: sans;' textLength='18.96px' lengthAdjust='spacingAndGlyphs'>drat</text>
+<text x='351.70' y='240.34' text-anchor='middle' style='font-size: 11.00px; fill: none; font-family: sans;' textLength='15.29px' lengthAdjust='spacingAndGlyphs'>am</text>
+<text x='393.65' y='198.39' text-anchor='middle' style='font-size: 11.00px; fill: none; font-family: sans;' textLength='22.02px' lengthAdjust='spacingAndGlyphs'>gear</text>
+<text x='435.61' y='156.43' text-anchor='middle' style='font-size: 11.00px; fill: none; font-family: sans;' textLength='23.25px' lengthAdjust='spacingAndGlyphs'>qsec</text>
+<text x='477.56' y='114.48' text-anchor='middle' style='font-size: 11.00px; fill: none; font-family: sans;' textLength='21.40px' lengthAdjust='spacingAndGlyphs'>mpg</text>
+<text x='519.51' y='72.53' text-anchor='middle' style='font-size: 11.00px; fill: none; font-family: sans;' textLength='11.01px' lengthAdjust='spacingAndGlyphs'>vs</text>
 <circle cx='99.99' cy='488.27' r='3.27' style='stroke-width: 0.14; stroke: #FFC0CB; fill: #FFC0CB;' />
 <circle cx='99.99' cy='446.32' r='3.14' style='stroke-width: 0.14; stroke: #FFC7D1; fill: #FFC7D1;' />
 <circle cx='99.99' cy='404.36' r='3.21' style='stroke-width: 0.14; stroke: #FFC4CE; fill: #FFC4CE;' />

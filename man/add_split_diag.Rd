@@ -8,7 +8,6 @@ add_split_diag(
   plt,
   x_long,
   lt,
-  background = FALSE,
   border_col = "grey",
   border_lwd = 0.1,
   border_lty = 1
@@ -20,9 +19,6 @@ add_split_diag(
 \item{x_long}{Plotting data for the diagonal.}
 
 \item{lt}{Layout of the heatmap.}
-
-\item{background}{Logical indicating if the triangles are for the background (to cover gaps
-between the heatmap and the diagonal).}
 
 \item{border_col}{Cell border colour.}
 
