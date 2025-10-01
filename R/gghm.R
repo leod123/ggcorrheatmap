@@ -313,6 +313,16 @@ gghm <- function(x,
     layout <- "f"
     full_plt <- TRUE
     mode <- mode[1]
+    # If coming from ggcorrhm, cell_labels will be a list of length 2, which causes an error later
+    if (is.vector(cell_labels) && length(cell_labels) == 2) {
+      cell_labels <- cell_labels[[1]]
+    }
+    if (is.vector(cell_labels) && length(cell_labels) == 2) {
+      cell_labels <- cell_labels[[1]]
+    }
+    if (is.vector(cell_label_digits) && length(cell_label_digits) == 2) {
+      cell_label_digits <- cell_label_digits[[1]]
+    }
   }
 
   # Evaluate annot_border_col, annot_border_lwd, annot_border_lty so they get values based on border_col etc
@@ -377,7 +387,6 @@ gghm <- function(x,
   }
 
   # If clustering and facetting the same dimension, cannot show dendrogram
-  facet_already_warned <- FALSE
   if (!isFALSE(cluster_rows) && !is.null(split_rows)) {
     show_dend_rows <- FALSE
   }
@@ -516,7 +525,7 @@ gghm <- function(x,
 
   # Check that rows and columns in cell label input exist (if matrix/data frame)
   if (length(layout) == 2 && is.vector(cell_labels)) {
-    cell_labels <- lapply(cell_labels, function(x) check_cell_labels(x, x_long))
+    cell_labels <- lapply(cell_labels, function(cl) check_cell_labels(cl, x_long))
   } else {
     cell_labels <- check_cell_labels(cell_labels, x_long)
   }
