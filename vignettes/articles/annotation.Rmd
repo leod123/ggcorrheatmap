@@ -52,9 +52,9 @@ col_annot <- as.data.frame(replicate(8, 1:8)) %>%
 col_annot$.names <- colnames(mtcars)[1:8]
 
 col_annot_fill <- list(custom1 = "Oranges",
-                       custom2 = scale_fill_discrete(guide = "none"),
+                       custom2 = scale_fill_hue(guide = "none"),
                        custom3 = "mako",
-                       custom4 = scale_fill_continuous(guide = "none"))
+                       custom4 = scale_fill_gradient(guide = "none"))
 ggcorrhm(mtcars[, 1:8], annot_cols_df = col_annot,
          annot_cols_col = col_annot_fill, legend_order = NA)
 ```
