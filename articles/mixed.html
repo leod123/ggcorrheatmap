@@ -296,29 +296,46 @@ instead (and can be customised with the <code>high</code>,
 <div class="section level2">
 <h2 id="some-extra-plots">Some extra plots<a class="anchor" aria-label="anchor" href="#some-extra-plots"></a>
 </h2>
+<p>As shown above, the first triangle gets the diagonal. If the
+<code>split_diag</code> argument is <code>TRUE</code> the diagonal of
+triangles using heatmap mode will be drawn as triangles, resulting in a
+diagonal split between the two halves. Note that arguments using static
+aesthetics like <code>border_col</code> will not work with vectors if
+<code>split_diag</code> is <code>TRUE</code>.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">plt1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="st">"br"</span>, mode <span class="op">=</span> <span class="st">"hm"</span>, split_diag <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                 names_diag_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="op">-</span><span class="fl">45</span>, hjust <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">plt2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tr"</span>, <span class="st">"bl"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hm"</span>, <span class="st">"hm"</span><span class="op">)</span>,</span>
+<span>                 col_scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"G_rev"</span><span class="op">)</span>, split_diag <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                 <span class="co"># Move the names for visibility</span></span>
+<span>                 show_names_diag <span class="op">=</span> <span class="cn">FALSE</span>, show_names_x <span class="op">=</span> <span class="cn">TRUE</span>, show_names_y <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">plt1</span> <span class="op">+</span> <span class="va">plt2</span></span></code></pre></div>
+<p><img src="mixed_files/figure-html/unnamed-chunk-15-1.png" alt="Two mtcars correlation heatmaps. The first one shows the bottom right triangle and the diagonal cells are triangular (also bottom right triangles). The second heatmap shows the whole heatmap, with the bottom left and top right triangles using different colour scales (Viridis magma and mako options). The diagonal has triangular cells, splitting it between the two heatmap halves" width="960"></p>
 <p>When using triangular layouts, annotations and dendrograms are moved
 to the non-empty sides of the heatmap for convenience. Using mixed
 layouts with mode “none” it is possible to “hack” annotations and
 dendrograms onto the empty sides of triangular layouts.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">annot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span>, a <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">11</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hm"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
 <span>         annot_rows_df <span class="op">=</span> <span class="va">annot</span>, annot_cols_df <span class="op">=</span> <span class="va">annot</span>,</span>
 <span>         cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>, cluster_cols <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>         <span class="co"># Hide cell borders only in the 'none' triangle</span></span>
 <span>         border_lwd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="mixed_files/figure-html/unnamed-chunk-15-1.png" alt="A mtcars correlation heatmap showing only the top left triangle. On the right and below are row and column annotations, leaving a large triangular gap in the bottom right." width="700"></p>
+<p><img src="mixed_files/figure-html/unnamed-chunk-16-1.png" alt="A mtcars correlation heatmap showing only the top left triangle. On the right and below are row and column annotations, leaving a large triangular gap in the bottom right." width="700"></p>
 <p>Finally, the default full layout reverses the y axis levels so that
 the rows are in the same order as in the input and the diagonal runs
 from top left to bottom right. If the opposite layout is desired it can
 be made using a mixed layout of a top left and a bottom right triangle,
 like the plot below.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plt1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="st">"f"</span><span class="op">)</span></span>
 <span><span class="va">plt2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hm"</span>, <span class="st">"hm"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plt1</span> <span class="op">+</span> <span class="va">plt2</span></span></code></pre></div>
-<p><img src="mixed_files/figure-html/unnamed-chunk-16-1.png" alt="Two mtcars correlation heatmaps, both showing the whole heatmap with names along the diagonal. The first one has the diagonal running from top left to bottom right, while the second one has the diagonal between the bottom left and top right (the row order is reversed)." width="960"></p>
+<p><img src="mixed_files/figure-html/unnamed-chunk-17-1.png" alt="Two mtcars correlation heatmaps, both showing the whole heatmap with names along the diagonal. The first one has the diagonal running from top left to bottom right, while the second one has the diagonal between the bottom left and top right (the row order is reversed)." width="960"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

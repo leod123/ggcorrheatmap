@@ -63,6 +63,7 @@
 <span>  size_name <span class="op">=</span> <span class="st">"value"</span>,</span>
 <span>  legend_order <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  include_diag <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  split_diag <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  show_names_diag <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  names_diag_params <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  show_names_x <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -192,6 +193,10 @@ NAs hide the corresponding legends, a single NA hides all. Ignored for <code>ggp
 <dt id="arg-include-diag">include_diag<a class="anchor" aria-label="anchor" href="#arg-include-diag"></a></dt>
 <dd><p>Logical indicating if the diagonal cells (of a symmetric matrix) should be plotted.
 Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.</p></dd>
+
+
+<dt id="arg-split-diag">split_diag<a class="anchor" aria-label="anchor" href="#arg-split-diag"></a></dt>
+<dd><p>Logical indicating if the diagonal cells (of a symmetric matrix) should be drawn as triangles, splitting the diagonal in two.</p></dd>
 
 
 <dt id="arg-show-names-diag">show_names_diag<a class="anchor" aria-label="anchor" href="#arg-show-names-diag"></a></dt>
@@ -416,9 +421,8 @@ Alternatively, if clustering is applied a single numeric value is accepted for t
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>The heatmap as a <code>ggplot</code> object.
 If <code>return_data</code> is TRUE the output is a list containing the plot (named 'plot'),
-the plotting data ('plot_data', with factor columns 'row' and 'col' and a column 'value' containing the cell values),
-and the result of the clustering ('row_clustering' and/or 'col_clustering).
-If the layout is mixed, an extra factor column named 'layout' is included in 'plot_data', showing which triangle each cell belongs to.</p>
+the plotting data ('plot_data', with factor columns 'row' and 'col', a column 'value' containing the cell values, and 'layout' which part of the heatmap each cell belongs to),
+and the result of the clustering ('row_clustering' and/or 'col_clustering).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
