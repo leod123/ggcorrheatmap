@@ -106,7 +106,7 @@
     <p>If <code>cor_in</code> is TRUE (the default), <code>ggcorrhm_tidy()</code> behaves similarly to <code><a href="gghm_tidy.html">gghm_tidy()</a></code> but with the colour
 scales and arguments of <code><a href="ggcorrhm.html">ggcorrhm()</a></code> instead of <code><a href="gghm.html">gghm()</a></code>.</p>
 <p>If <code>cor_in</code> FALSE, the data is converted to wide format and the column-column correlations are computed.
-This means that if asymmetric correlation matrices are to be plotted the correlations have to be computed
+This means that if non-square correlation matrices are to be plotted the correlations have to be computed
 in advance and plotted with <code>cor_in</code> as TRUE. Additionally, <code>annot_rows</code> and <code>annot_cols</code> will both use
 the <code>cols</code> column for names, and <code>labels</code> can only take TRUE or FALSE.</p>
 <p>On the other hand, if <code>cor_in</code> is TRUE any computation of correlations is skipped, meaning that p-values

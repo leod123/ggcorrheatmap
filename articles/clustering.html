@@ -96,8 +96,8 @@ more control is required.</p>
 <p>The positions of the dendrograms can be changed with the
 <code>dend_rows_side</code> (‘left’ or ‘right’) and
 <code>dend_cols_side</code> (‘top’ or ‘bottom’) arguments. For
-triangular layouts (of symmetric matrices) the dendrograms are placed on
-the non-empty sides of the heatmap.</p>
+triangular layouts the dendrograms are placed on the non-empty sides of
+the heatmap.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The dendrogram sides can be adjusted with the 'dend_rows_side' and 'dend_cols_side' arguments</span></span>
 <span><span class="va">plt1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>, cluster_cols <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -212,9 +212,8 @@ more details on how to use its functions.</p>
 <p><img src="clustering_files/figure-html/unnamed-chunk-7-1.png" alt="mtcars correlation heatmap with clustered rows and columns. The row dendrogram is red in one half and black in the other. The black side has a thicker linewidth and two branches are dashed at the segments closest to the heatmap. All leaves are purple unfilled circles and the rest of the nodes are orange and filled circles. The column dendrogram is coloured with the viridis scale shifting gradually as it gets closer to the heatmap. Nodes are a mix of different shapes (squares, circles, triangles), colours (black, blue, red, green, cyan) and sizes." width="700"></p>
 <p>Leaves can be reordered using functions like <code>ladderize</code>
 or <code>rotate</code>, though it is not recommended to do for only one
-dimension if the matrix is symmetric as the diagonal may end up in
-strange places. Triangular layouts are not supported if the clustering
-causes the matrix to become asymmetric.</p>
+dimension if the matrix is square as the diagonal may end up in strange
+places. In such cases, triangular layouts are not supported.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plt1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">[</span><span class="fl">11</span><span class="op">:</span><span class="fl">15</span>, <span class="op">]</span><span class="op">)</span>, cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>, na_remove <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># Remove NaNs introduced by scaling</span></span>
 <span><span class="va">plt2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">[</span><span class="fl">11</span><span class="op">:</span><span class="fl">15</span>, <span class="op">]</span><span class="op">)</span>, cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>, na_remove <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -229,9 +228,8 @@ causes the matrix to become asymmetric.</p>
 <span><span class="co"># and the same plot as below would be produced (forced full layout).</span></span>
 <span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>, cluster_cols <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>         dend_rows_extend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ladderize <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: The clustering has ordered rows and columns differently and caused the matrix</span></span>
-<span><span class="co">#&gt; to become asymmetric. The diagonal may be scrambled due to the unequal row and</span></span>
-<span><span class="co">#&gt; column orders.</span></span></code></pre></div>
+<span><span class="co">#&gt; Warning: The clustering has ordered rows and columns differently. The diagonal may be</span></span>
+<span><span class="co">#&gt; scrambled due to the unequal row and column orders.</span></span></code></pre></div>
 <p><img src="clustering_files/figure-html/unnamed-chunk-9-1.png" alt="Correlation heatmap of mtcars. Both the rows and columns are clustered, but the dendrograms have ordered the data differently causing the cells that would normally lie on the diagonal to be spread away from the diagonal. Those cells are still labelled with the column names." width="700"></p>
 <p>Finally, since <code>cluster_rows</code> and
 <code>cluster_cols</code> can take <code>dendrogram</code> objects, it
@@ -257,9 +255,8 @@ combined.</p>
 <span>           <span class="co"># to the top right, but a warning will still be produced. Mixed layouts </span></span>
 <span>           <span class="co"># allow for such diagonals without warnings</span></span>
 <span>           <span class="fu"><a href="https://talgalili.github.io/dendextend/reference/rotate.html" class="external-link">rotate</a></span><span class="op">(</span><span class="fl">11</span><span class="op">:</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: The clustering has ordered rows and columns differently and caused the matrix</span></span>
-<span><span class="co">#&gt; to become asymmetric. The diagonal may be scrambled due to the unequal row and</span></span>
-<span><span class="co">#&gt; column orders.</span></span></code></pre></div>
+<span><span class="co">#&gt; Warning: The clustering has ordered rows and columns differently. The diagonal may be</span></span>
+<span><span class="co">#&gt; scrambled due to the unequal row and column orders.</span></span></code></pre></div>
 <p><img src="clustering_files/figure-html/unnamed-chunk-10-1.png" alt="A mtcars correlation heatmap with clustered rows and columns. The diagonal runs from bottom left to top right. The dendrograms have thick lines, and the lowest split in the row dendrogram has been raised. The column dendrogram colours shift from dark green to yellow the closer to the heatmap it gets and the nodes are green circles while the leaves are yellow diamonds." width="700"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

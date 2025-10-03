@@ -191,7 +191,7 @@ in the specified number of bins. If an integer the number of bins will be priori
 
 <dt id="arg-layout">layout<a class="anchor" aria-label="anchor" href="#arg-layout"></a></dt>
 <dd><p>String specifying the layout of the output heatmap. Possible layouts include
-'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
+'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is not square with identical dimnames).
 A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
 If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
 <code>mode</code> needs a vector of length two (applied in the same order as layout). See details of <code><a href="gghm.html">gghm()</a></code> for more information.</p></dd>
@@ -203,11 +203,11 @@ If layout is of length two with two opposing triangles, a mixed layout will be u
 
 
 <dt id="arg-include-diag">include_diag<a class="anchor" aria-label="anchor" href="#arg-include-diag"></a></dt>
-<dd><p>Logical indicating if the diagonal cells should be plotted (if the matrix is symmetric).</p></dd>
+<dd><p>Logical indicating if the diagonal cells should be plotted (if the matrix is square with the same row- and colnames).</p></dd>
 
 
 <dt id="arg-split-diag">split_diag<a class="anchor" aria-label="anchor" href="#arg-split-diag"></a></dt>
-<dd><p>Logical indicating if the diagonal cells (of a symmetric matrix) should be drawn as triangles, splitting the diagonal in two.</p></dd>
+<dd><p>Logical indicating if the diagonal cells should be drawn as triangles, splitting the diagonal in two.</p></dd>
 
 
 <dt id="arg-na-col">na_col<a class="anchor" aria-label="anchor" href="#arg-na-col"></a></dt>
@@ -309,7 +309,7 @@ Not supported for numeric <code>mode</code>.</p></dd>
 
 
 <dt id="arg-show-names-diag">show_names_diag<a class="anchor" aria-label="anchor" href="#arg-show-names-diag"></a></dt>
-<dd><p>Logical indicating if names should be written in the diagonal cells (for symmetric input).</p></dd>
+<dd><p>Logical indicating if names should be written in the diagonal cells.</p></dd>
 
 
 <dt id="arg-names-diag-params">names_diag_params<a class="anchor" aria-label="anchor" href="#arg-names-diag-params"></a></dt>
@@ -486,7 +486,7 @@ The input values can either be one matrix or data frame with columns to correlat
 matrices or data frames with columns to correlate between the matrices. No rownames are needed, but
 if two matrices are provided they should have the same number of rows and the rows should be ordered in a meaningful way
 (i.e. same sample/individual/etc in the same row in both).</p>
-<p>Row and column names are displayed in the diagonal by default if the correlation matrix is symmetric (only <code>x</code> is provided or <code>x</code> and <code>y</code> are identical).</p>
+<p>Row and column names are displayed in the diagonal by default if the correlation matrix is square with identical dimnames (only <code>x</code> is provided or <code>x</code> and <code>y</code> are identical).</p>
 <p>The colour scale is set to be a diverging gradient around 0, with options to change the <code>low</code>, <code>mid</code>, and <code>high</code> colours, the <code>midpoint</code>, and the <code>limits</code> (using the arguments
 of the same names). The <code>bins</code> argument converts the scale to a discrete scale divided into <code>bins</code> equally distributed bins (if an integer the breaks may be at strange numbers,
 if a double the number of bins may be different but the breaks are at nicer numbers). These arguments can be of length two (<code>limits</code> a list of length two) two apply
@@ -498,9 +498,9 @@ arguments, or <code><a href="https://ggplot2.tidyverse.org/reference/scale_size.
 but only the upper size limit can be set.
 When the absolute value transformation is used the legend for sizes loses its meaning (only displaying positive values)
 and is therefore set to not be shown if <code>legend_order</code> is NULL.</p>
-<p>For symmetric correlation matrices, the dendrogram customisation arguments <code>dend_rows_extend</code> and <code>dend_cols_extend</code> work best with functions that only change the dendrogram
+<p>For square correlation matrices, the dendrogram customisation arguments <code>dend_rows_extend</code> and <code>dend_cols_extend</code> work best with functions that only change the dendrogram
 cosmetically such as the colours, linetypes or node shapes. While it is possible to reorder (using e.g. 'rotate', 'ladderize') or prune (using e.g. 'prune'),
-anything that changes the structure of the dendrogram may end up looking strange for symmetric matrices if
+anything that changes the structure of the dendrogram may end up looking strange for square matrices if
 only applied to one dimension (e.g. the diagonal may not be on the diagonal, triangular or mixed layouts may not work).
 The same applies if the <code>cluster_rows</code> and <code>cluster_cols</code> arguments are <code>hclust</code> or <code>dendrogram</code> objects.</p>
     </div>

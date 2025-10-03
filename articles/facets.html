@@ -150,10 +150,11 @@ clustering within the clusters).</p>
 <span>     split_rows <span class="op">=</span> <span class="va">row_clust</span>,</span>
 <span>     split_cols <span class="op">=</span> <span class="va">col_clust</span><span class="op">)</span></span></code></pre></div>
 <p><img src="facets_files/figure-html/unnamed-chunk-5-1.png" alt="mtcars correlation heatmap with the rows in three groups and columns in two, based on clustering. The row groups are labelled 1, 2, and 3 and the columns 1 and 2." width="700"></p>
-<p>When the heatmap is symmetric (for example a correlation heatmap), it
-is recommended to specify facets using indices (or using the same facet
-membership vector) as the heatmap may become asymmetric if the rows and
-columns end up in a different order because of the facets.</p>
+<p>When the heatmap is symmetric (for example a correlation heatmap) or
+square with the same dimnames, it is recommended to specify facets using
+indices (or using the same facet membership vector) as the heatmap rows
+and columns may end up in a different order because of the facets
+otherwise.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Just using indices</span></span>
 <span><span class="va">plt1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, split_rows <span class="op">=</span> <span class="fl">5</span>, split_cols <span class="op">=</span> <span class="fl">5</span>, legend_order <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span> <span class="op">+</span></span>
@@ -176,9 +177,8 @@ columns end up in a different order because of the facets.</p>
 <span></span>
 <span><span class="va">plt1</span> <span class="op">+</span> <span class="va">plt2</span> <span class="op">+</span> <span class="va">plt3</span> <span class="op">+</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>design <span class="op">=</span> <span class="st">"#AA#\nBBCC"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="facets_files/figure-html/unnamed-chunk-6-1.png" alt="Three mtcars correlation heatmaps. The first one has gaps at row 5 and column 5. The second one has the same splits but the column groups have switched place, resulting in the diagonal running from the top left to the bottom right in the top right and bottom left groups. The third heatmap has the row and column orders all jumbled and the diagonal not along the diagonal anymore." width="604.8"></p>
-<p>If the symmetric heatmap uses a layout where the y axis is flipped
-(top left or bottom right layouts), the rows are counted from the
-bottom.</p>
+<p>If the heatmap uses a layout where the y axis is flipped (top left or
+bottom right layouts), the rows are counted from the bottom.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Two from the top</span></span>
 <span><span class="va">plt1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, split_rows <span class="op">=</span> <span class="fl">2</span>, split_cols <span class="op">=</span> <span class="fl">2</span>,</span>

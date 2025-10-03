@@ -47,12 +47,14 @@
 <h2 class="pkg-version" data-toc-text="development version" id="ggcorrheatmap-development-version">ggcorrheatmap (development version)<a class="anchor" aria-label="anchor" href="#ggcorrheatmap-development-version"></a></h2>
 <div class="section level3">
 <h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
-<ul><li>The new <code>split_diag</code> argument allows for triangular cells in the diagonal.</li>
+<ul><li><p>The new <code>split_diag</code> argument allows for triangular cells in the diagonal.</p></li>
+<li><p>Features that previously required a symmetric matrix (such as triangular layouts) now work with square matrices where the row- and column names are the same.</p></li>
 </ul></div>
 <div class="section level3">
 <h3 id="minor-changes-development-version">Minor changes<a class="anchor" aria-label="anchor" href="#minor-changes-development-version"></a></h3>
 <ul><li><p>Annotations in mixed layouts now work with ggplot2 version 4.0.0.</p></li>
 <li><p>The output data frame from <code>return_data</code> now always contains a <code>layout</code> column.</p></li>
+<li><p>The legends in <code><a href="../reference/ggcorrhm.html">ggcorrhm()</a></code> no longer assume that Pearson correlation was used when <code>cor_in</code> is <code>TRUE</code>.</p></li>
 </ul></div>
 </div>
     <div class="section level2">

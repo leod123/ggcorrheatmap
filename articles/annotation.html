@@ -140,8 +140,8 @@ e.g. <code>guide = ggplot2::guide_legend(order = 3)</code>.</p>
 <p>The <code>annot_rows_side</code> and <code>annot_cols_side</code>
 arguments control which side the annotation should be placed on (‘left’
 or ‘right’ for row annotations, ‘top’ or ‘bottom’ for column
-annotation). A triangular layout (for symmetric matrices) limits the
-positions to the non-empty sides.</p>
+annotation). A triangular layout limits the positions to the non-empty
+sides.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="va">annot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span>, annot1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>

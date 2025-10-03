@@ -79,10 +79,10 @@
 <div class="section level2">
 <h2 id="basics">Basics<a class="anchor" aria-label="anchor" href="#basics"></a>
 </h2>
-<p>If the matrix being plotted is symmetric it is possible to plot mixed
-layouts by giving two triangles (opposite each other) to the
-<code>layout</code> argument. Two modes must be provided, the default
-modes being <code>heatmap</code> for the first triangle and
+<p>If the matrix being plotted is square with identical dimnames it is
+possible to plot mixed layouts by giving two triangles (opposite each
+other) to the <code>layout</code> argument. Two modes must be provided,
+the default modes being <code>heatmap</code> for the first triangle and
 <code>text</code> for the second. The first triangle of
 <code>layout</code> gets the diagonal (if <code>include_diag</code> is
 <code>TRUE</code>).</p>
@@ -120,9 +120,8 @@ clustering can only be applied if both rows and columns are clustered
 <span><span class="co">#&gt; Warning: Cannot cluster only one dimension for triangular layouts, clustering both rows</span></span>
 <span><span class="co">#&gt; and columns instead.</span></span></code></pre></div>
 <p><img src="mixed_files/figure-html/unnamed-chunk-4-1.png" alt="mtcars correlation heatmap with a normal heatmap in the top right and coloured text in the bottom left. Rows and columns have been clustered and dendrograms are shown on the right and below." width="700"></p>
-<p>If <code>return_data</code> is <code>TRUE</code> there will be an
-extra column called <code>layout</code>, showing which triangle each
-cell belongs to.</p>
+<p>If <code>return_data</code> is <code>TRUE</code> the column called
+<code>layout</code> shows which triangle each cell belongs to.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/ggcorrhm.html">ggcorrhm</a></span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span>, return_data <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">plot_data</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    row col      value layout</span></span>
@@ -161,7 +160,7 @@ or a vector with one value for each cell.</p>
 <span>         border_col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>           <span class="co"># The first triangle is 66 values (if the diagonal is drawn), second 55</span></span>
 <span>           <span class="co"># If not known, can return the plotting data to see how many cells are in each triangle</span></span>
-<span>           <span class="co"># Since the matrix must be symmetric the numbers can also be calculated</span></span>
+<span>           <span class="co"># Since the matrix must be square the numbers can also be calculated</span></span>
 <span>           <span class="co"># Total: ncol*ncol, triangle without diagonal: (total - ncol) / 2, with diagonal: without + ncol</span></span>
 <span>           <span class="co"># First triangle, provide all values, moving down each column from the left</span></span>
 <span>           <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">colr</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">colr</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">i</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
