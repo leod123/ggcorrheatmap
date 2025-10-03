@@ -136,6 +136,11 @@ test_that("snapshots", {
          bins = c(4L, 6L), limits = list(c(-1, 1), c(-.5, .5)),
          col_scale = c("A", "D"), na_col = c("green", "blue"))
   })
+  # Triangular layouts with asymmetric matrix
+  set.seed(123)
+  sq_df <- matrix(rnorm(100), nrow = 10, dimnames = list(letters[1:10], letters[1:10]))
+  vdiffr::expect_doppelganger("asymm_square", gghm(sq_df, layout = "tl"))
+  vdiffr::expect_doppelganger("asymm_sqare2", gghm(sq_df, layout = c("tl", "br"), mode = c("hm", "hm"), col_scale = c("A", "G")))
   vdiffr::expect_doppelganger("split_diag1", gghm(cor(mtcars), layout = "br", split_diag = T))
   vdiffr::expect_doppelganger("split_diag2", gghm(cor(mtcars), layout = c("br", "tl"), mode = c("hm", "hm"),
                                                   col_scale = c("A", "G"),

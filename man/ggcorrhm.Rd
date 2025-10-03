@@ -118,7 +118,7 @@ ggcorrhm(
 in the specified number of bins. If an integer the number of bins will be prioritised.}
 
 \item{layout}{String specifying the layout of the output heatmap. Possible layouts include
-'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
+'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is not square with identical dimnames).
 A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
 If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
 \code{mode} needs a vector of length two (applied in the same order as layout). See details of \code{gghm()} for more information.}
@@ -126,9 +126,9 @@ If layout is of length two with two opposing triangles, a mixed layout will be u
 \item{mode}{A string specifying plotting mode. Possible values are \code{heatmap}/\code{hm} for a normal heatmap, a number from 1 to 25 to draw the corresponding shape,
 \code{text} to write the cell values instead of filling cells (colour scaling with value), and \code{none} for blank cells.}
 
-\item{include_diag}{Logical indicating if the diagonal cells should be plotted (if the matrix is symmetric).}
+\item{include_diag}{Logical indicating if the diagonal cells should be plotted (if the matrix is square with the same row- and colnames).}
 
-\item{split_diag}{Logical indicating if the diagonal cells (of a symmetric matrix) should be drawn as triangles, splitting the diagonal in two.}
+\item{split_diag}{Logical indicating if the diagonal cells should be drawn as triangles, splitting the diagonal in two.}
 
 \item{na_col}{Colour to use for cells with NA (both main heatmap and annotation).}
 
@@ -184,7 +184,7 @@ containing values to write in the cells. If mode is \code{text}, the cell label 
 \item{border_lty}{Line type of cell borders. Either a number or its corresponding name, or a string of length 2, 4, 6, or 8. See 'lty' of \code{graphics::par()} for details.
 Not supported for numeric \code{mode}.}
 
-\item{show_names_diag}{Logical indicating if names should be written in the diagonal cells (for symmetric input).}
+\item{show_names_diag}{Logical indicating if names should be written in the diagonal cells.}
 
 \item{names_diag_params}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
 
@@ -288,7 +288,7 @@ matrices or data frames with columns to correlate between the matrices. No rowna
 if two matrices are provided they should have the same number of rows and the rows should be ordered in a meaningful way
 (i.e. same sample/individual/etc in the same row in both).
 
-Row and column names are displayed in the diagonal by default if the correlation matrix is symmetric (only \code{x} is provided or \code{x} and \code{y} are identical).
+Row and column names are displayed in the diagonal by default if the correlation matrix is square with identical dimnames (only \code{x} is provided or \code{x} and \code{y} are identical).
 
 The colour scale is set to be a diverging gradient around 0, with options to change the \code{low}, \code{mid}, and \code{high} colours, the \code{midpoint}, and the \code{limits} (using the arguments
 of the same names). The \code{bins} argument converts the scale to a discrete scale divided into \code{bins} equally distributed bins (if an integer the breaks may be at strange numbers,
@@ -303,9 +303,9 @@ but only the upper size limit can be set.
 When the absolute value transformation is used the legend for sizes loses its meaning (only displaying positive values)
 and is therefore set to not be shown if \code{legend_order} is NULL.
 
-For symmetric correlation matrices, the dendrogram customisation arguments \code{dend_rows_extend} and \code{dend_cols_extend} work best with functions that only change the dendrogram
+For square correlation matrices, the dendrogram customisation arguments \code{dend_rows_extend} and \code{dend_cols_extend} work best with functions that only change the dendrogram
 cosmetically such as the colours, linetypes or node shapes. While it is possible to reorder (using e.g. 'rotate', 'ladderize') or prune (using e.g. 'prune'),
-anything that changes the structure of the dendrogram may end up looking strange for symmetric matrices if
+anything that changes the structure of the dendrogram may end up looking strange for square matrices if
 only applied to one dimension (e.g. the diagonal may not be on the diagonal, triangular or mixed layouts may not work).
 The same applies if the \code{cluster_rows} and \code{cluster_cols} arguments are \code{hclust} or \code{dendrogram} objects.
 }

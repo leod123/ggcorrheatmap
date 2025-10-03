@@ -44,7 +44,7 @@ If \code{cor_in} is TRUE (the default), \code{ggcorrhm_tidy()} behaves similarly
 scales and arguments of \code{ggcorrhm()} instead of \code{gghm()}.
 
 If \code{cor_in} FALSE, the data is converted to wide format and the column-column correlations are computed.
-This means that if asymmetric correlation matrices are to be plotted the correlations have to be computed
+This means that if non-square correlation matrices are to be plotted the correlations have to be computed
 in advance and plotted with \code{cor_in} as TRUE. Additionally, \code{annot_rows} and \code{annot_cols} will both use
 the \code{cols} column for names, and \code{labels} can only take TRUE or FALSE.
 

@@ -48,7 +48,7 @@ plt1 + plt2
 
 # Changing the layout
 
-For symmetric heatmaps, the `layout` argument can be used to get triangular layouts. The possible layouts are full matrix, top left, top right, bottom left, and bottom right. Note that while the top right and bottom left layouts are just the top right and bottom left triangles of the symmetric matrix, top left and bottom right layouts are actually the bottom left and top right layouts with a flipped y axis to retain the diagonal. This means that some layouts may have the y axis order reversed.
+For square heatmaps with identical dimnames (from here on just referred to as square heatmaps), the `layout` argument can be used to get triangular layouts. The possible layouts are full matrix, top left, top right, bottom left, and bottom right. Note that while the top right and bottom left layouts are just the top right and bottom left triangles of the square matrix, top left and bottom right layouts are actually the bottom left and top right layouts with a flipped y axis to retain the diagonal. This means that some layouts may have the y axis order reversed.
 
 ```{r heatmap layouts, fig.width=10, fig.height=5, fig.alt='Two heatmap of the mtcars correlation matrix. The first plot shows only the top left triangle including the diagonal with names written on it (diagonal running bottom left to top right and row labels reversed compared to the previous heatmaps). The second figure has only the bottom right triangle, but without the diagonal (names are written where the diagonal would be).'}
 plt1 <- ggcorrhm(mtcars, layout = "topleft")
@@ -61,9 +61,9 @@ plt1 + plt2
 
 # Label customisation
 
-For symmetric matrices, the axis names are drawn on the diagonal. The `show_names_diag`, `show_names_x` and `show_names_y` arguments control where names should be drawn.
+For square matrices, the axis names are drawn on the diagonal. The `show_names_diag`, `show_names_x` and `show_names_y` arguments control where names should be drawn.
 
-The looks of the names displayed on the diagonal of a symmetric matrix can be adjusted with the `names_diag_params` argument, which takes a named list of parameters to pass to `ggplot2::geom_text()`. For names displayed on the x and y axes, use `ggplot2::theme()` on the generated plot object to change the appearance.
+The looks of the names displayed on the diagonal of a square matrix can be adjusted with the `names_diag_params` argument, which takes a named list of parameters to pass to `ggplot2::geom_text()`. For names displayed on the x and y axes, use `ggplot2::theme()` on the generated plot object to change the appearance.
 
 ```{r, fig.width=10, fig.height=5, fig.alt='Two mtcars correlation heatmaps with the bottom left and bottom right triangles and no diagonals. In the first plot, the names on the diagonal are at a 45 degree angle and the text is magenta-coloured. The second plot has the names angled 45 degrees in the other direction apart from the names at the top and bottom which are angled at 90 and 0 degrees, respectively. The text colour is picked randomly from red, green, and blue.'}
 plt1 <- ggcorrhm(mtcars, layout = "bl", legend_order = NA, include_diag = FALSE,
@@ -74,8 +74,8 @@ plt1 <- ggcorrhm(mtcars, layout = "bl", legend_order = NA, include_diag = FALSE,
 set.seed(123)
 plt2 <- ggcorrhm(mtcars, layout = "br", include_diag = FALSE,
                  names_diag_params = list(
-                   angle = c(0, rep(-45, 9), 90),
-                   hjust = c(rep(0.7, 10), 0.3),
+                   angle = c(0, rep(-45, 9), -90),
+                   hjust = 0.7,
                    colour = sample(c("red", "green", "blue"), 11, TRUE)
                  ))
 
@@ -148,7 +148,7 @@ plt1 <- ggcorrhm(mtcars, mode = 21) + labs(title = "mode = 21")
 # Change the size range using the size_range argument
 plt2 <- ggcorrhm(mtcars, mode = 23, size_range = c(2, 7)) +
   # Can add a grid in the background with ggplot2::theme()
-  theme(panel.grid.major = element_line()) +
+  theme(panel.grid.major = element_line(colour = "grey90")) +
   labs(title = "mode = 23")
 
 plt1 + plt2
@@ -163,7 +163,7 @@ ggcorrhm(mtcars, layout = c("tr", "bl"))
 
 # P-values
 
-`ggcorrhm()` adds support for correlation p-values which can be calculated by setting the `p_values` argument to `TRUE`. The values can be adjusted for multiple testing by passing a string specifying the adjustment method to the `p_adjust` argument. If the correlation matrix is symmetric, the diagonal is excluded and only half of the off-diagonal values are used for the adjustment. The calculated p-values will be included in the data if `return_data` is `TRUE`. P-values and adjusted p-values for the correlations of the diagonal in a symmetric matrix are set to 0 as the correlations are always 1.
+`ggcorrhm()` adds support for correlation p-values which can be calculated by setting the `p_values` argument to `TRUE`. The values can be adjusted for multiple testing by passing a string specifying the adjustment method to the `p_adjust` argument. If the correlation matrix is square, the diagonal is excluded and only half of the off-diagonal values are used for the adjustment. The calculated p-values will be included in the data if `return_data` is `TRUE`. P-values and adjusted p-values for the correlations of the diagonal in a square matrix are set to 0 as the correlations are always 1.
 
 By default, cells are marked with asterisks if `p_values` is `TRUE`. The `p_thresholds` argument controls the p-value thresholds. `p_thresholds` must be NULL (for no thresholds or symbols) or a named numeric vector where the values specify the thresholds (in ascending order) and the names are the symbols to use when an adjusted p-value is below each threshold. `stats::symnum()` is used to convert p-values and the last value of `p_thresholds` must be 1 (or any higher number) to set the upper bound. By default, `p_thresholds` is set to be `c("***" = 0.001, "**" = 0.01, "*" = 0.05", 1)`. As can be seen, 1 is left unnamed so that any p-values between 0.05 and 1 are unmarked.
 
@@ -236,6 +236,32 @@ ggcorrhm(mtcars, layout = "tl", include_diag = FALSE) +
              shape = 4, size = 8)
 ```
 
+# Some extra plots
+
+Triangular layouts require square matrices, but not symmetric ones (even if correlation heatmaps typically are symmetric). This means that the different triangles could show different information, such as the results of different correlation methods.
+
+```{r, fig.alt='Two correlation heatmaps of the mtcars data, with the bottom left triangle showing Pearson correlation and the top right triangle showing Kendall correlation. The first heatmap uses a single colour scale (blue to white to red) for the whole heatmap and has cells labelled with correlation values. The second heatmap uses two different colour scales for the different triangles (blue-white-red for bottom left, green-white-purple for top right). The cells in the diagonal are drawn as triangles, splitting the diagonal into two in the middle.', fig.height=5, fig.width=10}
+# Use different correlation methods
+pear_cor <- cor(mtcars, method = "pearson")
+kend_cor <- cor(mtcars, method = "kendall")
+# Combine
+cor_df <- pear_cor
+cor_df[lower.tri(cor_df)] <- kend_cor[lower.tri(kend_cor)]
+
+plt1 <- ggcorrhm(cor_df, cor_in = TRUE, cell_labels = TRUE,
+                 col_name = "Correlation") +
+  # Add axis titles
+  labs(x = "Kendall tau", y = "Pearson r") +
+  theme(axis.title = element_text())
+
+# With different colour scales, although that makes it hard to compare
+plt2 <- gghm(cor_df, layout = c("bl", "tr"), mode = c("hm", "hm"),
+             col_scale = c("RdBu_rev", "PRGn_rev"),
+             col_name = c("Pearson r", "Kendall tau"),
+             split_diag = TRUE, limits = c(-1, 1))
+
+plt1 + plt2
+```
 
 # Other packages
 

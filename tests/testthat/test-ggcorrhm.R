@@ -9,6 +9,8 @@ test_that("it runs without error", {
   expect_no_error(ggcorrhm(mtcars, iris[1:32, -5], p_values = TRUE))
   expect_no_error(ggcorrhm(iris[1:32, -5], mtcars, p_values = TRUE, p_adjust = "bonferroni"))
   expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "18")))
+  expect_no_error(ggcorrhm(mtcars, annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11, b = 11:1),
+                           layout = c("tl", "br"), mode = c("hm", "hm")))
   # Number of rows in returned data
   expect_equal(nrow(ggcorrhm(mtcars, return_data = TRUE)$plot_data), ncol(mtcars) * ncol(mtcars))
   expect_equal(nrow(ggcorrhm(mtcars, return_data = TRUE, layout = c("tl", "br"))$plot_data),

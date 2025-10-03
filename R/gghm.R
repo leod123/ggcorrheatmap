@@ -1,9 +1,12 @@
 #' Make a heatmap with ggplot2.
 #'
+#' Make a heatmap of a matrix/data frame using ggplot2. Square matrices where the row- and column names are the same
+#' can use triangular layouts that either only show one triangle or plot different things in the different triangles.
+#'
 #' @param x Matrix or data frame in wide format to make a heatmap of. If rownames are present they are used for the y axis labels, otherwise the row number is used.
 #' If a column named `.names` (containing unique row identifiers) is present it will be used as rownames.
 #' @param layout String specifying the layout of the output heatmap. Possible layouts include
-#' 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
+#' 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is not square).
 #' A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
 #' If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
 #' `mode` needs a vector of length two (applied in the same order as layout). See details for more information.
@@ -23,9 +26,9 @@
 #' @param size_name String to use for the size scale legend title. Can be two values in mixed layouts for dual scales.
 #' @param legend_order Integer vector specifying the order of legends (first value is for the first legend, second for the second, etc). The default (NULL) shows all legends.
 #' NAs hide the corresponding legends, a single NA hides all. Ignored for `ggplot2` scale objects in `col_scale` and `size_scale`.
-#' @param include_diag Logical indicating if the diagonal cells (of a symmetric matrix) should be plotted.
+#' @param include_diag Logical indicating if the diagonal cells (of a square matrix with identical dimnames) should be plotted.
 #' Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.
-#' @param split_diag Logical indicating if the diagonal cells (of a symmetric matrix) should be drawn as triangles, splitting the diagonal in two.
+#' @param split_diag Logical indicating if the diagonal cells should be drawn as triangles, splitting the diagonal in two.
 #' @param na_col Colour to use for cells with NA (both main heatmap and annotation).
 #' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn).
 #' If NAs are kept, the fill colour can be set in the `ggplot2` scale.
@@ -41,7 +44,7 @@
 #' Not supported for numeric `mode`.
 #' @param cell_bg_col Colour to use for cell backgrounds in modes 'text' and 'none'.
 #' @param cell_bg_alpha Alpha for cell colours in modes 'text' and 'none'.
-#' @param show_names_diag Logical indicating if names should be written in the diagonal cells (for symmetric input).
+#' @param show_names_diag Logical indicating if names should be written in the diagonal cells.
 #' @param names_diag_params List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
 #' @param show_names_x,show_names_y Logical indicating if names should be written on the x and y axes. Labels can be customised using `ggplot2::theme()` on the output plot.
 #' @param names_x_side String specifying position of the x axis names ("top" or "bottom").
@@ -237,8 +240,8 @@ gghm <- function(x,
   # Scale data if specified
   x <- scale_mat(x, scale_data)
 
-  # Check if matrix becomes asymmetric after clustering to throw a warning
-  x_sym <- isSymmetric(as.matrix(x))
+  # Check if matrix becomes non-square after clustering to throw a warning
+  x_sym <- isSquare(as.matrix(x))
 
   # Check layout and mode
   layout_check <- check_layout(layout, mode)
@@ -254,9 +257,9 @@ gghm <- function(x,
   # Logical for full plot layout or not (mixed layout treated as full and triangular)
   full_plt <- if (length(layout) == 1) {layout %in% c("full", "f", "whole", "w")} else {TRUE}
 
-  # If the matrix is asymmetric, triangular layouts break! Throw a warning
+  # If the matrix is not square, triangular layouts break! Throw a warning
   if (!x_sym & (!full_plt | length(layout) == 2)) {
-    cli::cli_warn("Triangular layouts are not supported for asymmetric matrices, plotting the full matrix instead.",
+    cli::cli_warn("Triangular layouts are not supported for non-square matrices, plotting the full matrix instead.",
                   class = "force_full_warn")
     full_plt <- TRUE
     layout <- "f"
@@ -316,8 +319,8 @@ gghm <- function(x,
   }
 
   # Throw a warning if clustering caused a symmetric input to become asymmetric. Plot the full matrix if not already the case
-  if (x_sym & !isSymmetric(as.matrix(x))) {
-    cli::cli_warn(paste0("The clustering has ordered rows and columns differently and caused the matrix to become asymmetric.",
+  if (x_sym & !isSquare(as.matrix(x))) {
+    cli::cli_warn(paste0("The clustering has ordered rows and columns differently.",
                          ifelse(length(layout) == 2 | !full_plt, " Plotting the full matrix.", ""),
                          " The diagonal may be scrambled due to the unequal row and column orders."),
                   class = "unequal_clust_warn")
@@ -546,7 +549,7 @@ gghm <- function(x,
 
   if (length(layout) == 1) {
     plt <- make_heatmap(x_long = x_long, plt = NULL, mode = mode, include_diag = include_diag,
-                        invisible_diag = isSymmetric(as.matrix(x)),
+                        invisible_diag = isSquare(as.matrix(x)),
                         border_lwd = border_lwd, border_col = border_col, border_lty = border_lty,
                         show_names_diag = show_names_diag, show_names_x = show_names_x, show_names_y = show_names_y,
                         names_x_side = names_x_side, names_y_side = names_y_side,

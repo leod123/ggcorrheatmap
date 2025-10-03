@@ -10,10 +10,10 @@
 #'
 layout_hm <- function(x, layout = "f", na_remove = FALSE) {
 
-  if (isSymmetric(as.matrix(x)) & layout %in% c("bottomleft", "bl", "topleft", "tl")) {
+  if (isSquare(as.matrix(x)) & layout %in% c("bottomleft", "bl", "topleft", "tl")) {
     x_long <- remove_triangle(x, tri_remove = "upper", na_remove = na_remove)
 
-  } else if (isSymmetric(as.matrix(x)) & layout %in% c("topright", "tr", "bottomright", "br")) {
+  } else if (isSquare(as.matrix(x)) & layout %in% c("topright", "tr", "bottomright", "br")) {
     x_long <- remove_triangle(x, tri_remove = "lower", na_remove = na_remove)
 
   } else {

@@ -386,8 +386,8 @@
 <line x1='448.08' y1='521.08' x2='448.08' y2='510.19' style='stroke-width: 0.64; stroke-linecap: square;' />
 <line x1='468.74' y1='521.08' x2='489.39' y2='521.08' style='stroke-width: 0.64; stroke-linecap: square;' />
 <line x1='489.39' y1='521.08' x2='489.39' y2='510.19' style='stroke-width: 0.64; stroke-linecap: square;' />
-<rect x='610.25' y='72.11' width='58.66' height='112.69' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<text x='615.73' y='86.30' style='font-size: 11.00px; font-family: sans;' textLength='47.70px' lengthAdjust='spacingAndGlyphs'>Pearson r</text>
+<rect x='610.25' y='72.11' width='48.88' height='112.69' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
+<text x='615.73' y='86.30' style='font-size: 11.00px; font-family: sans;' textLength='26.30px' lengthAdjust='spacingAndGlyphs'>value</text>
 <image width='17.28' height='86.40' x='615.73' y='92.92' preserveAspectRatio='none' xlink:href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAEsCAYAAAACUNnVAAAAkklEQVQ4jb2RSxbCMAwDJ77/odj3UGLRR8BB7o+UXaJazkhFj0UBELTG6wQBrZ/M1Q0f8VZb/kew7b22ZSb9mVhXCeYVWxNMKecONAGBIISM1q+IkPAj69dR6wuUN6/ae0RGS1TeVlF9zClFGNDOUA2JkIz23UaZyNt63v1EHk0m5YxE9T8yTdo2su2nEo8+mbQnKK6Xwb4VxNoAAAAASUVORK5CYII='/>
 <polyline points='629.55,179.18 633.01,179.18 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
 <polyline points='629.55,157.65 633.01,157.65 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
@@ -404,8 +404,8 @@
 <text x='638.49' y='139.15' style='font-size: 8.80px; font-family: sans;' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.0</text>
 <text x='638.49' y='117.62' style='font-size: 8.80px; font-family: sans;' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.5</text>
 <text x='638.49' y='96.09' style='font-size: 8.80px; font-family: sans;' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>1.0</text>
-<rect x='610.25' y='195.76' width='58.66' height='112.69' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
-<text x='615.73' y='209.95' style='font-size: 11.00px; font-family: sans;' textLength='47.70px' lengthAdjust='spacingAndGlyphs'>Pearson r</text>
+<rect x='610.25' y='195.76' width='48.88' height='112.69' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
+<text x='615.73' y='209.95' style='font-size: 11.00px; font-family: sans;' textLength='26.30px' lengthAdjust='spacingAndGlyphs'>value</text>
 <image width='17.28' height='86.40' x='615.73' y='216.57' preserveAspectRatio='none' xlink:href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAEsCAYAAAACUNnVAAAAsUlEQVQ4jbWPwQ7DIAxDH2aTpv3/t05aW2CngWChTSvtYjmxYwMFingK8YiIewMhYkTchIgGyGLhOzaI/S60cTAHRNCvOlwE68Jix5b5bZ8Srlm8ve2DB+O0cn/se91tjo4zz/ifxfs+AioFVHKFMmEcW/ZTcBZ58y6e5WtRjrN8Ws3GS62ivBtlqr0wDciDz2nJRtEgmKOxS3WXhl1lFmypY2tlywZaEui9gV4rAKV8ANuwLHQSilYnAAAAAElFTkSuQmCC'/>
 <polyline points='629.55,302.83 633.01,302.83 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
 <polyline points='629.55,281.30 633.01,281.30 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />

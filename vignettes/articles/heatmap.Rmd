@@ -25,7 +25,7 @@ gghm(mtcars)
 
 The `ggcorrhm()` function uses `gghm()` to build a correlation heatmap. The correlations between the columns in the input are computed and plotted.
 
-If the matrix being plotted is symmetric, the axis labels are drawn on the diagonal. This behaviour can be changed using the `show_names_diag`, `show_names_x` and `show_names_y` arguments. A symmetric heatmap can also be plotted using triangular and mixed triangular layouts, explained more in the [correlation matrix](correlation.html) and [mixed layouts](mixed.html) articles.
+If the matrix being plotted is square and has the same row- and column names, the axis labels are drawn on the diagonal. This behaviour can be changed using the `show_names_diag`, `show_names_x` and `show_names_y` arguments. Such a heatmap can also be plotted using triangular and mixed triangular layouts, explained more in the [correlation matrix](correlation.html) and [mixed layouts](mixed.html) articles.
 
 ```{r correlation heatmap, fig.alt='A symmetric heatmap showing the Pearson correlation between columns in the mtcars data. Colours range from blue (low) to red (high). The names of the variables are displayed on the diagonal.'}
 ggcorrhm(mtcars)

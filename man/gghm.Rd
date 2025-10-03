@@ -88,7 +88,7 @@ gghm(
 If a column named \code{.names} (containing unique row identifiers) is present it will be used as rownames.}
 
 \item{layout}{String specifying the layout of the output heatmap. Possible layouts include
-'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
+'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is not square).
 A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
 If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
 \code{mode} needs a vector of length two (applied in the same order as layout). See details for more information.}
@@ -118,12 +118,12 @@ of length two containing the two scales to use.}
 \item{legend_order}{Integer vector specifying the order of legends (first value is for the first legend, second for the second, etc). The default (NULL) shows all legends.
 NAs hide the corresponding legends, a single NA hides all. Ignored for \code{ggplot2} scale objects in \code{col_scale} and \code{size_scale}.}
 
-\item{include_diag}{Logical indicating if the diagonal cells (of a symmetric matrix) should be plotted.
+\item{include_diag}{Logical indicating if the diagonal cells (of a square matrix with identical dimnames) should be plotted.
 Mostly only useful for getting a cleaner look with symmetric correlation matrices with triangular layouts, where the diagonal is known to be 1.}
 
-\item{split_diag}{Logical indicating if the diagonal cells (of a symmetric matrix) should be drawn as triangles, splitting the diagonal in two.}
+\item{split_diag}{Logical indicating if the diagonal cells should be drawn as triangles, splitting the diagonal in two.}
 
-\item{show_names_diag}{Logical indicating if names should be written in the diagonal cells (for symmetric input).}
+\item{show_names_diag}{Logical indicating if names should be written in the diagonal cells.}
 
 \item{names_diag_params}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
 
@@ -246,7 +246,8 @@ the plotting data ('plot_data', with factor columns 'row' and 'col', a column 'v
 and the result of the clustering ('row_clustering' and/or 'col_clustering).
 }
 \description{
-Make a heatmap with ggplot2.
+Make a heatmap of a matrix/data frame using ggplot2. Square matrices where the row- and column names are the same
+can use triangular layouts that either only show one triangle or plot different things in the different triangles.
 }
 \details{
 When using mixed layouts (\code{layout} is length two), \code{mode} needs to be length two as well, specifying the mode to use in each triangle.

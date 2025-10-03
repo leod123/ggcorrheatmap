@@ -74,7 +74,7 @@ gghm(mtcars, scale_data = "col",
      split_cols = col_clust)
 ```
 
-When the heatmap is symmetric (for example a correlation heatmap), it is recommended to specify facets using indices (or using the same facet membership vector) as the heatmap may become asymmetric if the rows and columns end up in a different order because of the facets.
+When the heatmap is symmetric (for example a correlation heatmap) or square with the same dimnames, it is recommended to specify facets using indices (or using the same facet membership vector) as the heatmap rows and columns may end up in a different order because of the facets otherwise.
 
 ```{r, fig.height=7, fig.width=6.3, fig.alt='Three mtcars correlation heatmaps. The first one has gaps at row 5 and column 5. The second one has the same splits but the column groups have switched place, resulting in the diagonal running from the top left to the bottom right in the top right and bottom left groups. The third heatmap has the row and column orders all jumbled and the diagonal not along the diagonal anymore.'}
 # Just using indices
@@ -99,7 +99,7 @@ plt3 <- ggcorrhm(mtcars, legend_order = NA,
 plt1 + plt2 + plt3 + plot_layout(design = "#AA#\nBBCC")
 ```
 
-If the symmetric heatmap uses a layout where the y axis is flipped (top left or bottom right layouts), the rows are counted from the bottom.
+If the heatmap uses a layout where the y axis is flipped (top left or bottom right layouts), the rows are counted from the bottom.
 
 ```{r, fig.height=3, fig.width=8, fig.alt='Two mtcars correlation heatmaps showing only the bottom left and bottom right triangle, respectively. The first one has a row split at row 2 and a column split at column 2. The second one has a column split at row 9 instead (2 from the bottom) with the columns in the opposite order compared to the first heatmap.'}
 # Two from the top

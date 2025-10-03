@@ -152,7 +152,7 @@ gghm_tidy <- function(x, rows, cols, values, labels = NULL, annot_rows = NULL, a
 #' scales and arguments of `ggcorrhm()` instead of `gghm()`.
 #'
 #' If `cor_in` FALSE, the data is converted to wide format and the column-column correlations are computed.
-#' This means that if asymmetric correlation matrices are to be plotted the correlations have to be computed
+#' This means that if non-square correlation matrices are to be plotted the correlations have to be computed
 #' in advance and plotted with `cor_in` as TRUE. Additionally, `annot_rows` and `annot_cols` will both use
 #' the `cols` column for names, and `labels` can only take TRUE or FALSE.
 #'

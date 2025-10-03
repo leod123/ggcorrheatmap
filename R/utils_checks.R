@@ -1,3 +1,32 @@
+#' Check if a matrix is square (and require the same row and colnames).
+#'
+#' A 'softer' version of isSymmetric that does not require the values to be the same,
+#' only the dimensions and dimnames.
+#'
+#' @keywords internal
+#'
+#' @param x A matrix or data frame to check.
+#'
+#' @returns Logical.
+#'
+isSquare <- function(x) {
+  UseMethod("isSquare")
+}
+
+#' @export
+isSquare.matrix <- function(x) {
+  if (nrow(x) != ncol(x)) return(FALSE)
+  if (is.null(rownames(x)) && !is.null(colnames(x))) return(FALSE)
+  if (!is.null(rownames(x)) && is.null(colnames(x))) return(FALSE)
+  if (!identical(rownames(x), colnames(x))) return(FALSE)
+  return(TRUE)
+}
+
+#' @export
+isSquare.data.frame <- function(x) {
+  isSquare(as.matrix(x))
+}
+
 #' Check that layout and mode are correct
 #'
 #' @keywords internal

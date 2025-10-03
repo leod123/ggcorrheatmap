@@ -61,7 +61,7 @@ ggcorrhm(mtcars[, 1:8], annot_cols_df = col_annot,
 
 # Annotation positioning
 
-The `annot_rows_side` and `annot_cols_side` arguments control which side the annotation should be placed on ('left' or 'right' for row annotations, 'top' or 'bottom' for column annotation). A triangular layout (for symmetric matrices) limits the positions to the non-empty sides.
+The `annot_rows_side` and `annot_cols_side` arguments control which side the annotation should be placed on ('left' or 'right' for row annotations, 'top' or 'bottom' for column annotation). A triangular layout limits the positions to the non-empty sides.
 
 ```{r, fig.height=6, fig.width=12, fig.alt='Two mtcars correlation heatmaps. The first one has row and column annotation to the left of and above the heatmap. The second one is a bottom right triangular heatmap and the row and column annotations are to the right and below.'}
 set.seed(123)

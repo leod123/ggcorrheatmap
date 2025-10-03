@@ -24,11 +24,11 @@
 #' Names must be unique, but one element can be left unnamed (by default 1 is unnamed, meaning values between the threshold closest to 1 and 1 are not marked in the plot).
 #' If NULL, no thresholding is done and p-value intervals are not marked with symbols.
 #' @param layout String specifying the layout of the output heatmap. Possible layouts include
-#' 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is asymmetric).
+#' 'topleft', 'topright', 'bottomleft', 'bottomright', or the 'whole'/'full' heatmap (default and only possible option if the matrix is not square with identical dimnames).
 #' A combination of the first letters of each word also works (i.e. f, w, tl, tr, bl, br).
 #' If layout is of length two with two opposing triangles, a mixed layout will be used. For mixed layouts,
 #' `mode` needs a vector of length two (applied in the same order as layout). See details of `gghm()` for more information.
-#' @param include_diag Logical indicating if the diagonal cells should be plotted (if the matrix is symmetric).
+#' @param include_diag Logical indicating if the diagonal cells should be plotted (if the matrix is square with the same row- and colnames).
 #' @param na_remove Logical indicating if NA values in the heatmap should be omitted (meaning no cell border is drawn). This does not affect how
 #' NAs are handled in the correlation computations, use the `cor_use` argument for NA handling in correlation.
 #' @param return_data Logical indicating if the data used for plotting (i.e. the correlation values and, if computed, clustering and p-values) should be returned.
@@ -63,7 +63,7 @@
 #' if two matrices are provided they should have the same number of rows and the rows should be ordered in a meaningful way
 #' (i.e. same sample/individual/etc in the same row in both).
 #'
-#' Row and column names are displayed in the diagonal by default if the correlation matrix is symmetric (only `x` is provided or `x` and `y` are identical).
+#' Row and column names are displayed in the diagonal by default if the correlation matrix is square with identical dimnames (only `x` is provided or `x` and `y` are identical).
 #'
 #' The colour scale is set to be a diverging gradient around 0, with options to change the `low`, `mid`, and `high` colours, the `midpoint`, and the `limits` (using the arguments
 #' of the same names). The `bins` argument converts the scale to a discrete scale divided into `bins` equally distributed bins (if an integer the breaks may be at strange numbers,
@@ -78,9 +78,9 @@
 #' When the absolute value transformation is used the legend for sizes loses its meaning (only displaying positive values)
 #' and is therefore set to not be shown if `legend_order` is NULL.
 #'
-#' For symmetric correlation matrices, the dendrogram customisation arguments `dend_rows_extend` and `dend_cols_extend` work best with functions that only change the dendrogram
+#' For square correlation matrices, the dendrogram customisation arguments `dend_rows_extend` and `dend_cols_extend` work best with functions that only change the dendrogram
 #' cosmetically such as the colours, linetypes or node shapes. While it is possible to reorder (using e.g. 'rotate', 'ladderize') or prune (using e.g. 'prune'),
-#' anything that changes the structure of the dendrogram may end up looking strange for symmetric matrices if
+#' anything that changes the structure of the dendrogram may end up looking strange for square matrices if
 #' only applied to one dimension (e.g. the diagonal may not be on the diagonal, triangular or mixed layouts may not work).
 #' The same applies if the `cluster_rows` and `cluster_cols` arguments are `hclust` or `dendrogram` objects.
 #'
@@ -242,7 +242,7 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
 
   # Don't display names on the diagonal if the plot is non-symmetric as it will cause
   # new ghost columns to be added to draw the names where row == col
-  if (!isSymmetric(as.matrix(cor_mat))) {
+  if (!isSquare(as.matrix(cor_mat))) {
     show_names_diag <- FALSE
     # Also display x and y names by default, but remove if specified as FALSE (when specified as a named argument)
     show_names_x <- eval(replace_default(list("show_names_x" = TRUE), as.list(sys.call()))$show_names_x)

@@ -26,7 +26,7 @@ The `cluster_rows` and `cluster_cols` arguments can also be `hclust` or `dendrog
 
 # Dendrogram position
 
-The positions of the dendrograms can be changed with the `dend_rows_side` ('left' or 'right') and `dend_cols_side` ('top' or 'bottom') arguments. For triangular layouts (of symmetric matrices) the dendrograms are placed on the non-empty sides of the heatmap.
+The positions of the dendrograms can be changed with the `dend_rows_side` ('left' or 'right') and `dend_cols_side` ('top' or 'bottom') arguments. For triangular layouts the dendrograms are placed on the non-empty sides of the heatmap.
 
 ```{r, fig.width=10, fig.height=5, fig.alt='Two mtcars correlation heatmaps. The first one has the dendrograms on the top and left. The second plot has only drawn the bottom left triangle of the matrix and there is a dendrogram on the bottom.'}
 # The dendrogram sides can be adjusted with the 'dend_rows_side' and 'dend_cols_side' arguments
@@ -127,7 +127,7 @@ ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE, dend_height = 1,
            set("nodes_col", 1:5))
 ```
 
-Leaves can be reordered using functions like `ladderize` or `rotate`, though it is not recommended to do for only one dimension if the matrix is symmetric as the diagonal may end up in strange places. Triangular layouts are not supported if the clustering causes the matrix to become asymmetric.
+Leaves can be reordered using functions like `ladderize` or `rotate`, though it is not recommended to do for only one dimension if the matrix is square as the diagonal may end up in strange places. In such cases, triangular layouts are not supported.
 
 ```{r, fig.alt='Two heatmaps of rows 11 to 15 of mtcars. Both have clustered rows, but the second plot has its rows in the opposite order compared to the first plot.'}
 plt1 <- gghm(scale(mtcars[11:15, ]), cluster_rows = TRUE, na_remove = TRUE) # Remove NaNs introduced by scaling
