@@ -376,3 +376,18 @@ check_annot_names_deprecated <- function(new_params = NULL, old_params = NULL, c
 
   return(params_out)
 }
+
+
+check_xy_deprecated <- function(xy_new, xy_old, old_name) {
+  # Since default is not NULL for these arguments, use the old one if provided
+  if (!is.null(xy_old)) {
+    new_name <- gsub("x", "cols", gsub("y", "rows", old_name))
+    cli::cli_warn("{.var {old_name}} was deprecated in ggcorrheatmap version 0.3.0. Please use {.var {new_name}} instead.")
+
+    xy_out <- xy_old
+  } else {
+    xy_out <- xy_new
+  }
+
+  return(xy_out)
+}

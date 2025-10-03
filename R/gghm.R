@@ -46,9 +46,12 @@
 #' @param cell_bg_alpha Alpha for cell colours in modes 'text' and 'none'.
 #' @param show_names_diag Logical indicating if names should be written in the diagonal cells.
 #' @param names_diag_params List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.
-#' @param show_names_x,show_names_y Logical indicating if names should be written on the x and y axes. Labels can be customised using `ggplot2::theme()` on the output plot.
-#' @param names_x_side String specifying position of the x axis names ("top" or "bottom").
-#' @param names_y_side String specifying position of the y axis names ("left" or "right").
+#' @param show_names_rows,show_names_cols Logical indicating if row/colnames should be written on the axes. Labels can be customised using `ggplot2::theme()` on the output plot.
+#' @param show_names_x,show_names_y Deprecated in favour of `show_names_rows` and `show_names_cols`. Logical indicating if row/colnames should be shown.
+#' @param names_rows_side String specifying position of the row names ("left" or "right").
+#' @param names_y_side Deprecated in favour of `names_rows_side`. String specifying position of the y axis names ("left" or "right").
+#' @param names_cols_side String specifying position of the column names ("top" or "bottom").
+#' @param names_x_side Deprecated in favour of `names_cols_side`. String specifying position of the x axis names ("top" or "bottom").
 #' @param annot_rows_df,annot_cols_df Data frame for row and column annotations. The names of the columns in the data must be included,
 #' either as row names or in a column named `.names`. Each other column specifies an annotation where the column name
 #' will be used as the annotation name (in the legend and next to the annotation). Numeric columns will use a continuous
@@ -189,7 +192,9 @@ gghm <- function(x,
                  legend_order = NULL,
                  include_diag = TRUE, split_diag = FALSE,
                  show_names_diag = FALSE, names_diag_params = NULL,
-                 show_names_x = TRUE, names_x_side = "top", show_names_y = TRUE, names_y_side = "left",
+                 show_names_rows = TRUE, names_rows_side = "left",
+                 show_names_cols = TRUE, names_cols_side = "top",
+                 show_names_x = NULL, names_x_side = NULL, show_names_y = NULL, names_y_side = NULL,
                  na_col = "grey50", na_remove = FALSE, return_data = FALSE,
                  cell_labels = FALSE, cell_label_col = "black", cell_label_size = 3, cell_label_digits = 2,
                  border_col = "grey", border_lwd = 0.1, border_lty = 1,
@@ -236,6 +241,12 @@ gghm <- function(x,
 
   # Check that there are rownames
   if (is.null(rownames(x))) {rownames(x) <- 1:nrow(x)}
+
+  # Deprecation check for row/colnames
+  show_names_rows <- check_xy_deprecated(show_names_rows, show_names_y, "show_names_y")
+  show_names_cols <- check_xy_deprecated(show_names_cols, show_names_x, "show_names_x")
+  names_rows_side <- check_xy_deprecated(names_rows_side, names_y_side, "names_y_side")
+  names_cols_side <- check_xy_deprecated(names_cols_side, names_x_side, "names_x_side")
 
   # Scale data if specified
   x <- scale_mat(x, scale_data)
@@ -551,8 +562,8 @@ gghm <- function(x,
     plt <- make_heatmap(x_long = x_long, plt = NULL, mode = mode, include_diag = include_diag,
                         invisible_diag = isSquare(as.matrix(x)),
                         border_lwd = border_lwd, border_col = border_col, border_lty = border_lty,
-                        show_names_diag = show_names_diag, show_names_x = show_names_x, show_names_y = show_names_y,
-                        names_x_side = names_x_side, names_y_side = names_y_side,
+                        show_names_diag = show_names_diag, show_names_cols = show_names_cols, show_names_rows = show_names_rows,
+                        names_cols_side = names_cols_side, names_rows_side = names_rows_side,
                         col_scale = col_scale, size_scale = size_scale,
                         cell_labels = cell_labels, cell_label_col = cell_label_col,
                         cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
@@ -571,8 +582,8 @@ gghm <- function(x,
     plt <- make_heatmap(x_long = dplyr::filter(x_long, layout == lt[1]), plt = NULL,
                         mode = mode[1], include_diag = include_diag, invisible_diag = TRUE,
                         border_lwd = border_lwd[[1]], border_col = border_col[[1]], border_lty = border_lty[[1]],
-                        show_names_diag = show_names_diag, show_names_x = show_names_x, show_names_y = show_names_y,
-                        names_x_side = names_x_side, names_y_side = names_y_side,
+                        show_names_diag = show_names_diag, show_names_cols = show_names_cols, show_names_rows = show_names_rows,
+                        names_cols_side = names_cols_side, names_rows_side = names_rows_side,
                         col_scale = col_scale[[1]], size_scale = size_scale[[1]],
                         cell_labels = cell_labels[[1]], cell_label_col = cell_label_col[[1]],
                         cell_label_size = cell_label_size[[1]], cell_label_digits = cell_label_digits[[1]],
@@ -593,8 +604,8 @@ gghm <- function(x,
     plt <- make_heatmap(x_long = dplyr::filter(x_long, layout == lt[2]), plt = plt,
                         mode = mode[2], include_diag = incl_diag, invisible_diag = FALSE,
                         border_lwd = border_lwd[[2]], border_col = border_col[[2]], border_lty = border_lty[[2]],
-                        show_names_diag = FALSE, show_names_x = show_names_x, show_names_y = show_names_y,
-                        names_x_side = names_x_side, names_y_side = names_y_side,
+                        show_names_diag = FALSE, show_names_cols = show_names_cols, show_names_rows = show_names_rows,
+                        names_cols_side = names_cols_side, names_rows_side = names_rows_side,
                         col_scale = col_scale[[2]], size_scale = size_scale[[2]],
                         cell_labels = cell_labels[[2]], cell_label_col = cell_label_col[[2]],
                         cell_label_size = cell_label_size[[2]], cell_label_digits = cell_label_digits[[2]],

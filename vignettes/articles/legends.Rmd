@@ -22,12 +22,12 @@ As explained in some of the other articles, the colour scale argument `col_scale
 
 ```{r, fig.alt='Three heatmaps of the volcano data. The first one uses the default dark blue to light blue gradient for the cells, the second one uses the Viridis magma palette, and the third a custom scale going from light blue to white to pink.'}
 plt1 <- gghm(volcano, col_name = "Default",
-             border_col = NA, show_names_x = FALSE, show_names_y = FALSE)
+             border_col = NA, show_names_rows = FALSE, show_names_cols = FALSE)
 
 plt2 <- gghm(volcano,
              # Brewer Spectral palette
              col_scale = "A", col_name = "Character",
-             border_col = NA, show_names_x = FALSE, show_names_y = FALSE)
+             border_col = NA, show_names_rows = FALSE, show_names_cols = FALSE)
 
 plt3 <- gghm(volcano,
              # Custom scale
@@ -35,7 +35,7 @@ plt3 <- gghm(volcano,
                high = "pink", mid = "white", low = "lightblue",
                midpoint = 140, name = "Custom"
              ),
-             border_col = NA, show_names_x = FALSE, show_names_y = FALSE)
+             border_col = NA, show_names_rows = FALSE, show_names_cols = FALSE)
 
 plt1 + plt2 + plt3 &
   theme(legend.position = "bottom",
@@ -73,7 +73,7 @@ row_annot <- data.frame("Default" = 1:nrow(volcano),
                         "Reversed" = 1:nrow(volcano))
 row_annot_colr <- list("Default" = "A", "Reversed" = "A_rev")
 
-gghm(volcano, show_names_x = FALSE, show_names_y = FALSE, border_col = NA,
+gghm(volcano, show_names_rows = FALSE, show_names_cols = FALSE, border_col = NA,
      col_scale = "rev_A", col_name = "Reversed",
      annot_rows_df = row_annot,
      annot_rows_col = row_annot_colr,

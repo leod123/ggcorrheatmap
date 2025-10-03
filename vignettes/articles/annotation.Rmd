@@ -76,7 +76,7 @@ plt1 <- gghm(cor(mtcars), annot_rows_df = annot, annot_cols_df = annot,
 plt2 <- gghm(cor(mtcars), annot_rows_df = annot, annot_cols_df = annot,
              annot_rows_side = "left", annot_cols_side = "top",
              layout = "br", include_diag = TRUE, show_names_diag = TRUE,
-             show_names_x = FALSE, show_names_y = FALSE) +
+             show_names_rows = FALSE, show_names_cols = FALSE) +
   theme(plot.margin = margin(20, 10, 10, 50))
 
 plt1 + plt2

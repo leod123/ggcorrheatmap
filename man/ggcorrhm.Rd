@@ -44,10 +44,14 @@ ggcorrhm(
   border_lty = 1,
   show_names_diag = TRUE,
   names_diag_params = NULL,
-  show_names_x = FALSE,
-  names_x_side = "top",
-  show_names_y = FALSE,
-  names_y_side = "left",
+  show_names_rows = FALSE,
+  names_rows_side = "left",
+  show_names_cols = FALSE,
+  names_cols_side = "top",
+  show_names_x = NULL,
+  names_x_side = NULL,
+  show_names_y = NULL,
+  names_y_side = NULL,
   annot_rows_df = NULL,
   annot_cols_df = NULL,
   annot_rows_col = NULL,
@@ -188,11 +192,17 @@ Not supported for numeric \code{mode}.}
 
 \item{names_diag_params}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
 
-\item{show_names_x, show_names_y}{Logical indicating if names should be written on the x and y axes. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
+\item{show_names_rows, show_names_cols}{Logical indicating if row/colnames should be written on the axes. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
 
-\item{names_x_side}{String specifying position of the x axis names ("top" or "bottom").}
+\item{names_rows_side}{String specifying position of the row names ("left" or "right").}
 
-\item{names_y_side}{String specifying position of the y axis names ("left" or "right").}
+\item{names_cols_side}{String specifying position of the column names ("top" or "bottom").}
+
+\item{show_names_x, show_names_y}{Deprecated in favour of \code{show_names_rows} and \code{show_names_cols}. Logical indicating if row/colnames should be shown.}
+
+\item{names_x_side}{Deprecated in favour of \code{names_cols_side}. String specifying position of the x axis names ("top" or "bottom").}
+
+\item{names_y_side}{Deprecated in favour of \code{names_rows_side}. String specifying position of the y axis names ("left" or "right").}
 
 \item{annot_rows_df, annot_cols_df}{Data frame for row and column annotations. The names of the columns in the data must be included,
 either as row names or in a column named \code{.names}. Each other column specifies an annotation where the column name

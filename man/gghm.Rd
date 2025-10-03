@@ -20,10 +20,14 @@ gghm(
   split_diag = FALSE,
   show_names_diag = FALSE,
   names_diag_params = NULL,
-  show_names_x = TRUE,
-  names_x_side = "top",
-  show_names_y = TRUE,
-  names_y_side = "left",
+  show_names_rows = TRUE,
+  names_rows_side = "left",
+  show_names_cols = TRUE,
+  names_cols_side = "top",
+  show_names_x = NULL,
+  names_x_side = NULL,
+  show_names_y = NULL,
+  names_y_side = NULL,
   na_col = "grey50",
   na_remove = FALSE,
   return_data = FALSE,
@@ -127,11 +131,17 @@ Mostly only useful for getting a cleaner look with symmetric correlation matrice
 
 \item{names_diag_params}{List with named parameters (such as size, angle, etc) passed on to geom_text when writing the column names in the diagonal.}
 
-\item{show_names_x, show_names_y}{Logical indicating if names should be written on the x and y axes. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
+\item{show_names_rows, show_names_cols}{Logical indicating if row/colnames should be written on the axes. Labels can be customised using \code{ggplot2::theme()} on the output plot.}
 
-\item{names_x_side}{String specifying position of the x axis names ("top" or "bottom").}
+\item{names_rows_side}{String specifying position of the row names ("left" or "right").}
 
-\item{names_y_side}{String specifying position of the y axis names ("left" or "right").}
+\item{names_cols_side}{String specifying position of the column names ("top" or "bottom").}
+
+\item{show_names_x, show_names_y}{Deprecated in favour of \code{show_names_rows} and \code{show_names_cols}. Logical indicating if row/colnames should be shown.}
+
+\item{names_x_side}{Deprecated in favour of \code{names_cols_side}. String specifying position of the x axis names ("top" or "bottom").}
+
+\item{names_y_side}{Deprecated in favour of \code{names_rows_side}. String specifying position of the y axis names ("left" or "right").}
 
 \item{na_col}{Colour to use for cells with NA (both main heatmap and annotation).}
 

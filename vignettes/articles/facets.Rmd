@@ -185,7 +185,7 @@ gghm(volcano,
      # Make annotations more visible
      annot_size = 1.5, annot_dist = 1,
      # Remove row/col names, cell borders and legends
-     show_names_x = FALSE, show_names_y = FALSE, border_col = 0, legend_order = NA)
+     show_names_rows = FALSE, show_names_cols = FALSE, border_col = 0, legend_order = NA)
 ```
 
 When annotations exist in the rows while the columns are facetted (or vice versa), the annotations are placed in the first or last facet depending on the side. Unfortunately this means that the facet strip will be stretched to fit the annotations too.

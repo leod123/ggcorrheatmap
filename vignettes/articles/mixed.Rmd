@@ -214,7 +214,7 @@ plt1 <- ggcorrhm(mtcars, layout = "br", mode = "hm", split_diag = TRUE,
 plt2 <- ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("hm", "hm"),
                  col_scale = c("A", "G_rev"), split_diag = TRUE,
                  # Move the names for visibility
-                 show_names_diag = FALSE, show_names_x = TRUE, show_names_y = TRUE)
+                 show_names_diag = FALSE, show_names_rows = TRUE, show_names_cols = TRUE)
 
 plt1 + plt2
 ```

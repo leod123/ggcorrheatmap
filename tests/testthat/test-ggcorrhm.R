@@ -105,10 +105,10 @@ test_that("snapshots are ok", {
   vdiffr::expect_doppelganger("basic_ggcorrhm", ggcorrhm(mtcars))
   vdiffr::expect_doppelganger("asymmetric_corrhm", ggcorrhm(iris[1:32, -5], mtcars))
   # Check that diagonal names end up in the correct positions regardless of inclusion of diagonal
-  vdiffr::expect_doppelganger("diag_names1", ggcorrhm(mtcars, layout = "tr", show_names_x = TRUE, show_names_y = TRUE))
-  vdiffr::expect_doppelganger("diag_names2", ggcorrhm(mtcars, layout = "tr", include_diag = FALSE, show_names_x = TRUE, show_names_y = TRUE))
-  vdiffr::expect_doppelganger("diag_names3", ggcorrhm(mtcars, layout = "tr", include_diag = FALSE, show_names_diag = FALSE, show_names_x = TRUE, show_names_y = TRUE))
-  vdiffr::expect_doppelganger("diag_names4", ggcorrhm(mtcars, layout = "tr", include_diag = TRUE, show_names_diag = FALSE, show_names_x = TRUE, show_names_y = TRUE))
+  vdiffr::expect_doppelganger("diag_names1", ggcorrhm(mtcars, layout = "tr", show_names_rows = TRUE, show_names_c = TRUE))
+  vdiffr::expect_doppelganger("diag_names2", ggcorrhm(mtcars, layout = "tr", include_diag = FALSE, show_names_cols = TRUE, show_names_rows = TRUE))
+  vdiffr::expect_doppelganger("diag_names3", ggcorrhm(mtcars, layout = "tr", include_diag = FALSE, show_names_diag = FALSE, show_names_cols = TRUE, show_names_rows = TRUE))
+  vdiffr::expect_doppelganger("diag_names4", ggcorrhm(mtcars, layout = "tr", include_diag = TRUE, show_names_diag = FALSE, show_names_cols = TRUE, show_names_rows = TRUE))
   vdiffr::expect_doppelganger("corr_w_options", ggcorrhm(mtcars, cluster_rows = TRUE, cluster_cols = TRUE,
                                                          annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:ncol(mtcars)),
                                                          annot_cols_df = data.frame(.names = colnames(mtcars), b = 1:ncol(mtcars))))

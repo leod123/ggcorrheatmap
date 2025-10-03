@@ -342,8 +342,8 @@ test_that("other_logical_arguments", {
                     annot_na_remove = "asdf"), class = "logical_error")
   expect_error(gghm(mtcars, return_data = "ASDF"), class = "logical_error")
   expect_error(gghm(cor(mtcars), show_names_diag = "TRUE"), class = "logical_error")
-  expect_error(gghm(cor(mtcars), show_names_x = "TR"), class = "logical_error")
-  expect_error(gghm(cor(mtcars), show_names_y = "TRU"), class = "logical_error")
+  expect_error(gghm(cor(mtcars), show_names_cols = "TR"), class = "logical_error")
+  expect_error(gghm(cor(mtcars), show_names_rows = "TRU"), class = "logical_error")
   expect_error(gghm(cor(mtcars), include_diag = "TRUE"), class = "logical_error")
   expect_error(gghm(cor(mtcars), annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11),
                     show_annot_names = "false"), class = "logical_error")

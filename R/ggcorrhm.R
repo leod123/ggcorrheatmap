@@ -124,7 +124,9 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      cell_bg_col = "white", cell_bg_alpha = 0,
                      border_col = "grey", border_lwd = 0.1, border_lty = 1,
                      show_names_diag = TRUE, names_diag_params = NULL,
-                     show_names_x = FALSE, names_x_side = "top", show_names_y = FALSE, names_y_side = "left",
+                     show_names_rows = FALSE, names_rows_side = "left",
+                     show_names_cols = FALSE, names_cols_side = "top",
+                     show_names_x = NULL, names_x_side = NULL, show_names_y = NULL, names_y_side = NULL,
                      annot_rows_df = NULL, annot_cols_df = NULL,
                      annot_rows_col = NULL, annot_cols_col = NULL,
                      annot_rows_side = "right", annot_cols_side = "bottom",
@@ -170,7 +172,6 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
       if (any(duplicated(names(p_thresholds)))) cli::cli_abort("Symbols (the names) of {.var p_thresholds} must be unique.", class = "p_thr_error")
     }
   }
-
 
   # Skip correlation (and p-value) computation if cor_in is TRUE
   check_logical(cor_in = cor_in)
@@ -245,8 +246,10 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
   if (!isSquare(as.matrix(cor_mat))) {
     show_names_diag <- FALSE
     # Also display x and y names by default, but remove if specified as FALSE (when specified as a named argument)
-    show_names_x <- eval(replace_default(list("show_names_x" = TRUE), as.list(sys.call()))$show_names_x)
-    show_names_y <- eval(replace_default(list("show_names_y" = TRUE), as.list(sys.call()))$show_names_y)
+    show_names_cols <- eval(replace_default(list("show_names_cols" = TRUE), as.list(sys.call()))$show_names_cols)
+    show_names_rows <- eval(replace_default(list("show_names_rows" = TRUE), as.list(sys.call()))$show_names_rows)
+    show_names_x <- eval(replace_default(list("show_names_x" = NULL), as.list(sys.call()))$show_names_x)
+    show_names_y <- eval(replace_default(list("show_names_y" = NULL), as.list(sys.call()))$show_names_y)
   }
 
   # Get scales and their orders
@@ -326,8 +329,9 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                   size_scale = size_scale, size_name = size_name,
                   border_col = border_col, border_lwd = border_lwd, border_lty = border_lty,
                   show_names_diag = show_names_diag, names_diag_params = names_diag_params,
-                  show_names_x = show_names_x, names_x_side = names_x_side,
-                  show_names_y = show_names_y, names_y_side = names_y_side,
+                  show_names_rows = show_names_rows, names_rows_side = names_rows_side,
+                  show_names_cols = show_names_cols, names_cols_side = names_cols_side,
+                  show_names_x = show_names_x, show_names_y = show_names_y, names_x_side = names_x_side, names_y_side = names_y_side,
                   cell_labels = cell_labels, cell_label_col = cell_label_col,
                   cell_label_size = cell_label_size, cell_label_digits = cell_label_digits,
                   cell_bg_col = cell_bg_col, cell_bg_alpha = cell_bg_alpha,

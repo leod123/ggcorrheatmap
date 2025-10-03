@@ -14,6 +14,10 @@
 
 * The legends in `ggcorrhm()` no longer assume that Pearson correlation was used when `cor_in` is `TRUE`.
 
+## Deprecated arguments
+
+* `show_names_x/y` and `names_x/y_side` have been deprecated in favour of `show_names_cols/rows` and `names_cols/rows_side` for consistency with other arguments.
+
 # ggcorrheatmap 0.2.0
 
 ## New features

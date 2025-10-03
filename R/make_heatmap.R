@@ -11,10 +11,10 @@
 #' @param border_col Border colour.
 #' @param border_lty Border linetype.
 #' @param show_names_diag Logical indicating if names should be displayed on the diagonal.
-#' @param show_names_x Logical indicating if names should be displayed on the x axis.
-#' @param show_names_y Logical indicating if names should be displayed on the y axis.
-#' @param names_x_side X axis side.
-#' @param names_y_side Y axis side.
+#' @param show_names_cols Logical indicating if names should be displayed on the x axis.
+#' @param show_names_rows Logical indicating if names should be displayed on the y axis.
+#' @param names_cols_side X axis side.
+#' @param names_rows_side Y axis side.
 #' @param col_scale Scale for colour/fill aesthetic.
 #' @param size_scale Scale for size aesthetic.
 #' @param cell_labels Data frame of text to write on cells (processed by check_cell_labels).
@@ -32,8 +32,8 @@
 make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
                          include_diag = TRUE, invisible_diag = FALSE,
                          border_lwd = 0.1, border_col = "grey", border_lty = 1,
-                         show_names_diag = TRUE, show_names_x = FALSE, show_names_y = FALSE,
-                         names_x_side = "top", names_y_side = "left",
+                         show_names_diag = TRUE, show_names_cols = FALSE, show_names_rows = FALSE,
+                         names_cols_side = "top", names_rows_side = "left",
                          col_scale = NULL, size_scale = NULL,
                          cell_labels = FALSE, cell_label_col = "black",
                          cell_label_size = 3, cell_label_digits = 2,
@@ -44,8 +44,8 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
   value <- .data <- label <- .row_facets <- .col_facets <- NULL
 
   # show_names_diag checked earlier
-  check_logical(show_names_x = show_names_x)
-  check_logical(show_names_y = show_names_y)
+  check_logical(show_names_cols = show_names_cols)
+  check_logical(show_names_rows = show_names_rows)
   check_logical(include_diag = include_diag)
   check_logical(split_diag = split_diag)
 
@@ -168,20 +168,20 @@ make_heatmap <- function(x_long, plt = NULL, mode = "heatmap",
   if (!plt_provided) {
     plt <- plt +
       # Remove extra space on axes (if drawing tiles) and place on specified sides
-      ggplot2::scale_x_discrete(position = names_x_side) +
-      ggplot2::scale_y_discrete(position = names_y_side) +
+      ggplot2::scale_x_discrete(position = names_cols_side) +
+      ggplot2::scale_y_discrete(position = names_rows_side) +
       ggplot2::theme_classic() +
       # Remove axis elements
       ggplot2::theme(axis.line = ggplot2::element_blank(),
-                     axis.text.y = if (show_names_y) ggplot2::element_text() else ggplot2::element_blank(),
+                     axis.text.y = if (show_names_rows) ggplot2::element_text() else ggplot2::element_blank(),
                      axis.ticks = ggplot2::element_blank(),
                      axis.title = ggplot2::element_blank(),
                      strip.background = ggplot2::element_blank())
     # Rotate x labels if names on x axis
-    if (show_names_x) {
+    if (show_names_cols) {
       plt <- plt +
-        if (names_x_side == "top") ggplot2::theme(axis.text.x.top = ggplot2::element_text(angle = 90, hjust = 0, vjust = 0.3))
-      else if (names_x_side == "bottom") ggplot2::theme(axis.text.x.bottom = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.3))
+        if (names_cols_side == "top") ggplot2::theme(axis.text.x.top = ggplot2::element_text(angle = 90, hjust = 0, vjust = 0.3))
+      else if (names_cols_side == "bottom") ggplot2::theme(axis.text.x.bottom = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.3))
     } else {
       plt <- plt + ggplot2::theme(axis.text.x = ggplot2::element_blank())
     }
