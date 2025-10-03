@@ -230,6 +230,9 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                         "pearson" = "Pearson r",
                         "spearman" = "Spearman\nrho",
                         "kendall" = "Kendall\ntau")
+  if (isTRUE(cor_in)) {
+    scale_names <- "value"
+  }
   if (is.null(col_name)) {
     col_name <- scale_names
   }
