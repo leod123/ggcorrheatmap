@@ -261,6 +261,17 @@ gghm <- function(x,
     full_plt <- TRUE
     layout <- "f"
     mode <- mode[1]
+
+    # If coming from ggcorrhm, cell_labels will be a list of length 2, which causes an error later
+    if (is.vector(cell_labels) && length(cell_labels) == 2) {
+      cell_labels <- cell_labels[[1]]
+    }
+    if (is.vector(cell_labels) && length(cell_labels) == 2) {
+      cell_labels <- cell_labels[[1]]
+    }
+    if (is.vector(cell_label_digits) && length(cell_label_digits) == 2) {
+      cell_label_digits <- cell_label_digits[[1]]
+    }
   }
 
   # Overwrite show_names_diag if the input is non-symmetric as it would cause
@@ -313,7 +324,7 @@ gghm <- function(x,
     layout <- "f"
     full_plt <- TRUE
     mode <- mode[1]
-    # If coming from ggcorrhm, cell_labels will be a list of length 2, which causes an error later
+
     if (is.vector(cell_labels) && length(cell_labels) == 2) {
       cell_labels <- cell_labels[[1]]
     }
