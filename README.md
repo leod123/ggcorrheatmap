@@ -70,7 +70,7 @@ It is also possible to make a normal heatmap, for a more flexible
 output.
 
 ``` r
-gghm(scale(mtcars), cluster_rows = TRUE, cluster_cols = TRUE)
+gghm(mtcars, scale_data = "col", cluster_rows = TRUE, cluster_cols = TRUE)
 ```
 
 <img src="man/figures/README-example3-1.png" alt="A heatmap of the mtcars data (scaled). Cells are coloured with a scale going from dark blue to light blue. Both rows and columns have been clustered, with dendrograms to the right and below the heatmap."  />
