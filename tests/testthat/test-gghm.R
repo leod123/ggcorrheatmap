@@ -129,16 +129,6 @@ test_that("snapshots", {
                                                       ggplot2::scale_fill_gradient(high = "pink", low = "white"),
                                                       "D"
                                                     )))
-  vdiffr::expect_doppelganger("mixed_scales2", gghm(cor(mtcars), layout = c("tl", "br"), mode = c("19", "19"),
-                                                    col_scale = list(
-                                                      ggplot2::scale_colour_gradient(high = "pink", low = "white"),
-                                                      ggplot2::scale_colour_viridis_c()
-                                                    ),
-                                                    size_scale = list(
-                                                      ggplot2::scale_size_continuous(range = c(1, 3)),
-                                                      ggplot2::scale_size_continuous(range = c(5, 8))
-                                                    ),
-                                                    cluster_rows = TRUE, cluster_cols = TRUE))
   vdiffr::expect_doppelganger("mixed_scale_params", {
     a <- cor(mtcars)
     a[c(2, 12, 14, 24, 26, 36)] <- NA
@@ -153,6 +143,20 @@ test_that("snapshots", {
                                                   annot_rows_df = data.frame(
                                                     .names = colnames(mtcars), a = 1:11, b = 11:1
                                                   )))
+  # Skip this test in CI
+  # All scales are specified as ggplot2 scale objects, leaving the legend order completely to ggplot2
+  # to automatically arrange. Seems like the order differs on different platforms, causing failure in CI
+  skip_on_ci()
+  vdiffr::expect_doppelganger("mixed_scales2", gghm(cor(mtcars), layout = c("tl", "br"), mode = c("19", "19"),
+                                                    col_scale = list(
+                                                      ggplot2::scale_colour_gradient(high = "pink", low = "white"),
+                                                      ggplot2::scale_colour_viridis_c()
+                                                    ),
+                                                    size_scale = list(
+                                                      ggplot2::scale_size_continuous(range = c(1, 3)),
+                                                      ggplot2::scale_size_continuous(range = c(5, 8))
+                                                    ),
+                                                    cluster_rows = TRUE, cluster_cols = TRUE))
 })
 
 test_that("correct input types", {
