@@ -4,11 +4,15 @@
 
 * The new `split_diag` argument allows for triangular cells in the diagonal.
 
+* Features that previously required a symmetric matrix (such as triangular layouts) now work with square matrices where the row- and column names are the same.
+
 ## Minor changes
 
 * Annotations in mixed layouts now work with ggplot2 version 4.0.0.
 
 * The output data frame from `return_data` now always contains a `layout` column.
+
+* The legends in `ggcorrhm()` no longer assume that Pearson correlation was used when `cor_in` is `TRUE`.
 
 # ggcorrheatmap 0.2.0
 
