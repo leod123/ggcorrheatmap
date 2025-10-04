@@ -503,6 +503,10 @@ See examples and the clustering article for example usage.</p>
 <span class="r-in"><span>     dend_rows_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>height <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, dend_cols_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="gghm-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># With gaps</span></span></span>
+<span class="r-in"><span><span class="fu">gghm</span><span class="op">(</span><span class="va">mtcars</span>, split_rows <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span><span class="op">)</span>, split_cols <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="gghm-6.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># With annotation and specifying colour scales</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">annot_rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">hm_in</span><span class="op">)</span>,</span></span>
@@ -517,14 +521,14 @@ See examples and the clustering article for example usage.</p>
 <span class="r-in"><span>     annot_rows_df <span class="op">=</span> <span class="va">annot_rows</span>, annot_rows_col <span class="op">=</span> <span class="va">annot_fill</span><span class="op">)</span> <span class="op">+</span></span></span>
 <span class="r-in"><span>     <span class="co"># Use ggplot2::theme to adjust margins to fit the annotation names</span></span></span>
 <span class="r-in"><span>     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>plot.margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">margin</a></span><span class="op">(</span><span class="fl">30</span>, <span class="fl">10</span>, <span class="fl">60</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="gghm-6.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="gghm-7.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Using the dend_*_extend arguments</span></span></span>
 <span class="r-in"><span><span class="fu">gghm</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">hm_in</span><span class="op">)</span>, cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>, dend_rows_extend <span class="op">=</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"set"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"branches_lty"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>       <span class="co"># Empty list element (or NULL) if no arguments to be given</span></span></span>
 <span class="r-in"><span>       <span class="st">"highlight_branches_col"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="gghm-7.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="gghm-8.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

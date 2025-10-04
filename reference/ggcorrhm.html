@@ -140,7 +140,9 @@
 <span>  dend_rows_extend <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  dend_cols_extend <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  split_rows <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  split_cols <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  split_cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  split_rows_side <span class="op">=</span> <span class="st">"right"</span>,</span>
+<span>  split_cols_side <span class="op">=</span> <span class="st">"bottom"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -486,6 +488,10 @@ Does not work well with heatmap splits.</p></dd>
 or a vector of the same length as the number of rows/columns containing the facet memberships. In the latter case names can be used to match with rows/columns.
 Alternatively, if clustering is applied a single numeric value is accepted for the number of clusters to divide the plot into.</p></dd>
 
+
+<dt id="arg-split-rows-side-split-cols-side">split_rows_side, split_cols_side<a class="anchor" aria-label="anchor" href="#arg-split-rows-side-split-cols-side"></a></dt>
+<dd><p>Which side the row/column facet strips should be drawn on ('left'/'right', 'top'/'bottom').</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -555,6 +561,17 @@ The same applies if the <code>cluster_rows</code> and <code>cluster_cols</code> 
 <span class="r-in"><span><span class="co"># Mixed layout</span></span></span>
 <span class="r-in"><span><span class="fu">ggcorrhm</span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tl"</span>, <span class="st">"br"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ggcorrhm-7.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Using different plotting modes</span></span></span>
+<span class="r-in"><span><span class="fu">ggcorrhm</span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bl"</span>, <span class="st">"tr"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"21"</span>, <span class="st">"none"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>         cell_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">FALSE</span>, <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="ggcorrhm-8.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Different colour scales and split diagonal</span></span></span>
+<span class="r-in"><span><span class="fu">ggcorrhm</span><span class="op">(</span><span class="va">mtcars</span>, layout <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bl"</span>, <span class="st">"tr"</span><span class="op">)</span>, mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hm"</span>, <span class="st">"hm"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>         col_scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"G"</span><span class="op">)</span>, split_diag <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>         show_names_diag <span class="op">=</span> <span class="cn">FALSE</span>, border_col <span class="op">=</span> <span class="fl">1</span>, border_lwd <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="ggcorrhm-9.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
