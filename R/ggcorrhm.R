@@ -111,6 +111,15 @@
 #' # Mixed layout
 #' ggcorrhm(mtcars, layout = c("tl", "br"))
 #'
+#' # Using different plotting modes
+#' ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("21", "none"),
+#'          cell_labels = c(FALSE, TRUE))
+#'
+#' # Different colour scales and split diagonal
+#' ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("hm", "hm"),
+#'          col_scale = c("A", "G"), split_diag = TRUE,
+#'          show_names_diag = FALSE, border_col = 1, border_lwd = 0.3)
+#'
 ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything", cor_in = FALSE,
                      high = "sienna2", mid = "white", low = "skyblue2", midpoint = 0, limits = c(-1, 1), bins = NULL,
                      layout = "full", mode = if (length(layout) == 1) "heatmap" else c("heatmap", "text"),
@@ -146,7 +155,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                      dend_col = "black", dend_dist = 0, dend_height = 0.3, dend_lwd = 0.3, dend_lty = 1,
                      dend_rows_params = NULL, dend_cols_params = NULL,
                      dend_rows_extend = NULL, dend_cols_extend = NULL,
-                     split_rows = NULL, split_cols = NULL) {
+                     split_rows = NULL, split_cols = NULL,
+                     split_rows_side = "right", split_cols_side = "bottom") {
 
   # Perform some input argument checks
   check_logical(return_data = return_data)
@@ -354,7 +364,8 @@ ggcorrhm <- function(x, y = NULL, cor_method = "pearson", cor_use = "everything"
                   dend_col = dend_col, dend_dist = dend_dist, dend_height = dend_height, dend_lwd = dend_lwd, dend_lty = dend_lty,
                   dend_rows_params = dend_rows_params, dend_cols_params = dend_cols_params,
                   dend_rows_extend = dend_rows_extend, dend_cols_extend = dend_cols_extend,
-                  split_rows = split_rows, split_cols = split_cols)
+                  split_rows = split_rows, split_cols = split_cols,
+                  split_rows_side = split_rows_side, split_cols_side = split_cols_side)
 
   if (return_data & any(unlist(p_values))) {
     # Add p-values to output data

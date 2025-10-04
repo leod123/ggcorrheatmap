@@ -315,6 +315,9 @@ gghm(scale(hm_in), cluster_rows = TRUE, cluster_cols = TRUE,
      # Specific options
      dend_rows_params = list(height = 1), dend_cols_params = list(lty = 2))
 
+# With gaps
+gghm(mtcars, split_rows = c(10, 20), split_cols = 6)
+
 # With annotation and specifying colour scales
 set.seed(123)
 annot_rows <- data.frame(.names = rownames(hm_in),

@@ -77,8 +77,12 @@ gghm(mtcars, scale_data = "col", cluster_rows = TRUE, cluster_cols = TRUE)
 
 ## More examples
 
-There are many more options for customisation, covered in the different
-articles of the package:
+Below is a showcase more things you could do with the package (the code
+can be found at the bottom).
+
+<img src="man/figures/README-example4-1.png" alt="Six heatmaps. 1: mtcars correlation heatmap showing just the bottom right triangle. Rows and columns are clustered and there are gaps splitting the heatmap into two clusters in each dimension. A legend is placed in the empty space of the top left triangle. 2: The volcano dataset using the Viridis magma colour scale. 3: mtcars correlation heatmap with circles in the bottom left triangle and correlation values in text in the top right. 4: a 7 by 10 heatmap of categorical values using the Brewer Pastel2 palette. 5: mtcars correlation heatmap split into two along the diagonal. The top right triangle uses the Brewer RdBu palette and the bottom left triangle uses the Viridis mako scale. 6: 10 by 30 heatmap using the Viridis scale with mostly low values (dark blue) and some higher values (green-yellow) sprinkled in randomly. Two annotation rows are at the top, one numeric and one categorical. The heatmap has gaps at rows 10 and columns 10 and 20."  />
+
+More examples can be found in the articles of the package:
 
 - [Making a
   heatmap](https://leod123.github.io/ggcorrheatmap/articles/heatmap.html)
@@ -93,3 +97,49 @@ articles of the package:
   legends](https://leod123.github.io/ggcorrheatmap/articles/legends.html)
 - [Using tidy
   data](https://leod123.github.io/ggcorrheatmap/articles/tidy_input.html)
+
+``` r
+library(ggplot2)   # moving legend for plot 1
+library(patchwork) # for combining into one big figure
+
+# Clustered triangular heatmap with gaps
+plt1 <- ggcorrhm(mtcars, layout = "bottomright",
+                 split_diag = TRUE,
+                 cluster_rows = TRUE, cluster_cols = TRUE,
+                 split_rows = 2, split_cols = 2,
+                 names_diag_params = list(angle = -45, hjust = 1.3)) +
+  theme(legend.position = "inside", legend.position.inside = c(0.25, 0.75))
+
+# Heatmap with other colour scale
+plt2 <- gghm(volcano, col_scale = "A", border_col = NA, legend_order = NA,
+             show_names_rows = FALSE, show_names_cols = FALSE)
+
+# Mixed correlation heatmap with circles and correlation values
+plt3 <- ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("21", "none"),
+                 legend_order = NA, cell_labels = c(FALSE, TRUE))
+
+# Heatmap with categorical values
+set.seed(123)
+plt4 <- gghm(matrix(letters[sample(1:3, 70, TRUE)], nrow = 7),
+             col_scale = "Pastel2", border_col = "#FFE1FF", legend_order = NA,
+             border_lwd = 1, show_names_rows = FALSE, show_names_cols = FALSE)
+
+# Split square heatmap with two colour scales
+plt5 <- ggcorrhm(mtcars, layout = c("tr", "bl"), mode = c("hm", "hm"),
+                 col_scale = c("RdBu_rev", "G"), split_diag = TRUE,
+                 border_lwd = 0.3, border_col = 1,
+                 legend_order = NA, show_names_diag = FALSE)
+
+# Annotations and gaps
+set.seed(123)
+dat6 <- sapply(sample(1:5, 30, TRUE), \(x) {
+    c(runif(x, runif(1, 0.5, 0.8), runif(1, 0.81, 1)), runif(20 - x, 0, 0.2))[sample(1:20, 20, FALSE)]
+})
+plt6 <- gghm(dat6, border_col = 0, col_scale = "D",
+             show_names_rows = FALSE, show_names_cols = FALSE,
+             legend_order = NA, split_rows = 10, split_cols = c(10, 20),
+             annot_cols_df = data.frame(a = sample(letters[1:3], 30, TRUE), b = 1:30),
+             annot_cols_side = "top", annot_size = 1, dend_height = 1)
+
+wrap_plots(plt1, plt2, plt3, plt4, plt5, plt6, nrow = 2)
+```

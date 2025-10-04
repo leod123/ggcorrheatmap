@@ -94,7 +94,9 @@ ggcorrhm(
   dend_rows_extend = NULL,
   dend_cols_extend = NULL,
   split_rows = NULL,
-  split_cols = NULL
+  split_cols = NULL,
+  split_rows_side = "right",
+  split_cols_side = "bottom"
 )
 }
 \arguments{
@@ -280,6 +282,8 @@ Does not work well with heatmap splits.}
 \item{split_rows, split_cols}{Vectors for splitting the rows and columns into facets. Can be a numeric vector shorter than the number of rows/columns to split the heatmap after those indices,
 or a vector of the same length as the number of rows/columns containing the facet memberships. In the latter case names can be used to match with rows/columns.
 Alternatively, if clustering is applied a single numeric value is accepted for the number of clusters to divide the plot into.}
+
+\item{split_rows_side, split_cols_side}{Which side the row/column facet strips should be drawn on ('left'/'right', 'top'/'bottom').}
 }
 \value{
 The correlation heatmap as a \code{ggplot} object.
@@ -345,5 +349,14 @@ ggcorrhm(mtcars, layout = "full", cluster_rows = TRUE, cluster_cols = TRUE,
 
 # Mixed layout
 ggcorrhm(mtcars, layout = c("tl", "br"))
+
+# Using different plotting modes
+ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("21", "none"),
+         cell_labels = c(FALSE, TRUE))
+
+# Different colour scales and split diagonal
+ggcorrhm(mtcars, layout = c("bl", "tr"), mode = c("hm", "hm"),
+         col_scale = c("A", "G"), split_diag = TRUE,
+         show_names_diag = FALSE, border_col = 1, border_lwd = 0.3)
 
 }
