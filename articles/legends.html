@@ -87,12 +87,12 @@ passing scale objects, make sure the correct aesthetic is used (fill or
 colour/color depending on plotting mode).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plt1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">volcano</span>, col_name <span class="op">=</span> <span class="st">"Default"</span>,</span>
-<span>             border_col <span class="op">=</span> <span class="cn">NA</span>, show_names_x <span class="op">=</span> <span class="cn">FALSE</span>, show_names_y <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>             border_col <span class="op">=</span> <span class="cn">NA</span>, show_names_rows <span class="op">=</span> <span class="cn">FALSE</span>, show_names_cols <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plt2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">volcano</span>,</span>
 <span>             <span class="co"># Brewer Spectral palette</span></span>
 <span>             col_scale <span class="op">=</span> <span class="st">"A"</span>, col_name <span class="op">=</span> <span class="st">"Character"</span>,</span>
-<span>             border_col <span class="op">=</span> <span class="cn">NA</span>, show_names_x <span class="op">=</span> <span class="cn">FALSE</span>, show_names_y <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>             border_col <span class="op">=</span> <span class="cn">NA</span>, show_names_rows <span class="op">=</span> <span class="cn">FALSE</span>, show_names_cols <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plt3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">volcano</span>,</span>
 <span>             <span class="co"># Custom scale</span></span>
@@ -100,7 +100,7 @@ colour/color depending on plotting mode).</p>
 <span>               high <span class="op">=</span> <span class="st">"pink"</span>, mid <span class="op">=</span> <span class="st">"white"</span>, low <span class="op">=</span> <span class="st">"lightblue"</span>,</span>
 <span>               midpoint <span class="op">=</span> <span class="fl">140</span>, name <span class="op">=</span> <span class="st">"Custom"</span></span>
 <span>             <span class="op">)</span>,</span>
-<span>             border_col <span class="op">=</span> <span class="cn">NA</span>, show_names_x <span class="op">=</span> <span class="cn">FALSE</span>, show_names_y <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>             border_col <span class="op">=</span> <span class="cn">NA</span>, show_names_rows <span class="op">=</span> <span class="cn">FALSE</span>, show_names_cols <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plt1</span> <span class="op">+</span> <span class="va">plt2</span> <span class="op">+</span> <span class="va">plt3</span> <span class="op">&amp;</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span>,</span>
@@ -137,7 +137,7 @@ also works for annotation scales.</p>
 <span>                        <span class="st">"Reversed"</span> <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">volcano</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">row_annot_colr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Default"</span> <span class="op">=</span> <span class="st">"A"</span>, <span class="st">"Reversed"</span> <span class="op">=</span> <span class="st">"A_rev"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">volcano</span>, show_names_x <span class="op">=</span> <span class="cn">FALSE</span>, show_names_y <span class="op">=</span> <span class="cn">FALSE</span>, border_col <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span><span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">volcano</span>, show_names_rows <span class="op">=</span> <span class="cn">FALSE</span>, show_names_cols <span class="op">=</span> <span class="cn">FALSE</span>, border_col <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>     col_scale <span class="op">=</span> <span class="st">"rev_A"</span>, col_name <span class="op">=</span> <span class="st">"Reversed"</span>,</span>
 <span>     annot_rows_df <span class="op">=</span> <span class="va">row_annot</span>,</span>
 <span>     annot_rows_col <span class="op">=</span> <span class="va">row_annot_colr</span>,</span>

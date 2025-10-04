@@ -89,8 +89,8 @@ input are computed and plotted.</p>
 <p>If the matrix being plotted is square and has the same row- and
 column names, the axis labels are drawn on the diagonal. This behaviour
 can be changed using the <code>show_names_diag</code>,
-<code>show_names_x</code> and <code>show_names_y</code> arguments. Such
-a heatmap can also be plotted using triangular and mixed triangular
+<code>show_names_rows</code> and <code>show_names_cols</code> arguments.
+Such a heatmap can also be plotted using triangular and mixed triangular
 layouts, explained more in the <a href="correlation.html">correlation
 matrix</a> and <a href="mixed.html">mixed layouts</a> articles.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -183,12 +183,12 @@ arguments.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Use the volcano data</span></span>
 <span><span class="co"># It contains many rows and columns making the axes hard to read.</span></span>
-<span><span class="co"># Can either turn off labels with `show_names_x` and `show_names_y`, or use</span></span>
+<span><span class="co"># Can either turn off labels with `show_names_rows` and `show_names_cols`, or use</span></span>
 <span><span class="co"># ggplot2::scale_x/y_discrete to change the labels</span></span>
 <span><span class="co"># (keep in mind that the y label order is reversed in the default layout and that overwriting the scale can change the label positions)</span></span>
 <span><span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">volcano</span>, col_scale <span class="op">=</span> <span class="st">"H"</span>,</span>
 <span>     border_col <span class="op">=</span> <span class="cn">NA</span>, border_lwd <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>     show_names_x <span class="op">=</span> <span class="cn">FALSE</span>, show_names_y <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span>     show_names_rows <span class="op">=</span> <span class="cn">FALSE</span>, show_names_cols <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="heatmap_files/figure-html/unnamed-chunk-8-1.png" alt="A heatmap of the volcano R dataset using the viridis colour scale for filling cells. The cell borders have been removed." width="700"></p>
 <p><code>border_col</code>, <code>border_lwd</code>, and
 <code>border_lty</code> can take either values of length 1 or the same
@@ -238,12 +238,12 @@ interfere with clustering if a whole row or column is all NAs.</p>
 <span>                border_col <span class="op">=</span> <span class="st">"black"</span>, border_lwd <span class="op">=</span> <span class="fl">.3</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"NAs default"</span><span class="op">)</span></span>
 <span><span class="co"># Colour NAs using scale function</span></span>
-<span><span class="va">na_plt2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">df_na</span>, legend_order <span class="op">=</span> <span class="cn">NA</span>, show_names_y <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span><span class="va">na_plt2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">df_na</span>, legend_order <span class="op">=</span> <span class="cn">NA</span>, show_names_rows <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                border_col <span class="op">=</span> <span class="st">"black"</span>, border_lwd <span class="op">=</span> <span class="fl">.3</span>,</span>
 <span>                na_col <span class="op">=</span> <span class="st">"white"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Change NA colour"</span><span class="op">)</span></span>
 <span><span class="co"># Remove NAs, removes the border as well</span></span>
-<span><span class="va">na_plt3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">df_na</span>, legend_order <span class="op">=</span> <span class="cn">NA</span>, show_names_y <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span><span class="va">na_plt3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gghm.html">gghm</a></span><span class="op">(</span><span class="va">df_na</span>, legend_order <span class="op">=</span> <span class="cn">NA</span>, show_names_rows <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                border_col <span class="op">=</span> <span class="st">"black"</span>, border_lwd <span class="op">=</span> <span class="fl">.3</span>,</span>
 <span>                na_remove <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"NAs removed"</span><span class="op">)</span></span>
