@@ -32,11 +32,11 @@ test_that("basic functionality works", {
   lbl2[sample(1:length(lbl2), 100, FALSE)] <- "a"
   expect_no_error(gghm(mtcars, cell_labels = lbl1))
   expect_no_error(gghm(mtcars, cell_labels = lbl2))
-  expect_no_error(gghm(cor(mtcars), layout = "br", split_diag = T))
-  expect_no_error(gghm(cor(mtcars), layout = c("br", "tl"), split_diag = T,
+  expect_no_error(gghm(cor(mtcars), layout = "br", split_diag = TRUE))
+  expect_no_error(gghm(cor(mtcars), layout = c("br", "tl"), split_diag = TRUE,
                        col_scale = c("A", "G"), annot_rows_df = data.frame(
                          .names = colnames(mtcars), a = 1:11, b = 11:1
-                       ), cluster_rows = T, cluster_cols = T))
+                       ), cluster_rows = TRUE, cluster_cols = TRUE))
   # Mixed layout with multiple scales
   expect_no_error(gghm(cor(mtcars), layout = c("tr", "bl"), mode = c("hm", "hm"),
                        col_scale = list(
@@ -141,10 +141,10 @@ test_that("snapshots", {
   sq_df <- matrix(rnorm(100), nrow = 10, dimnames = list(letters[1:10], letters[1:10]))
   vdiffr::expect_doppelganger("asymm_square", gghm(sq_df, layout = "tl"))
   vdiffr::expect_doppelganger("asymm_sqare2", gghm(sq_df, layout = c("tl", "br"), mode = c("hm", "hm"), col_scale = c("A", "G")))
-  vdiffr::expect_doppelganger("split_diag1", gghm(cor(mtcars), layout = "br", split_diag = T))
+  vdiffr::expect_doppelganger("split_diag1", gghm(cor(mtcars), layout = "br", split_diag = TRUE))
   vdiffr::expect_doppelganger("split_diag2", gghm(cor(mtcars), layout = c("br", "tl"), mode = c("hm", "hm"),
                                                   col_scale = c("A", "G"),
-                                                  split_diag = T, cluster_rows = T, cluster_cols = T,
+                                                  split_diag = TRUE, cluster_rows = TRUE, cluster_cols = TRUE,
                                                   annot_rows_df = data.frame(
                                                     .names = colnames(mtcars), a = 1:11, b = 11:1
                                                   )))
