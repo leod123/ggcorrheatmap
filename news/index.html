@@ -48,13 +48,16 @@
 <div class="section level3">
 <h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
 <ul><li><p>The new <code>split_diag</code> argument allows for triangular cells in the diagonal.</p></li>
-<li><p>Features that previously required a symmetric matrix (such as triangular layouts) now work with square matrices where the row- and column names are the same.</p></li>
+<li><p>Square matrices where the row- and column names are the same now work with features that previously required a symmetric matrix (such as triangular layouts).</p></li>
 </ul></div>
 <div class="section level3">
 <h3 id="minor-changes-development-version">Minor changes<a class="anchor" aria-label="anchor" href="#minor-changes-development-version"></a></h3>
-<ul><li><p>Annotations in mixed layouts now work with ggplot2 version 4.0.0.</p></li>
-<li><p>The output data frame from <code>return_data</code> now always contains a <code>layout</code> column.</p></li>
+<ul><li><p><code>return_data</code> now always returns a <code>layout</code> column.</p></li>
 <li><p>The legends in <code><a href="../reference/ggcorrhm.html">ggcorrhm()</a></code> no longer assume that Pearson correlation was used when <code>cor_in</code> is <code>TRUE</code>.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="fixes-development-version">Fixes<a class="anchor" aria-label="anchor" href="#fixes-development-version"></a></h3>
+<ul><li>Annotations and mixed layouts now work with ggplot2 version 4.0.0.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="deprecated-arguments-development-version">Deprecated arguments<a class="anchor" aria-label="anchor" href="#deprecated-arguments-development-version"></a></h3>
