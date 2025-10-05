@@ -1,6 +1,6 @@
 Package: ggcorrheatmap
 Title: Make Flexible 'ggplot2' Correlation Heatmaps
-Version: 0.2.0.9000
+Version: 0.3.0
 Authors@R: 
     person(given = "Leo", family = "Dahl",
            email = "leokosdah@gmail.com",
