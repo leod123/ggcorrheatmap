@@ -77,8 +77,8 @@ gghm(mtcars, scale_data = "col", cluster_rows = TRUE, cluster_cols = TRUE)
 
 ## More examples
 
-Below is a showcase more things you could do with the package (the code
-can be found at the bottom).
+Below is a showcase of more things you could do with the package (the
+code is a bit long and can be found at the bottom).
 
 <img src="man/figures/README-example4-1.png" alt="Six heatmaps. 1: mtcars correlation heatmap showing just the bottom right triangle. Rows and columns are clustered and there are gaps splitting the heatmap into two clusters in each dimension. A legend is placed in the empty space of the top left triangle. 2: The volcano dataset using the Viridis magma colour scale. 3: mtcars correlation heatmap with circles in the bottom left triangle and correlation values in text in the top right. 4: a 7 by 10 heatmap of categorical values using the Brewer Pastel2 palette. 5: mtcars correlation heatmap split into two along the diagonal. The top right triangle uses the Brewer RdBu palette and the bottom left triangle uses the Viridis mako scale. 6: 10 by 30 heatmap using the Viridis scale with mostly low values (dark blue) and some higher values (green-yellow) sprinkled in randomly. Two annotation rows are at the top, one numeric and one categorical. The heatmap has gaps at rows 10 and columns 10 and 20."  />
 
