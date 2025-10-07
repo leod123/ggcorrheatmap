@@ -444,3 +444,13 @@ test_that("deprecated_annot_name_params", {
                       annot_cols_names_params = list(colour = "green")),
                  class = "annot_names_depr_both")
 })
+
+test_that("deprecated_xy_name_args", {
+  expect_no_warning(gghm(mtcars))
+  expect_no_warning(gghm(mtcars, show_names_rows = FALSE, show_names_cols = FALSE))
+  expect_warning(gghm(mtcars, show_names_x = FALSE), class = "xy_names_deprecated_warn")
+  expect_warning(gghm(mtcars, show_names_rows = FALSE, show_names_y = TRUE),
+                 class = "xy_names_deprecated_warn")
+  expect_warning(gghm(mtcars, show_names_x = FALSE, show_names_cols = TRUE),
+                 class = "xy_names_deprecated_warn")
+})
