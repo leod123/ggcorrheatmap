@@ -1,6 +1,7 @@
 test_that("it runs without error", {
   expect_no_error(ggcorrhm(mtcars))
   expect_no_error(ggcorrhm(mtcars, bins = 5, mode = "21"))
+  expect_no_error(ggcorrhm(mtcars, mode = "none"))
   # Two input matrices
   expect_no_error(ggcorrhm(mtcars, iris[1:32, -5], return_data = TRUE, cell_labels = TRUE))
   # P-values
@@ -11,6 +12,9 @@ test_that("it runs without error", {
   expect_no_error(ggcorrhm(mtcars, layout = c("tl", "br"), mode = c("hm", "18")))
   expect_no_error(ggcorrhm(mtcars, annot_rows_df = data.frame(.names = colnames(mtcars), a = 1:11, b = 11:1),
                            layout = c("tl", "br"), mode = c("hm", "hm")))
+  expect_no_error(ggcorrhm(mtcars, annot_rows_df = data.frame(.names = colnames(mtcars), a = 11:1),
+                           layout = c("tr", "bl"), cluster_rows = TRUE, cluster_cols = TRUE,
+                           split_diag = TRUE, split_rows = 2, split_cols = 2))
   # Number of rows in returned data
   expect_equal(nrow(ggcorrhm(mtcars, return_data = TRUE)$plot_data), ncol(mtcars) * ncol(mtcars))
   expect_equal(nrow(ggcorrhm(mtcars, return_data = TRUE, layout = c("tl", "br"))$plot_data),
